@@ -166,9 +166,15 @@ def load_model(file_path):
     return model
 
 
-# TODO: use calibration data, not labels
 def score_recording(
-    model, eeg, emg, labels, sampling_rate, epoch_length, epochs_per_img=EPOCHS_PER_IMG
+    model,
+    eeg,
+    emg,
+    mixture_means,
+    mixture_sds,
+    sampling_rate,
+    epoch_length,
+    epochs_per_img=EPOCHS_PER_IMG,
 ):
     # prepare model
     device = get_device()
@@ -180,7 +186,7 @@ def score_recording(
 
     # create and scale eeg+emg spectrogram
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
-    img = mixture_z_score_img(img, labels)
+    img = mixture_z_score_img(img, mixture_means=mixture_means, mixture_sds=mixture_sds)
     img = format_img(img, epochs_per_img)
 
     # create dataset for inference

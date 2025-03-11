@@ -1,4 +1,5 @@
 import os
+import warnings
 
 # import matplotlib.pyplot as plt
 import numpy as np
@@ -103,28 +104,31 @@ def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_copies=EMG_C
     return output
 
 
-def mixture_z_score_img(img, labels):
-    means = list()
-    variances = list()
+def mixture_z_score_img(img, labels=None, mixture_means=None, mixture_sds=None):
+    if labels is None and (mixture_means is None or mixture_sds is None):
+        raise Exception("must provide either labels or mixture means+SDs")
+    if labels is not None and ((mixture_means is not None) ^ (mixture_sds is not None)):
+        warnings.warn("labels were given, mixture means / SDs will be ignored")
 
-    for i in range(N_CLASSES):
-        means.append(np.mean(img[:, labels == i + 1], axis=1))  # TODO label jank
-        variances.append(np.var(img[:, labels == i + 1], axis=1))
+    if labels is not None:
+        means = list()
+        variances = list()
+        for i in range(N_CLASSES):
+            means.append(np.mean(img[:, labels == i + 1], axis=1))  # TODO label jank
+            variances.append(np.var(img[:, labels == i + 1], axis=1))
+        means = np.array(means)
+        variances = np.array(variances)
 
-    means = np.array(means)
-    variances = np.array(variances)
-
-    mixture_means = means.T @ MIXTURE_WEIGHTS
-    mixture_sds = np.sqrt(
-        variances.T @ MIXTURE_WEIGHTS
-        + ((mixture_means - np.tile(mixture_means, (N_CLASSES, 1))) ** 2).T
-        @ MIXTURE_WEIGHTS
-    )
+        mixture_means = means.T @ MIXTURE_WEIGHTS
+        mixture_sds = np.sqrt(
+            variances.T @ MIXTURE_WEIGHTS
+            + ((mixture_means - np.tile(mixture_means, (N_CLASSES, 1))) ** 2).T
+            @ MIXTURE_WEIGHTS
+        )
 
     img = ((img.T - mixture_means) / mixture_sds).T
     img = (img + ABS_MAX_Z_SCORE) / (2 * ABS_MAX_Z_SCORE)
     img = np.clip(img, 0, 1)
-
     return img
 
 
@@ -157,7 +161,7 @@ def create_images_from_rec(
 ):
     eeg, emg, labels = load_files(file_path)
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
-    img = mixture_z_score_img(img, labels)
+    img = mixture_z_score_img(img, labels=labels)
     img = format_img(img, epochs_per_img)
 
     fnames = []
