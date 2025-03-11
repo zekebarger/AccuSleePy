@@ -8,9 +8,15 @@ from PIL import Image
 import scipy.io
 from scipy.signal import ShortTimeFFT, windows, butter, filtfilt
 
+from accusleepy.utils.constants import (
+    FILENAME_COL,
+    LABEL_COL,
+    EMG_COPIES,
+    MIXTURE_WEIGHTS,
+    N_CLASSES,
+)
 
-FILENAME_COL = "filename"
-LABEL_COL = "label"
+ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
 
 def load_files(file_path):
@@ -73,7 +79,6 @@ def process_emg(emg, sampling_rate, epoch_length):
 
 
 def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length):
-    EMG_COPIES = 9
     DOWNSAMPLING_START_FREQ = 20
     UPPER_FREQ = 50
 
@@ -98,9 +103,26 @@ def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length):
 
 
 def mixture_z_score_img(img, labels):
-    # TODO
-    img = img + np.percentile(img.flatten(), 2)
-    img = img / np.percentile(img.flatten(), 98)
+    means = list()
+    variances = list()
+
+    for i in range(N_CLASSES):
+        means.append(np.mean(img[:, labels == i + 1], axis=1))  # TODO label jank
+        variances.append(np.var(img[:, labels == i + 1], axis=1))
+
+    means = np.array(means)
+    variances = np.array(variances)
+
+    mixture_means = means.T @ MIXTURE_WEIGHTS
+    mixture_sds = np.sqrt(
+        variances.T @ MIXTURE_WEIGHTS
+        + ((mixture_means - np.tile(mixture_means, (N_CLASSES, 1))) ** 2).T
+        @ MIXTURE_WEIGHTS
+    )
+
+    img = ((img.T - mixture_means) / mixture_sds).T
+    img = (img + ABS_MAX_Z_SCORE) / (2 * ABS_MAX_Z_SCORE)
+    img = np.clip(img, 0, 1)
 
     return img
 

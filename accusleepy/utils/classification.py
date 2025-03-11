@@ -17,12 +17,16 @@ from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from signal_processing import FILENAME_COL, LABEL_COL
+from accusleepy.utils.constants import (
+    EMG_COPIES,
+    N_CLASSES,
+    FILENAME_COL,
+    LABEL_COL,
+)
 
 
-N_CLASSES = 3
 BATCH_SIZE = 64
-IMAGE_HEIGHT = 184
+IMAGE_HEIGHT = 175 + EMG_COPIES  # TODO determine based on img size?
 
 LEARNING_RATE = 1e-3
 MOMENTUM = 0.9
