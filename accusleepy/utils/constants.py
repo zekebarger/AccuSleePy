@@ -1,6 +1,14 @@
 import numpy as np
 
-N_CLASSES = 3
+from accusleepy.utils.misc import BrainState, BrainStateMapper
+
+BRAIN_STATES = [
+    BrainState("REM", 1, True),
+    BrainState("Wake", 2, True),
+    BrainState("NREM", 3, True),
+]
+
+BRAIN_STATE_MAPPER = BrainStateMapper(BRAIN_STATES)
 
 # annotation file columns
 FILENAME_COL = "filename"

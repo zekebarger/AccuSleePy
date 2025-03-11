@@ -1,18 +1,13 @@
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PIL import Image
-import scipy.io
-from scipy.signal import ShortTimeFFT, windows, butter, filtfilt
+
 import torch
 
 from torch.utils.data import Dataset, DataLoader
 
-# from torchvision import datasets, transforms
 from torchvision.io import read_image
-from torchvision.transforms import ToTensor
 from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -20,12 +15,12 @@ import torch.optim as optim
 from accusleepy.utils.constants import (
     EMG_COPIES,
     EPOCHS_PER_IMG,
-    N_CLASSES,
     FILENAME_COL,
     LABEL_COL,
     MIXTURE_WEIGHTS,
     MIXTURE_MEAN_COL,
     MIXTURE_SD_COL,
+    BRAIN_STATE_MAPPER,
 )
 from accusleepy.utils.signal_processing import (
     create_eeg_emg_image,
@@ -84,7 +79,7 @@ class SSANN(nn.Module):
         self.conv1_bn = nn.BatchNorm2d(8)
         self.conv2_bn = nn.BatchNorm2d(16)
         self.conv3_bn = nn.BatchNorm2d(32)
-        self.fc1 = nn.Linear(int(32 * IMAGE_HEIGHT / 8), N_CLASSES)
+        self.fc1 = nn.Linear(int(32 * IMAGE_HEIGHT / 8), BRAIN_STATE_MAPPER.n_classes)
 
     def forward(self, x):
         x = x.float()
@@ -205,13 +200,24 @@ def score_recording(
         outputs = model(images)
         _, predicted = torch.max(outputs, 1)
 
-    return predicted.cpu().numpy() + 1  # TODO label jank
+    labels = BRAIN_STATE_MAPPER.convert_class_to_digit(predicted.cpu().numpy())
+    return labels
 
 
 def create_calibration_file(filename, eeg, emg, labels, sampling_rate, epoch_length):
+    # labels = DIGITS
+
     eeg, emg = truncate_signals(eeg, emg, sampling_rate, epoch_length)
-    # TODO label jank
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
-    mixture_means, mixture_sds = get_mixture_values(img, labels)
+    mixture_means, mixture_sds = get_mixture_values(
+        img, BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
+    )
     df = pd.DataFrame({MIXTURE_MEAN_COL: mixture_means, MIXTURE_SD_COL: mixture_sds})
     df.to_csv(filename, index=False)
+
+
+def load_calibration_file(filename):
+    df = pd.read_csv(filename)
+    mixture_means = df[MIXTURE_MEAN_COL].values
+    mixture_sds = df[MIXTURE_SD_COL].values
+    return mixture_means, mixture_sds

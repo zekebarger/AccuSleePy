@@ -1,7 +1,6 @@
 import os
 import warnings
 
-# import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -15,7 +14,7 @@ from accusleepy.utils.constants import (
     EMG_COPIES,
     EPOCHS_PER_IMG,
     MIXTURE_WEIGHTS,
-    N_CLASSES,
+    BRAIN_STATE_MAPPER,
 )
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
@@ -105,12 +104,14 @@ def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_copies=EMG_C
 
 
 def get_mixture_values(img, labels):
+    # labels = CLASSES
+
     means = list()
     variances = list()
 
-    for i in range(N_CLASSES):
-        means.append(np.mean(img[:, labels == i + 1], axis=1))  # TODO label jank
-        variances.append(np.var(img[:, labels == i + 1], axis=1))
+    for i in range(BRAIN_STATE_MAPPER.n_classes):
+        means.append(np.mean(img[:, labels == i], axis=1))
+        variances.append(np.var(img[:, labels == i], axis=1))
 
     means = np.array(means)
     variances = np.array(variances)
@@ -118,7 +119,10 @@ def get_mixture_values(img, labels):
     mixture_means = means.T @ MIXTURE_WEIGHTS
     mixture_sds = np.sqrt(
         variances.T @ MIXTURE_WEIGHTS
-        + ((mixture_means - np.tile(mixture_means, (N_CLASSES, 1))) ** 2).T
+        + (
+            (mixture_means - np.tile(mixture_means, (BRAIN_STATE_MAPPER.n_classes, 1)))
+            ** 2
+        ).T
         @ MIXTURE_WEIGHTS
     )
 
@@ -126,6 +130,8 @@ def get_mixture_values(img, labels):
 
 
 def mixture_z_score_img(img, labels=None, mixture_means=None, mixture_sds=None):
+    # labels = DIGITS
+
     if labels is None and (mixture_means is None or mixture_sds is None):
         raise Exception("must provide either labels or mixture means+SDs")
     if labels is not None and ((mixture_means is not None) ^ (mixture_sds is not None)):
@@ -134,7 +140,9 @@ def mixture_z_score_img(img, labels=None, mixture_means=None, mixture_sds=None):
     ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
     if labels is not None:
-        mixture_means, mixture_sds = get_mixture_values(img, labels)
+        mixture_means, mixture_sds = get_mixture_values(
+            img, BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
+        )
 
     img = ((img.T - mixture_means) / mixture_sds).T
     img = (img + ABS_MAX_Z_SCORE) / (2 * ABS_MAX_Z_SCORE)
