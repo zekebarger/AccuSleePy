@@ -22,6 +22,7 @@ from accusleepy.utils.constants import (
     N_CLASSES,
     FILENAME_COL,
     LABEL_COL,
+    MIXTURE_WEIGHTS,
 )
 
 
@@ -98,7 +99,8 @@ def train_model(annotations_file, img_dir):
     )
     model = SSANN().to(device)
 
-    criterion = nn.CrossEntropyLoss()
+    weight = torch.tensor((MIXTURE_WEIGHTS**-1).astype("float32")).to(device)
+    criterion = nn.CrossEntropyLoss(weight=weight)
     optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
     model.train()
