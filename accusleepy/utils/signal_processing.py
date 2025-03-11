@@ -130,7 +130,7 @@ def get_mixture_values(img, labels):
 
 
 def mixture_z_score_img(img, labels=None, mixture_means=None, mixture_sds=None):
-    # labels = DIGITS
+    # labels = CLASSES
 
     if labels is None and (mixture_means is None or mixture_sds is None):
         raise Exception("must provide either labels or mixture means+SDs")
@@ -140,9 +140,7 @@ def mixture_z_score_img(img, labels=None, mixture_means=None, mixture_sds=None):
     ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
     if labels is not None:
-        mixture_means, mixture_sds = get_mixture_values(
-            img, BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
-        )
+        mixture_means, mixture_sds = get_mixture_values(img, labels)
 
     img = ((img.T - mixture_means) / mixture_sds).T
     img = (img + ABS_MAX_Z_SCORE) / (2 * ABS_MAX_Z_SCORE)
@@ -179,8 +177,9 @@ def create_images_from_rec(
     epochs_per_img=EPOCHS_PER_IMG,
 ):
     eeg, emg, labels = load_files(file_path)
+    labels = BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
-    img = mixture_z_score_img(img, labels=labels)
+    img = mixture_z_score_img(img, labels)
     img = format_img(img, epochs_per_img)
 
     fnames = []
