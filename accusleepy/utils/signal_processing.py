@@ -3,19 +3,13 @@ import warnings
 
 import numpy as np
 import pandas as pd
-from PIL import Image
-
 import scipy.io
-from scipy.signal import ShortTimeFFT, windows, butter, filtfilt
+from PIL import Image
+from scipy.signal import ShortTimeFFT, butter, filtfilt, windows
 
-from accusleepy.utils.constants import (
-    FILENAME_COL,
-    LABEL_COL,
-    EMG_COPIES,
-    EPOCHS_PER_IMG,
-    MIXTURE_WEIGHTS,
-    BRAIN_STATE_MAPPER,
-)
+from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EMG_COPIES,
+                                        EPOCHS_PER_IMG, FILENAME_COL,
+                                        LABEL_COL, MIXTURE_WEIGHTS)
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 

@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton
-
 import sys
+
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton
 
 app = QApplication(sys.argv)
 

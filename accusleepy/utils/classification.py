@@ -2,34 +2,21 @@ import os
 
 import numpy as np
 import pandas as pd
-
 import torch
-
-from torch.utils.data import Dataset, DataLoader
-
-from torchvision.io import read_image
-from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch import nn
+from torch.utils.data import DataLoader, Dataset
+from torchvision.io import read_image
 
-from accusleepy.utils.constants import (
-    EMG_COPIES,
-    EPOCHS_PER_IMG,
-    FILENAME_COL,
-    LABEL_COL,
-    MIXTURE_WEIGHTS,
-    MIXTURE_MEAN_COL,
-    MIXTURE_SD_COL,
-    BRAIN_STATE_MAPPER,
-)
-from accusleepy.utils.signal_processing import (
-    create_eeg_emg_image,
-    get_mixture_values,
-    mixture_z_score_img,
-    truncate_signals,
-    format_img,
-)
-
+from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EMG_COPIES,
+                                        EPOCHS_PER_IMG, FILENAME_COL,
+                                        LABEL_COL, MIXTURE_MEAN_COL,
+                                        MIXTURE_SD_COL, MIXTURE_WEIGHTS)
+from accusleepy.utils.signal_processing import (create_eeg_emg_image,
+                                                format_img, get_mixture_values,
+                                                mixture_z_score_img,
+                                                truncate_signals)
 
 BATCH_SIZE = 64
 IMAGE_HEIGHT = 175 + EMG_COPIES  # TODO determine based on img size?
