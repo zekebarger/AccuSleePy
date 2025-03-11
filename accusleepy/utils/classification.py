@@ -24,9 +24,12 @@ from accusleepy.utils.constants import (
     FILENAME_COL,
     LABEL_COL,
     MIXTURE_WEIGHTS,
+    MIXTURE_MEAN_COL,
+    MIXTURE_SD_COL,
 )
 from accusleepy.utils.signal_processing import (
     create_eeg_emg_image,
+    get_mixture_values,
     mixture_z_score_img,
     truncate_signals,
     format_img,
@@ -203,3 +206,12 @@ def score_recording(
         _, predicted = torch.max(outputs, 1)
 
     return predicted.cpu().numpy() + 1  # TODO label jank
+
+
+def create_calibration_file(filename, eeg, emg, labels, sampling_rate, epoch_length):
+    eeg, emg = truncate_signals(eeg, emg, sampling_rate, epoch_length)
+    # TODO label jank
+    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+    mixture_means, mixture_sds = get_mixture_values(img, labels)
+    df = pd.DataFrame({MIXTURE_MEAN_COL: mixture_means, MIXTURE_SD_COL: mixture_sds})
+    df.to_csv(filename, index=False)
