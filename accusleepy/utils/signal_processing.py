@@ -12,6 +12,7 @@ from accusleepy.utils.constants import (
     FILENAME_COL,
     LABEL_COL,
     EMG_COPIES,
+    EPOCHS_PER_IMG,
     MIXTURE_WEIGHTS,
     N_CLASSES,
 )
@@ -78,7 +79,7 @@ def process_emg(emg, sampling_rate, epoch_length):
     return np.log(rms)
 
 
-def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length):
+def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_copies=EMG_COPIES):
     DOWNSAMPLING_START_FREQ = 20
     UPPER_FREQ = 50
 
@@ -97,7 +98,7 @@ def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length):
 
     emg_log_rms = process_emg(emg, sampling_rate, epoch_length)
     output = np.concatenate(
-        [modified_spectrogram, np.matlib.repmat(emg_log_rms, EMG_COPIES, 1)]
+        [modified_spectrogram, np.matlib.repmat(emg_log_rms, emg_copies, 1)]
     )
     return output
 
@@ -127,16 +128,9 @@ def mixture_z_score_img(img, labels):
     return img
 
 
-def create_images_from_rec(
-    file_path, output_path, output_prefix, sampling_rate, epoch_length, img_width=9
-):
-    eeg, emg, labels = load_files(file_path)
-    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
-
-    img = mixture_z_score_img(img, labels)
-
+def format_img(img, epochs_per_img):
     # pad left and right sides
-    pad_width = int((img_width - 1) / 2)
+    pad_width = int((epochs_per_img - 1) / 2)
     img = np.concatenate(
         [
             np.tile(img[:, 0], (pad_width, 1)).T,
@@ -146,13 +140,30 @@ def create_images_from_rec(
         axis=1,
     )
 
+    # use 8-bit values
     img = np.clip(img * 255, 0, 255)
     img = img.astype(np.uint8)
 
+    return img
+
+
+def create_images_from_rec(
+    file_path,
+    output_path,
+    output_prefix,
+    sampling_rate,
+    epoch_length,
+    epochs_per_img=EPOCHS_PER_IMG,
+):
+    eeg, emg, labels = load_files(file_path)
+    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+    img = mixture_z_score_img(img, labels)
+    img = format_img(img, epochs_per_img)
+
     fnames = []
 
-    for i in range(img.shape[1] - img_width + 1):
-        im = img[:, i : (i + img_width)]
+    for i in range(img.shape[1] - epochs_per_img + 1):
+        im = img[:, i : (i + epochs_per_img)]
         fname = f"{output_prefix}_{i}_{labels[i]}.png"
         fnames.append(fname)
         Image.fromarray(im).save(os.path.join(output_path, fname))

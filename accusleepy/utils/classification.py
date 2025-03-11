@@ -19,10 +19,17 @@ import torch.optim as optim
 
 from accusleepy.utils.constants import (
     EMG_COPIES,
+    EPOCHS_PER_IMG,
     N_CLASSES,
     FILENAME_COL,
     LABEL_COL,
     MIXTURE_WEIGHTS,
+)
+from accusleepy.utils.signal_processing import (
+    create_eeg_emg_image,
+    mixture_z_score_img,
+    truncate_signals,
+    format_img,
 )
 
 
@@ -85,6 +92,14 @@ class SSANN(nn.Module):
         return self.fc1(x)
 
 
+def get_device():
+    return (
+        torch.accelerator.current_accelerator().type
+        if torch.accelerator.is_available()
+        else "cpu"
+    )
+
+
 def train_model(annotations_file, img_dir):
     training_data = AccuSleepImageDataset(
         annotations_file=annotations_file,
@@ -92,11 +107,7 @@ def train_model(annotations_file, img_dir):
     )
     train_dataloader = DataLoader(training_data, batch_size=BATCH_SIZE, shuffle=True)
 
-    device = (
-        torch.accelerator.current_accelerator().type
-        if torch.accelerator.is_available()
-        else "cpu"
-    )
+    device = get_device()
     model = SSANN().to(device)
 
     weight = torch.tensor((MIXTURE_WEIGHTS**-1).astype("float32")).to(device)
@@ -127,11 +138,7 @@ def test_model(model, annotations_file, img_dir):
     )
     test_dataloader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False)
 
-    device = (
-        torch.accelerator.current_accelerator().type
-        if torch.accelerator.is_available()
-        else "cpu"
-    )
+    device = get_device()
     model = model.to(device)
 
     correct = 0
@@ -157,3 +164,36 @@ def load_model(file_path):
     model = SSANN()
     model.load_state_dict(torch.load(file_path, weights_only=True))
     return model
+
+
+# TODO: use calibration data, not labels
+def score_recording(
+    model, eeg, emg, labels, sampling_rate, epoch_length, epochs_per_img=EPOCHS_PER_IMG
+):
+    # prepare model
+    device = get_device()
+    model = model.to(device)
+    model.eval()
+
+    # preprocess eeg, emg
+    eeg, emg = truncate_signals(eeg, emg, sampling_rate, epoch_length)
+
+    # create and scale eeg+emg spectrogram
+    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+    img = mixture_z_score_img(img, labels)
+    img = format_img(img, epochs_per_img)
+
+    # create dataset for inference
+    images = []
+    for i in range(img.shape[1] - epochs_per_img + 1):
+        images.append(img[:, i : (i + epochs_per_img)].astype("float32"))
+    images = torch.from_numpy(np.array(images))
+    images = images[:, None, :, :]  # add channel
+    images = images.to(device)
+
+    # perform classification
+    with torch.no_grad():
+        outputs = model(images)
+        _, predicted = torch.max(outputs, 1)
+
+    return predicted.cpu().numpy() + 1  # TODO label jank
