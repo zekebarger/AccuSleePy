@@ -104,31 +104,42 @@ def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_copies=EMG_C
     return output
 
 
+def get_mixture_values(img, labels):
+    means = list()
+    variances = list()
+
+    for i in range(N_CLASSES):
+        means.append(np.mean(img[:, labels == i + 1], axis=1))  # TODO label jank
+        variances.append(np.var(img[:, labels == i + 1], axis=1))
+
+    means = np.array(means)
+    variances = np.array(variances)
+
+    mixture_means = means.T @ MIXTURE_WEIGHTS
+    mixture_sds = np.sqrt(
+        variances.T @ MIXTURE_WEIGHTS
+        + ((mixture_means - np.tile(mixture_means, (N_CLASSES, 1))) ** 2).T
+        @ MIXTURE_WEIGHTS
+    )
+
+    return mixture_means, mixture_sds
+
+
 def mixture_z_score_img(img, labels=None, mixture_means=None, mixture_sds=None):
     if labels is None and (mixture_means is None or mixture_sds is None):
         raise Exception("must provide either labels or mixture means+SDs")
     if labels is not None and ((mixture_means is not None) ^ (mixture_sds is not None)):
         warnings.warn("labels were given, mixture means / SDs will be ignored")
 
-    if labels is not None:
-        means = list()
-        variances = list()
-        for i in range(N_CLASSES):
-            means.append(np.mean(img[:, labels == i + 1], axis=1))  # TODO label jank
-            variances.append(np.var(img[:, labels == i + 1], axis=1))
-        means = np.array(means)
-        variances = np.array(variances)
+    ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
-        mixture_means = means.T @ MIXTURE_WEIGHTS
-        mixture_sds = np.sqrt(
-            variances.T @ MIXTURE_WEIGHTS
-            + ((mixture_means - np.tile(mixture_means, (N_CLASSES, 1))) ** 2).T
-            @ MIXTURE_WEIGHTS
-        )
+    if labels is not None:
+        mixture_means, mixture_sds = get_mixture_values(img, labels)
 
     img = ((img.T - mixture_means) / mixture_sds).T
     img = (img + ABS_MAX_Z_SCORE) / (2 * ABS_MAX_Z_SCORE)
     img = np.clip(img, 0, 1)
+
     return img
 
 
