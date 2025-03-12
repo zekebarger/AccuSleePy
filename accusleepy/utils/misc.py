@@ -5,7 +5,7 @@ import numpy as np
 # It's convenient to have the brain state labels start at 1 rather than 0.
 # However, they need to be converted to the 0-n range for training and inference.
 # So, we have to have a distinction between "brain states" (as represented in
-# label files, keystrokes) and "labels" (AccuSleep's internal representation).
+# label files, keystrokes) and "classes" (AccuSleep's internal representation).
 # This is confusing and I apologize.
 
 

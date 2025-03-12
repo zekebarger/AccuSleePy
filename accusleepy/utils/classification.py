@@ -20,10 +20,9 @@ from accusleepy.utils.signal_processing import (
 )
 
 BATCH_SIZE = 64
-
 LEARNING_RATE = 1e-3
 MOMENTUM = 0.9
-EPOCHS = 6
+TRAINING_EPOCHS = 6
 
 
 class AccuSleepImageDataset(Dataset):
@@ -66,20 +65,17 @@ def train_model(annotations_file, img_dir):
 
     device = get_device()
     model = SSANN().to(device)
+    model.train()
 
     weight = torch.tensor((c.MIXTURE_WEIGHTS**-1).astype("float32")).to(device)
     criterion = nn.CrossEntropyLoss(weight=weight)
     optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
-    model.train()
-
-    for epoch in range(EPOCHS):
+    for epoch in range(TRAINING_EPOCHS):
         for data in train_dataloader:
             inputs, labels = data
             (inputs, labels) = (inputs.to(device), labels.to(device))
-
             optimizer.zero_grad()
-
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
