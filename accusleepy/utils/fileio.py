@@ -15,6 +15,16 @@ def load_mat_files(file_path):
     return eeg, emg, labels
 
 
+def convert_mat_files(path):
+    eeg, emg, labels = load_mat_files(path)
+    pd.DataFrame({c.EEG_COL: eeg, c.EMG_COL: emg}).to_parquet(
+        os.path.join(path, "recording.parquet")
+    )
+    pd.DataFrame({c.BRAIN_STATE_COL: labels}).to_csv(
+        os.path.join(path, "labels.csv"), index=False
+    )
+
+
 def load_calibration_file(filename):
     df = pd.read_csv(filename)
     mixture_means = df[c.MIXTURE_MEAN_COL].values
@@ -32,6 +42,7 @@ def load_model(file_path):
     return model
 
 
+# note: requires fastparquet
 def load_csv_or_parquet(file_path):
     extension = os.path.splitext(file_path)[1]
     if extension == ".csv":
