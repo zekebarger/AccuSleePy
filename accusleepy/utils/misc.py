@@ -38,3 +38,10 @@ class BrainStateMapper:
 
     def convert_class_to_digit(self, classes):
         return np.array([self.class_to_digit[i] for i in classes])
+
+
+@dataclass
+class Recording:
+    recording_file: str
+    label_file: str
+    sampling_rate: int | float

@@ -9,11 +9,16 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
 
 import accusleepy.utils.constants as c
+from accusleepy.utils.fileio import load_labels, load_recording
+from accusleepy.utils.misc import Recording
 from accusleepy.utils.models import SSANN
-from accusleepy.utils.signal_processing import (create_eeg_emg_image,
-                                                format_img, get_mixture_values,
-                                                mixture_z_score_img,
-                                                truncate_signals)
+from accusleepy.utils.signal_processing import (
+    create_eeg_emg_image,
+    format_img,
+    get_mixture_values,
+    mixture_z_score_img,
+    truncate_signals,
+)
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
@@ -82,30 +87,37 @@ def train_model(annotations_file, img_dir):
 
 def test_model(
     model,
-    eeg,
-    emg,
-    labels,
-    sampling_rate,
-    epoch_length,
+    recordings: list[Recording],
+    epoch_length: int | float,
     epochs_per_img=c.EPOCHS_PER_IMG,
 ):
-    eeg, emg = truncate_signals(eeg, emg, sampling_rate, epoch_length)
-    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
-    mixture_means, mixture_sds = get_mixture_values(
-        img, c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
-    )
-    pred = score_recording(
-        model,
-        eeg,
-        emg,
-        mixture_means,
-        mixture_sds,
-        sampling_rate,
-        epoch_length,
-        epochs_per_img=epochs_per_img,
-    )
+    all_labels = np.empty(0).astype(int)
+    all_predictions = np.empty(0).astype(int)
 
-    print(f"test accuracy: {sum(pred == labels) / len(labels):.2%}")
+    for recording in recordings:
+        eeg, emg = load_recording(recording.recording_file)
+        labels = load_labels(recording.label_file)
+
+        eeg, emg = truncate_signals(eeg, emg, recording.sampling_rate, epoch_length)
+        img = create_eeg_emg_image(eeg, emg, recording.sampling_rate, epoch_length)
+        mixture_means, mixture_sds = get_mixture_values(
+            img, c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
+        )
+        pred = score_recording(
+            model,
+            eeg,
+            emg,
+            mixture_means,
+            mixture_sds,
+            recording.sampling_rate,
+            epoch_length,
+            epochs_per_img=epochs_per_img,
+        )
+
+        all_labels = np.concatenate([all_labels, labels])
+        all_predictions = np.concatenate([all_predictions, pred])
+
+    print(f"test accuracy: {sum(all_predictions == all_labels) / len(all_labels):.2%}")
 
 
 def score_recording(

@@ -8,14 +8,11 @@ from scipy.signal import butter, filtfilt
 
 import accusleepy.utils.constants as c
 from accusleepy.utils.fileio import load_labels, load_recording
+from accusleepy.utils.misc import Recording
 from accusleepy.utils.multitaper import spectrogram
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
-
 SPECTROGRAM_UPPER_FREQ = 64
-DOWNSAMPLING_START_FREQ = 20
-UPPER_FREQ = 50
-MIN_WINDOW_LEN = 5
 
 
 def truncate_signals(eeg, emg, sampling_rate, epoch_length):
@@ -27,7 +24,7 @@ def truncate_signals(eeg, emg, sampling_rate, epoch_length):
 
 
 def create_spectrogram(eeg, sampling_rate, epoch_length):
-    window_length_sec = max(MIN_WINDOW_LEN, epoch_length)
+    window_length_sec = max(c.MIN_WINDOW_LEN, epoch_length)
     pad_length = int((sampling_rate * (window_length_sec - epoch_length) / 2))
     padded_eeg = np.concatenate(
         [eeg[:pad_length][::-1], eeg, eeg[(len(eeg) - pad_length) :][::-1]]
@@ -49,7 +46,7 @@ def create_spectrogram(eeg, sampling_rate, epoch_length):
     )
 
     # resample frequencies for consistency
-    target_frequencies = np.arange(0, SPECTROGRAM_UPPER_FREQ, 1 / MIN_WINDOW_LEN)
+    target_frequencies = np.arange(0, SPECTROGRAM_UPPER_FREQ, 1 / c.MIN_WINDOW_LEN)
     freq_idx = list()
     for i in target_frequencies:
         freq_idx.append(np.argmin(np.abs(f - i)))
@@ -87,8 +84,8 @@ def create_eeg_emg_image(
     eeg, emg, sampling_rate, epoch_length, emg_copies=c.EMG_COPIES
 ):
     spec, f = create_spectrogram(eeg, sampling_rate, epoch_length)
-    f_lower_idx = sum(f < DOWNSAMPLING_START_FREQ)
-    f_upper_idx = sum(f < UPPER_FREQ)
+    f_lower_idx = sum(f < c.DOWNSAMPLING_START_FREQ)
+    f_upper_idx = sum(f < c.UPPER_FREQ)
 
     modified_spectrogram = np.log(
         spec[
@@ -175,31 +172,27 @@ def format_img(img, epochs_per_img):
 
 
 def create_training_images(
-    recording_files: list,
-    label_files: list,
-    output_prefixes: list,
-    output_path,
-    sampling_rates: list,
-    epoch_length,
-    epochs_per_img=c.EPOCHS_PER_IMG,
+    recordings: list[Recording],
+    output_path: str,
+    epoch_length: int | float,
+    epochs_per_img: int = c.EPOCHS_PER_IMG,
 ):
-    filenames = list()
-    all_labels = np.empty(0)
+    n_files = len(recordings)
 
-    # TODO: check all lists are the same length
-    n_files = len(recording_files)
+    filenames = list()
+    all_labels = np.empty(0).astype(int)
     for i in range(n_files):
-        eeg, emg = load_recording(recording_files[i])
-        labels = load_labels(label_files[i])
+        eeg, emg = load_recording(recordings[i].recording_file)
+        labels = load_labels(recordings[i].label_file)
 
         labels = c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
-        img = create_eeg_emg_image(eeg, emg, sampling_rates[i], epoch_length)
+        img = create_eeg_emg_image(eeg, emg, recordings[i].sampling_rate, epoch_length)
         img = mixture_z_score_img(img, labels)
         img = format_img(img, epochs_per_img)
 
         for j in range(img.shape[1] - epochs_per_img + 1):
             im = img[:, j : (j + epochs_per_img)]
-            filename = f"{output_prefixes[i]}_{j}_{labels[j]}.png"
+            filename = f"file_{i}_{j}_{labels[j]}.png"
             filenames.append(filename)
             Image.fromarray(im).save(os.path.join(output_path, filename))
 

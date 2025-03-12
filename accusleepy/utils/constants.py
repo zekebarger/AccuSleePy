@@ -29,5 +29,12 @@ BRAIN_STATE_COL = "brain_state"
 
 # really don't change these
 EMG_COPIES = 9
-IMAGE_HEIGHT = 279 + EMG_COPIES  # TODO determine based on img size?
+MIN_WINDOW_LEN = 5
+DOWNSAMPLING_START_FREQ = 20
+UPPER_FREQ = 50
+IMAGE_HEIGHT = (
+    len(np.arange(0, DOWNSAMPLING_START_FREQ, 1 / MIN_WINDOW_LEN))
+    + len(np.arange(DOWNSAMPLING_START_FREQ, UPPER_FREQ, 2 / MIN_WINDOW_LEN))
+    + EMG_COPIES
+)
 MIXTURE_WEIGHTS = np.array([0.1, 0.35, 0.55])  # rem, wake, nrem
