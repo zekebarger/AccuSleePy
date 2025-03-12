@@ -11,6 +11,11 @@ from accusleepy.utils.multitaper import spectrogram
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
+SPECTROGRAM_UPPER_FREQ = 64
+DOWNSAMPLING_START_FREQ = 20
+UPPER_FREQ = 50
+MIN_WINDOW_LEN = 5
+
 
 def truncate_signals(eeg, emg, sampling_rate, epoch_length):
     samples_per_epoch = int(sampling_rate * epoch_length)
@@ -21,16 +26,16 @@ def truncate_signals(eeg, emg, sampling_rate, epoch_length):
 
 
 def create_spectrogram(eeg, sampling_rate, epoch_length):
-    MIN_WINDOW_LEN = 5
-
     window_length_sec = max(MIN_WINDOW_LEN, epoch_length)
     pad_length = int((sampling_rate * (window_length_sec - epoch_length) / 2))
-    padded_eeg = np.concatenate([eeg[:pad_length][::-1], eeg, eeg[-pad_length:][::-1]])
+    padded_eeg = np.concatenate(
+        [eeg[:pad_length][::-1], eeg, eeg[(len(eeg) - pad_length) :][::-1]]
+    )
 
     spec, _, f = spectrogram(
         padded_eeg,
         sampling_rate,
-        frequency_range=[0, 64],
+        frequency_range=[0, SPECTROGRAM_UPPER_FREQ],
         time_bandwidth=5,
         num_tapers=3,
         window_params=[window_length_sec, epoch_length],
@@ -42,17 +47,25 @@ def create_spectrogram(eeg, sampling_rate, epoch_length):
         verbose=False,
     )
 
+    # resample frequencies for consistency
+    target_frequencies = np.arange(0, SPECTROGRAM_UPPER_FREQ, 1 / MIN_WINDOW_LEN)
+    freq_idx = list()
+    for i in target_frequencies:
+        freq_idx.append(np.argmin(np.abs(f - i)))
+    f = f[freq_idx]
+    spec = spec[freq_idx, :]
+
     return spec, f
 
 
 def process_emg(emg, sampling_rate, epoch_length):
-    ORDER = 8
-    BP_LOWER = 20
-    BP_UPPER = 50
+    order = 8
+    bp_lower = 20
+    bp_upper = 50
 
     b, a = butter(
-        N=ORDER,
-        Wn=[BP_LOWER, BP_UPPER],
+        N=order,
+        Wn=[bp_lower, bp_upper],
         btype="bandpass",
         output="ba",
         fs=sampling_rate,
@@ -72,15 +85,12 @@ def process_emg(emg, sampling_rate, epoch_length):
 def create_eeg_emg_image(
     eeg, emg, sampling_rate, epoch_length, emg_copies=c.EMG_COPIES
 ):
-    DOWNSAMPLING_START_FREQ = 20
-    UPPER_FREQ = 50
-
-    spectrogram, f = create_spectrogram(eeg, sampling_rate, epoch_length)
+    spec, f = create_spectrogram(eeg, sampling_rate, epoch_length)
     f_lower_idx = sum(f < DOWNSAMPLING_START_FREQ)
     f_upper_idx = sum(f < UPPER_FREQ)
 
     modified_spectrogram = np.log(
-        spectrogram[
+        spec[
             np.concatenate(
                 [np.arange(0, f_lower_idx), np.arange(f_lower_idx, f_upper_idx, 2)]
             ),
