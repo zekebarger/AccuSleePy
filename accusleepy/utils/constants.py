@@ -16,6 +16,9 @@ LABEL_COL = "label"
 # calibration file columns
 MIXTURE_MEAN_COL = "mixture_mean"
 MIXTURE_SD_COL = "mixture_sd"
+# recording file columns
+EEG_COL = "eeg"
+EMG_COL = "emg"
 
 EMG_COPIES = 9
 EPOCHS_PER_IMG = 9

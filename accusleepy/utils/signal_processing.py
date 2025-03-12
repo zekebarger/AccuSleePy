@@ -6,14 +6,8 @@ import pandas as pd
 from PIL import Image
 from scipy.signal import ShortTimeFFT, butter, filtfilt, windows
 
-from accusleepy.utils.constants import (
-    BRAIN_STATE_MAPPER,
-    EMG_COPIES,
-    EPOCHS_PER_IMG,
-    FILENAME_COL,
-    LABEL_COL,
-    MIXTURE_WEIGHTS,
-)
+import accusleepy.utils.constants as c
+
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
@@ -70,7 +64,9 @@ def process_emg(emg, sampling_rate, epoch_length):
     return np.log(rms)
 
 
-def create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_copies=EMG_COPIES):
+def create_eeg_emg_image(
+    eeg, emg, sampling_rate, epoch_length, emg_copies=c.EMG_COPIES
+):
     DOWNSAMPLING_START_FREQ = 20
     UPPER_FREQ = 50
 
@@ -100,21 +96,24 @@ def get_mixture_values(img, labels):
     means = list()
     variances = list()
 
-    for i in range(BRAIN_STATE_MAPPER.n_classes):
+    for i in range(c.BRAIN_STATE_MAPPER.n_classes):
         means.append(np.mean(img[:, labels == i], axis=1))
         variances.append(np.var(img[:, labels == i], axis=1))
 
     means = np.array(means)
     variances = np.array(variances)
 
-    mixture_means = means.T @ MIXTURE_WEIGHTS
+    mixture_means = means.T @ c.MIXTURE_WEIGHTS
     mixture_sds = np.sqrt(
-        variances.T @ MIXTURE_WEIGHTS
+        variances.T @ c.MIXTURE_WEIGHTS
         + (
-            (mixture_means - np.tile(mixture_means, (BRAIN_STATE_MAPPER.n_classes, 1)))
+            (
+                mixture_means
+                - np.tile(mixture_means, (c.BRAIN_STATE_MAPPER.n_classes, 1))
+            )
             ** 2
         ).T
-        @ MIXTURE_WEIGHTS
+        @ c.MIXTURE_WEIGHTS
     )
 
     return mixture_means, mixture_sds
@@ -167,9 +166,9 @@ def create_training_images(
     output_prefix,
     sampling_rate,
     epoch_length,
-    epochs_per_img=EPOCHS_PER_IMG,
+    epochs_per_img=c.EPOCHS_PER_IMG,
 ):
-    labels = BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
+    labels = c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
     img = mixture_z_score_img(img, labels)
     img = format_img(img, epochs_per_img)
@@ -182,7 +181,7 @@ def create_training_images(
         filenames.append(filename)
         Image.fromarray(im).save(os.path.join(output_path, filename))
 
-    pd.DataFrame({FILENAME_COL: filenames, LABEL_COL: labels}).to_csv(
+    pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: labels}).to_csv(
         os.path.join(output_path, "labels.csv"),
         index=False,
     )

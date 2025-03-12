@@ -4,7 +4,7 @@ import pandas as pd
 import scipy.io
 import torch
 
-from accusleepy.utils.constants import MIXTURE_MEAN_COL, MIXTURE_SD_COL
+import accusleepy.utils.constants as c
 from accusleepy.utils.models import SSANN
 
 
@@ -17,8 +17,8 @@ def load_mat_files(file_path):
 
 def load_calibration_file(filename):
     df = pd.read_csv(filename)
-    mixture_means = df[MIXTURE_MEAN_COL].values
-    mixture_sds = df[MIXTURE_SD_COL].values
+    mixture_means = df[c.MIXTURE_MEAN_COL].values
+    mixture_sds = df[c.MIXTURE_SD_COL].values
     return mixture_means, mixture_sds
 
 
@@ -30,3 +30,10 @@ def load_model(file_path):
     model = SSANN()
     model.load_state_dict(torch.load(file_path, weights_only=True))
     return model
+
+
+def load_recording(file_path):
+    df = pd.read_parquet(file_path)
+    eeg = df[c.EEG_COL]
+    emg = df[c.EMG_COL]
+    return eeg, emg

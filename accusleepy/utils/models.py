@@ -2,9 +2,9 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from accusleepy.utils.constants import BRAIN_STATE_MAPPER, EMG_COPIES
+import accusleepy.utils.constants as c
 
-IMAGE_HEIGHT = 175 + EMG_COPIES  # TODO determine based on img size?
+IMAGE_HEIGHT = 175 + c.EMG_COPIES  # TODO determine based on img size?
 
 
 class SSANN(nn.Module):
@@ -23,7 +23,7 @@ class SSANN(nn.Module):
         self.conv1_bn = nn.BatchNorm2d(8)
         self.conv2_bn = nn.BatchNorm2d(16)
         self.conv3_bn = nn.BatchNorm2d(32)
-        self.fc1 = nn.Linear(int(32 * IMAGE_HEIGHT / 8), BRAIN_STATE_MAPPER.n_classes)
+        self.fc1 = nn.Linear(int(32 * IMAGE_HEIGHT / 8), c.BRAIN_STATE_MAPPER.n_classes)
 
     def forward(self, x):
         x = x.float()
