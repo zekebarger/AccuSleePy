@@ -85,7 +85,7 @@ def create_eeg_emg_image(
 
     emg_log_rms = process_emg(emg, sampling_rate, epoch_length)
     output = np.concatenate(
-        [modified_spectrogram, np.matlib.repmat(emg_log_rms, emg_copies, 1)]
+        [modified_spectrogram, np.tile(emg_log_rms, (emg_copies, 1))]
     )
     return output
 
