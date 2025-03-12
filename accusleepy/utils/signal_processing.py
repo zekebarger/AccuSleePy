@@ -15,7 +15,9 @@ ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 SPECTROGRAM_UPPER_FREQ = 64
 
 
-def truncate_signals(eeg, emg, sampling_rate, epoch_length):
+def truncate_signals(
+    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
+) -> (np.array, np.array):
     samples_per_epoch = int(sampling_rate * epoch_length)
 
     new_eeg = eeg[: len(eeg) - (len(eeg) % samples_per_epoch)]
@@ -23,7 +25,9 @@ def truncate_signals(eeg, emg, sampling_rate, epoch_length):
     return new_eeg, new_emg
 
 
-def create_spectrogram(eeg, sampling_rate, epoch_length):
+def create_spectrogram(
+    eeg: np.array, sampling_rate: int | float, epoch_length: int | float
+) -> (np.array, np.array):
     window_length_sec = max(c.MIN_WINDOW_LEN, epoch_length)
     pad_length = int((sampling_rate * (window_length_sec - epoch_length) / 2))
     padded_eeg = np.concatenate(
@@ -56,7 +60,9 @@ def create_spectrogram(eeg, sampling_rate, epoch_length):
     return spec, f
 
 
-def process_emg(emg, sampling_rate, epoch_length):
+def process_emg(
+    emg: np.array, sampling_rate: int | float, epoch_length: int | float
+) -> np.array:
     order = 8
     bp_lower = 20
     bp_upper = 50
@@ -81,8 +87,12 @@ def process_emg(emg, sampling_rate, epoch_length):
 
 
 def create_eeg_emg_image(
-    eeg, emg, sampling_rate, epoch_length, emg_copies=c.EMG_COPIES
-):
+    eeg: np.array,
+    emg: np.array,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+    emg_copies: int = c.EMG_COPIES,
+) -> np.array:
     spec, f = create_spectrogram(eeg, sampling_rate, epoch_length)
     f_lower_idx = sum(f < c.DOWNSAMPLING_START_FREQ)
     f_upper_idx = sum(f < c.UPPER_FREQ)
@@ -103,7 +113,7 @@ def create_eeg_emg_image(
     return output
 
 
-def get_mixture_values(img, labels):
+def get_mixture_values(img: np.array, labels: np.array) -> (np.array, np.array):
     # labels = CLASSES
 
     means = list()
@@ -132,7 +142,12 @@ def get_mixture_values(img, labels):
     return mixture_means, mixture_sds
 
 
-def mixture_z_score_img(img, labels=None, mixture_means=None, mixture_sds=None):
+def mixture_z_score_img(
+    img: np.array,
+    labels: np.array = None,
+    mixture_means: np.array = None,
+    mixture_sds: np.array = None,
+) -> np.array:
     # labels = CLASSES
 
     if labels is None and (mixture_means is None or mixture_sds is None):
@@ -152,7 +167,7 @@ def mixture_z_score_img(img, labels=None, mixture_means=None, mixture_sds=None):
     return img
 
 
-def format_img(img, epochs_per_img):
+def format_img(img: np.array, epochs_per_img: int) -> np.array:
     # pad left and right sides
     pad_width = int((epochs_per_img - 1) / 2)
     img = np.concatenate(
@@ -176,7 +191,7 @@ def create_training_images(
     output_path: str,
     epoch_length: int | float,
     epochs_per_img: int = c.EPOCHS_PER_IMG,
-):
+) -> None:
     n_files = len(recordings)
 
     filenames = list()

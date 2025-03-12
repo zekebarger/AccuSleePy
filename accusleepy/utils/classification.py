@@ -12,13 +12,10 @@ import accusleepy.utils.constants as c
 from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.misc import Recording
 from accusleepy.utils.models import SSANN
-from accusleepy.utils.signal_processing import (
-    create_eeg_emg_image,
-    format_img,
-    get_mixture_values,
-    mixture_z_score_img,
-    truncate_signals,
-)
+from accusleepy.utils.signal_processing import (create_eeg_emg_image,
+                                                format_img, get_mixture_values,
+                                                mixture_z_score_img,
+                                                truncate_signals)
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
@@ -57,7 +54,7 @@ def get_device():
     )
 
 
-def train_model(annotations_file, img_dir):
+def train_model(annotations_file: str, img_dir: str) -> SSANN:
     training_data = AccuSleepImageDataset(
         annotations_file=annotations_file,
         img_dir=img_dir,
@@ -86,11 +83,11 @@ def train_model(annotations_file, img_dir):
 
 
 def test_model(
-    model,
+    model: SSANN,
     recordings: list[Recording],
     epoch_length: int | float,
-    epochs_per_img=c.EPOCHS_PER_IMG,
-):
+    epochs_per_img: int = c.EPOCHS_PER_IMG,
+) -> None:
     all_labels = np.empty(0).astype(int)
     all_predictions = np.empty(0).astype(int)
 
@@ -121,15 +118,15 @@ def test_model(
 
 
 def score_recording(
-    model,
-    eeg,
-    emg,
-    mixture_means,
-    mixture_sds,
-    sampling_rate,
-    epoch_length,
-    epochs_per_img=c.EPOCHS_PER_IMG,
-):
+    model: SSANN,
+    eeg: np.array,
+    emg: np.array,
+    mixture_means: np.array,
+    mixture_sds: np.array,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+    epochs_per_img: int = c.EPOCHS_PER_IMG,
+) -> np.array:
     # prepare model
     device = get_device()
     model = model.to(device)
@@ -160,7 +157,14 @@ def score_recording(
     return labels
 
 
-def create_calibration_file(filename, eeg, emg, labels, sampling_rate, epoch_length):
+def create_calibration_file(
+    filename: str,
+    eeg: np.array,
+    emg: np.array,
+    labels: np.array,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+) -> None:
     # labels = DIGITS
 
     eeg, emg = truncate_signals(eeg, emg, sampling_rate, epoch_length)
