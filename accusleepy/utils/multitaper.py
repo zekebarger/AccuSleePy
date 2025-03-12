@@ -21,7 +21,7 @@ from scipy.signal.windows import dpss
 
 
 # MULTITAPER SPECTROGRAM #
-def multitaper_spectrogram(
+def spectrogram(
     data,
     fs,
     frequency_range=None,
@@ -42,7 +42,7 @@ def multitaper_spectrogram(
 ):
     """Compute multitaper spectrogram of timeseries data
       Usage:
-      mt_spectrogram, stimes, sfreqs = multitaper_spectrogram(data, fs, frequency_range=None, time_bandwidth=5,
+      mt_spectrogram, stimes, sfreqs = spectrogram(data, fs, frequency_range=None, time_bandwidth=5,
                                                               num_tapers=None, window_params=None, min_nfft=0,
                                                               detrend_opt='linear', multiprocess=False, cpus=False,
                                                               weighting='unity', plot_on=True, return_fig=False,
@@ -103,7 +103,7 @@ def multitaper_spectrogram(
               f_end = 20  # Set chirp freq range max (Hz)
               data = chirp(t, f_start, t[-1], f_end, 'logarithmic')
               # Compute the multitaper spectrogram
-              spect, stimes, sfreqs = multitaper_spectrogram(data, fs, frequency_range, time_bandwidth, num_tapers,
+              spect, stimes, sfreqs = spectrogram(data, fs, frequency_range, time_bandwidth, num_tapers,
                                                              window_params, min_nfft, detrend_opt, multiprocess,
                                                              cpus, weighting, plot_on, return_fig, clim_scale,
                                                              verbose, xyflip):
@@ -300,7 +300,7 @@ def process_input(
     plot_on=True,
     verbose=True,
 ):
-    """Helper function to process multitaper_spectrogram() arguments
+    """Helper function to process spectrogram() arguments
     Arguments:
             data (1d np.array): time series data-- required
             fs (float): sampling frequency in Hz  -- required
