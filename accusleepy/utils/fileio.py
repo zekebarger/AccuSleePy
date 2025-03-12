@@ -8,7 +8,7 @@ from accusleepy.utils.constants import MIXTURE_MEAN_COL, MIXTURE_SD_COL
 from accusleepy.utils.models import SSANN
 
 
-def load_files(file_path):
+def load_mat_files(file_path):
     eeg = scipy.io.loadmat(os.path.join(file_path, "EEG.mat"))["EEG"].T[0]
     emg = scipy.io.loadmat(os.path.join(file_path, "EMG.mat"))["EMG"].T[0]
     labels = scipy.io.loadmat(os.path.join(file_path, "labels.mat"))["labels"].T[0]
