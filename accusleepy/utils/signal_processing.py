@@ -6,10 +6,14 @@ import pandas as pd
 from PIL import Image
 from scipy.signal import ShortTimeFFT, butter, filtfilt, windows
 
-from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EMG_COPIES,
-                                        EPOCHS_PER_IMG, FILENAME_COL,
-                                        LABEL_COL, MIXTURE_WEIGHTS)
-from accusleepy.utils.fileio import load_files
+from accusleepy.utils.constants import (
+    BRAIN_STATE_MAPPER,
+    EMG_COPIES,
+    EPOCHS_PER_IMG,
+    FILENAME_COL,
+    LABEL_COL,
+    MIXTURE_WEIGHTS,
+)
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
@@ -155,29 +159,30 @@ def format_img(img, epochs_per_img):
     return img
 
 
-def create_images_from_rec(
-    file_path,
+def create_training_images(
+    eeg,
+    emg,
+    labels,
     output_path,
     output_prefix,
     sampling_rate,
     epoch_length,
     epochs_per_img=EPOCHS_PER_IMG,
 ):
-    eeg, emg, labels = load_files(file_path)
     labels = BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
     img = mixture_z_score_img(img, labels)
     img = format_img(img, epochs_per_img)
 
-    fnames = []
+    filenames = []
 
     for i in range(img.shape[1] - epochs_per_img + 1):
         im = img[:, i : (i + epochs_per_img)]
-        fname = f"{output_prefix}_{i}_{labels[i]}.png"
-        fnames.append(fname)
-        Image.fromarray(im).save(os.path.join(output_path, fname))
+        filename = f"{output_prefix}_{i}_{labels[i]}.png"
+        filenames.append(filename)
+        Image.fromarray(im).save(os.path.join(output_path, filename))
 
-    label_df = pd.DataFrame({FILENAME_COL: fnames, LABEL_COL: labels}).to_csv(
+    pd.DataFrame({FILENAME_COL: filenames, LABEL_COL: labels}).to_csv(
         os.path.join(output_path, "labels.csv"),
         index=False,
     )

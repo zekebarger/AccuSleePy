@@ -8,15 +8,23 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
 
-from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EMG_COPIES,
-                                        EPOCHS_PER_IMG, FILENAME_COL,
-                                        LABEL_COL, MIXTURE_MEAN_COL,
-                                        MIXTURE_SD_COL, MIXTURE_WEIGHTS)
+from accusleepy.utils.constants import (
+    BRAIN_STATE_MAPPER,
+    EPOCHS_PER_IMG,
+    FILENAME_COL,
+    LABEL_COL,
+    MIXTURE_MEAN_COL,
+    MIXTURE_SD_COL,
+    MIXTURE_WEIGHTS,
+)
 from accusleepy.utils.models import SSANN
-from accusleepy.utils.signal_processing import (create_eeg_emg_image,
-                                                format_img, get_mixture_values,
-                                                mixture_z_score_img,
-                                                truncate_signals)
+from accusleepy.utils.signal_processing import (
+    create_eeg_emg_image,
+    format_img,
+    get_mixture_values,
+    mixture_z_score_img,
+    truncate_signals,
+)
 
 BATCH_SIZE = 64
 
