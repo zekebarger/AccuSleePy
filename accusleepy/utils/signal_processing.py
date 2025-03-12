@@ -184,7 +184,7 @@ def create_training_images(
     epochs_per_img=c.EPOCHS_PER_IMG,
 ):
     filenames = list()
-    all_labels = list()
+    all_labels = np.empty(0)
 
     # TODO: check all lists are the same length
     n_files = len(recording_files)
@@ -203,11 +203,11 @@ def create_training_images(
             filenames.append(filename)
             Image.fromarray(im).save(os.path.join(output_path, filename))
 
-        all_labels = all_labels + labels
+        all_labels = np.concatenate([all_labels, labels])
 
-    pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: labels}).to_csv(
+    pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: all_labels}).to_csv(
         os.path.join(output_path, "labels.csv"),
         index=False,
     )
 
-    print("finished generating images")
+    print(f"finished generating {len(all_labels)} images")
