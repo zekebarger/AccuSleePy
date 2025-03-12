@@ -8,7 +8,6 @@ from scipy.signal import ShortTimeFFT, butter, filtfilt, windows
 
 import accusleepy.utils.constants as c
 
-
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
 
