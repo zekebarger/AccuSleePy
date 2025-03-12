@@ -3,22 +3,15 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import scipy.io
 from PIL import Image
 from scipy.signal import ShortTimeFFT, butter, filtfilt, windows
 
 from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EMG_COPIES,
                                         EPOCHS_PER_IMG, FILENAME_COL,
                                         LABEL_COL, MIXTURE_WEIGHTS)
+from accusleepy.utils.fileio import load_files
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
-
-
-def load_files(file_path):
-    eeg = scipy.io.loadmat(os.path.join(file_path, "EEG.mat"))["EEG"].T[0]
-    emg = scipy.io.loadmat(os.path.join(file_path, "EMG.mat"))["EMG"].T[0]
-    labels = scipy.io.loadmat(os.path.join(file_path, "labels.mat"))["labels"].T[0]
-    return eeg, emg, labels
 
 
 def truncate_signals(eeg, emg, sampling_rate, epoch_length):

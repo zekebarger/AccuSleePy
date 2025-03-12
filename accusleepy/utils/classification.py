@@ -3,7 +3,6 @@ import os
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn.functional as F
 import torch.optim as optim
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
@@ -13,13 +12,13 @@ from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EMG_COPIES,
                                         EPOCHS_PER_IMG, FILENAME_COL,
                                         LABEL_COL, MIXTURE_MEAN_COL,
                                         MIXTURE_SD_COL, MIXTURE_WEIGHTS)
+from accusleepy.utils.models import SSANN
 from accusleepy.utils.signal_processing import (create_eeg_emg_image,
                                                 format_img, get_mixture_values,
                                                 mixture_z_score_img,
                                                 truncate_signals)
 
 BATCH_SIZE = 64
-IMAGE_HEIGHT = 175 + EMG_COPIES  # TODO determine based on img size?
 
 LEARNING_RATE = 1e-3
 MOMENTUM = 0.9
@@ -47,33 +46,6 @@ class AccuSleepImageDataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
         return image, label
-
-
-class SSANN(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv1 = nn.Conv2d(
-            in_channels=1, out_channels=8, kernel_size=3, padding="same"
-        )
-        self.conv2 = nn.Conv2d(
-            in_channels=8, out_channels=16, kernel_size=3, padding="same"
-        )
-        self.conv3 = nn.Conv2d(
-            in_channels=16, out_channels=32, kernel_size=3, padding="same"
-        )
-        self.conv1_bn = nn.BatchNorm2d(8)
-        self.conv2_bn = nn.BatchNorm2d(16)
-        self.conv3_bn = nn.BatchNorm2d(32)
-        self.fc1 = nn.Linear(int(32 * IMAGE_HEIGHT / 8), BRAIN_STATE_MAPPER.n_classes)
-
-    def forward(self, x):
-        x = x.float()
-        x = self.pool(F.relu(self.conv1_bn(self.conv1(x))))
-        x = self.pool(F.relu(self.conv2_bn(self.conv2(x))))
-        x = self.pool(F.relu(self.conv3_bn(self.conv3(x))))
-        x = torch.flatten(x, 1)  # flatten all dimensions except batch # needed?
-        return self.fc1(x)
 
 
 def get_device():
@@ -140,16 +112,6 @@ def test_model(model, annotations_file, img_dir):
     print(f"test accuracy: {correct / total:.2%}")
 
 
-def save_model(model, output_dir, filename):
-    torch.save(model.state_dict(), os.path.join(output_dir, filename) + ".pth")
-
-
-def load_model(file_path):
-    model = SSANN()
-    model.load_state_dict(torch.load(file_path, weights_only=True))
-    return model
-
-
 def score_recording(
     model,
     eeg,
@@ -200,10 +162,3 @@ def create_calibration_file(filename, eeg, emg, labels, sampling_rate, epoch_len
     )
     df = pd.DataFrame({MIXTURE_MEAN_COL: mixture_means, MIXTURE_SD_COL: mixture_sds})
     df.to_csv(filename, index=False)
-
-
-def load_calibration_file(filename):
-    df = pd.read_csv(filename)
-    mixture_means = df[MIXTURE_MEAN_COL].values
-    mixture_sds = df[MIXTURE_SD_COL].values
-    return mixture_means, mixture_sds
