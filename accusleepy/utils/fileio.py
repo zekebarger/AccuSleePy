@@ -45,11 +45,11 @@ def load_csv_or_parquet(file_path):
 
 def load_recording(file_path):
     df = load_csv_or_parquet(file_path)
-    eeg = df[c.EEG_COL]
-    emg = df[c.EMG_COL]
+    eeg = df[c.EEG_COL].values
+    emg = df[c.EMG_COL].values
     return eeg, emg
 
 
 def load_labels(file_path):
     df = load_csv_or_parquet(file_path)
-    return df[c.LABEL_COL]
+    return df[c.BRAIN_STATE_COL].values

@@ -12,13 +12,14 @@ BRAIN_STATE_MAPPER = BrainStateMapper(BRAIN_STATES)
 
 # annotation file columns
 FILENAME_COL = "filename"
-LABEL_COL = "label"  # this applies to recordings, too...
+LABEL_COL = "label"
 # calibration file columns
 MIXTURE_MEAN_COL = "mixture_mean"
 MIXTURE_SD_COL = "mixture_sd"
 # recording file columns
 EEG_COL = "eeg"
 EMG_COL = "emg"
+BRAIN_STATE_COL = "brain_state"
 
 EMG_COPIES = 9
 EPOCHS_PER_IMG = 9

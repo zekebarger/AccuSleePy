@@ -88,29 +88,32 @@ def train_model(annotations_file, img_dir):
     return model
 
 
-def test_model(model, annotations_file, img_dir):
-    test_data = AccuSleepImageDataset(
-        annotations_file=annotations_file,
-        img_dir=img_dir,
+def test_model(
+    model,
+    eeg,
+    emg,
+    labels,
+    sampling_rate,
+    epoch_length,
+    epochs_per_img=c.EPOCHS_PER_IMG,
+):
+    eeg, emg = truncate_signals(eeg, emg, sampling_rate, epoch_length)
+    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+    mixture_means, mixture_sds = get_mixture_values(
+        img, c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
     )
-    test_dataloader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False)
+    pred = score_recording(
+        model,
+        eeg,
+        emg,
+        mixture_means,
+        mixture_sds,
+        sampling_rate,
+        epoch_length,
+        epochs_per_img=epochs_per_img,
+    )
 
-    device = get_device()
-    model = model.to(device)
-
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        model.eval()
-        for data in test_dataloader:
-            inputs, labels = data
-            (inputs, labels) = (inputs.to(device), labels.to(device))
-            outputs = model(inputs)
-            _, predicted = torch.max(outputs, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-    print(f"test accuracy: {correct / total:.2%}")
+    print(f"test accuracy: {sum(pred == labels) / len(labels):.2%}")
 
 
 def score_recording(
