@@ -4,9 +4,10 @@ import warnings
 import numpy as np
 import pandas as pd
 from PIL import Image
-from scipy.signal import ShortTimeFFT, butter, filtfilt, windows
+from scipy.signal import butter, filtfilt
 
 import accusleepy.utils.constants as c
+from accusleepy.utils.multitaper import spectrogram
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 
@@ -23,20 +24,25 @@ def create_spectrogram(eeg, sampling_rate, epoch_length):
     MIN_WINDOW_LEN = 5
 
     window_length_sec = max(MIN_WINDOW_LEN, epoch_length)
-    window_length = int(window_length_sec * sampling_rate)
+    pad_length = int((sampling_rate * (window_length_sec - epoch_length) / 2))
+    padded_eeg = np.concatenate([eeg[:pad_length][::-1], eeg, eeg[-pad_length:][::-1]])
 
-    # simplest possible window
-    win = windows.boxcar(window_length)
-    hop = int(epoch_length * sampling_rate)
+    spec, _, f = spectrogram(
+        padded_eeg,
+        sampling_rate,
+        frequency_range=[0, 64],
+        time_bandwidth=5,
+        num_tapers=3,
+        window_params=[window_length_sec, epoch_length],
+        min_nfft=0,
+        detrend_opt="off",
+        multiprocess=True,
+        plot_on=False,
+        return_fig=False,
+        verbose=False,
+    )
 
-    SFT = ShortTimeFFT(win=win, hop=hop, fs=sampling_rate, scale_to="psd")
-    s = SFT.stft(eeg)
-    f = SFT.f
-    # TODO ok i really need to understand the details better,
-    # but for now I'm just truncating the output
-    # need to mess around with padding a bit
-
-    return np.abs(s[:, :-1]), f
+    return spec, f
 
 
 def process_emg(emg, sampling_rate, epoch_length):
