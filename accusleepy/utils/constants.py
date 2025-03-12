@@ -12,7 +12,7 @@ BRAIN_STATE_MAPPER = BrainStateMapper(BRAIN_STATES)
 
 # annotation file columns
 FILENAME_COL = "filename"
-LABEL_COL = "label"
+LABEL_COL = "label"  # this applies to recordings, too...
 # calibration file columns
 MIXTURE_MEAN_COL = "mixture_mean"
 MIXTURE_SD_COL = "mixture_sd"

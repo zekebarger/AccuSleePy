@@ -32,8 +32,24 @@ def load_model(file_path):
     return model
 
 
+def load_csv_or_parquet(file_path):
+    extension = os.path.splitext(file_path)[1]
+    if extension == ".csv":
+        df = pd.read_csv(file_path)
+    elif extension == ".parquet":
+        df = pd.read_parquet(file_path)
+    else:
+        raise Exception("file must be csv or parquet")
+    return df
+
+
 def load_recording(file_path):
-    df = pd.read_parquet(file_path)
+    df = load_csv_or_parquet(file_path)
     eeg = df[c.EEG_COL]
     emg = df[c.EMG_COL]
     return eeg, emg
+
+
+def load_labels(file_path):
+    df = load_csv_or_parquet(file_path)
+    return df[c.LABEL_COL]
