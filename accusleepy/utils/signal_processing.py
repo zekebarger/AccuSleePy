@@ -7,6 +7,7 @@ from PIL import Image
 from scipy.signal import butter, filtfilt
 
 import accusleepy.utils.constants as c
+from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.multitaper import spectrogram
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
@@ -174,27 +175,35 @@ def format_img(img, epochs_per_img):
 
 
 def create_training_images(
-    eeg,
-    emg,
-    labels,
+    recording_files: list,
+    label_files: list,
+    output_prefixes: list,
     output_path,
-    output_prefix,
-    sampling_rate,
+    sampling_rates: list,
     epoch_length,
     epochs_per_img=c.EPOCHS_PER_IMG,
 ):
-    labels = c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
-    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
-    img = mixture_z_score_img(img, labels)
-    img = format_img(img, epochs_per_img)
+    filenames = list()
+    all_labels = list()
 
-    filenames = []
+    # TODO: check all lists are the same length
+    n_files = len(recording_files)
+    for i in range(n_files):
+        eeg, emg = load_recording(recording_files[i])
+        labels = load_labels(label_files[i])
 
-    for i in range(img.shape[1] - epochs_per_img + 1):
-        im = img[:, i : (i + epochs_per_img)]
-        filename = f"{output_prefix}_{i}_{labels[i]}.png"
-        filenames.append(filename)
-        Image.fromarray(im).save(os.path.join(output_path, filename))
+        labels = c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
+        img = create_eeg_emg_image(eeg, emg, sampling_rates[i], epoch_length)
+        img = mixture_z_score_img(img, labels)
+        img = format_img(img, epochs_per_img)
+
+        for j in range(img.shape[1] - epochs_per_img + 1):
+            im = img[:, j : (j + epochs_per_img)]
+            filename = f"{output_prefixes[i]}_{j}_{labels[j]}.png"
+            filenames.append(filename)
+            Image.fromarray(im).save(os.path.join(output_path, filename))
+
+        all_labels = all_labels + labels
 
     pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: labels}).to_csv(
         os.path.join(output_path, "labels.csv"),
