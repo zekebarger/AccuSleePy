@@ -1,9 +1,6 @@
 # import sys
 import random
 import matplotlib
-from sympy.strategies.core import switch
-
-# from IPython.external.qt_for_kernel import QtGui
 
 matplotlib.use("QtAgg")
 from PySide6 import QtCore, QtWidgets, QtGui
@@ -11,6 +8,8 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+from accusleepy.utils.fileio import load_labels, load_recording
+from accusleepy.utils.misc import Recording
 
 KEY_MAP = {
     QtCore.Qt.Key.Key_Backspace: "backspace",
@@ -34,6 +33,7 @@ class WindowContents(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
         # self.setCentralWidget(self.canvas)
 
@@ -94,7 +94,14 @@ class MplCanvas(FigureCanvas):
 
 class MainWindow(QtWidgets.QMainWindow):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        eeg,
+        emg,
+        labels,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
         self.setGeometry(100, 100, 1000, 800)
@@ -125,8 +132,22 @@ class MainWindow(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
 
+    # just for testing
+    sampling_rate = 512
+    epoch_length = 2.5
+    mouse_1_recordings = [
+        Recording(
+            recording_file=f"/Users/zeke/Documents/data/Mouse01/Day{i}/recording.parquet",
+            label_file=f"/Users/zeke/Documents/data/Mouse01/Day{i}/labels.csv",
+            sampling_rate=sampling_rate,
+        )
+        for i in range(1, 6)
+    ]
+    eeg, emg = load_recording(mouse_1_recordings[0].recording_file)
+    labels = load_labels(mouse_1_recordings[0].label_file)
+
     app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
+    window = MainWindow(eeg, emg, labels)
     window.setGeometry(500, 300, 800, 600)
     window.show()
     sys.exit(app.exec())
