@@ -1,6 +1,7 @@
-import sys
+# import sys
 import random
 import matplotlib
+from sympy.strategies.core import switch
 
 # from IPython.external.qt_for_kernel import QtGui
 
@@ -11,25 +12,28 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 
-KEY_REPEAT_DELAY = 0.75
-KEY_REPEAT_SPEED = 0.1
+KEY_MAP = {
+    QtCore.Qt.Key.Key_Backspace: "backspace",
+    QtCore.Qt.Key.Key_Tab: "tab",
+    # Add mappings for other keys you need to support
+    QtCore.Qt.Key.Key_Return: "enter",
+    QtCore.Qt.Key.Key_Enter: "enter",
+    QtCore.Qt.Key.Key_Escape: "esc",
+    QtCore.Qt.Key.Key_Space: "space",
+    QtCore.Qt.Key.Key_End: "end",
+    QtCore.Qt.Key.Key_Home: "home",
+    QtCore.Qt.Key.Key_Left: "left",
+    QtCore.Qt.Key.Key_Up: "up",
+    QtCore.Qt.Key.Key_Right: "right",
+    QtCore.Qt.Key.Key_Down: "down",
+    QtCore.Qt.Key.Key_Delete: "delete",
+}
 
 
-class MplCanvas(FigureCanvas):
-
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        super().__init__(fig)
-
-
-class MainWindow(QtWidgets.QMainWindow):
+class WindowContents(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.setGeometry(100, 100, 1000, 800)
-
         self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
         # self.setCentralWidget(self.canvas)
 
@@ -55,34 +59,15 @@ class MainWindow(QtWidgets.QMainWindow):
             1,
         )
         layout.addWidget(self.button, 1, 0, 2, 1)
+        self.setLayout(layout)
 
         self.key_label = QtWidgets.QLabel("Last Key Pressed: None", self.canvas)
 
-        widget = QtWidgets.QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
-
-        self.show()
-
-        # # Setup a timer to trigger the redraw by calling update_plot.
-        # self.timer = QtCore.QTimer()
-        # self.timer.setInterval(100)
-        # self.timer.timeout.connect(self.update_plot)
-        # self.timer.start()
-
-    def keyPressEvent(self, event):
-        if isinstance(event, QtGui.QKeyEvent):
-            key_text = event.text()
-            self.key_label.setText(f"Last Key Pressed: {key_text}")
-
-    def keyReleaseEvent(self, event):
-        if isinstance(event, QtGui.QKeyEvent):
-            key_text = event.text()
-            self.key_label.setText(f"Key Released: {key_text}")
-
-    def update_plot(self):
-        # Drop off the first y element, append a new one.
-        self.ydata = self.ydata[1:] + [random.randint(0, 10)]
+    def update_plot(self, direction="right"):
+        if direction == "left":
+            self.ydata = [random.randint(0, 10)] + self.ydata[:-1]
+        else:
+            self.ydata = self.ydata[1:] + [random.randint(0, 10)]
 
         # Note: we no longer need to clear the axis.
         if self._plot_ref is None:
@@ -99,6 +84,49 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.draw()
 
 
-app = QtWidgets.QApplication(sys.argv)
-w = MainWindow()
-app.exec()
+class MplCanvas(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super().__init__(fig)
+
+
+class MainWindow(QtWidgets.QMainWindow):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setGeometry(100, 100, 1000, 800)
+
+        widget = WindowContents()
+        # widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
+        self.show()
+
+    def keyPressEvent(self, event):
+        if isinstance(event, QtGui.QKeyEvent):
+            key = None
+            if event.key() in KEY_MAP:
+                key = KEY_MAP[event.key()]
+            else:
+                key = event.text()
+            self.centralWidget().key_label.setText(f"Last Key Pressed: {key}")
+            self.keypress_handler(key)
+
+    def keypress_handler(self, key):
+        if key == "left":
+            self.centralWidget().update_plot(direction=key)
+        elif key == "right":
+            self.centralWidget().update_plot(direction=key)
+
+
+if __name__ == "__main__":
+    import sys
+
+    app = QtWidgets.QApplication(sys.argv)
+    window = MainWindow()
+    window.setGeometry(500, 300, 800, 600)
+    window.show()
+    sys.exit(app.exec())
