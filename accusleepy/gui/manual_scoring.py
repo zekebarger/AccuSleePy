@@ -28,13 +28,23 @@ KEY_MAP = {
     QtCore.Qt.Key.Key_Delete: "delete",
 }
 
+# THESE SHOULD BE ENTERED
+sampling_rate = 512
+epoch_length = 2.5
+
+# SHOULD BE SET BY USER
+epochs_to_show = 5
+
 
 class WindowContents(QtWidgets.QWidget):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, eeg, emg, labels, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
+        # time index
+        self.t = 100
+
+        self.canvas = RawSignalPlot(self)
         # self.setCentralWidget(self.canvas)
 
         n_data = 50
@@ -64,6 +74,7 @@ class WindowContents(QtWidgets.QWidget):
         self.key_label = QtWidgets.QLabel("Last Key Pressed: None", self.canvas)
 
     def update_plot(self, direction="right"):
+        print("updating")
         if direction == "left":
             self.ydata = [random.randint(0, 10)] + self.ydata[:-1]
         else:
@@ -74,7 +85,7 @@ class WindowContents(QtWidgets.QWidget):
             # First time we have no plot reference, so do a normal plot.
             # .plot returns a list of line <reference>s, as we're
             # only getting one we can take the first element.
-            plot_refs = self.canvas.axes.plot(self.xdata, self.ydata, "r")
+            plot_refs = self.canvas.ax1.plot(self.xdata, self.ydata, "r")
             self._plot_ref = plot_refs[0]
         else:
             # We have a reference, we can use it to update the data for that line.
@@ -84,12 +95,17 @@ class WindowContents(QtWidgets.QWidget):
         self.canvas.draw()
 
 
-class MplCanvas(FigureCanvas):
+class RawSignalPlot(FigureCanvas):
 
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, parent=None, width=8, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        ax1 = fig.add_subplot(2, 1, 1)
+        ax2 = fig.add_subplot(2, 1, 2)
+        self.ax1 = ax1
+        self.ax2 = ax2
         super().__init__(fig)
+
+        # functions to scroll should live HERE
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -106,27 +122,38 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setGeometry(100, 100, 1000, 800)
 
-        widget = WindowContents()
+        window_contents = WindowContents(
+            eeg,
+            emg,
+            labels,
+        )
         # widget.setLayout(layout)
-        self.setCentralWidget(widget)
+        self.setCentralWidget(window_contents)
+
+        keypress_up = QtGui.QShortcut(QtGui.QKeySequence("Right"), self)
+        # this isn't working.
+        keypress_up.activated.connect(
+            self.centralWidget().update_plot(direction="right")
+        )
 
         self.show()
 
-    def keyPressEvent(self, event):
-        if isinstance(event, QtGui.QKeyEvent):
-            key = None
-            if event.key() in KEY_MAP:
-                key = KEY_MAP[event.key()]
-            else:
-                key = event.text()
-            self.centralWidget().key_label.setText(f"Last Key Pressed: {key}")
-            self.keypress_handler(key)
+    # # use QShortcut instead??
+    # def keyPressEvent(self, event):
+    #     if isinstance(event, QtGui.QKeyEvent):
+    #         key = None
+    #         if event.key() in KEY_MAP:
+    #             key = KEY_MAP[event.key()]
+    #         else:
+    #             key = event.text()
+    #         self.centralWidget().key_label.setText(f"Last Key Pressed: {key}")
+    #         self.keypress_handler(key)
 
-    def keypress_handler(self, key):
-        if key == "left":
-            self.centralWidget().update_plot(direction=key)
-        elif key == "right":
-            self.centralWidget().update_plot(direction=key)
+    # def keypress_handler(self, key):
+    #     if key == "left":
+    #         self.centralWidget().update_plot(direction=key)
+    #     elif key == "right":
+    #         self.centralWidget().update_plot(direction=key)
 
 
 if __name__ == "__main__":
@@ -148,6 +175,6 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow(eeg, emg, labels)
-    window.setGeometry(500, 300, 800, 600)
+    window.setGeometry(400, 200, 800, 600)
     window.show()
     sys.exit(app.exec())
