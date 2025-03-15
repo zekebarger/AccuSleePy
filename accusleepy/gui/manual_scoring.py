@@ -2,6 +2,8 @@ import sys
 import random
 from functools import partial
 
+import numpy as np
+
 from PySide6 import QtCore, QtWidgets, QtGui
 from Window1 import Ui_Window1
 
@@ -26,38 +28,71 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_Window1()
         self.ui.setupUi(self)
 
-        n_data = 50
-        self.xdata = list(range(n_data))
-        self.ydata = [random.randint(0, 10) for i in range(n_data)]
-        self._plot_ref = None
+        # THESE SHOULD BE USER INPUT SOMEHOW
+        self.epoch = 0
+        self.n_epochs = 25
+        self.left_epoch = 0
+        self.right_epoch = epochs_to_show - 1
+
+        self.eeg = np.random.random(int(sampling_rate * epoch_length * self.n_epochs))
+        self.emg = np.random.random(int(sampling_rate * epoch_length * self.n_epochs))
+        self.emg = self.emg**5
+        self.labels = np.random.randint(0, 3, self.n_epochs)
+
+        self._plot_refs = [None, None]
         self.update_plot()
 
         keypress_right = QtGui.QShortcut(QtGui.QKeySequence("Right"), self)
-        keypress_right.activated.connect(partial(self.update_plot, "right"))
+        keypress_right.activated.connect(partial(self.shift_epoch, 1))
+        keypress_right.activated.connect(self.update_plot)
 
         keypress_left = QtGui.QShortcut(QtGui.QKeySequence("Left"), self)
-        keypress_left.activated.connect(partial(self.update_plot, "left"))
+        keypress_left.activated.connect(partial(self.shift_epoch, -1))
+        keypress_left.activated.connect(self.update_plot)
 
         self.show()
 
-    def update_plot(self, direction="right"):
-        # print("updating")
-        if direction == "left":
-            self.ydata = [random.randint(0, 10)] + self.ydata[:-1]
-        else:
-            self.ydata = self.ydata[1:] + [random.randint(0, 10)]
+    def get_signal_to_plot(self):
+        left = int(self.left_epoch * sampling_rate * epoch_length)
+        right = int((self.right_epoch + 1) * sampling_rate * epoch_length)
+        return self.eeg[left:right], self.emg[left:right]
+
+    def shift_epoch(self, shift_amount):
+        # can't move outside min, max epochs
+        if not (0 <= (self.epoch + shift_amount) < self.n_epochs):
+            return
+
+        # shift to new epoch
+        self.epoch = self.epoch + shift_amount
+
+        old_window_center = int(epochs_to_show / 2) + self.left_epoch
+        # change the window bounds if needed
+        if self.epoch < old_window_center and self.left_epoch > 0:
+            # print("shifting window left")
+            self.left_epoch -= 1
+            self.right_epoch -= 1
+        elif self.epoch > old_window_center and self.right_epoch < self.n_epochs - 1:
+            # print("shifting window right")
+            self.left_epoch += 1
+            self.right_epoch += 1
+
+    def update_plot(self):
+        eeg, emg = self.get_signal_to_plot()
 
         # Note: we no longer need to clear the axis.
-        if self._plot_ref is None:
+        if self._plot_refs[0] is None:
             # First time we have no plot reference, so do a normal plot.
             # .plot returns a list of line <reference>s, as we're
             # only getting one we can take the first element.
-            plot_refs = self.ui.mplwidget1.canvas.axes.plot(self.xdata, self.ydata, "r")
-            self._plot_ref = plot_refs[0]
+            eeg_refs = self.ui.mplwidget1.canvas.axes.plot(eeg)
+            emg_refs = self.ui.mplwidget2.canvas.axes.plot(emg)
+            self._plot_refs = [eeg_refs[0], emg_refs[0]]
         else:
-            self._plot_ref.set_ydata(self.ydata)
+            self._plot_refs[0].set_ydata(eeg)
+            self._plot_refs[1].set_ydata(emg)
 
         self.ui.mplwidget1.canvas.draw()
+        self.ui.mplwidget2.canvas.draw()
 
 
 ## EXECUTE APP
