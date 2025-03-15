@@ -15,8 +15,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QMainWindow, QSizePolicy, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QMainWindow, QSizePolicy, QWidget)
 
 from mplwidget import MplWidget
 
@@ -27,31 +26,10 @@ class Ui_Window1(object):
         Window1.resize(1000, 600)
         self.centralwidget = QWidget(Window1)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.verticalLayoutWidget = QWidget(self.centralwidget)
-        self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(20, 20, 771, 351))
-        self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
-        self.verticalLayout.setSpacing(10)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.mplwidget1 = MplWidget(self.verticalLayoutWidget)
-        self.mplwidget1.setObjectName(u"mplwidget1")
-        self.mplwidget1.setAutoFillBackground(True)
-
-        self.verticalLayout.addWidget(self.mplwidget1)
-
-        self.mplwidget2 = MplWidget(self.verticalLayoutWidget)
-        self.mplwidget2.setObjectName(u"mplwidget2")
-        self.mplwidget2.setAutoFillBackground(True)
-
-        self.verticalLayout.addWidget(self.mplwidget2)
-
-        self.mplwidget3 = MplWidget(self.verticalLayoutWidget)
-        self.mplwidget3.setObjectName(u"mplwidget3")
-        self.mplwidget3.setAutoFillBackground(True)
-
-        self.verticalLayout.addWidget(self.mplwidget3)
-
+        self.lowerplots = MplWidget(self.centralwidget)
+        self.lowerplots.setObjectName(u"lowerplots")
+        self.lowerplots.setGeometry(QRect(8, 310, 821, 281))
+        self.lowerplots.setAutoFillBackground(True)
         Window1.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(Window1)

@@ -14,41 +14,18 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="verticalLayoutWidget">
+   <widget class="MplWidget" name="lowerplots" native="true">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>771</width>
-      <height>351</height>
+      <x>8</x>
+      <y>310</y>
+      <width>821</width>
+      <height>281</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="spacing">
-      <number>10</number>
-     </property>
-     <item>
-      <widget class="MplWidget" name="mplwidget1" native="true">
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="MplWidget" name="mplwidget2" native="true">
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="MplWidget" name="mplwidget3" native="true">
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
  </widget>
