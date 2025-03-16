@@ -9,6 +9,9 @@ import numpy as np
 
 # https://stackoverflow.com/questions/67637912/resizing-matplotlib-chart-with-qt5-python
 
+SPEC_UPPER_F = 30
+SPEC_YTICK_INTERVAL = 10
+
 
 class MplWidget(QWidget):
     def __init__(self, parent=None):
@@ -18,8 +21,11 @@ class MplWidget(QWidget):
         vertical_layout = QVBoxLayout()
         vertical_layout.addWidget(self.canvas)
         self.canvas.axes = None
-        # self.canvas.axes = self.canvas.figure.add_subplot(111)
         self.setLayout(vertical_layout)
+
+        # upper plot uses these
+        self.upper_marker = list()
+        self.label_img_ref = None
 
         # lower plot uses these
         self.eeg_line = None
@@ -27,6 +33,80 @@ class MplWidget(QWidget):
         self.top_marker = list()
         self.bottom_marker = list()
         self.rectangles = list()
+
+    def setup_upper_plots(
+        self,
+        n_epochs,
+        label_img,
+        spec,
+        f,
+        emg,
+        epochs_to_show,
+        label_display_options,
+        brain_state_mapper,
+    ):
+        height_ratios = [8, 2, 12, 13]
+        gs1 = GridSpec(4, 1, hspace=0, height_ratios=height_ratios)
+        gs2 = GridSpec(4, 1, hspace=0.4, height_ratios=height_ratios)
+        axes = list()
+        axes.append(self.canvas.figure.add_subplot(gs1[0]))
+        axes.append(self.canvas.figure.add_subplot(gs1[1]))
+        axes.append(self.canvas.figure.add_subplot(gs1[2]))
+        axes.append(self.canvas.figure.add_subplot(gs2[3]))
+
+        for i in range(4):
+            axes[i].set_xlim((0, n_epochs))
+
+        # brain states
+        axes[0].set_xticks([])
+        axes[0].set_yticks(
+            label_display_options - np.min(label_display_options),
+        )
+        axes[0].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
+        axes[0].set_ylim(
+            [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
+        )
+        self.label_img_ref = axes[0].imshow(
+            label_img, aspect="auto", origin="lower", interpolation="None"
+        )
+
+        # epoch marker
+        # axes[1].axis("off") # use this eventually
+        axes[1].set_xticks([])
+        axes[1].set_yticks([])
+        axes[1].set_ylim((0, 1))
+        # line
+        self.upper_marker.append(axes[1].plot([0, epochs_to_show], [0.5, 0.5], "r")[0])
+        # marker
+        self.upper_marker.append(axes[1].plot([0], [0.5], "rD")[0])
+
+        # spectrogram
+        f = f[f <= SPEC_UPPER_F]
+        spec = spec[0 : len(f), :]
+        axes[2].set_ylabel("EEG")
+        axes[2].set_yticks(
+            np.linspace(
+                0,
+                len(f),
+                1 + int(SPEC_UPPER_F / SPEC_YTICK_INTERVAL),
+            ),
+        )
+        axes[2].set_yticklabels(
+            np.arange(0, SPEC_UPPER_F + SPEC_YTICK_INTERVAL, SPEC_YTICK_INTERVAL)
+        )
+        axes[2].imshow(
+            spec,
+            vmin=np.percentile(spec, 2),
+            vmax=np.percentile(spec, 98),
+            aspect="auto",
+            origin="lower",
+        )
+
+        # emg
+        axes[3].set_xticks([])
+        axes[3].set_yticks([])
+        axes[3].set_ylabel("EMG")
+        axes[3].plot(emg, "k")
 
     def setup_lower_plots(
         self,
@@ -44,16 +124,39 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs1[0]))
         axes.append(self.canvas.figure.add_subplot(gs1[1]))
         axes.append(self.canvas.figure.add_subplot(gs2[2]))
+
+        marker_dx = sampling_rate * epoch_length
+        marker_dy = 0.25
+
         # set axis properties
         axes[0].set_xticks([])
         axes[0].set_yticks([])
-        axes[1].set_yticks([])
-        axes[0].set_ylabel("EEG")
-        axes[1].set_ylabel("EMG")
         axes[0].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
-        axes[1].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
         axes[0].set_ylim((-1, 1))
+        axes[0].set_ylabel("EEG")
+        self.eeg_line = axes[0].plot(
+            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)), "k"
+        )[0]
+        # plot markers for selected epoch
+        self.top_marker.append(axes[0].plot([0, 0], [1 - marker_dy, 1], "r")[0])
+        self.top_marker.append(axes[0].plot([0, marker_dx], [1, 1], "r")[0])
+        self.top_marker.append(
+            axes[0].plot([marker_dx, marker_dx], [1 - marker_dy, 1], "r")[0]
+        )
+
+        axes[1].set_yticks([])
+        axes[1].set_ylabel("EMG")
+        axes[1].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
         axes[1].set_ylim((-1, 1))
+        self.emg_line = axes[1].plot(
+            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)), "k"
+        )[0]
+        self.bottom_marker.append(axes[1].plot([0, 0], [-1 + marker_dy, -1], "r")[0])
+        self.bottom_marker.append(axes[1].plot([0, marker_dx], [-1, -1], "r")[0])
+        self.bottom_marker.append(
+            axes[1].plot([marker_dx, marker_dx], [-1 + marker_dy, -1], "r")[0]
+        )
+
         axes[2].set_xlim([0, epochs_to_show])
         axes[2].set_ylim(
             [np.min(label_display_options), np.max(label_display_options) + 1]
@@ -61,29 +164,6 @@ class MplWidget(QWidget):
         axes[2].set_xticks([])
         axes[2].set_yticks([b + 0.5 for b in label_display_options])
         axes[2].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
-
-        # plot markers for selected epoch
-        # self.top_marker = [None, None, None]
-        marker_dx = sampling_rate * epoch_length
-        marker_dy = 0.25
-        self.top_marker.append(axes[0].plot([0, 0], [1 - marker_dy, 1], "r")[0])
-        self.top_marker.append(axes[0].plot([0, marker_dx], [1, 1], "r")[0])
-        self.top_marker.append(
-            axes[0].plot([marker_dx, marker_dx], [1 - marker_dy, 1], "r")[0]
-        )
-        self.bottom_marker.append(axes[0].plot([0, 0], [-1 + marker_dy, -1], "r")[0])
-        self.bottom_marker.append(axes[0].plot([0, marker_dx], [-1, -1], "r")[0])
-        self.bottom_marker.append(
-            axes[0].plot([marker_dx, marker_dx], [-1 + marker_dy, -1], "r")[0]
-        )
-
-        # plot placeholders
-        self.eeg_line = axes[0].plot(
-            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)), "k"
-        )[0]
-        self.emg_line = axes[1].plot(
-            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)), "k"
-        )[0]
         for i in range(epochs_to_show):
             self.rectangles.append(
                 axes[2].add_patch(Rectangle((i, 0), 1, 1, color=[1, 1, 1, 1]))

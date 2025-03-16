@@ -26,7 +26,11 @@ def truncate_signals(
 
 
 def create_spectrogram(
-    eeg: np.array, sampling_rate: int | float, epoch_length: int | float
+    eeg: np.array,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+    time_bandwidth=2,
+    n_tapers=3,
 ) -> (np.array, np.array):
     window_length_sec = max(c.MIN_WINDOW_LEN, epoch_length)
     pad_length = int((sampling_rate * (window_length_sec - epoch_length) / 2))
@@ -38,8 +42,8 @@ def create_spectrogram(
         padded_eeg,
         sampling_rate,
         frequency_range=[0, SPECTROGRAM_UPPER_FREQ],
-        time_bandwidth=5,
-        num_tapers=3,
+        time_bandwidth=time_bandwidth,
+        num_tapers=n_tapers,
         window_params=[window_length_sec, epoch_length],
         min_nfft=0,
         detrend_opt="off",
