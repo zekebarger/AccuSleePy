@@ -17,11 +17,17 @@
    <widget class="MplWidget" name="lowerplots" native="true">
     <property name="geometry">
      <rect>
-      <x>8</x>
-      <y>310</y>
+      <x>10</x>
+      <y>300</y>
       <width>821</width>
-      <height>281</height>
+      <height>291</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="autoFillBackground">
      <bool>true</bool>

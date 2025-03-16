@@ -11,9 +11,9 @@ import numpy as np
 
 @dataclass
 class BrainState:
-    name: str
-    digit: int
-    is_scored: bool
+    name: str  # friendly name
+    digit: int  # number 0-9 - used as keyboard shortcut
+    is_scored: bool  # whether a classification model should score this state
 
 
 class BrainStateMapper:

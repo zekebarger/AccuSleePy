@@ -28,7 +28,12 @@ class Ui_Window1(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.lowerplots = MplWidget(self.centralwidget)
         self.lowerplots.setObjectName(u"lowerplots")
-        self.lowerplots.setGeometry(QRect(8, 310, 821, 281))
+        self.lowerplots.setGeometry(QRect(10, 300, 821, 291))
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.lowerplots.sizePolicy().hasHeightForWidth())
+        self.lowerplots.setSizePolicy(sizePolicy)
         self.lowerplots.setAutoFillBackground(True)
         Window1.setCentralWidget(self.centralwidget)
 

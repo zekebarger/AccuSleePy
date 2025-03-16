@@ -3,6 +3,7 @@ import numpy as np
 from accusleepy.utils.misc import BrainState, BrainStateMapper
 
 # change these
+# recommended to set the digits in the order they appear on the keyboard, 1234567890
 BRAIN_STATES = [
     BrainState("REM", 1, True),
     BrainState("Wake", 2, True),
