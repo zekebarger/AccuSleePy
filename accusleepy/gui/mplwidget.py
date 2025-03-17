@@ -3,6 +3,8 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from PySide6.QtWidgets import *
+import matplotlib.ticker as mticker
+
 
 # https://stackoverflow.com/questions/67637912/resizing-matplotlib-chart-with-qt5-python
 
@@ -31,6 +33,8 @@ class MplWidget(QWidget):
         self.top_marker = list()
         self.bottom_marker = list()
 
+        self.epoch_length = None
+
     def setup_upper_plots(
         self,
         n_epochs,
@@ -38,10 +42,12 @@ class MplWidget(QWidget):
         spec,
         f,
         emg,
+        epoch_length,
         epochs_to_show,
         label_display_options,
         brain_state_mapper,
     ):
+        self.epoch_length = epoch_length
         height_ratios = [8, 2, 12, 13]
         gs1 = GridSpec(4, 1, hspace=0, height_ratios=height_ratios)
         gs2 = GridSpec(4, 1, hspace=0.4, height_ratios=height_ratios)
@@ -107,6 +113,8 @@ class MplWidget(QWidget):
             origin="lower",
             interpolation="None",
         )
+        axes[2].tick_params(axis="x", which="major", labelsize=8)
+        axes[2].xaxis.set_major_formatter(mticker.FuncFormatter(self.fmtsec))
 
         # emg
         axes[3].set_xticks([])
@@ -129,6 +137,7 @@ class MplWidget(QWidget):
         brain_state_mapper,
         label_display_options,
     ):
+        self.sampling_rate = sampling_rate
         # set plot spacing
         gs1 = GridSpec(3, 1, hspace=0)
         gs2 = GridSpec(3, 1, hspace=0.5)
@@ -160,6 +169,14 @@ class MplWidget(QWidget):
             axes[0].plot([marker_dx, marker_dx], [1 - marker_dy, 1], "r")[0]
         )
 
+        axes[1].set_xticks(
+            np.arange(
+                0,
+                sampling_rate * epoch_length * epochs_to_show,
+                sampling_rate * epoch_length,
+            )
+        )
+        axes[1].tick_params(axis="x", which="major", labelsize=8)
         axes[1].set_yticks([])
         axes[1].set_ylabel("EMG", rotation="horizontal", ha="right")
         axes[1].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
@@ -193,3 +210,7 @@ class MplWidget(QWidget):
         )
 
         self.canvas.axes = axes
+
+    def fmtsec(self, x, pos):
+        x = (x + 0.5) * self.epoch_length
+        return "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))

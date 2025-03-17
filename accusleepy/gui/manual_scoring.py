@@ -124,6 +124,7 @@ class MainWindow(QtWidgets.QMainWindow):
             upper_spec,
             upper_f,
             upper_emg,
+            epoch_length,
             epochs_to_show,
             self.label_display_options,
             BRAIN_STATE_MAPPER,
@@ -340,6 +341,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.label_img_ref.set(
             data=self.label_img[
                 :, self.lower_left_epoch : (self.lower_right_epoch + 1), :
+            ]
+        )
+        # this won't work if we show lots of epochs
+        self.ui.lowerplots.canvas.axes[1].set_xticklabels(
+            [
+                "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))
+                for x in np.arange(self.lower_left_epoch, self.lower_right_epoch + 1)
+                * epoch_length
             ]
         )
 
