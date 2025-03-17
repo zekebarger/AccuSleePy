@@ -54,6 +54,7 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs1[1]))
         axes.append(self.canvas.figure.add_subplot(gs1[2]))
         axes.append(self.canvas.figure.add_subplot(gs2[3]))
+        self.canvas.figure.subplots_adjust(top=0.98, bottom=0.02, right=0.98)
 
         for i in range(3):
             axes[i].set_xlim((-0.5, n_epochs + 0.5))
@@ -137,6 +138,7 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs1[0]))
         axes.append(self.canvas.figure.add_subplot(gs1[1]))
         axes.append(self.canvas.figure.add_subplot(gs2[2]))
+        self.canvas.figure.subplots_adjust(top=0.98, bottom=0.02, right=0.98)
 
         marker_dx = sampling_rate * epoch_length
         marker_dy = 0.25
