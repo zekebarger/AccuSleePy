@@ -56,9 +56,9 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs2[3]))
         self.canvas.figure.subplots_adjust(top=0.98, bottom=0.02, right=0.98)
 
-        for i in range(3):
+        for i in range(4):
             axes[i].set_xlim((-0.5, n_epochs + 0.5))
-        axes[3].set_xlim((0, n_epochs))
+        # axes[3].set_xlim((0, n_epochs))
 
         # brain states
         axes[0].set_xticks([])
@@ -118,7 +118,11 @@ class MplWidget(QWidget):
         axes[3].set_xticks([])
         axes[3].set_yticks([])
         axes[3].set_ylabel("EMG", rotation="horizontal", ha="right")
-        axes[3].plot(emg, "k")
+        axes[3].plot(
+            emg,
+            "k",
+            linewidth=0.5,
+        )
 
         self.canvas.axes = axes
 
@@ -150,7 +154,9 @@ class MplWidget(QWidget):
         axes[0].set_ylim((-1, 1))
         axes[0].set_ylabel("EEG", rotation="horizontal", ha="right")
         self.eeg_line = axes[0].plot(
-            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)), "k"
+            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)),
+            "k",
+            linewidth=0.5,
         )[0]
         # plot markers for selected epoch
         self.top_marker.append(axes[0].plot([0, 0], [1 - marker_dy, 1], "r")[0])
@@ -164,7 +170,9 @@ class MplWidget(QWidget):
         axes[1].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
         axes[1].set_ylim((-1, 1))
         self.emg_line = axes[1].plot(
-            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)), "k"
+            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)),
+            "k",
+            linewidth=0.5,
         )[0]
         self.bottom_marker.append(axes[1].plot([0, 0], [-1 + marker_dy, -1], "r")[0])
         self.bottom_marker.append(axes[1].plot([0, marker_dx], [-1, -1], "r")[0])

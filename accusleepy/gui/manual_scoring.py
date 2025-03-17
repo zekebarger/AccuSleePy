@@ -188,16 +188,18 @@ class MainWindow(QtWidgets.QMainWindow):
         keypress_quit = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+w"), self)
         keypress_quit.activated.connect(lambda: self.close())
 
+        self.ui.upperplots.canvas.mpl_connect("button_press_event", self.click_to_jump)
+
         self.show()
 
     def adjust_upper_plot_x_limits(self):
-        for i in range(3):
+        for i in range(4):
             self.ui.upperplots.canvas.axes[i].set_xlim(
                 (self.upper_left_epoch - 0.5, self.upper_right_epoch + 0.5)
             )
-        self.ui.upperplots.canvas.axes[3].set_xlim(
-            (self.upper_left_epoch, self.upper_right_epoch)
-        )
+        # self.ui.upperplots.canvas.axes[3].set_xlim(
+        #     (self.upper_left_epoch, self.upper_right_epoch)
+        # )
         self.ui.upperplots.canvas.draw()
 
     def zoom_x(self, direction: str):
@@ -292,15 +294,18 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lower_left_epoch += 1
             self.lower_right_epoch += 1
 
-    def shift_upper_marker(self):
+    def update_upper_marker(self):
         self.ui.upperplots.upper_marker[0].set_xdata(
-            [self.lower_left_epoch - 0.5, self.lower_right_epoch + 0.5]
+            [
+                self.epoch - (epochs_to_show - 1) / 2 - 0.5,
+                self.epoch + (epochs_to_show - 1) / 2 + 0.5,
+            ]
         )
         self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
 
     def update_upper_plot(self):
         # WIP
-        self.shift_upper_marker()
+        self.update_upper_marker()
         self.ui.upperplots.label_img_ref.set(data=self.label_img)
         self.ui.upperplots.canvas.draw()
 
@@ -332,12 +337,52 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.eeg_line.set_ydata(eeg)
         self.ui.lowerplots.emg_line.set_ydata(emg)
 
-        # just use the image here too!! lkjhasdfkljasdfjhk
+        # todo just use the image here too!!
         for i, label in enumerate(labels):
             self.ui.lowerplots.rectangles[i].set_color(LABEL_CMAP[label])
             self.ui.lowerplots.rectangles[i].set_xy([i, label])
 
         self.ui.lowerplots.canvas.draw()
+
+    def click_to_jump(self, event):
+        # make sure click location is valid
+        if event.xdata is None:
+            return
+        # get the "zoom level" so we can preserve that
+        upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
+        upper_epoch_padding = int((upper_epochs_shown - 1) / 2)
+        # update epoch
+        self.epoch = round(np.clip(event.xdata, 0, self.n_epochs - 1))
+        # update upper plot x limits
+        # find out if the jump puts us too close to either edge
+        if self.epoch - upper_epoch_padding < 0:
+            self.upper_left_epoch = 0
+            self.upper_right_epoch = upper_epochs_shown - 1
+        elif self.epoch + upper_epoch_padding > self.n_epochs - 1:
+            self.upper_right_epoch = self.n_epochs - 1
+            self.upper_left_epoch = self.n_epochs - upper_epochs_shown
+        else:
+            self.upper_left_epoch = self.epoch - upper_epoch_padding
+            self.upper_right_epoch = self.epoch + upper_epoch_padding
+        # update upper marker
+        self.update_upper_marker()
+        # refresh upper plot
+        self.adjust_upper_plot_x_limits()
+
+        # update lower plot location
+        lower_epoch_padding = int((epochs_to_show - 1) / 2)
+        if self.epoch - lower_epoch_padding < 0:
+            self.lower_left_epoch = 0
+            self.lower_right_epoch = epochs_to_show - 1
+        elif self.epoch + lower_epoch_padding > self.n_epochs - 1:
+            self.lower_right_epoch = self.n_epochs - 1
+            self.lower_left_epoch = self.n_epochs - epochs_to_show
+        else:
+            self.lower_left_epoch = self.epoch - lower_epoch_padding
+            self.lower_right_epoch = self.epoch + lower_epoch_padding
+
+        # refresh lower plot
+        self.update_lower_plot()
 
 
 ## EXECUTE APP
