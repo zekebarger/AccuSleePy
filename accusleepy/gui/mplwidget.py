@@ -198,7 +198,9 @@ class MplWidget(QWidget):
         axes[2].set_yticks(
             label_display_options - np.min(label_display_options),
         )
-        axes[2].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
+        axes[2].set_yticklabels(
+            [f"{b.name} ({b.digit})" for b in brain_state_mapper.brain_states]
+        )
         axes[2].set_ylim(
             [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
         )

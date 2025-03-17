@@ -150,6 +150,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.update_lower_plot()
 
+        # user input
         keypress_right = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["right"]), self)
         keypress_right.activated.connect(partial(self.shift_epoch, "right"))
         keypress_right.activated.connect(self.update_lower_plot)
@@ -190,7 +191,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.upperplots.canvas.mpl_connect("button_press_event", self.click_to_jump)
 
+        self.autoscroll_state = False
+        self.ui.autoscroll.stateChanged.connect(self.update_autoscroll_state)
+
         self.show()
+
+    def update_autoscroll_state(self, checked):
+        self.autoscroll_state = checked
 
     def adjust_upper_plot_x_limits(self):
         for i in range(4):
@@ -225,7 +232,6 @@ class MainWindow(QtWidgets.QMainWindow):
             LABEL_CMAP[display_label]
         )
 
-    # could avoid running this if nothing actually changes...
     def modify_label(self, digit):
         self.labels[self.epoch] = digit
         display_label = convert_labels(
@@ -234,6 +240,8 @@ class MainWindow(QtWidgets.QMainWindow):
         )[0]
         self.display_labels[self.epoch] = display_label
         self.modify_label_img(display_label)
+        if self.autoscroll_state and self.epoch < self.n_epochs - 1:
+            self.shift_epoch("right")
 
     def process_signals(self):
         self.eeg = self.eeg - np.mean(self.eeg)

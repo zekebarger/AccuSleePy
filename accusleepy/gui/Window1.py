@@ -8,16 +8,17 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from mplwidget import MplWidget
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-                            QMetaObject, QObject, QPoint, QRect, QSize, Qt,
-                            QTime, QUrl)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
-                           QFontDatabase, QGradient, QIcon, QImage,
-                           QKeySequence, QLinearGradient, QPainter, QPalette,
-                           QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy, QWidget
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QMainWindow, QSizePolicy,
+    QWidget)
 
+from mplwidget import MplWidget
 
 class Ui_Window1(object):
     def setupUi(self, Window1):
@@ -43,6 +44,9 @@ class Ui_Window1(object):
         sizePolicy.setHeightForWidth(self.upperplots.sizePolicy().hasHeightForWidth())
         self.upperplots.setSizePolicy(sizePolicy)
         self.upperplots.setAutoFillBackground(True)
+        self.autoscroll = QCheckBox(self.centralwidget)
+        self.autoscroll.setObjectName(u"autoscroll")
+        self.autoscroll.setGeometry(QRect(880, 530, 85, 20))
         Window1.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(Window1)
@@ -52,5 +56,6 @@ class Ui_Window1(object):
 
     def retranslateUi(self, Window1):
         Window1.setWindowTitle(QCoreApplication.translate("Window1", u"MainWindow", None))
+        self.autoscroll.setText(QCoreApplication.translate("Window1", u"Auto scroll", None))
     # retranslateUi
 

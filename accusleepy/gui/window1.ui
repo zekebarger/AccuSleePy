@@ -58,6 +58,19 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QCheckBox" name="autoscroll">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>530</y>
+      <width>85</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Auto scroll</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>
