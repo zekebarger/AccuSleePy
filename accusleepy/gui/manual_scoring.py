@@ -39,9 +39,6 @@ KEY_MAP = {
 sampling_rate = 512
 epoch_length = 2.5
 
-# SHOULD BE SET BY USER
-epochs_to_show = 5
-
 
 LABEL_CMAP = np.concatenate(
     [np.array([[1, 1, 1, 1]]), plt.colormaps["tab10"](range(10))], axis=0
@@ -100,6 +97,8 @@ class MainWindow(QtWidgets.QMainWindow):
             "/Users/zeke/PycharmProjects/AccuSleePy/sample_labels.csv"
         )
 
+        self.epochs_to_show = 5
+
         self.ui = Ui_Window1()
         self.ui.setupUi(self)
 
@@ -112,20 +111,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.n_epochs = len(self.labels)
         # process data to show in the upper plot - we just change x limits
-        upper_spec, upper_f = create_spectrogram(self.eeg, sampling_rate, epoch_length)
+        self.upper_spec, self.upper_f = create_spectrogram(
+            self.eeg, sampling_rate, epoch_length
+        )
         # process, bin, ceiling emg for upper plot
-        upper_emg = create_upper_emg_signal(self.emg, sampling_rate, epoch_length)
+        self.upper_emg = create_upper_emg_signal(self.emg, sampling_rate, epoch_length)
         self.label_img = create_label_img(self.labels, self.label_display_options)
 
         # set up plots
         self.ui.upperplots.setup_upper_plots(
             self.n_epochs,
             self.label_img,
-            upper_spec,
-            upper_f,
-            upper_emg,
+            self.upper_spec,
+            self.upper_f,
+            self.upper_emg,
             epoch_length,
-            epochs_to_show,
+            self.epochs_to_show,
             self.label_display_options,
             BRAIN_STATE_MAPPER,
         )
@@ -133,7 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.label_img,
             sampling_rate,
             epoch_length,
-            epochs_to_show,
+            self.epochs_to_show,
             BRAIN_STATE_MAPPER,
             self.label_display_options,
         )
@@ -146,7 +147,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.upper_left_epoch = 0
         self.upper_right_epoch = self.n_epochs - 1
         self.lower_left_epoch = 0
-        self.lower_right_epoch = epochs_to_show - 1
+        self.lower_right_epoch = self.epochs_to_show - 1
         self.display_labels = convert_labels(self.labels, "display")
         self.process_signals()
 
@@ -218,7 +219,45 @@ class MainWindow(QtWidgets.QMainWindow):
             partial(self.update_signal_offset, "emg", "down")
         )
 
+        self.ui.shownepochsplus.clicked.connect(
+            partial(self.update_epochs_shown, "plus")
+        )
+        self.ui.shownepochsminus.clicked.connect(
+            partial(self.update_epochs_shown, "minus")
+        )
+
         self.show()
+
+    def update_epochs_shown(self, direction: str):
+        if direction == "plus":
+            self.epochs_to_show += 2
+            if self.lower_left_epoch == 0:
+                self.lower_right_epoch += 2
+            elif self.lower_right_epoch == self.n_epochs - 1:
+                self.lower_left_epoch -= 2
+            else:
+                self.lower_left_epoch -= 1
+                self.lower_right_epoch += 1
+        else:
+            if self.epochs_to_show > 3:
+                # TODO: edge case when marker is not centered
+                self.epochs_to_show -= 2
+                self.lower_left_epoch += 1
+                self.lower_right_epoch -= 1
+        self.ui.shownepochslabel.setText(str(self.epochs_to_show))
+
+        # totally rebuild lower plots
+        self.ui.lowerplots.canvas.figure.clf()
+        self.ui.lowerplots.setup_lower_plots(
+            self.label_img,
+            sampling_rate,
+            epoch_length,
+            self.epochs_to_show,
+            BRAIN_STATE_MAPPER,
+            self.label_display_options,
+        )
+        self.update_upper_plot()
+        self.update_lower_plot()
 
     def update_signal_offset(self, signal: str, direction: str):
         offset_increments = {"up": 0.02, "down": -0.02}
@@ -327,7 +366,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.shift_upper_plots(direction)
 
         # update parts of lower plot
-        old_window_center = int(epochs_to_show / 2) + self.lower_left_epoch
+        old_window_center = int(self.epochs_to_show / 2) + self.lower_left_epoch
         # change the window bounds if needed
         if self.epoch < old_window_center and self.lower_left_epoch > 0:
             self.lower_left_epoch -= 1
@@ -340,10 +379,22 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lower_right_epoch += 1
 
     def update_upper_marker(self):
+        # this pattern appears elsewhere...
+        epoch_padding = int((self.epochs_to_show - 1) / 2)
+        if self.epoch - epoch_padding < 0:
+            left_edge = 0
+            right_edge = self.epochs_to_show - 1
+        elif self.epoch + epoch_padding > self.n_epochs - 1:
+            right_edge = self.n_epochs - 1
+            left_edge = self.n_epochs - self.epochs_to_show
+        else:
+            left_edge = self.epoch - epoch_padding
+            right_edge = self.epoch + epoch_padding
+
         self.ui.upperplots.upper_marker[0].set_xdata(
             [
-                self.epoch - (epochs_to_show - 1) / 2 - 0.5,
-                self.epoch + (epochs_to_show - 1) / 2 + 0.5,
+                left_edge - 0.5,
+                right_edge + 0.5,
             ]
         )
         self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
@@ -388,7 +439,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 :, self.lower_left_epoch : (self.lower_right_epoch + 1), :
             ]
         )
-        # this won't work if we show lots of epochs
+        # TODO this is slow/ugly if we show lots of epochs
         self.ui.lowerplots.canvas.axes[1].set_xticklabels(
             [
                 "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))
@@ -425,13 +476,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.adjust_upper_plot_x_limits()
 
         # update lower plot location
-        lower_epoch_padding = int((epochs_to_show - 1) / 2)
+        lower_epoch_padding = int((self.epochs_to_show - 1) / 2)
         if self.epoch - lower_epoch_padding < 0:
             self.lower_left_epoch = 0
-            self.lower_right_epoch = epochs_to_show - 1
+            self.lower_right_epoch = self.epochs_to_show - 1
         elif self.epoch + lower_epoch_padding > self.n_epochs - 1:
             self.lower_right_epoch = self.n_epochs - 1
-            self.lower_left_epoch = self.n_epochs - epochs_to_show
+            self.lower_left_epoch = self.n_epochs - self.epochs_to_show
         else:
             self.lower_left_epoch = self.epoch - lower_epoch_padding
             self.lower_right_epoch = self.epoch + lower_epoch_padding

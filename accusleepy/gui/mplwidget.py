@@ -24,14 +24,14 @@ class MplWidget(QWidget):
         self.setLayout(vertical_layout)
 
         # upper plot uses these
-        self.upper_marker = list()
+        self.upper_marker = None
         self.label_img_ref = None
 
         # lower plot uses these
         self.eeg_line = None
         self.emg_line = None
-        self.top_marker = list()
-        self.bottom_marker = list()
+        self.top_marker = None
+        self.bottom_marker = None
 
         self.epoch_length = None
 
@@ -48,6 +48,7 @@ class MplWidget(QWidget):
         brain_state_mapper,
     ):
         self.epoch_length = epoch_length
+        self.upper_marker = list()
         height_ratios = [8, 2, 12, 13]
         gs1 = GridSpec(4, 1, hspace=0, height_ratios=height_ratios)
         gs2 = GridSpec(4, 1, hspace=0.4, height_ratios=height_ratios)
@@ -137,7 +138,9 @@ class MplWidget(QWidget):
         brain_state_mapper,
         label_display_options,
     ):
-        self.sampling_rate = sampling_rate
+        self.top_marker = list()
+        self.bottom_marker = list()
+
         # set plot spacing
         gs1 = GridSpec(3, 1, hspace=0)
         gs2 = GridSpec(3, 1, hspace=0.5)

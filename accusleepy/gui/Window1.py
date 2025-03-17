@@ -15,8 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QMainWindow,
-    QPushButton, QSizePolicy, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QLabel,
+    QMainWindow, QPushButton, QSizePolicy, QWidget)
 
 from mplwidget import MplWidget
 
@@ -46,7 +46,7 @@ class Ui_Window1(object):
         self.upperplots.setAutoFillBackground(True)
         self.autoscroll = QCheckBox(self.centralwidget)
         self.autoscroll.setObjectName(u"autoscroll")
-        self.autoscroll.setGeometry(QRect(880, 530, 85, 20))
+        self.autoscroll.setGeometry(QRect(880, 490, 85, 20))
         self.gridLayoutWidget = QWidget(self.centralwidget)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
         self.gridLayoutWidget.setGeometry(QRect(880, 300, 94, 81))
@@ -107,6 +107,21 @@ class Ui_Window1(object):
 
         self.emgbuttons.addWidget(self.emgshiftdown, 1, 1, 1, 1)
 
+        self.shownepochslabel = QLabel(self.centralwidget)
+        self.shownepochslabel.setObjectName(u"shownepochslabel")
+        self.shownepochslabel.setGeometry(QRect(910, 560, 21, 16))
+        self.shownepochslabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.shownepochsplus = QPushButton(self.centralwidget)
+        self.shownepochsplus.setObjectName(u"shownepochsplus")
+        self.shownepochsplus.setGeometry(QRect(940, 550, 31, 40))
+        self.shownepochsplus.setAutoRepeat(False)
+        self.shownepochsminus = QPushButton(self.centralwidget)
+        self.shownepochsminus.setObjectName(u"shownepochsminus")
+        self.shownepochsminus.setGeometry(QRect(870, 550, 31, 40))
+        self.shownepochsminus.setAutoRepeat(False)
+        self.epochsword = QLabel(self.centralwidget)
+        self.epochsword.setObjectName(u"epochsword")
+        self.epochsword.setGeometry(QRect(870, 530, 58, 16))
         Window1.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(Window1)
@@ -125,5 +140,9 @@ class Ui_Window1(object):
         self.emgshiftup.setText(QCoreApplication.translate("Window1", u"^", None))
         self.emgzoomout.setText(QCoreApplication.translate("Window1", u"-", None))
         self.emgshiftdown.setText(QCoreApplication.translate("Window1", u"v", None))
+        self.shownepochslabel.setText(QCoreApplication.translate("Window1", u"5", None))
+        self.shownepochsplus.setText(QCoreApplication.translate("Window1", u"+", None))
+        self.shownepochsminus.setText(QCoreApplication.translate("Window1", u"-", None))
+        self.epochsword.setText(QCoreApplication.translate("Window1", u"Epochs:", None))
     # retranslateUi
 
