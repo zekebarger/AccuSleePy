@@ -71,6 +71,7 @@ class MplWidget(QWidget):
             label_img, aspect="auto", origin="lower", interpolation="None"
         )
 
+        # todo not centered
         # epoch marker
         # axes[1].axis("off") # use this eventually
         axes[1].set_xticks([])
@@ -92,6 +93,7 @@ class MplWidget(QWidget):
                 1 + int(SPEC_UPPER_F / SPEC_YTICK_INTERVAL),
             ),
         )
+        # todo need to fix the outermost bins being centered on 0, ...
         axes[2].set_yticklabels(
             [
                 f"{i} hz"
@@ -106,6 +108,7 @@ class MplWidget(QWidget):
             vmax=np.percentile(spec, 98),
             aspect="auto",
             origin="lower",
+            interpolation="None",
         )
 
         # emg
@@ -113,6 +116,8 @@ class MplWidget(QWidget):
         axes[3].set_yticks([])
         axes[3].set_ylabel("EMG", rotation="horizontal", ha="right")
         axes[3].plot(emg, "k")
+
+        self.canvas.axes = axes
 
     def setup_lower_plots(
         self,

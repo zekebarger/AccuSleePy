@@ -94,6 +94,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
+        # THESE SHOULD BE USER INPUT SOMEHOW
+        self.eeg, self.emg = load_recording(
+            "/Users/zeke/PycharmProjects/AccuSleePy/sample_recording.parquet"
+        )
+        self.labels = load_labels(
+            "/Users/zeke/PycharmProjects/AccuSleePy/sample_labels.csv"
+        )
+
         self.ui = Ui_Window1()
         self.ui.setupUi(self)
 
@@ -104,13 +112,6 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.smallest_display_label = np.min(self.label_display_options)
 
-        # THESE SHOULD BE USER INPUT SOMEHOW
-        self.eeg, self.emg = load_recording(
-            "/Users/zeke/PycharmProjects/AccuSleePy/sample_recording.parquet"
-        )
-        self.labels = load_labels(
-            "/Users/zeke/PycharmProjects/AccuSleePy/sample_labels.csv"
-        )
         self.n_epochs = len(self.labels)
         # process data to show in the upper plot - we just change x limits
         upper_spec, upper_f = create_spectrogram(self.eeg, sampling_rate, epoch_length)
@@ -118,7 +119,7 @@ class MainWindow(QtWidgets.QMainWindow):
         upper_emg = create_upper_emg_signal(self.emg, sampling_rate, epoch_length)
         self.label_img = create_label_img(self.labels, self.label_display_options)
 
-        # setup plots
+        # set up plots
         self.ui.upperplots.setup_upper_plots(
             self.n_epochs,
             self.label_img,
@@ -140,24 +141,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.epoch = 0
         self.eeg_signal_scale_factor = 1
         self.emg_signal_scale_factor = 1
-        self.left_epoch = 0
-        self.right_epoch = epochs_to_show - 1
+        self.upper_left_epoch = 0
+        self.upper_right_epoch = self.n_epochs - 1
+        self.lower_left_epoch = 0
+        self.lower_right_epoch = epochs_to_show - 1
         self.display_labels = convert_labels(self.labels, "display")
-
         self.process_signals()
 
-        # self.update_upper_plot()
         self.update_lower_plot()
 
         keypress_right = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["right"]), self)
-        keypress_right.activated.connect(partial(self.shift_epoch, 1))
+        keypress_right.activated.connect(partial(self.shift_epoch, "right"))
         keypress_right.activated.connect(self.update_lower_plot)
         keypress_right.activated.connect(self.update_upper_plot)
 
         keypress_left = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["left"]), self)
-        keypress_left.activated.connect(partial(self.shift_epoch, -1))
+        keypress_left.activated.connect(partial(self.shift_epoch, "left"))
         keypress_left.activated.connect(self.update_lower_plot)
         keypress_left.activated.connect(self.update_upper_plot)
+
+        # set these to plus and minus??
+        keypress_zoom_in_x = QtGui.QShortcut(QtGui.QKeySequence("i"), self)
+        keypress_zoom_in_x.activated.connect(partial(self.zoom_x, "in"))
+        keypress_zoom_out_x = QtGui.QShortcut(QtGui.QKeySequence("o"), self)
+        keypress_zoom_out_x.activated.connect(partial(self.zoom_x, "out"))
 
         keypress_modify_label = list()
         for brain_state in BRAIN_STATE_MAPPER.brain_states:
@@ -183,6 +190,30 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.show()
 
+    def adjust_upper_plot_x_limits(self):
+        for i in range(4):
+            self.ui.upperplots.canvas.axes[i].set_xlim(
+                (self.upper_left_epoch, self.upper_right_epoch)
+            )
+        self.ui.upperplots.canvas.draw()
+
+    def zoom_x(self, direction: str):
+        epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
+        # is int too imprecise?
+        if direction == "in":
+            self.upper_left_epoch = int(
+                max([self.upper_left_epoch, self.epoch - 0.45 * epochs_shown])
+            )
+            self.upper_right_epoch = int(
+                min([self.upper_right_epoch, self.epoch + 0.45 * epochs_shown])
+            )
+        else:
+            self.upper_left_epoch = int(max([0, self.epoch - 1.017 * epochs_shown]))
+            self.upper_right_epoch = int(
+                min([self.n_epochs - 1, self.epoch + 1.017 * epochs_shown])
+            )
+        self.adjust_upper_plot_x_limits()
+
     def modify_label_img(self, display_label):
         self.label_img[:, self.epoch, :] = 1
         self.label_img[display_label - self.smallest_display_label, self.epoch, :] = (
@@ -206,15 +237,36 @@ class MainWindow(QtWidgets.QMainWindow):
         self.emg = self.emg / np.percentile(self.emg, 95) / 2.2
 
     def get_signal_to_plot(self):
-        left = int(self.left_epoch * sampling_rate * epoch_length)
-        right = int((self.right_epoch + 1) * sampling_rate * epoch_length)
+        left = int(self.lower_left_epoch * sampling_rate * epoch_length)
+        right = int((self.lower_right_epoch + 1) * sampling_rate * epoch_length)
         return (
             self.eeg[left:right],
             self.emg[left:right],
-            self.display_labels[self.left_epoch : (self.right_epoch + 1)],
+            self.display_labels[self.lower_left_epoch : (self.lower_right_epoch + 1)],
         )
 
-    def shift_epoch(self, shift_amount):
+    def shift_upper_plots(self, direction: str):
+        # update upper plot if needed
+        upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
+        if (
+            self.epoch > self.upper_left_epoch + 0.65 * upper_epochs_shown
+            and self.upper_right_epoch < (self.n_epochs - 1)
+            and direction == "right"
+        ):
+            self.upper_left_epoch += 1
+            self.upper_right_epoch += 1
+            self.adjust_upper_plot_x_limits()
+        elif (
+            self.epoch < self.upper_left_epoch + 0.35 * upper_epochs_shown
+            and self.upper_left_epoch > 0
+            and direction == "left"
+        ):
+            self.upper_left_epoch -= 1
+            self.upper_right_epoch -= 1
+            self.adjust_upper_plot_x_limits()
+
+    def shift_epoch(self, direction: str):
+        shift_amount = {"left": -1, "right": 1}[direction]
         # can't move outside min, max epochs
         if not (0 <= (self.epoch + shift_amount) < self.n_epochs):
             return
@@ -222,18 +274,24 @@ class MainWindow(QtWidgets.QMainWindow):
         # shift to new epoch
         self.epoch = self.epoch + shift_amount
 
-        old_window_center = int(epochs_to_show / 2) + self.left_epoch
+        self.shift_upper_plots(direction)
+
+        # update parts of lower plot
+        old_window_center = int(epochs_to_show / 2) + self.lower_left_epoch
         # change the window bounds if needed
-        if self.epoch < old_window_center and self.left_epoch > 0:
-            self.left_epoch -= 1
-            self.right_epoch -= 1
-        elif self.epoch > old_window_center and self.right_epoch < self.n_epochs - 1:
-            self.left_epoch += 1
-            self.right_epoch += 1
+        if self.epoch < old_window_center and self.lower_left_epoch > 0:
+            self.lower_left_epoch -= 1
+            self.lower_right_epoch -= 1
+        elif (
+            self.epoch > old_window_center
+            and self.lower_right_epoch < self.n_epochs - 1
+        ):
+            self.lower_left_epoch += 1
+            self.lower_right_epoch += 1
 
     def shift_upper_marker(self):
         self.ui.upperplots.upper_marker[0].set_xdata(
-            [self.left_epoch, self.right_epoch + 1]
+            [self.lower_left_epoch, self.lower_right_epoch + 1]
         )
         self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
 
@@ -245,8 +303,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_lower_epoch_marker(self):
         # plot marker for selected epoch
-        marker_left = (self.epoch - self.left_epoch) * epoch_length * sampling_rate
-        marker_right = (1 + self.epoch - self.left_epoch) * epoch_length * sampling_rate
+        marker_left = (
+            (self.epoch - self.lower_left_epoch) * epoch_length * sampling_rate
+        )
+        marker_right = (
+            (1 + self.epoch - self.lower_left_epoch) * epoch_length * sampling_rate
+        )
         self.ui.lowerplots.top_marker[0].set_xdata([marker_left, marker_left])
         self.ui.lowerplots.top_marker[1].set_xdata([marker_left, marker_right])
         self.ui.lowerplots.top_marker[2].set_xdata([marker_right, marker_right])
@@ -267,9 +329,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.eeg_line.set_ydata(eeg)
         self.ui.lowerplots.emg_line.set_ydata(emg)
 
+        # just use the image here too!! lkjhasdfkljasdfjhk
         for i, label in enumerate(labels):
             self.ui.lowerplots.rectangles[i].set_color(LABEL_CMAP[label])
-            # fix this
             self.ui.lowerplots.rectangles[i].set_xy([i, label])
 
         self.ui.lowerplots.canvas.draw()
@@ -279,5 +341,4 @@ class MainWindow(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
-    # window.show()
     sys.exit(app.exec())
