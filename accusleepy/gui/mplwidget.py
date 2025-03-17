@@ -20,6 +20,7 @@ class MplWidget(QWidget):
 
         vertical_layout = QVBoxLayout()
         vertical_layout.addWidget(self.canvas)
+        vertical_layout.setContentsMargins(0, 0, 0, 0)
         self.canvas.axes = None
         self.setLayout(vertical_layout)
 
@@ -83,7 +84,7 @@ class MplWidget(QWidget):
         # spectrogram
         f = f[f <= SPEC_UPPER_F]
         spec = spec[0 : len(f), :]
-        axes[2].set_ylabel("EEG")
+        axes[2].set_ylabel("EEG", rotation="horizontal", ha="right")
         axes[2].set_yticks(
             np.linspace(
                 0,
@@ -92,7 +93,12 @@ class MplWidget(QWidget):
             ),
         )
         axes[2].set_yticklabels(
-            np.arange(0, SPEC_UPPER_F + SPEC_YTICK_INTERVAL, SPEC_YTICK_INTERVAL)
+            [
+                f"{i} hz"
+                for i in np.arange(
+                    0, SPEC_UPPER_F + SPEC_YTICK_INTERVAL, SPEC_YTICK_INTERVAL
+                )
+            ]
         )
         axes[2].imshow(
             spec,
@@ -105,7 +111,7 @@ class MplWidget(QWidget):
         # emg
         axes[3].set_xticks([])
         axes[3].set_yticks([])
-        axes[3].set_ylabel("EMG")
+        axes[3].set_ylabel("EMG", rotation="horizontal", ha="right")
         axes[3].plot(emg, "k")
 
     def setup_lower_plots(
@@ -133,7 +139,7 @@ class MplWidget(QWidget):
         axes[0].set_yticks([])
         axes[0].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
         axes[0].set_ylim((-1, 1))
-        axes[0].set_ylabel("EEG")
+        axes[0].set_ylabel("EEG", rotation="horizontal", ha="right")
         self.eeg_line = axes[0].plot(
             np.zeros(int(epochs_to_show * sampling_rate * epoch_length)), "k"
         )[0]
@@ -145,7 +151,7 @@ class MplWidget(QWidget):
         )
 
         axes[1].set_yticks([])
-        axes[1].set_ylabel("EMG")
+        axes[1].set_ylabel("EMG", rotation="horizontal", ha="right")
         axes[1].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
         axes[1].set_ylim((-1, 1))
         self.emg_line = axes[1].plot(
