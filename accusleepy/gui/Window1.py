@@ -15,8 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QMainWindow, QSizePolicy,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QMainWindow,
+    QPushButton, QSizePolicy, QWidget)
 
 from mplwidget import MplWidget
 
@@ -47,6 +47,66 @@ class Ui_Window1(object):
         self.autoscroll = QCheckBox(self.centralwidget)
         self.autoscroll.setObjectName(u"autoscroll")
         self.autoscroll.setGeometry(QRect(880, 530, 85, 20))
+        self.gridLayoutWidget = QWidget(self.centralwidget)
+        self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
+        self.gridLayoutWidget.setGeometry(QRect(880, 300, 94, 81))
+        self.eegbuttons = QGridLayout(self.gridLayoutWidget)
+        self.eegbuttons.setObjectName(u"eegbuttons")
+        self.eegbuttons.setContentsMargins(0, 0, 0, 0)
+        self.eegzoomin = QPushButton(self.gridLayoutWidget)
+        self.eegzoomin.setObjectName(u"eegzoomin")
+        self.eegzoomin.setAutoRepeat(True)
+
+        self.eegbuttons.addWidget(self.eegzoomin, 0, 0, 1, 1)
+
+        self.eegshiftup = QPushButton(self.gridLayoutWidget)
+        self.eegshiftup.setObjectName(u"eegshiftup")
+        self.eegshiftup.setAutoRepeat(True)
+
+        self.eegbuttons.addWidget(self.eegshiftup, 0, 1, 1, 1)
+
+        self.eegzoomout = QPushButton(self.gridLayoutWidget)
+        self.eegzoomout.setObjectName(u"eegzoomout")
+        self.eegzoomout.setAutoRepeat(True)
+
+        self.eegbuttons.addWidget(self.eegzoomout, 1, 0, 1, 1)
+
+        self.eegshiftdown = QPushButton(self.gridLayoutWidget)
+        self.eegshiftdown.setObjectName(u"eegshiftdown")
+        self.eegshiftdown.setAutoRepeat(True)
+
+        self.eegbuttons.addWidget(self.eegshiftdown, 1, 1, 1, 1)
+
+        self.gridLayoutWidget_2 = QWidget(self.centralwidget)
+        self.gridLayoutWidget_2.setObjectName(u"gridLayoutWidget_2")
+        self.gridLayoutWidget_2.setGeometry(QRect(880, 390, 94, 81))
+        self.emgbuttons = QGridLayout(self.gridLayoutWidget_2)
+        self.emgbuttons.setObjectName(u"emgbuttons")
+        self.emgbuttons.setContentsMargins(0, 0, 0, 0)
+        self.emgzoomin = QPushButton(self.gridLayoutWidget_2)
+        self.emgzoomin.setObjectName(u"emgzoomin")
+        self.emgzoomin.setAutoRepeat(True)
+
+        self.emgbuttons.addWidget(self.emgzoomin, 0, 0, 1, 1)
+
+        self.emgshiftup = QPushButton(self.gridLayoutWidget_2)
+        self.emgshiftup.setObjectName(u"emgshiftup")
+        self.emgshiftup.setAutoRepeat(True)
+
+        self.emgbuttons.addWidget(self.emgshiftup, 0, 1, 1, 1)
+
+        self.emgzoomout = QPushButton(self.gridLayoutWidget_2)
+        self.emgzoomout.setObjectName(u"emgzoomout")
+        self.emgzoomout.setAutoRepeat(True)
+
+        self.emgbuttons.addWidget(self.emgzoomout, 1, 0, 1, 1)
+
+        self.emgshiftdown = QPushButton(self.gridLayoutWidget_2)
+        self.emgshiftdown.setObjectName(u"emgshiftdown")
+        self.emgshiftdown.setAutoRepeat(True)
+
+        self.emgbuttons.addWidget(self.emgshiftdown, 1, 1, 1, 1)
+
         Window1.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(Window1)
@@ -57,5 +117,13 @@ class Ui_Window1(object):
     def retranslateUi(self, Window1):
         Window1.setWindowTitle(QCoreApplication.translate("Window1", u"MainWindow", None))
         self.autoscroll.setText(QCoreApplication.translate("Window1", u"Auto scroll", None))
+        self.eegzoomin.setText(QCoreApplication.translate("Window1", u"+", None))
+        self.eegshiftup.setText(QCoreApplication.translate("Window1", u"^", None))
+        self.eegzoomout.setText(QCoreApplication.translate("Window1", u"-", None))
+        self.eegshiftdown.setText(QCoreApplication.translate("Window1", u"v", None))
+        self.emgzoomin.setText(QCoreApplication.translate("Window1", u"+", None))
+        self.emgshiftup.setText(QCoreApplication.translate("Window1", u"^", None))
+        self.emgzoomout.setText(QCoreApplication.translate("Window1", u"-", None))
+        self.emgshiftdown.setText(QCoreApplication.translate("Window1", u"v", None))
     # retranslateUi
 

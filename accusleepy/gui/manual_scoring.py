@@ -141,6 +141,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.epoch = 0
         self.eeg_signal_scale_factor = 1
         self.emg_signal_scale_factor = 1
+        self.eeg_signal_offset = 0
+        self.emg_signal_offset = 0
         self.upper_left_epoch = 0
         self.upper_right_epoch = self.n_epochs - 1
         self.lower_left_epoch = 0
@@ -194,7 +196,45 @@ class MainWindow(QtWidgets.QMainWindow):
         self.autoscroll_state = False
         self.ui.autoscroll.stateChanged.connect(self.update_autoscroll_state)
 
+        self.ui.eegzoomin.clicked.connect(partial(self.update_signal_zoom, "eeg", "in"))
+        self.ui.eegzoomout.clicked.connect(
+            partial(self.update_signal_zoom, "eeg", "out")
+        )
+        self.ui.emgzoomin.clicked.connect(partial(self.update_signal_zoom, "emg", "in"))
+        self.ui.emgzoomout.clicked.connect(
+            partial(self.update_signal_zoom, "emg", "out")
+        )
+
+        self.ui.eegshiftup.clicked.connect(
+            partial(self.update_signal_offset, "eeg", "up")
+        )
+        self.ui.eegshiftdown.clicked.connect(
+            partial(self.update_signal_offset, "eeg", "down")
+        )
+        self.ui.emgshiftup.clicked.connect(
+            partial(self.update_signal_offset, "emg", "up")
+        )
+        self.ui.emgshiftdown.clicked.connect(
+            partial(self.update_signal_offset, "emg", "down")
+        )
+
         self.show()
+
+    def update_signal_offset(self, signal: str, direction: str):
+        offset_increments = {"up": 0.02, "down": -0.02}
+        if signal == "eeg":
+            self.eeg_signal_offset += offset_increments[direction]
+        else:
+            self.emg_signal_offset += offset_increments[direction]
+        self.update_lower_plot()
+
+    def update_signal_zoom(self, signal: str, direction: str):
+        zoom_factors = {"in": 1.08, "out": 0.95}
+        if signal == "eeg":
+            self.eeg_signal_scale_factor *= zoom_factors[direction]
+        else:
+            self.emg_signal_scale_factor *= zoom_factors[direction]
+        self.update_lower_plot()
 
     def update_autoscroll_state(self, checked):
         self.autoscroll_state = checked
@@ -204,9 +244,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.upperplots.canvas.axes[i].set_xlim(
                 (self.upper_left_epoch - 0.5, self.upper_right_epoch + 0.5)
             )
-        # self.ui.upperplots.canvas.axes[3].set_xlim(
-        #     (self.upper_left_epoch, self.upper_right_epoch)
-        # )
         self.ui.upperplots.canvas.draw()
 
     def zoom_x(self, direction: str):
@@ -336,8 +373,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # get signals to plot
         eeg, emg, labels = self.get_signal_to_plot()
         # zoom in or out
-        eeg = eeg * self.eeg_signal_scale_factor
-        emg = emg * self.emg_signal_scale_factor
+        eeg = eeg * self.eeg_signal_scale_factor + self.eeg_signal_offset
+        emg = emg * self.emg_signal_scale_factor + self.emg_signal_offset
 
         self.update_lower_epoch_marker()
 
