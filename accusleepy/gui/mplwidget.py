@@ -55,8 +55,9 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs1[2]))
         axes.append(self.canvas.figure.add_subplot(gs2[3]))
 
-        for i in range(4):
-            axes[i].set_xlim((0, n_epochs))
+        for i in range(3):
+            axes[i].set_xlim((-0.5, n_epochs + 0.5))
+        axes[3].set_xlim((0, n_epochs))
 
         # brain states
         axes[0].set_xticks([])
@@ -71,14 +72,15 @@ class MplWidget(QWidget):
             label_img, aspect="auto", origin="lower", interpolation="None"
         )
 
-        # todo not centered
         # epoch marker
         # axes[1].axis("off") # use this eventually
         axes[1].set_xticks([])
         axes[1].set_yticks([])
         axes[1].set_ylim((0, 1))
         # line
-        self.upper_marker.append(axes[1].plot([0, epochs_to_show], [0.5, 0.5], "r")[0])
+        self.upper_marker.append(
+            axes[1].plot([-0.5, epochs_to_show - 0.5], [0.5, 0.5], "r")[0]
+        )
         # marker
         self.upper_marker.append(axes[1].plot([0], [0.5], "rD")[0])
 

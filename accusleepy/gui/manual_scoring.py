@@ -191,10 +191,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.show()
 
     def adjust_upper_plot_x_limits(self):
-        for i in range(4):
+        for i in range(3):
             self.ui.upperplots.canvas.axes[i].set_xlim(
-                (self.upper_left_epoch, self.upper_right_epoch)
+                (self.upper_left_epoch - 0.5, self.upper_right_epoch + 0.5)
             )
+        self.ui.upperplots.canvas.axes[3].set_xlim(
+            (self.upper_left_epoch, self.upper_right_epoch)
+        )
         self.ui.upperplots.canvas.draw()
 
     def zoom_x(self, direction: str):
@@ -291,7 +294,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def shift_upper_marker(self):
         self.ui.upperplots.upper_marker[0].set_xdata(
-            [self.lower_left_epoch, self.lower_right_epoch + 1]
+            [self.lower_left_epoch - 0.5, self.lower_right_epoch + 0.5]
         )
         self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
 
