@@ -1,15 +1,13 @@
-import random
 import sys
 from functools import partial
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Rectangle
 from PySide6 import QtCore, QtGui, QtWidgets
 from Window1 import Ui_Window1
 
 from accusleepy.utils.constants import BRAIN_STATE_MAPPER
-from accusleepy.utils.fileio import load_recording, load_labels
+from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 
 # magic spell:
@@ -131,6 +129,7 @@ class MainWindow(QtWidgets.QMainWindow):
             BRAIN_STATE_MAPPER,
         )
         self.ui.lowerplots.setup_lower_plots(
+            self.label_img,
             sampling_rate,
             epoch_length,
             epochs_to_show,
@@ -337,10 +336,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.eeg_line.set_ydata(eeg)
         self.ui.lowerplots.emg_line.set_ydata(emg)
 
-        # todo just use the image here too!!
-        for i, label in enumerate(labels):
-            self.ui.lowerplots.rectangles[i].set_color(LABEL_CMAP[label])
-            self.ui.lowerplots.rectangles[i].set_xy([i, label])
+        # plot brain state
+        self.ui.lowerplots.label_img_ref.set(
+            data=self.label_img[
+                :, self.lower_left_epoch : (self.lower_right_epoch + 1), :
+            ]
+        )
 
         self.ui.lowerplots.canvas.draw()
 

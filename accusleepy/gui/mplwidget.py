@@ -1,11 +1,8 @@
+import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
-from matplotlib.patches import Rectangle
 from PySide6.QtWidgets import *
-
-import numpy as np
-
 
 # https://stackoverflow.com/questions/67637912/resizing-matplotlib-chart-with-qt5-python
 
@@ -33,7 +30,6 @@ class MplWidget(QWidget):
         self.emg_line = None
         self.top_marker = list()
         self.bottom_marker = list()
-        self.rectangles = list()
 
     def setup_upper_plots(
         self,
@@ -58,7 +54,6 @@ class MplWidget(QWidget):
 
         for i in range(4):
             axes[i].set_xlim((-0.5, n_epochs + 0.5))
-        # axes[3].set_xlim((0, n_epochs))
 
         # brain states
         axes[0].set_xticks([])
@@ -96,7 +91,6 @@ class MplWidget(QWidget):
                 1 + int(SPEC_UPPER_F / SPEC_YTICK_INTERVAL),
             ),
         )
-        # todo need to fix the outermost bins being centered on 0, ...
         axes[2].set_yticklabels(
             [
                 f"{i} hz"
@@ -128,6 +122,7 @@ class MplWidget(QWidget):
 
     def setup_lower_plots(
         self,
+        label_img,
         sampling_rate,
         epoch_length,
         epochs_to_show,
@@ -180,16 +175,21 @@ class MplWidget(QWidget):
             axes[1].plot([marker_dx, marker_dx], [-1 + marker_dy, -1], "r")[0]
         )
 
-        axes[2].set_xlim([0, epochs_to_show])
-        axes[2].set_ylim(
-            [np.min(label_display_options), np.max(label_display_options) + 1]
-        )
+        # brain states
+        axes[2].set_xlim((-0.5, epochs_to_show - 0.5))
         axes[2].set_xticks([])
-        axes[2].set_yticks([b + 0.5 for b in label_display_options])
+        axes[2].set_yticks(
+            label_display_options - np.min(label_display_options),
+        )
         axes[2].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
-        for i in range(epochs_to_show):
-            self.rectangles.append(
-                axes[2].add_patch(Rectangle((i, 0), 1, 1, color=[1, 1, 1, 1]))
-            )
+        axes[2].set_ylim(
+            [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
+        )
+        self.label_img_ref = axes[2].imshow(
+            label_img[:, 0:epochs_to_show, :],
+            aspect="auto",
+            origin="lower",
+            interpolation="None",
+        )
 
         self.canvas.axes = axes
