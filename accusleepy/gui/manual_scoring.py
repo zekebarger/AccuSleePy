@@ -165,10 +165,11 @@ class MainWindow(QtWidgets.QMainWindow):
         keypress_left.activated.connect(self.update_lower_plot)
         keypress_left.activated.connect(self.update_upper_plot)
 
-        # set these to plus and minus??
-        keypress_zoom_in_x = QtGui.QShortcut(QtGui.QKeySequence("i"), self)
+        keypress_zoom_in_x = QtGui.QShortcut(QtGui.QKeySequence("+"), self)
         keypress_zoom_in_x.activated.connect(partial(self.zoom_x, "in"))
-        keypress_zoom_out_x = QtGui.QShortcut(QtGui.QKeySequence("o"), self)
+        keypress_zoom_in_x2 = QtGui.QShortcut(QtGui.QKeySequence("="), self)
+        keypress_zoom_in_x2.activated.connect(partial(self.zoom_x, "in"))
+        keypress_zoom_out_x = QtGui.QShortcut(QtGui.QKeySequence("-"), self)
         keypress_zoom_out_x.activated.connect(partial(self.zoom_x, "out"))
 
         keypress_modify_label = list()
