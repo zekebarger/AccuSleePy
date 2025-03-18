@@ -76,7 +76,7 @@
      <rect>
       <x>870</x>
       <y>300</y>
-      <width>111</width>
+      <width>116</width>
       <height>81</height>
      </rect>
     </property>
@@ -144,7 +144,7 @@
      <rect>
       <x>870</x>
       <y>390</y>
-      <width>111</width>
+      <width>116</width>
       <height>81</height>
      </rect>
     </property>
@@ -275,11 +275,25 @@
      <rect>
       <x>870</x>
       <y>110</y>
-      <width>111</width>
+      <width>116</width>
       <height>71</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="specbrighter">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/brightness_up.png</normaloff>:/icons/brightness_up.png</iconset>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QPushButton" name="specdimmer">
        <property name="sizePolicy">
@@ -306,14 +320,54 @@
        </property>
       </widget>
      </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>190</y>
+      <width>121</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QPushButton" name="specbrighter">
+      <widget class="QPushButton" name="xzoomin">
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/brightness_up.png</normaloff>:/icons/brightness_up.png</iconset>
+         <normaloff>:/icons/zoom-in.png</normaloff>:/icons/zoom-in.png</iconset>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="xzoomout">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/zoom-out.png</normaloff>:/icons/zoom-out.png</iconset>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="xzoomreset">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/home.png</normaloff>:/icons/home.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>

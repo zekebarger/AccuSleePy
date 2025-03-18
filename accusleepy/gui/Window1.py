@@ -51,7 +51,7 @@ class Ui_Window1(object):
         self.autoscroll.setGeometry(QRect(880, 490, 85, 20))
         self.gridLayoutWidget = QWidget(self.centralwidget)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(870, 300, 111, 81))
+        self.gridLayoutWidget.setGeometry(QRect(870, 300, 116, 81))
         self.eegbuttons = QGridLayout(self.gridLayoutWidget)
         self.eegbuttons.setObjectName(u"eegbuttons")
         self.eegbuttons.setContentsMargins(0, 0, 0, 0)
@@ -93,7 +93,7 @@ class Ui_Window1(object):
 
         self.gridLayoutWidget_2 = QWidget(self.centralwidget)
         self.gridLayoutWidget_2.setObjectName(u"gridLayoutWidget_2")
-        self.gridLayoutWidget_2.setGeometry(QRect(870, 390, 111, 81))
+        self.gridLayoutWidget_2.setGeometry(QRect(870, 390, 116, 81))
         self.emgbuttons = QGridLayout(self.gridLayoutWidget_2)
         self.emgbuttons.setObjectName(u"emgbuttons")
         self.emgbuttons.setContentsMargins(0, 0, 0, 0)
@@ -160,10 +160,19 @@ class Ui_Window1(object):
 
         self.horizontalLayoutWidget_2 = QWidget(self.centralwidget)
         self.horizontalLayoutWidget_2.setObjectName(u"horizontalLayoutWidget_2")
-        self.horizontalLayoutWidget_2.setGeometry(QRect(870, 110, 111, 71))
+        self.horizontalLayoutWidget_2.setGeometry(QRect(870, 110, 116, 71))
         self.horizontalLayout_2 = QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.specbrighter = QPushButton(self.horizontalLayoutWidget_2)
+        self.specbrighter.setObjectName(u"specbrighter")
+        icon6 = QIcon()
+        icon6.addFile(u":/icons/brightness_up.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.specbrighter.setIcon(icon6)
+        self.specbrighter.setAutoRepeat(True)
+
+        self.horizontalLayout_2.addWidget(self.specbrighter)
+
         self.specdimmer = QPushButton(self.horizontalLayoutWidget_2)
         self.specdimmer.setObjectName(u"specdimmer")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
@@ -171,22 +180,42 @@ class Ui_Window1(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.specdimmer.sizePolicy().hasHeightForWidth())
         self.specdimmer.setSizePolicy(sizePolicy1)
-        icon6 = QIcon()
-        icon6.addFile(u":/icons/brightness_down.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.specdimmer.setIcon(icon6)
+        icon7 = QIcon()
+        icon7.addFile(u":/icons/brightness_down.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.specdimmer.setIcon(icon7)
         self.specdimmer.setIconSize(QSize(16, 16))
         self.specdimmer.setAutoRepeat(True)
 
         self.horizontalLayout_2.addWidget(self.specdimmer)
 
-        self.specbrighter = QPushButton(self.horizontalLayoutWidget_2)
-        self.specbrighter.setObjectName(u"specbrighter")
-        icon7 = QIcon()
-        icon7.addFile(u":/icons/brightness_up.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.specbrighter.setIcon(icon7)
-        self.specbrighter.setAutoRepeat(True)
+        self.horizontalLayoutWidget_3 = QWidget(self.centralwidget)
+        self.horizontalLayoutWidget_3.setObjectName(u"horizontalLayoutWidget_3")
+        self.horizontalLayoutWidget_3.setGeometry(QRect(870, 190, 121, 51))
+        self.horizontalLayout_3 = QHBoxLayout(self.horizontalLayoutWidget_3)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.xzoomin = QPushButton(self.horizontalLayoutWidget_3)
+        self.xzoomin.setObjectName(u"xzoomin")
+        self.xzoomin.setIcon(icon)
+        self.xzoomin.setAutoRepeat(True)
 
-        self.horizontalLayout_2.addWidget(self.specbrighter)
+        self.horizontalLayout_3.addWidget(self.xzoomin)
+
+        self.xzoomout = QPushButton(self.horizontalLayoutWidget_3)
+        self.xzoomout.setObjectName(u"xzoomout")
+        self.xzoomout.setIcon(icon2)
+        self.xzoomout.setAutoRepeat(True)
+
+        self.horizontalLayout_3.addWidget(self.xzoomout)
+
+        self.xzoomreset = QPushButton(self.horizontalLayoutWidget_3)
+        self.xzoomreset.setObjectName(u"xzoomreset")
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/home.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.xzoomreset.setIcon(icon8)
+        self.xzoomreset.setAutoRepeat(True)
+
+        self.horizontalLayout_3.addWidget(self.xzoomreset)
 
         Window1.setCentralWidget(self.centralwidget)
 
@@ -210,7 +239,10 @@ class Ui_Window1(object):
         self.shownepochsminus.setText("")
         self.shownepochslabel.setText(QCoreApplication.translate("Window1", u"5", None))
         self.shownepochsplus.setText("")
-        self.specdimmer.setText("")
         self.specbrighter.setText("")
+        self.specdimmer.setText("")
+        self.xzoomin.setText("")
+        self.xzoomout.setText("")
+        self.xzoomreset.setText("")
     # retranslateUi
 

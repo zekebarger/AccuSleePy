@@ -11,11 +11,17 @@ from accusleepy.utils.constants import BRAIN_STATE_MAPPER, MAX_LOWER_XTICK_N
 from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 
+# NOTES
 # magic spell:
 # /Users/zeke/PycharmProjects/AccuSleePy/.venv/lib/python3.13/site-packages/PySide6/Qt/libexec/uic -g python accusleepy/gui/window1.ui -o accusleepy/gui/Window1.py
 
 # other magic spell (if the icon set is altered)
 # pyside6-rcc accusleepy/gui/resources.qrc -o accusleepy/gui/resources_rc.py
+
+# if you won't want to mess with qt creator, can add this below customwidgets in the ui file
+# <resources>
+#   <include location="resources.qrc"/>
+#  </resources>
 
 # https://github.com/RamanLukashevich/Easy_Statistica/blob/main/mplwidget.py
 
@@ -171,8 +177,11 @@ class MainWindow(QtWidgets.QMainWindow):
         keypress_zoom_in_x.activated.connect(partial(self.zoom_x, "in"))
         keypress_zoom_in_x2 = QtGui.QShortcut(QtGui.QKeySequence("="), self)
         keypress_zoom_in_x2.activated.connect(partial(self.zoom_x, "in"))
+        self.ui.xzoomin.clicked.connect(partial(self.zoom_x, "in"))
         keypress_zoom_out_x = QtGui.QShortcut(QtGui.QKeySequence("-"), self)
         keypress_zoom_out_x.activated.connect(partial(self.zoom_x, "out"))
+        self.ui.xzoomout.clicked.connect(partial(self.zoom_x, "out"))
+        self.ui.xzoomreset.clicked.connect(partial(self.zoom_x, "reset"))
 
         keypress_modify_label = list()
         for brain_state in BRAIN_STATE_MAPPER.brain_states:
@@ -319,11 +328,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.upper_right_epoch = int(
                 min([self.upper_right_epoch, self.epoch + 0.45 * epochs_shown])
             )
-        else:
+        elif direction == "out":
             self.upper_left_epoch = int(max([0, self.epoch - 1.017 * epochs_shown]))
             self.upper_right_epoch = int(
                 min([self.n_epochs - 1, self.epoch + 1.017 * epochs_shown])
             )
+        else:  # reset
+            self.upper_left_epoch = 0
+            self.upper_right_epoch = self.n_epochs - 1
         self.adjust_upper_plot_x_limits()
 
     def modify_label_img(self, display_label):
