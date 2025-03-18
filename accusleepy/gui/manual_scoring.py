@@ -283,15 +283,48 @@ class MainWindow(QtWidgets.QMainWindow):
         keypress_esc.activated.connect(self.exit_label_roi_mode)
 
         keypress_space = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["space"]), self)
-        keypress_space.activated.connect(self.jump_to_next_state)
+        keypress_space.activated.connect(
+            partial(self.jump_to_next_state, "right", "different")
+        )
+        keypress_shift_right = QtGui.QShortcut(QtGui.QKeySequence("Shift+Right"), self)
+        keypress_shift_right.activated.connect(
+            partial(self.jump_to_next_state, "right", "different")
+        )
+        keypress_shift_left = QtGui.QShortcut(QtGui.QKeySequence("Shift+Left"), self)
+        keypress_shift_left.activated.connect(
+            partial(self.jump_to_next_state, "left", "different")
+        )
+        keypress_ctrl_right = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Right"), self)
+        keypress_ctrl_right.activated.connect(
+            partial(self.jump_to_next_state, "right", "undefined")
+        )
+        keypress_ctrl_left = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Left"), self)
+        keypress_ctrl_left.activated.connect(
+            partial(self.jump_to_next_state, "left", "undefined")
+        )
 
         self.show()
 
-    def jump_to_next_state(self):
-        simulated_click = SimulatedClick(xdata=self.n_epochs - 1)
-        matches = np.where(self.labels[self.epoch :] != self.labels[self.epoch])[0]
-        if matches.size > 0:
-            simulated_click.xdata = matches[0] + self.epoch
+    def jump_to_next_state(self, direction: str, target: str):
+        simulated_click = SimulatedClick(xdata=self.epoch)
+        if direction == "right":
+            if target == "different":
+                matches = np.where(
+                    self.labels[self.epoch + 1 :] != self.labels[self.epoch]
+                )[0]
+            else:
+                matches = np.where(self.labels[self.epoch + 1 :] == UNDEFINED_LABEL)[0]
+            if matches.size > 0:
+                simulated_click.xdata = matches[0] + 1 + self.epoch
+        else:
+            if target == "different":
+                matches = np.where(
+                    self.labels[: self.epoch] != self.labels[self.epoch]
+                )[0]
+            else:
+                matches = np.where(self.labels[: self.epoch] == UNDEFINED_LABEL)[0]
+            if matches.size > 0:
+                simulated_click.xdata = matches[-1]
         self.click_to_jump(simulated_click)
 
     def roi_callback(self, eclick, erelease):
