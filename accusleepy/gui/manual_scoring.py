@@ -10,6 +10,7 @@ from Window1 import Ui_Window1
 from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording, save_labels
 from accusleepy.utils.signal_processing import create_spectrogram, process_emg
+from accusleepy.utils.misc import SimulatedClick
 
 # NOTES
 # magic spell:
@@ -37,10 +38,10 @@ KEY_MAP = {
     "down": QtCore.Qt.Key.Key_Down,
     "control": QtCore.Qt.Key.Key_Control,
     "esc": QtCore.Qt.Key.Key_Escape,
+    "space": QtCore.Qt.Key.Key_Space,
     # QtCore.Qt.Key.Key_Tab: "tab",
     # QtCore.Qt.Key.Key_Return: "enter",
     # QtCore.Qt.Key.Key_Enter: "enter",
-    # QtCore.Qt.Key.Key_Space: "space",
     # QtCore.Qt.Key.Key_End: "end",
     # QtCore.Qt.Key.Key_Home: "home",
     # QtCore.Qt.Key.Key_Delete: "delete",
@@ -281,7 +282,17 @@ class MainWindow(QtWidgets.QMainWindow):
         keypress_esc = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["esc"]), self)
         keypress_esc.activated.connect(self.exit_label_roi_mode)
 
+        keypress_space = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["space"]), self)
+        keypress_space.activated.connect(self.jump_to_next_state)
+
         self.show()
+
+    def jump_to_next_state(self):
+        simulated_click = SimulatedClick(xdata=self.n_epochs - 1)
+        matches = np.where(self.labels[self.epoch :] != self.labels[self.epoch])[0]
+        if matches.size > 0:
+            simulated_click.xdata = matches[0] + self.epoch
+        self.click_to_jump(simulated_click)
 
     def roi_callback(self, eclick, erelease):
         # print(f"setting {eclick.xdata}-{erelease.xdata} to state {self.roi_state}")

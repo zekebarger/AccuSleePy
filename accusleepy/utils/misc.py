@@ -49,3 +49,8 @@ class Recording:
     recording_file: str
     label_file: str
     sampling_rate: int | float
+
+
+@dataclass
+class SimulatedClick:
+    xdata: int
