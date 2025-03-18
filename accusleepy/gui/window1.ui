@@ -350,9 +350,9 @@
     <property name="geometry">
      <rect>
       <x>840</x>
-      <y>110</y>
+      <y>100</y>
       <width>132</width>
-      <height>71</height>
+      <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -420,9 +420,9 @@
     <property name="geometry">
      <rect>
       <x>840</x>
-      <y>200</y>
+      <y>150</y>
       <width>131</width>
-      <height>51</height>
+      <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -515,9 +515,9 @@
    <widget class="QPushButton" name="savebutton">
     <property name="geometry">
      <rect>
-      <x>885</x>
-      <y>30</y>
-      <width>41</width>
+      <x>881</x>
+      <y>29</y>
+      <width>50</width>
       <height>51</height>
      </rect>
     </property>

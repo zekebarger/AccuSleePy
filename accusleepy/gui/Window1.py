@@ -169,7 +169,7 @@ class Ui_Window1(object):
 
         self.horizontalLayoutWidget_2 = QWidget(self.centralwidget)
         self.horizontalLayoutWidget_2.setObjectName(u"horizontalLayoutWidget_2")
-        self.horizontalLayoutWidget_2.setGeometry(QRect(840, 110, 132, 71))
+        self.horizontalLayoutWidget_2.setGeometry(QRect(840, 100, 132, 41))
         self.horizontalLayout_2 = QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -202,7 +202,7 @@ class Ui_Window1(object):
 
         self.horizontalLayoutWidget_3 = QWidget(self.centralwidget)
         self.horizontalLayoutWidget_3.setObjectName(u"horizontalLayoutWidget_3")
-        self.horizontalLayoutWidget_3.setGeometry(QRect(840, 200, 131, 51))
+        self.horizontalLayoutWidget_3.setGeometry(QRect(840, 150, 131, 41))
         self.horizontalLayout_3 = QHBoxLayout(self.horizontalLayoutWidget_3)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(2, 0, 2, 0)
@@ -237,7 +237,7 @@ class Ui_Window1(object):
 
         self.savebutton = QPushButton(self.centralwidget)
         self.savebutton.setObjectName(u"savebutton")
-        self.savebutton.setGeometry(QRect(885, 30, 41, 51))
+        self.savebutton.setGeometry(QRect(881, 29, 50, 51))
         self.savebutton.setStyleSheet(u"background-color: rgb(237, 241, 241);")
         icon9 = QIcon()
         icon9.addFile(u":/icons/save.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)

@@ -3,9 +3,9 @@ from functools import partial
 
 import matplotlib.pyplot as plt
 import numpy as np
+from mplwidget import resample_x_ticks
 from PySide6 import QtCore, QtGui, QtWidgets
 from Window1 import Ui_Window1
-from mplwidget import resample_x_ticks
 
 from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording, save_labels
@@ -26,6 +26,7 @@ from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 
 # https://github.com/RamanLukashevich/Easy_Statistica/blob/main/mplwidget.py
 
+# TODO undefined epochs should be black
 
 # revisit this...
 KEY_MAP = {
@@ -35,10 +36,10 @@ KEY_MAP = {
     "up": QtCore.Qt.Key.Key_Up,
     "down": QtCore.Qt.Key.Key_Down,
     "control": QtCore.Qt.Key.Key_Control,
+    "esc": QtCore.Qt.Key.Key_Escape,
     # QtCore.Qt.Key.Key_Tab: "tab",
     # QtCore.Qt.Key.Key_Return: "enter",
     # QtCore.Qt.Key.Key_Enter: "enter",
-    # QtCore.Qt.Key.Key_Escape: "esc",
     # QtCore.Qt.Key.Key_Space: "space",
     # QtCore.Qt.Key.Key_End: "end",
     # QtCore.Qt.Key.Key_Home: "home",
@@ -106,7 +107,6 @@ class MainWindow(QtWidgets.QMainWindow):
             "/Users/zeke/PycharmProjects/AccuSleePy/sample_recording.parquet"
         )
         self.labels = load_labels(self.label_file)
-
         self.epochs_to_show = 5
 
         self.ui = Ui_Window1()
@@ -131,6 +131,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.display_labels, self.label_display_options
         )
 
+        self.roi_brain_state = 0
+
         # set up plots
         self.ui.upperplots.setup_upper_plots(
             self.n_epochs,
@@ -142,6 +144,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.epochs_to_show,
             self.label_display_options,
             BRAIN_STATE_MAPPER,
+            self.roi_callback,
         )
         self.ui.lowerplots.setup_lower_plots(
             self.label_img,
@@ -163,6 +166,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lower_right_epoch = self.epochs_to_show - 1
 
         self.process_signals()
+
+        self.label_roi_mode = False
 
         self.update_lower_plot()
 
@@ -209,7 +214,7 @@ class MainWindow(QtWidgets.QMainWindow):
         keypress_delete_label.activated.connect(self.update_lower_plot)
 
         keypress_quit = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+w"), self)
-        keypress_quit.activated.connect(lambda: self.close())
+        keypress_quit.activated.connect(self.close)
 
         self.ui.upperplots.canvas.mpl_connect("button_press_event", self.click_to_jump)
 
@@ -253,10 +258,63 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         keypress_save = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+s"), self)
-        keypress_save.activated.connect(lambda: self.save())
-        self.ui.savebutton.clicked.connect(lambda: self.save())
+        keypress_save.activated.connect(self.save)
+        self.ui.savebutton.clicked.connect(self.save)
+
+        keypress_roi = list()
+        for brain_state in BRAIN_STATE_MAPPER.brain_states:
+            keypress_roi.append(
+                QtGui.QShortcut(
+                    QtGui.QKeySequence("Shift+" + str(brain_state.digit)), self
+                )
+            )
+            keypress_roi[-1].activated.connect(
+                partial(self.enter_label_roi_mode, brain_state.digit)
+            )
+        keypress_roi.append(
+            QtGui.QShortcut(QtGui.QKeySequence("Shift+backspace"), self)
+        )
+        keypress_roi[-1].activated.connect(
+            partial(self.enter_label_roi_mode, UNDEFINED_LABEL)
+        )
+
+        keypress_esc = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["esc"]), self)
+        keypress_esc.activated.connect(self.exit_label_roi_mode)
 
         self.show()
+
+    def roi_callback(self, eclick, erelease):
+        # print(f"setting {eclick.xdata}-{erelease.xdata} to state {self.roi_state}")
+        epochleft = int(np.ceil(eclick.xdata))
+        epochright = int(np.floor(erelease.xdata))
+
+        self.labels[int(np.ceil(eclick.xdata)) : int(np.floor(erelease.xdata)) + 1] = (
+            self.roi_brain_state
+        )
+        self.display_labels = convert_labels(
+            self.labels,
+            style="display",
+        )
+        self.label_img = create_label_img(
+            self.display_labels, self.label_display_options
+        )
+        self.update_upper_plot()
+        self.update_lower_plot()
+        self.exit_label_roi_mode()
+
+    def exit_label_roi_mode(self):
+        self.ui.upperplots.roi.set_active(False)
+        self.ui.upperplots.roi.set_visible(False)
+        self.ui.upperplots.roi.update()
+        self.label_roi_mode = False
+
+    def enter_label_roi_mode(self, brain_state):
+        self.label_roi_mode = True
+        self.roi_brain_state = brain_state
+        self.ui.upperplots.roi_patch.set(
+            facecolor=LABEL_CMAP[convert_labels(np.array([brain_state]), "display")]
+        )
+        self.ui.upperplots.roi.set_active(True)
 
     def save(self):
         save_labels(self.labels, self.label_file)
@@ -504,7 +562,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def click_to_jump(self, event):
         # make sure click location is valid
-        if event.xdata is None:
+        # and we are not in label ROI mode
+        if event.xdata is None or self.label_roi_mode:
             return
         # get the "zoom level" so we can preserve that
         upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1

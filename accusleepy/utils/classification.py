@@ -12,13 +12,10 @@ import accusleepy.utils.constants as c
 from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.misc import Recording
 from accusleepy.utils.models import SSANN
-from accusleepy.utils.signal_processing import (
-    create_eeg_emg_image,
-    format_img,
-    get_mixture_values,
-    mixture_z_score_img,
-    truncate_signals,
-)
+from accusleepy.utils.signal_processing import (create_eeg_emg_image,
+                                                format_img, get_mixture_values,
+                                                mixture_z_score_img,
+                                                truncate_signals)
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3

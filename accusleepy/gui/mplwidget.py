@@ -1,9 +1,12 @@
+import matplotlib.ticker as mticker
 import numpy as np
+from matplotlib.backend_bases import MouseButton
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
+from matplotlib.patches import Rectangle
+from matplotlib.widgets import RectangleSelector
 from PySide6.QtWidgets import *
-import matplotlib.ticker as mticker
 
 from accusleepy.utils.constants import MAX_LOWER_XTICK_N
 
@@ -43,6 +46,8 @@ class MplWidget(QWidget):
         self.upper_marker = None
         self.label_img_ref = None
         self.spec_ref = None
+        self.roi = None
+        self.roi_patch = None
 
         # lower plot uses these
         self.eeg_line = None
@@ -63,6 +68,7 @@ class MplWidget(QWidget):
         epochs_to_show,
         label_display_options,
         brain_state_mapper,
+        roi_function,
     ):
         self.epoch_length = epoch_length
         self.upper_marker = list()
@@ -91,6 +97,16 @@ class MplWidget(QWidget):
         self.label_img_ref = axes[0].imshow(
             label_img, aspect="auto", origin="lower", interpolation="None"
         )
+        self.roi = RectangleSelector(
+            ax=axes[0],
+            onselect=roi_function,
+            interactive=False,
+            button=MouseButton(1),
+        )
+        self.roi.set_active(False)
+        # since there are no other rectangles except the background,
+        # we can keep a reference to the ROI patch so we can change its color
+        self.roi_patch = [c for c in axes[0].get_children() if type(c) == Rectangle][0]
 
         # epoch marker
         # axes[1].axis("off") # use this eventually
