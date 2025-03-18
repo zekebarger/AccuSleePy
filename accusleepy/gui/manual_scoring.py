@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PySide6 import QtCore, QtGui, QtWidgets
 from Window1 import Ui_Window1
+from mplwidget import resample_x_ticks
 
-from accusleepy.utils.constants import BRAIN_STATE_MAPPER
+from accusleepy.utils.constants import BRAIN_STATE_MAPPER, MAX_LOWER_XTICK_N
 from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 
@@ -240,10 +241,15 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.lower_right_epoch += 1
         else:
             if self.epochs_to_show > 3:
-                # TODO: edge case when marker is not centered
                 self.epochs_to_show -= 2
-                self.lower_left_epoch += 1
-                self.lower_right_epoch -= 1
+                if self.lower_left_epoch == 0:
+                    self.lower_right_epoch -= 2
+                elif self.lower_right_epoch == self.n_epochs - 1:
+                    self.lower_left_epoch += 2
+                else:
+                    self.lower_left_epoch += 1
+                    self.lower_right_epoch -= 1
+
         self.ui.shownepochslabel.setText(str(self.epochs_to_show))
 
         # totally rebuild lower plots
@@ -439,12 +445,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 :, self.lower_left_epoch : (self.lower_right_epoch + 1), :
             ]
         )
-        # TODO this is slow/ugly if we show lots of epochs
+        x_ticks = resample_x_ticks(
+            np.arange(self.lower_left_epoch, self.lower_right_epoch + 1)
+        )
         self.ui.lowerplots.canvas.axes[1].set_xticklabels(
             [
                 "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))
-                for x in np.arange(self.lower_left_epoch, self.lower_right_epoch + 1)
-                * epoch_length
+                for x in x_ticks * epoch_length
             ]
         )
 

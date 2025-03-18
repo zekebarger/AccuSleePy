@@ -5,11 +5,23 @@ from matplotlib.gridspec import GridSpec
 from PySide6.QtWidgets import *
 import matplotlib.ticker as mticker
 
+from accusleepy.utils.constants import MAX_LOWER_XTICK_N
 
 # https://stackoverflow.com/questions/67637912/resizing-matplotlib-chart-with-qt5-python
 
 SPEC_UPPER_F = 30
 SPEC_YTICK_INTERVAL = 10
+
+
+def resample_x_ticks(x_ticks):
+    n_ticks = len(x_ticks) + 1  # add imaginary one at the end
+    if n_ticks < MAX_LOWER_XTICK_N:
+        return x_ticks
+    if n_ticks % MAX_LOWER_XTICK_N < n_ticks % (MAX_LOWER_XTICK_N - 2):
+        x_ticks = x_ticks[:: int(n_ticks / MAX_LOWER_XTICK_N)]
+    else:
+        x_ticks = x_ticks[:: int(n_ticks / (MAX_LOWER_XTICK_N - 2))]
+    return x_ticks
 
 
 class MplWidget(QWidget):
@@ -172,15 +184,16 @@ class MplWidget(QWidget):
             axes[0].plot([marker_dx, marker_dx], [1 - marker_dy, 1], "r")[0]
         )
 
-        axes[1].set_xticks(
+        x_ticks = resample_x_ticks(
             np.arange(
                 0,
                 sampling_rate * epoch_length * epochs_to_show,
                 sampling_rate * epoch_length,
             )
         )
-        axes[1].tick_params(axis="x", which="major", labelsize=8)
+        axes[1].set_xticks(x_ticks)
         axes[1].set_yticks([])
+        axes[1].tick_params(axis="x", which="major", labelsize=8)
         axes[1].set_ylabel("EMG", rotation="horizontal", ha="right")
         axes[1].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
         axes[1].set_ylim((-1, 1))

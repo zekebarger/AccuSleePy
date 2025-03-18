@@ -26,6 +26,7 @@ MIXTURE_SD_COL = "mixture_sd"
 EEG_COL = "eeg"
 EMG_COL = "emg"
 BRAIN_STATE_COL = "brain_state"
+MAX_LOWER_XTICK_N = 7
 
 
 # really don't change these
