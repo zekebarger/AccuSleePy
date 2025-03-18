@@ -65,3 +65,7 @@ def load_recording(file_path: str) -> (np.array, np.array):
 def load_labels(file_path: str) -> np.array:
     df = load_csv_or_parquet(file_path)
     return df[c.BRAIN_STATE_COL].values
+
+
+def save_labels(labels: np.array, file_path: str) -> None:
+    pd.DataFrame({c.BRAIN_STATE_COL: labels}).to_csv(file_path, index=False)

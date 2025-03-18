@@ -9,7 +9,8 @@
         <file alias="home.png">icons/home.png</file>
         <file alias="question.png">icons/question.png</file>
         <file alias="up_arrow.png">icons/up_arrow.png</file>
-        <file alias="zoom-in.png">icons/zoom-in.png</file>
-        <file alias="zoom-out.png">icons/zoom-out.png</file>
+        <file alias="zoom_in.png">icons/zoom_in.png</file>
+        <file alias="zoom_out.png">icons/zoom_out.png</file>
+        <file alias="save.png">icons/save.png</file>
     </qresource>
 </RCC>

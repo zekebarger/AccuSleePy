@@ -7,8 +7,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from Window1 import Ui_Window1
 from mplwidget import resample_x_ticks
 
-from accusleepy.utils.constants import BRAIN_STATE_MAPPER, MAX_LOWER_XTICK_N
-from accusleepy.utils.fileio import load_labels, load_recording
+from accusleepy.utils.constants import BRAIN_STATE_MAPPER
+from accusleepy.utils.fileio import load_labels, load_recording, save_labels
 from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 
 # NOTES
@@ -18,7 +18,8 @@ from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 # other magic spell (if the icon set is altered)
 # pyside6-rcc accusleepy/gui/resources.qrc -o accusleepy/gui/resources_rc.py
 
-# if you won't want to mess with qt creator, can add this below customwidgets in the ui file
+# https://www.pythonguis.com/tutorials/qresource-system/
+# and if you won't want to mess with qt creator, can add this below customwidgets in the ui file
 # <resources>
 #   <include location="resources.qrc"/>
 #  </resources>
@@ -99,12 +100,11 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
 
         # THESE SHOULD BE USER INPUT SOMEHOW
+        self.label_file = "/Users/zeke/PycharmProjects/AccuSleePy/sample_labels.csv"
         self.eeg, self.emg = load_recording(
             "/Users/zeke/PycharmProjects/AccuSleePy/sample_recording.parquet"
         )
-        self.labels = load_labels(
-            "/Users/zeke/PycharmProjects/AccuSleePy/sample_labels.csv"
-        )
+        self.labels = load_labels(self.label_file)
 
         self.epochs_to_show = 5
 
@@ -246,7 +246,14 @@ class MainWindow(QtWidgets.QMainWindow):
             partial(self.update_spectrogram_brightness, "dimmer")
         )
 
+        keypress_save = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+s"), self)
+        keypress_save.activated.connect(lambda: self.save())
+        self.ui.savebutton.clicked.connect(lambda: self.save())
+
         self.show()
+
+    def save(self):
+        save_labels(self.labels, self.label_file)
 
     def update_spectrogram_brightness(self, direction: str):
         vmin, vmax = self.ui.upperplots.spec_ref.get_clim()

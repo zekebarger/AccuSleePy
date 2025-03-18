@@ -67,6 +67,9 @@
       <height>20</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>Step forward when setting brain state</string>
+    </property>
     <property name="text">
      <string>Auto scroll</string>
     </property>
@@ -76,19 +79,22 @@
      <rect>
       <x>870</x>
       <y>300</y>
-      <width>116</width>
+      <width>111</width>
       <height>81</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="eegbuttons">
      <item row="0" column="0">
       <widget class="QPushButton" name="eegzoomin">
+       <property name="toolTip">
+        <string>Scale signal up</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/zoom-in.png</normaloff>:/icons/zoom-in.png</iconset>
+         <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -97,6 +103,9 @@
      </item>
      <item row="0" column="1">
       <widget class="QPushButton" name="eegshiftup">
+       <property name="toolTip">
+        <string>Shift signal up</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -111,12 +120,15 @@
      </item>
      <item row="1" column="0">
       <widget class="QPushButton" name="eegzoomout">
+       <property name="toolTip">
+        <string>Scale signal down</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/zoom-out.png</normaloff>:/icons/zoom-out.png</iconset>
+         <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -125,6 +137,9 @@
      </item>
      <item row="1" column="1">
       <widget class="QPushButton" name="eegshiftdown">
+       <property name="toolTip">
+        <string>Shift signal down</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -144,7 +159,7 @@
      <rect>
       <x>870</x>
       <y>390</y>
-      <width>116</width>
+      <width>111</width>
       <height>81</height>
      </rect>
     </property>
@@ -156,7 +171,7 @@
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/zoom-in.png</normaloff>:/icons/zoom-in.png</iconset>
+         <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -184,7 +199,7 @@
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/zoom-out.png</normaloff>:/icons/zoom-out.png</iconset>
+         <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -275,13 +290,16 @@
      <rect>
       <x>870</x>
       <y>110</y>
-      <width>116</width>
+      <width>111</width>
       <height>71</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QPushButton" name="specbrighter">
+       <property name="toolTip">
+        <string>Increase brightness</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -301,6 +319,9 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Decrease brightness</string>
        </property>
        <property name="text">
         <string/>
@@ -326,7 +347,7 @@
     <property name="geometry">
      <rect>
       <x>870</x>
-      <y>190</y>
+      <y>200</y>
       <width>121</width>
       <height>51</height>
      </rect>
@@ -334,12 +355,15 @@
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QPushButton" name="xzoomin">
+       <property name="toolTip">
+        <string>Zoom in (+)</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/zoom-in.png</normaloff>:/icons/zoom-in.png</iconset>
+         <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -348,12 +372,15 @@
      </item>
      <item>
       <widget class="QPushButton" name="xzoomout">
+       <property name="toolTip">
+        <string>Zoom out (-)</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/zoom-out.png</normaloff>:/icons/zoom-out.png</iconset>
+         <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -362,6 +389,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="xzoomreset">
+       <property name="toolTip">
+        <string>Reset zoom</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -375,6 +405,35 @@
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="savebutton">
+    <property name="geometry">
+     <rect>
+      <x>900</x>
+      <y>20</y>
+      <width>41</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Save labels (Ctrl+S)</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="resources.qrc">
+      <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>20</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="autoRepeat">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
  </widget>
