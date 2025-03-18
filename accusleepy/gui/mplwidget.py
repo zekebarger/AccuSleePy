@@ -38,6 +38,7 @@ class MplWidget(QWidget):
         # upper plot uses these
         self.upper_marker = None
         self.label_img_ref = None
+        self.spec_ref = None
 
         # lower plot uses these
         self.eeg_line = None
@@ -118,7 +119,7 @@ class MplWidget(QWidget):
                 )
             ]
         )
-        axes[2].imshow(
+        self.spec_ref = axes[2].imshow(
             spec,
             vmin=np.percentile(spec, 2),
             vmax=np.percentile(spec, 98),

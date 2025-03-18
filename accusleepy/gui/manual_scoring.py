@@ -227,7 +227,22 @@ class MainWindow(QtWidgets.QMainWindow):
             partial(self.update_epochs_shown, "minus")
         )
 
+        self.ui.specbrighter.clicked.connect(
+            partial(self.update_spectrogram_brightness, "brighter")
+        )
+        self.ui.specdimmer.clicked.connect(
+            partial(self.update_spectrogram_brightness, "dimmer")
+        )
+
         self.show()
+
+    def update_spectrogram_brightness(self, direction: str):
+        vmin, vmax = self.ui.upperplots.spec_ref.get_clim()
+        if direction == "brighter":
+            self.ui.upperplots.spec_ref.set(clim=(vmin, vmax * 0.96))
+        else:
+            self.ui.upperplots.spec_ref.set(clim=(vmin, vmax * 1.07))
+        self.ui.upperplots.canvas.draw()
 
     def update_epochs_shown(self, direction: str):
         if direction == "plus":
@@ -406,7 +421,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
 
     def update_upper_plot(self):
-        # WIP
+        # TODO: reevaluate this...
         self.update_upper_marker()
         self.ui.upperplots.label_img_ref.set(data=self.label_img)
         self.ui.upperplots.canvas.draw()

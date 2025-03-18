@@ -16,7 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QLabel,
-    QMainWindow, QPushButton, QSizePolicy, QWidget)
+    QMainWindow, QPushButton, QSizePolicy, QVBoxLayout,
+    QWidget)
 
 from mplwidget import MplWidget
 
@@ -122,6 +123,24 @@ class Ui_Window1(object):
         self.epochsword = QLabel(self.centralwidget)
         self.epochsword.setObjectName(u"epochsword")
         self.epochsword.setGeometry(QRect(870, 530, 58, 16))
+        self.verticalLayoutWidget = QWidget(self.centralwidget)
+        self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
+        self.verticalLayoutWidget.setGeometry(QRect(880, 90, 91, 71))
+        self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.specbrighter = QPushButton(self.verticalLayoutWidget)
+        self.specbrighter.setObjectName(u"specbrighter")
+        self.specbrighter.setAutoRepeat(True)
+
+        self.verticalLayout.addWidget(self.specbrighter)
+
+        self.specdimmer = QPushButton(self.verticalLayoutWidget)
+        self.specdimmer.setObjectName(u"specdimmer")
+        self.specdimmer.setAutoRepeat(True)
+
+        self.verticalLayout.addWidget(self.specdimmer)
+
         Window1.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(Window1)
@@ -144,5 +163,7 @@ class Ui_Window1(object):
         self.shownepochsplus.setText(QCoreApplication.translate("Window1", u"+", None))
         self.shownepochsminus.setText(QCoreApplication.translate("Window1", u"-", None))
         self.epochsword.setText(QCoreApplication.translate("Window1", u"Epochs:", None))
+        self.specbrighter.setText(QCoreApplication.translate("Window1", u"Brighter", None))
+        self.specdimmer.setText(QCoreApplication.translate("Window1", u"Dimmer", None))
     # retranslateUi
 
