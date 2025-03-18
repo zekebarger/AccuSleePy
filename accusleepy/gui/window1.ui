@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>984</width>
     <height>600</height>
    </rect>
   </property>
@@ -19,50 +19,15 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: white;</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="MplWidget" name="lowerplots" native="true">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>300</y>
-      <width>850</width>
-      <height>280</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="MplWidget" name="upperplots" native="true">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>850</width>
-      <height>280</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="autoscroll">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>490</y>
+      <x>850</x>
+      <y>500</y>
       <width>85</width>
       <height>20</height>
      </rect>
@@ -77,9 +42,9 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>300</y>
-      <width>111</width>
+      <x>840</x>
+      <y>310</y>
+      <width>124</width>
       <height>81</height>
      </rect>
     </property>
@@ -89,12 +54,21 @@
        <property name="toolTip">
         <string>Scale signal up</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -106,12 +80,21 @@
        <property name="toolTip">
         <string>Shift signal up</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/double_up_arrow.png</normaloff>:/icons/double_up_arrow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -123,12 +106,21 @@
        <property name="toolTip">
         <string>Scale signal down</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -140,12 +132,21 @@
        <property name="toolTip">
         <string>Shift signal down</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/double_down_arrow.png</normaloff>:/icons/double_down_arrow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -157,21 +158,30 @@
    <widget class="QWidget" name="gridLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>390</y>
-      <width>111</width>
+      <x>840</x>
+      <y>400</y>
+      <width>124</width>
       <height>81</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="emgbuttons">
      <item row="0" column="0">
       <widget class="QPushButton" name="emgzoomin">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -180,12 +190,21 @@
      </item>
      <item row="0" column="1">
       <widget class="QPushButton" name="emgshiftup">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/double_up_arrow.png</normaloff>:/icons/double_up_arrow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -194,12 +213,21 @@
      </item>
      <item row="1" column="0">
       <widget class="QPushButton" name="emgzoomout">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -208,12 +236,21 @@
      </item>
      <item row="1" column="1">
       <widget class="QPushButton" name="emgshiftdown">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/double_down_arrow.png</normaloff>:/icons/double_down_arrow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -225,8 +262,8 @@
    <widget class="QLabel" name="epochsword">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>520</y>
+      <x>840</x>
+      <y>530</y>
       <width>58</width>
       <height>16</height>
      </rect>
@@ -238,21 +275,36 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>540</y>
-      <width>111</width>
+      <x>840</x>
+      <y>550</y>
+      <width>121</width>
       <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="leftMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>2</number>
+     </property>
      <item>
       <widget class="QPushButton" name="shownepochsminus">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/down_arrow.png</normaloff>:/icons/down_arrow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>false</bool>
@@ -271,12 +323,21 @@
      </item>
      <item>
       <widget class="QPushButton" name="shownepochsplus">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/up_arrow.png</normaloff>:/icons/up_arrow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>false</bool>
@@ -288,9 +349,9 @@
    <widget class="QWidget" name="horizontalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>870</x>
+      <x>840</x>
       <y>110</y>
-      <width>111</width>
+      <width>132</width>
       <height>71</height>
      </rect>
     </property>
@@ -300,12 +361,21 @@
        <property name="toolTip">
         <string>Increase brightness</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/brightness_up.png</normaloff>:/icons/brightness_up.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -323,6 +393,9 @@
        <property name="toolTip">
         <string>Decrease brightness</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -332,8 +405,8 @@
        </property>
        <property name="iconSize">
         <size>
-         <width>16</width>
-         <height>16</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="autoRepeat">
@@ -346,17 +419,26 @@
    <widget class="QWidget" name="horizontalLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>870</x>
+      <x>840</x>
       <y>200</y>
-      <width>121</width>
+      <width>131</width>
       <height>51</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="leftMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>2</number>
+     </property>
      <item>
       <widget class="QPushButton" name="xzoomin">
        <property name="toolTip">
         <string>Zoom in (+)</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
        </property>
        <property name="text">
         <string/>
@@ -364,6 +446,12 @@
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -375,12 +463,21 @@
        <property name="toolTip">
         <string>Zoom out (-)</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -392,12 +489,21 @@
        <property name="toolTip">
         <string>Reset zoom</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(237, 241, 241);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/home.png</normaloff>:/icons/home.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -409,14 +515,17 @@
    <widget class="QPushButton" name="savebutton">
     <property name="geometry">
      <rect>
-      <x>900</x>
-      <y>20</y>
+      <x>885</x>
+      <y>30</y>
       <width>41</width>
       <height>51</height>
      </rect>
     </property>
     <property name="toolTip">
      <string>Save labels (Ctrl+S)</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(237, 241, 241);</string>
     </property>
     <property name="text">
      <string/>
@@ -427,13 +536,51 @@
     </property>
     <property name="iconSize">
      <size>
-      <width>20</width>
-      <height>20</height>
+      <width>24</width>
+      <height>24</height>
      </size>
     </property>
     <property name="autoRepeat">
      <bool>true</bool>
     </property>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>821</width>
+      <height>581</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="MplWidget" name="upperplots" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="MplWidget" name="lowerplots" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
  </widget>
