@@ -27,7 +27,6 @@ from accusleepy.utils.misc import SimulatedClick
 
 # https://github.com/RamanLukashevich/Easy_Statistica/blob/main/mplwidget.py
 
-# TODO undefined epochs should be black
 
 # revisit this...
 KEY_MAP = {
@@ -54,7 +53,7 @@ epoch_length = 2.5
 
 
 LABEL_CMAP = np.concatenate(
-    [np.array([[1, 1, 1, 1]]), plt.colormaps["tab10"](range(10))], axis=0
+    [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
 
 
@@ -83,6 +82,8 @@ def create_label_img(labels, label_display_options):
     for i, label in enumerate(labels):
         if label > 0:
             label_img[label - smallest_display_label, i, :] = LABEL_CMAP[label]
+        else:
+            label_img[:, i] = np.array([0, 0, 0, 1])
     return label_img
 
 
@@ -454,12 +455,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.adjust_upper_plot_x_limits()
 
     def modify_label_img(self, display_label):
-        self.label_img[:, self.epoch, :] = 1  # blank out the cell
         if display_label == 0:  # undefined brain state
-            return
-        self.label_img[display_label - self.smallest_display_label, self.epoch, :] = (
-            LABEL_CMAP[display_label]
-        )
+            self.label_img[:, self.epoch] = np.array([0, 0, 0, 1])
+        else:
+            self.label_img[:, self.epoch, :] = 1
+            self.label_img[
+                display_label - self.smallest_display_label, self.epoch, :
+            ] = LABEL_CMAP[display_label]
 
     def modify_label(self, digit):
         self.labels[self.epoch] = digit
