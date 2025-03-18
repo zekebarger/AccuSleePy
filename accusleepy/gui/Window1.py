@@ -15,11 +15,12 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QLabel,
-    QMainWindow, QPushButton, QSizePolicy, QVBoxLayout,
+from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QHBoxLayout,
+    QLabel, QMainWindow, QPushButton, QSizePolicy,
     QWidget)
 
 from mplwidget import MplWidget
+import resources_rc
 
 class Ui_Window1(object):
     def setupUi(self, Window1):
@@ -50,96 +51,142 @@ class Ui_Window1(object):
         self.autoscroll.setGeometry(QRect(880, 490, 85, 20))
         self.gridLayoutWidget = QWidget(self.centralwidget)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(880, 300, 94, 81))
+        self.gridLayoutWidget.setGeometry(QRect(870, 300, 111, 81))
         self.eegbuttons = QGridLayout(self.gridLayoutWidget)
         self.eegbuttons.setObjectName(u"eegbuttons")
         self.eegbuttons.setContentsMargins(0, 0, 0, 0)
         self.eegzoomin = QPushButton(self.gridLayoutWidget)
         self.eegzoomin.setObjectName(u"eegzoomin")
+        icon = QIcon()
+        icon.addFile(u":/icons/zoom-in.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.eegzoomin.setIcon(icon)
         self.eegzoomin.setAutoRepeat(True)
 
         self.eegbuttons.addWidget(self.eegzoomin, 0, 0, 1, 1)
 
         self.eegshiftup = QPushButton(self.gridLayoutWidget)
         self.eegshiftup.setObjectName(u"eegshiftup")
+        icon1 = QIcon()
+        icon1.addFile(u":/icons/double_up_arrow.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.eegshiftup.setIcon(icon1)
         self.eegshiftup.setAutoRepeat(True)
 
         self.eegbuttons.addWidget(self.eegshiftup, 0, 1, 1, 1)
 
         self.eegzoomout = QPushButton(self.gridLayoutWidget)
         self.eegzoomout.setObjectName(u"eegzoomout")
+        icon2 = QIcon()
+        icon2.addFile(u":/icons/zoom-out.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.eegzoomout.setIcon(icon2)
         self.eegzoomout.setAutoRepeat(True)
 
         self.eegbuttons.addWidget(self.eegzoomout, 1, 0, 1, 1)
 
         self.eegshiftdown = QPushButton(self.gridLayoutWidget)
         self.eegshiftdown.setObjectName(u"eegshiftdown")
+        icon3 = QIcon()
+        icon3.addFile(u":/icons/double_down_arrow.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.eegshiftdown.setIcon(icon3)
         self.eegshiftdown.setAutoRepeat(True)
 
         self.eegbuttons.addWidget(self.eegshiftdown, 1, 1, 1, 1)
 
         self.gridLayoutWidget_2 = QWidget(self.centralwidget)
         self.gridLayoutWidget_2.setObjectName(u"gridLayoutWidget_2")
-        self.gridLayoutWidget_2.setGeometry(QRect(880, 390, 94, 81))
+        self.gridLayoutWidget_2.setGeometry(QRect(870, 390, 111, 81))
         self.emgbuttons = QGridLayout(self.gridLayoutWidget_2)
         self.emgbuttons.setObjectName(u"emgbuttons")
         self.emgbuttons.setContentsMargins(0, 0, 0, 0)
         self.emgzoomin = QPushButton(self.gridLayoutWidget_2)
         self.emgzoomin.setObjectName(u"emgzoomin")
+        self.emgzoomin.setIcon(icon)
         self.emgzoomin.setAutoRepeat(True)
 
         self.emgbuttons.addWidget(self.emgzoomin, 0, 0, 1, 1)
 
         self.emgshiftup = QPushButton(self.gridLayoutWidget_2)
         self.emgshiftup.setObjectName(u"emgshiftup")
+        self.emgshiftup.setIcon(icon1)
         self.emgshiftup.setAutoRepeat(True)
 
         self.emgbuttons.addWidget(self.emgshiftup, 0, 1, 1, 1)
 
         self.emgzoomout = QPushButton(self.gridLayoutWidget_2)
         self.emgzoomout.setObjectName(u"emgzoomout")
+        self.emgzoomout.setIcon(icon2)
         self.emgzoomout.setAutoRepeat(True)
 
         self.emgbuttons.addWidget(self.emgzoomout, 1, 0, 1, 1)
 
         self.emgshiftdown = QPushButton(self.gridLayoutWidget_2)
         self.emgshiftdown.setObjectName(u"emgshiftdown")
+        self.emgshiftdown.setIcon(icon3)
         self.emgshiftdown.setAutoRepeat(True)
 
         self.emgbuttons.addWidget(self.emgshiftdown, 1, 1, 1, 1)
 
-        self.shownepochslabel = QLabel(self.centralwidget)
-        self.shownepochslabel.setObjectName(u"shownepochslabel")
-        self.shownepochslabel.setGeometry(QRect(910, 560, 21, 16))
-        self.shownepochslabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.shownepochsplus = QPushButton(self.centralwidget)
-        self.shownepochsplus.setObjectName(u"shownepochsplus")
-        self.shownepochsplus.setGeometry(QRect(940, 550, 31, 40))
-        self.shownepochsplus.setAutoRepeat(False)
-        self.shownepochsminus = QPushButton(self.centralwidget)
-        self.shownepochsminus.setObjectName(u"shownepochsminus")
-        self.shownepochsminus.setGeometry(QRect(870, 550, 31, 40))
-        self.shownepochsminus.setAutoRepeat(False)
         self.epochsword = QLabel(self.centralwidget)
         self.epochsword.setObjectName(u"epochsword")
-        self.epochsword.setGeometry(QRect(870, 530, 58, 16))
-        self.verticalLayoutWidget = QWidget(self.centralwidget)
-        self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(880, 90, 91, 71))
-        self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.specbrighter = QPushButton(self.verticalLayoutWidget)
-        self.specbrighter.setObjectName(u"specbrighter")
-        self.specbrighter.setAutoRepeat(True)
+        self.epochsword.setGeometry(QRect(870, 520, 58, 16))
+        self.horizontalLayoutWidget = QWidget(self.centralwidget)
+        self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
+        self.horizontalLayoutWidget.setGeometry(QRect(870, 540, 111, 41))
+        self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.shownepochsminus = QPushButton(self.horizontalLayoutWidget)
+        self.shownepochsminus.setObjectName(u"shownepochsminus")
+        icon4 = QIcon()
+        icon4.addFile(u":/icons/down_arrow.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.shownepochsminus.setIcon(icon4)
+        self.shownepochsminus.setAutoRepeat(False)
 
-        self.verticalLayout.addWidget(self.specbrighter)
+        self.horizontalLayout.addWidget(self.shownepochsminus)
 
-        self.specdimmer = QPushButton(self.verticalLayoutWidget)
+        self.shownepochslabel = QLabel(self.horizontalLayoutWidget)
+        self.shownepochslabel.setObjectName(u"shownepochslabel")
+        self.shownepochslabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout.addWidget(self.shownepochslabel)
+
+        self.shownepochsplus = QPushButton(self.horizontalLayoutWidget)
+        self.shownepochsplus.setObjectName(u"shownepochsplus")
+        icon5 = QIcon()
+        icon5.addFile(u":/icons/up_arrow.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.shownepochsplus.setIcon(icon5)
+        self.shownepochsplus.setAutoRepeat(False)
+
+        self.horizontalLayout.addWidget(self.shownepochsplus)
+
+        self.horizontalLayoutWidget_2 = QWidget(self.centralwidget)
+        self.horizontalLayoutWidget_2.setObjectName(u"horizontalLayoutWidget_2")
+        self.horizontalLayoutWidget_2.setGeometry(QRect(870, 110, 111, 71))
+        self.horizontalLayout_2 = QHBoxLayout(self.horizontalLayoutWidget_2)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.specdimmer = QPushButton(self.horizontalLayoutWidget_2)
         self.specdimmer.setObjectName(u"specdimmer")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.specdimmer.sizePolicy().hasHeightForWidth())
+        self.specdimmer.setSizePolicy(sizePolicy1)
+        icon6 = QIcon()
+        icon6.addFile(u":/icons/brightness_down.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.specdimmer.setIcon(icon6)
+        self.specdimmer.setIconSize(QSize(16, 16))
         self.specdimmer.setAutoRepeat(True)
 
-        self.verticalLayout.addWidget(self.specdimmer)
+        self.horizontalLayout_2.addWidget(self.specdimmer)
+
+        self.specbrighter = QPushButton(self.horizontalLayoutWidget_2)
+        self.specbrighter.setObjectName(u"specbrighter")
+        icon7 = QIcon()
+        icon7.addFile(u":/icons/brightness_up.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.specbrighter.setIcon(icon7)
+        self.specbrighter.setAutoRepeat(True)
+
+        self.horizontalLayout_2.addWidget(self.specbrighter)
 
         Window1.setCentralWidget(self.centralwidget)
 
@@ -151,19 +198,19 @@ class Ui_Window1(object):
     def retranslateUi(self, Window1):
         Window1.setWindowTitle(QCoreApplication.translate("Window1", u"MainWindow", None))
         self.autoscroll.setText(QCoreApplication.translate("Window1", u"Auto scroll", None))
-        self.eegzoomin.setText(QCoreApplication.translate("Window1", u"+", None))
-        self.eegshiftup.setText(QCoreApplication.translate("Window1", u"^", None))
-        self.eegzoomout.setText(QCoreApplication.translate("Window1", u"-", None))
-        self.eegshiftdown.setText(QCoreApplication.translate("Window1", u"v", None))
-        self.emgzoomin.setText(QCoreApplication.translate("Window1", u"+", None))
-        self.emgshiftup.setText(QCoreApplication.translate("Window1", u"^", None))
-        self.emgzoomout.setText(QCoreApplication.translate("Window1", u"-", None))
-        self.emgshiftdown.setText(QCoreApplication.translate("Window1", u"v", None))
-        self.shownepochslabel.setText(QCoreApplication.translate("Window1", u"5", None))
-        self.shownepochsplus.setText(QCoreApplication.translate("Window1", u"+", None))
-        self.shownepochsminus.setText(QCoreApplication.translate("Window1", u"-", None))
+        self.eegzoomin.setText("")
+        self.eegshiftup.setText("")
+        self.eegzoomout.setText("")
+        self.eegshiftdown.setText("")
+        self.emgzoomin.setText("")
+        self.emgshiftup.setText("")
+        self.emgzoomout.setText("")
+        self.emgshiftdown.setText("")
         self.epochsword.setText(QCoreApplication.translate("Window1", u"Epochs:", None))
-        self.specbrighter.setText(QCoreApplication.translate("Window1", u"Brighter", None))
-        self.specdimmer.setText(QCoreApplication.translate("Window1", u"Dimmer", None))
+        self.shownepochsminus.setText("")
+        self.shownepochslabel.setText(QCoreApplication.translate("Window1", u"5", None))
+        self.shownepochsplus.setText("")
+        self.specdimmer.setText("")
+        self.specbrighter.setText("")
     # retranslateUi
 

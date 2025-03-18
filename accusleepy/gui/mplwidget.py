@@ -9,6 +9,10 @@ from accusleepy.utils.constants import MAX_LOWER_XTICK_N
 
 # https://stackoverflow.com/questions/67637912/resizing-matplotlib-chart-with-qt5-python
 
+# icons from Arkinasi, https://www.flaticon.com/authors/arkinasi
+# or kendis lasman, https://www.flaticon.com/packs/ui-79
+
+
 SPEC_UPPER_F = 30
 SPEC_YTICK_INTERVAL = 10
 

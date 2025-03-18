@@ -14,9 +14,11 @@ from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 # magic spell:
 # /Users/zeke/PycharmProjects/AccuSleePy/.venv/lib/python3.13/site-packages/PySide6/Qt/libexec/uic -g python accusleepy/gui/window1.ui -o accusleepy/gui/Window1.py
 
+# other magic spell (if the icon set is altered)
+# pyside6-rcc accusleepy/gui/resources.qrc -o accusleepy/gui/resources_rc.py
+
 # https://github.com/RamanLukashevich/Easy_Statistica/blob/main/mplwidget.py
 
-# think about using mplconnect?
 
 KEY_MAP = {
     "backspace": QtCore.Qt.Key.Key_Backspace,

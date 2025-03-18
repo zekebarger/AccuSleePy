@@ -74,9 +74,9 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>880</x>
+      <x>870</x>
       <y>300</y>
-      <width>94</width>
+      <width>111</width>
       <height>81</height>
      </rect>
     </property>
@@ -84,7 +84,11 @@
      <item row="0" column="0">
       <widget class="QPushButton" name="eegzoomin">
        <property name="text">
-        <string>+</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/zoom-in.png</normaloff>:/icons/zoom-in.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -94,7 +98,11 @@
      <item row="0" column="1">
       <widget class="QPushButton" name="eegshiftup">
        <property name="text">
-        <string>^</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/double_up_arrow.png</normaloff>:/icons/double_up_arrow.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -104,7 +112,11 @@
      <item row="1" column="0">
       <widget class="QPushButton" name="eegzoomout">
        <property name="text">
-        <string>-</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/zoom-out.png</normaloff>:/icons/zoom-out.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -114,7 +126,11 @@
      <item row="1" column="1">
       <widget class="QPushButton" name="eegshiftdown">
        <property name="text">
-        <string>v</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/double_down_arrow.png</normaloff>:/icons/double_down_arrow.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -126,9 +142,9 @@
    <widget class="QWidget" name="gridLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>880</x>
+      <x>870</x>
       <y>390</y>
-      <width>94</width>
+      <width>111</width>
       <height>81</height>
      </rect>
     </property>
@@ -136,7 +152,11 @@
      <item row="0" column="0">
       <widget class="QPushButton" name="emgzoomin">
        <property name="text">
-        <string>+</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/zoom-in.png</normaloff>:/icons/zoom-in.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -146,7 +166,11 @@
      <item row="0" column="1">
       <widget class="QPushButton" name="emgshiftup">
        <property name="text">
-        <string>^</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/double_up_arrow.png</normaloff>:/icons/double_up_arrow.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -156,7 +180,11 @@
      <item row="1" column="0">
       <widget class="QPushButton" name="emgzoomout">
        <property name="text">
-        <string>-</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/zoom-out.png</normaloff>:/icons/zoom-out.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -166,7 +194,11 @@
      <item row="1" column="1">
       <widget class="QPushButton" name="emgshiftdown">
        <property name="text">
-        <string>v</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/double_down_arrow.png</normaloff>:/icons/double_down_arrow.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -175,59 +207,11 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="shownepochslabel">
-    <property name="geometry">
-     <rect>
-      <x>910</x>
-      <y>560</y>
-      <width>21</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>5</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignmentFlag::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="shownepochsplus">
-    <property name="geometry">
-     <rect>
-      <x>940</x>
-      <y>550</y>
-      <width>31</width>
-      <height>40</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>+</string>
-    </property>
-    <property name="autoRepeat">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="shownepochsminus">
-    <property name="geometry">
-     <rect>
-      <x>870</x>
-      <y>550</y>
-      <width>31</width>
-      <height>40</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>-</string>
-    </property>
-    <property name="autoRepeat">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="QLabel" name="epochsword">
     <property name="geometry">
      <rect>
       <x>870</x>
-      <y>530</y>
+      <y>520</y>
       <width>58</width>
       <height>16</height>
      </rect>
@@ -236,20 +220,86 @@
      <string>Epochs:</string>
     </property>
    </widget>
-   <widget class="QWidget" name="verticalLayoutWidget">
+   <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>90</y>
-      <width>91</width>
+      <x>870</x>
+      <y>540</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="shownepochsminus">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/down_arrow.png</normaloff>:/icons/down_arrow.png</iconset>
+       </property>
+       <property name="autoRepeat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="shownepochslabel">
+       <property name="text">
+        <string>5</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="shownepochsplus">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/up_arrow.png</normaloff>:/icons/up_arrow.png</iconset>
+       </property>
+       <property name="autoRepeat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>110</y>
+      <width>111</width>
       <height>71</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="specbrighter">
+      <widget class="QPushButton" name="specdimmer">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
-        <string>Brighter</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/brightness_down.png</normaloff>:/icons/brightness_down.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -257,9 +307,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="specdimmer">
+      <widget class="QPushButton" name="specbrighter">
        <property name="text">
-        <string>Dimmer</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/brightness_up.png</normaloff>:/icons/brightness_up.png</iconset>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -278,6 +332,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
