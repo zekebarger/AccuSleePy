@@ -7,7 +7,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from Window1 import Ui_Window1
 from mplwidget import resample_x_ticks
 
-from accusleepy.utils.constants import BRAIN_STATE_MAPPER
+from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording, save_labels
 from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 
@@ -27,6 +27,7 @@ from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 # https://github.com/RamanLukashevich/Easy_Statistica/blob/main/mplwidget.py
 
 
+# revisit this...
 KEY_MAP = {
     "backspace": QtCore.Qt.Key.Key_Backspace,
     "right": QtCore.Qt.Key.Key_Right,
@@ -57,26 +58,15 @@ LABEL_CMAP = np.concatenate(
 
 def convert_labels(labels: np.array, style: str) -> np.array:
     if style == "display":
-        # convert 0 to 10, None to 0
+        # convert 0 to 10, undefined to 0
         labels = [i if i != 0 else 10 for i in labels]
-        return np.array([i if i is not None else 0 for i in labels])
+        return np.array([i if i != UNDEFINED_LABEL else 0 for i in labels])
     elif style == "digit":
-        # convert 0 to None, 10 to 0
-        labels = [i if i != 0 else None for i in labels]
+        # convert 0 to undefined, 10 to 0
+        labels = [i if i != 0 else UNDEFINED_LABEL for i in labels]
         return np.array([i if i != 10 else 0 for i in labels])
     else:
         raise Exception("style must be 'display' or 'digit'")
-
-
-def create_upper_emg_signal(emg, sampling_rate, epoch_length):
-    binned_emg = process_emg(
-        emg,
-        sampling_rate,
-        epoch_length,
-    )
-    emg_ceiling = np.mean(binned_emg) + np.std(binned_emg) * 2.5
-    binned_emg[binned_emg > emg_ceiling] = emg_ceiling
-    return binned_emg
 
 
 def create_label_img(labels, label_display_options):
@@ -92,6 +82,17 @@ def create_label_img(labels, label_display_options):
         if label > 0:
             label_img[label - smallest_display_label, i, :] = LABEL_CMAP[label]
     return label_img
+
+
+def create_upper_emg_signal(emg, sampling_rate, epoch_length):
+    binned_emg = process_emg(
+        emg,
+        sampling_rate,
+        epoch_length,
+    )
+    emg_ceiling = np.mean(binned_emg) + np.std(binned_emg) * 2.5
+    binned_emg[binned_emg > emg_ceiling] = emg_ceiling
+    return binned_emg
 
 
 # MAIN WINDOW CLASS
@@ -125,7 +126,10 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         # process, bin, ceiling emg for upper plot
         self.upper_emg = create_upper_emg_signal(self.emg, sampling_rate, epoch_length)
-        self.label_img = create_label_img(self.labels, self.label_display_options)
+        self.display_labels = convert_labels(self.labels, "display")
+        self.label_img = create_label_img(
+            self.display_labels, self.label_display_options
+        )
 
         # set up plots
         self.ui.upperplots.setup_upper_plots(
@@ -157,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.upper_right_epoch = self.n_epochs - 1
         self.lower_left_epoch = 0
         self.lower_right_epoch = self.epochs_to_show - 1
-        self.display_labels = convert_labels(self.labels, "display")
+
         self.process_signals()
 
         self.update_lower_plot()
@@ -195,12 +199,14 @@ class MainWindow(QtWidgets.QMainWindow):
             keypress_modify_label[-1].activated.connect(self.update_upper_plot)
             keypress_modify_label[-1].activated.connect(self.update_lower_plot)
 
-        # on hold until I figure out how to represent missing labels
-        # keypress_delete_label = QtGui.QShortcut(
-        #     QtGui.QKeySequence(KEY_MAP["backspace"]), self
-        # )
-        # keypress_delete_label.activated.connect(partial(self.modify_label, None))
-        # keypress_delete_label.activated.connect(self.update_lower_plot)
+        keypress_delete_label = QtGui.QShortcut(
+            QtGui.QKeySequence(KEY_MAP["backspace"]), self
+        )
+        keypress_delete_label.activated.connect(
+            partial(self.modify_label, UNDEFINED_LABEL)
+        )
+        keypress_delete_label.activated.connect(self.update_upper_plot)
+        keypress_delete_label.activated.connect(self.update_lower_plot)
 
         keypress_quit = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+w"), self)
         keypress_quit.activated.connect(lambda: self.close())
@@ -346,7 +352,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.adjust_upper_plot_x_limits()
 
     def modify_label_img(self, display_label):
-        self.label_img[:, self.epoch, :] = 1
+        self.label_img[:, self.epoch, :] = 1  # blank out the cell
+        if display_label == 0:  # undefined brain state
+            return
         self.label_img[display_label - self.smallest_display_label, self.epoch, :] = (
             LABEL_CMAP[display_label]
         )

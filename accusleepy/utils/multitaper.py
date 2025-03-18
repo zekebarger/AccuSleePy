@@ -33,7 +33,7 @@ def spectrogram(
     multiprocess=False,
     n_jobs=None,
     weighting="unity",
-    plot_on=True,
+    plot_on=False,
     return_fig=False,
     clim_scale=True,
     verbose=True,
@@ -250,36 +250,36 @@ def spectrogram(
     if np.all(mt_spectrogram.flatten() == 0):
         print("\n Data was all zeros, no output")
 
-    # Plot multitaper spectrogram
-    if plot_on:
-        # convert from power to dB
-        spect_data = nanpow2db(mt_spectrogram)
-
-        # Set x and y axes
-        dx = stimes[1] - stimes[0]
-        dy = sfreqs[1] - sfreqs[0]
-        extent = [stimes[0] - dx, stimes[-1] + dx, sfreqs[-1] + dy, sfreqs[0] - dy]
-
-        # Plot spectrogram
-        if ax is None:
-            fig, ax = plt.subplots()
-        else:
-            fig = ax.get_figure()
-        im = ax.imshow(spect_data, extent=extent, aspect="auto")
-        fig.colorbar(im, ax=ax, label="PSD (dB)", shrink=0.8)
-        ax.set_xlabel("Time (HH:MM:SS)")
-        ax.set_ylabel("Frequency (Hz)")
-        im.set_cmap(plt.cm.get_cmap("cet_rainbow4"))
-        ax.invert_yaxis()
-
-        # Scale colormap
-        if clim_scale:
-            clim = np.percentile(spect_data, [5, 98])  # from 5th percentile to 98th
-            im.set_clim(clim)  # actually change colorbar scale
-
-        fig.show()
-        if return_fig:
-            return mt_spectrogram, stimes, sfreqs, (fig, ax)
+    # # Plot multitaper spectrogram
+    # if plot_on:
+    #     # convert from power to dB
+    #     spect_data = nanpow2db(mt_spectrogram)
+    #
+    #     # Set x and y axes
+    #     dx = stimes[1] - stimes[0]
+    #     dy = sfreqs[1] - sfreqs[0]
+    #     extent = [stimes[0] - dx, stimes[-1] + dx, sfreqs[-1] + dy, sfreqs[0] - dy]
+    #
+    #     # Plot spectrogram
+    #     if ax is None:
+    #         fig, ax = plt.subplots()
+    #     else:
+    #         fig = ax.get_figure()
+    #     im = ax.imshow(spect_data, extent=extent, aspect="auto")
+    #     fig.colorbar(im, ax=ax, label="PSD (dB)", shrink=0.8)
+    #     ax.set_xlabel("Time (HH:MM:SS)")
+    #     ax.set_ylabel("Frequency (Hz)")
+    #     im.set_cmap(plt.cm.get_cmap("cet_rainbow4"))
+    #     ax.invert_yaxis()
+    #
+    #     # Scale colormap
+    #     if clim_scale:
+    #         clim = np.percentile(spect_data, [5, 98])  # from 5th percentile to 98th
+    #         im.set_clim(clim)  # actually change colorbar scale
+    #
+    #     fig.show()
+    #     if return_fig:
+    #         return mt_spectrogram, stimes, sfreqs, (fig, ax)
 
     return mt_spectrogram, stimes, sfreqs
 

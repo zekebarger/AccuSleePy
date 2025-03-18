@@ -12,10 +12,13 @@ import accusleepy.utils.constants as c
 from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.misc import Recording
 from accusleepy.utils.models import SSANN
-from accusleepy.utils.signal_processing import (create_eeg_emg_image,
-                                                format_img, get_mixture_values,
-                                                mixture_z_score_img,
-                                                truncate_signals)
+from accusleepy.utils.signal_processing import (
+    create_eeg_emg_image,
+    format_img,
+    get_mixture_values,
+    mixture_z_score_img,
+    truncate_signals,
+)
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
@@ -36,7 +39,9 @@ class AccuSleepImageDataset(Dataset):
         return len(self.img_labels)
 
     def __getitem__(self, idx):
-        img_path = os.path.join(self.img_dir, self.img_labels.at[idx, c.FILENAME_COL])
+        img_path = str(
+            os.path.join(self.img_dir, self.img_labels.at[idx, c.FILENAME_COL])
+        )
         image = read_image(img_path)
         label = self.img_labels.at[idx, c.LABEL_COL]
         if self.transform:
@@ -114,7 +119,9 @@ def test_model(
         all_labels = np.concatenate([all_labels, labels])
         all_predictions = np.concatenate([all_predictions, pred])
 
-    print(f"test accuracy: {sum(all_predictions == all_labels) / len(all_labels):.2%}")
+    print(
+        f"test accuracy: {np.sum(all_predictions == all_labels) / len(all_labels):.2%}"
+    )
 
 
 def score_recording(
