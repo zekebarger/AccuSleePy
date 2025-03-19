@@ -36,7 +36,9 @@ class AccuSleepImageDataset(Dataset):
         return len(self.img_labels)
 
     def __getitem__(self, idx):
-        img_path = os.path.join(self.img_dir, self.img_labels.at[idx, c.FILENAME_COL])
+        img_path = str(
+            os.path.join(self.img_dir, self.img_labels.at[idx, c.FILENAME_COL])
+        )
         image = read_image(img_path)
         label = self.img_labels.at[idx, c.LABEL_COL]
         if self.transform:
@@ -114,7 +116,9 @@ def test_model(
         all_labels = np.concatenate([all_labels, labels])
         all_predictions = np.concatenate([all_predictions, pred])
 
-    print(f"test accuracy: {sum(all_predictions == all_labels) / len(all_labels):.2%}")
+    print(
+        f"test accuracy: {np.sum(all_predictions == all_labels) / len(all_labels):.2%}"
+    )
 
 
 def score_recording(

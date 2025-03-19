@@ -13,6 +13,7 @@ from accusleepy.utils.multitaper import spectrogram
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
 SPECTROGRAM_UPPER_FREQ = 64
+ANNOTATIONS_FILENAME = "annotations.csv"
 
 
 def truncate_signals(
@@ -26,7 +27,11 @@ def truncate_signals(
 
 
 def create_spectrogram(
-    eeg: np.array, sampling_rate: int | float, epoch_length: int | float
+    eeg: np.array,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+    time_bandwidth=2,
+    n_tapers=3,
 ) -> (np.array, np.array):
     window_length_sec = max(c.MIN_WINDOW_LEN, epoch_length)
     pad_length = int((sampling_rate * (window_length_sec - epoch_length) / 2))
@@ -38,8 +43,8 @@ def create_spectrogram(
         padded_eeg,
         sampling_rate,
         frequency_range=[0, SPECTROGRAM_UPPER_FREQ],
-        time_bandwidth=5,
-        num_tapers=3,
+        time_bandwidth=time_bandwidth,
+        num_tapers=n_tapers,
         window_params=[window_length_sec, epoch_length],
         min_nfft=0,
         detrend_opt="off",
@@ -155,8 +160,6 @@ def mixture_z_score_img(
     if labels is not None and ((mixture_means is not None) ^ (mixture_sds is not None)):
         warnings.warn("labels were given, mixture means / SDs will be ignored")
 
-    ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
-
     if labels is not None:
         mixture_means, mixture_sds = get_mixture_values(img, labels)
 
@@ -206,6 +209,8 @@ def create_training_images(
         img = format_img(img, epochs_per_img)
 
         for j in range(img.shape[1] - epochs_per_img + 1):
+            if labels[j] is None:
+                continue
             im = img[:, j : (j + epochs_per_img)]
             filename = f"file_{i}_{j}_{labels[j]}.png"
             filenames.append(filename)
@@ -214,7 +219,7 @@ def create_training_images(
         all_labels = np.concatenate([all_labels, labels])
 
     pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: all_labels}).to_csv(
-        os.path.join(output_path, "labels.csv"),
+        os.path.join(output_path, ANNOTATIONS_FILENAME),
         index=False,
     )
 

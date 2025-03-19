@@ -11,19 +11,23 @@ import numpy as np
 
 @dataclass
 class BrainState:
-    name: str
-    digit: int
-    is_scored: bool
+    name: str  # friendly name
+    digit: int  # number 0-9 - used as keyboard shortcut
+    is_scored: bool  # whether a classification model should score this state
 
 
 class BrainStateMapper:
-    def __init__(self, brain_states):
+    def __init__(self, brain_states, undefined_label):
         self.brain_states = brain_states
 
-        self.digit_to_class = dict()
+        self.digit_to_class = {undefined_label: None}
         self.class_to_digit = dict()
         i = 0
         for brain_state in self.brain_states:
+            if brain_state.digit == undefined_label:
+                raise Exception(
+                    f"Digit for {brain_state.name} matches 'undefined' label"
+                )
             if brain_state.is_scored:
                 self.digit_to_class[brain_state.digit] = i
                 self.class_to_digit[i] = brain_state.digit
@@ -45,3 +49,8 @@ class Recording:
     recording_file: str
     label_file: str
     sampling_rate: int | float
+
+
+@dataclass
+class SimulatedClick:
+    xdata: int

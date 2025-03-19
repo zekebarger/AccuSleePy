@@ -1,0 +1,16 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="icons">
+        <file alias="brightness_down.png">icons/brightness_down.png</file>
+        <file alias="brightness_up.png">icons/brightness_up.png</file>
+        <file alias="double_down_arrow.png">icons/double_down_arrow.png</file>
+        <file alias="double_up_arrow.png">icons/double_up_arrow.png</file>
+        <file alias="down_arrow.png">icons/down_arrow.png</file>
+        <file alias="home.png">icons/home.png</file>
+        <file alias="question.png">icons/question.png</file>
+        <file alias="up_arrow.png">icons/up_arrow.png</file>
+        <file alias="zoom_in.png">icons/zoom_in.png</file>
+        <file alias="zoom_out.png">icons/zoom_out.png</file>
+        <file alias="save.png">icons/save.png</file>
+    </qresource>
+</RCC>
