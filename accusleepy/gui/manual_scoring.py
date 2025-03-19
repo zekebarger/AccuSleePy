@@ -4,6 +4,7 @@
 #   kendis lasman, https://www.flaticon.com/packs/ui-79
 
 import copy
+from dataclasses import dataclass
 import os
 import sys
 from functools import partial
@@ -16,7 +17,6 @@ from Window1 import Ui_Window1
 
 from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording, save_labels
-from accusleepy.utils.misc import SimulatedClick
 from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 
 # NOTES
@@ -93,8 +93,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.emg, self.sampling_rate, self.epoch_length
         )
 
-        # rescale the EEG and EMG signals to fit the display
-        self.eeg, self.emg = scale_eeg_emg(self.eeg, self.emg)
+        # center and scale the EEG and EMG signals to fit the display
+        self.eeg, self.emg = transform_eeg_emg(self.eeg, self.emg)
 
         # convert labels to "display" format and make an image to display them
         self.display_labels = convert_labels(self.labels, DISPLAY_FORMAT)
@@ -124,14 +124,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # initialize values that can be changed by user input
         self.epoch = 0
-        self.eeg_signal_scale_factor = 1
-        self.emg_signal_scale_factor = 1
-        self.eeg_signal_offset = 0
-        self.emg_signal_offset = 0
         self.upper_left_epoch = 0
         self.upper_right_epoch = self.n_epochs - 1
         self.lower_left_epoch = 0
         self.lower_right_epoch = self.epochs_to_show - 1
+        self.eeg_signal_scale_factor = 1
+        self.emg_signal_scale_factor = 1
+        self.eeg_signal_offset = 0
+        self.emg_signal_offset = 0
         self.roi_brain_state = 0
         self.label_roi_mode = False
         self.autoscroll_state = False
@@ -339,7 +339,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.show()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QtGui.QCloseEvent):
+        """Check if there are unsaved changes before closing"""
         if not all(self.labels == self.last_saved_labels):
             result = QtWidgets.QMessageBox.question(
                 self,
@@ -353,9 +354,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 event.ignore()
 
     def show_user_manual(self):
-        self.popup = QtWidgets.QWidget()
-        self.popup.setGeometry(QtCore.QRect(50, 100, 350, 400))
-        grid = QtWidgets.QGridLayout()
+        """Show a popup window with the user manual"""
         user_manual_file = open(
             os.path.join(os.path.dirname(os.path.abspath(__file__)), USER_MANUAL_FILE),
             "r",
@@ -364,11 +363,26 @@ class MainWindow(QtWidgets.QMainWindow):
         user_manual_file.close()
         label_widget = QtWidgets.QLabel()
         label_widget.setText(user_manual_text)
+
+        self.popup = QtWidgets.QWidget()
+        grid = QtWidgets.QGridLayout()
         grid.addWidget(label_widget)
         self.popup.setLayout(grid)
+        self.popup.setGeometry(QtCore.QRect(50, 100, 350, 400))
         self.popup.show()
 
     def jump_to_next_state(self, direction: str, target: str):
+        """Jump to epoch based on a target brain state
+
+        This allows the user to jump to the next epoch in a given direction
+        (left or right) that has a given state (undefined, or different from
+        the current epoch). It's useful for reviewing state transitions or
+        locating unlabeled epochs.
+
+        :param direction: left or right
+        :param target: different or undefined
+        """
+        # create a simulated click so we can reuse click_to_jump
         simulated_click = SimulatedClick(xdata=self.epoch)
         if direction == "right":
             if target == "different":
@@ -378,7 +392,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 matches = np.where(self.labels[self.epoch + 1 :] == UNDEFINED_LABEL)[0]
             if matches.size > 0:
-                simulated_click.xdata = matches[0] + 1 + self.epoch
+                simulated_click.xdata = int(matches[0]) + 1 + self.epoch
         else:
             if target == "different":
                 matches = np.where(
@@ -387,10 +401,16 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 matches = np.where(self.labels[: self.epoch] == UNDEFINED_LABEL)[0]
             if matches.size > 0:
-                simulated_click.xdata = matches[-1]
+                simulated_click.xdata = int(matches[-1])
         self.click_to_jump(simulated_click)
 
     def roi_callback(self, eclick, erelease):
+        """Callback for ROI labeling widget
+
+        This is called by the RectangleSelector widget when the user finishes
+        drawing an ROI. It sets a range of epochs to the desired brain state.
+        The function signature is required to have this format.
+        """
         self.labels[int(np.ceil(eclick.xdata)) : int(np.floor(erelease.xdata)) + 1] = (
             self.roi_brain_state
         )
@@ -612,11 +632,6 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
 
-    def update_upper_figure(self):
-        self.update_upper_marker()
-        self.ui.upperplots.label_img_ref.set(data=self.label_img)
-        self.ui.upperplots.canvas.draw()
-
     def update_lower_epoch_marker(self):
         # plot marker for selected epoch
         marker_left = (
@@ -635,6 +650,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.bottom_marker[0].set_xdata([marker_left, marker_left])
         self.ui.lowerplots.bottom_marker[1].set_xdata([marker_left, marker_right])
         self.ui.lowerplots.bottom_marker[2].set_xdata([marker_right, marker_right])
+
+    def update_upper_figure(self):
+        self.update_upper_marker()
+        self.ui.upperplots.label_img_ref.set(data=self.label_img)
+        self.ui.upperplots.canvas.draw()
 
     def update_lower_figure(self):
         # get signals to plot
@@ -709,6 +729,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_lower_figure()
 
 
+@dataclass
+class SimulatedClick:
+    xdata: int
+
+
 def convert_labels(labels: np.array, style: str) -> np.array:
     if style == DISPLAY_FORMAT:
         # convert 0 to 10, undefined to 0
@@ -750,7 +775,13 @@ def create_upper_emg_signal(emg, sampling_rate, epoch_length):
     return binned_emg
 
 
-def scale_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
+def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
+    """Center and scale the EEG and EMG signals
+
+    :param eeg: EEG signal
+    :param emg: EMG signal
+    :return: centered and scaled signals
+    """
     eeg = eeg - np.mean(eeg)
     emg = emg - np.mean(emg)
     eeg = eeg / np.percentile(eeg, 95) / 2.2
