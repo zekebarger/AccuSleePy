@@ -120,6 +120,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui = Ui_Window1()
         self.ui.setupUi(self)
+        self.setWindowTitle("AccuSleePy manual scoring window")
 
         # get set of label options (1-10 range)
         self.label_display_options = convert_labels(
