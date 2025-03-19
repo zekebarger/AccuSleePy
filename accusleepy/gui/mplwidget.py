@@ -10,17 +10,22 @@ from PySide6.QtWidgets import *
 
 from accusleepy.utils.constants import MAX_LOWER_XTICK_N
 
-# https://stackoverflow.com/questions/67637912/resizing-matplotlib-chart-with-qt5-python
-
 # icons from Arkinasi, https://www.flaticon.com/authors/arkinasi
-# or kendis lasman, https://www.flaticon.com/packs/ui-79
-
+# and kendis lasman, https://www.flaticon.com/packs/ui-79
 
 SPEC_UPPER_F = 30
 SPEC_YTICK_INTERVAL = 10
 
+LEFT_MARGIN = 0.07
+RIGHT_MARGIN = 0.95
+
 
 def resample_x_ticks(x_ticks):
+    """Choose a subset of x_ticks to display
+
+    :param x_ticks: full set of x_ticks
+    :return: smaller subset of x_ticks
+    """
     n_ticks = len(x_ticks) + 1  # add imaginary one at the end
     if n_ticks < MAX_LOWER_XTICK_N:
         return x_ticks
@@ -34,7 +39,7 @@ def resample_x_ticks(x_ticks):
 class MplWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.canvas = FigureCanvas(Figure())  # layout="tight"))
+        self.canvas = FigureCanvas(Figure())
 
         vertical_layout = QVBoxLayout()
         vertical_layout.addWidget(self.canvas)
@@ -91,6 +96,12 @@ class MplWidget(QWidget):
             label_display_options - np.min(label_display_options),
         )
         axes[0].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
+        ax2 = axes[0].secondary_yaxis("right")
+        ax2.set_yticks(
+            label_display_options - np.min(label_display_options),
+        )
+        ax2.set_yticklabels([b.digit for b in brain_state_mapper.brain_states])
+
         axes[0].set_ylim(
             [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
         )
@@ -131,7 +142,7 @@ class MplWidget(QWidget):
         )
         axes[2].set_yticklabels(
             [
-                f"{i} hz"
+                i  # f"{i} hz"
                 for i in np.arange(
                     0, SPEC_UPPER_F + SPEC_YTICK_INTERVAL, SPEC_YTICK_INTERVAL
                 )
@@ -145,7 +156,7 @@ class MplWidget(QWidget):
             origin="lower",
             interpolation="None",
         )
-        axes[2].tick_params(axis="x", which="major", labelsize=8)
+        axes[2].tick_params(axis="both", which="major", labelsize=8)
         axes[2].xaxis.set_major_formatter(mticker.FuncFormatter(self.fmtsec))
 
         # emg
@@ -157,6 +168,8 @@ class MplWidget(QWidget):
             "k",
             linewidth=0.5,
         )
+
+        self.canvas.figure.subplots_adjust(left=LEFT_MARGIN, right=RIGHT_MARGIN)
 
         self.canvas.axes = axes
 
@@ -233,9 +246,7 @@ class MplWidget(QWidget):
         axes[2].set_yticks(
             label_display_options - np.min(label_display_options),
         )
-        axes[2].set_yticklabels(
-            [f"{b.name} ({b.digit})" for b in brain_state_mapper.brain_states]
-        )
+        axes[2].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
         axes[2].set_ylim(
             [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
         )
@@ -245,6 +256,13 @@ class MplWidget(QWidget):
             origin="lower",
             interpolation="None",
         )
+        ax2 = axes[2].secondary_yaxis("right")
+        ax2.set_yticks(
+            label_display_options - np.min(label_display_options),
+        )
+        ax2.set_yticklabels([b.digit for b in brain_state_mapper.brain_states])
+
+        self.canvas.figure.subplots_adjust(left=LEFT_MARGIN, right=RIGHT_MARGIN)
 
         self.canvas.axes = axes
 

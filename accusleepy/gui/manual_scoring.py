@@ -1,7 +1,7 @@
-import sys
-import os
-from functools import partial
 import copy
+import os
+import sys
+from functools import partial
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,8 +11,8 @@ from Window1 import Ui_Window1
 
 from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording, save_labels
-from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 from accusleepy.utils.misc import SimulatedClick
+from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 
 # NOTES
 # magic spell:
