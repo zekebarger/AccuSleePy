@@ -59,7 +59,7 @@ class MplWidget(QWidget):
         self.top_marker = None
         self.bottom_marker = None
 
-    def setup_upper_plots(
+    def setup_upper_figure(
         self,
         n_epochs: int,
         label_img: np.array,
@@ -182,7 +182,7 @@ class MplWidget(QWidget):
 
         self.canvas.axes = axes
 
-    def setup_lower_plots(
+    def setup_lower_figure(
         self,
         label_img: np.array,
         sampling_rate: int | float,

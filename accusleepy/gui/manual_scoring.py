@@ -33,61 +33,24 @@ from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 #  </resources>
 
 
-# THESE SHOULD BE ENTERED
-sampling_rate = 512
-epoch_length = 2.5
-
 # colormap for displaying brain state labels
+# the first entry represents the "undefined" state
+# the other entries are the digits in "keyboard" order (1234567890)
 LABEL_CMAP = np.concatenate(
     [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
 # relative path to user manual txt file
 USER_MANUAL_FILE = "text/manual1.txt"
 
-
-def convert_labels(labels: np.array, style: str) -> np.array:
-    if style == "display":
-        # convert 0 to 10, undefined to 0
-        labels = [i if i != 0 else 10 for i in labels]
-        return np.array([i if i != UNDEFINED_LABEL else 0 for i in labels])
-    elif style == "digit":
-        # convert 0 to undefined, 10 to 0
-        labels = [i if i != 0 else UNDEFINED_LABEL for i in labels]
-        return np.array([i if i != 10 else 0 for i in labels])
-    else:
-        raise Exception("style must be 'display' or 'digit'")
-
-
-def create_label_img(labels, label_display_options):
-    smallest_display_label = np.min(label_display_options)
-    label_img = np.ones(
-        [
-            (np.max(label_display_options) - smallest_display_label + 1),
-            len(labels),
-            4,
-        ]
-    )
-    for i, label in enumerate(labels):
-        if label > 0:
-            label_img[label - smallest_display_label, i, :] = LABEL_CMAP[label]
-        else:
-            label_img[:, i] = np.array([0, 0, 0, 1])
-    return label_img
-
-
-def create_upper_emg_signal(emg, sampling_rate, epoch_length):
-    binned_emg = process_emg(
-        emg,
-        sampling_rate,
-        epoch_length,
-    )
-    emg_ceiling = np.mean(binned_emg) + np.std(binned_emg) * 2.5
-    binned_emg[binned_emg > emg_ceiling] = emg_ceiling
-    return binned_emg
+# label formats
+DISPLAY_FORMAT = "display"
+DIGIT_FORMAT = "digit"
 
 
 # MAIN WINDOW CLASS
 class MainWindow(QtWidgets.QMainWindow):
+    """AccuSleePy manual scoring GUI"""
+
     def __init__(self):
         super(MainWindow, self).__init__()
 
@@ -97,56 +60,69 @@ class MainWindow(QtWidgets.QMainWindow):
             "/Users/zeke/PycharmProjects/AccuSleePy/sample_recording.parquet"
         )
         self.labels = load_labels(self.label_file)
-        self.epochs_to_show = 5
+        self.sampling_rate = 512
+        self.epoch_length = 2.5
 
+        self.n_epochs = len(self.labels)
+
+        # initialize the UI
         self.ui = Ui_Window1()
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy manual scoring window")
 
-        self.ui.upperplots.epoch_length = epoch_length
-        self.ui.lowerplots.epoch_length = epoch_length
+        # initial setting for number of epochs to show in the lower plot
+        self.epochs_to_show = 5
 
-        # get set of label options (1-10 range)
+        # find the set of y-axis locations of valid brain state labels
         self.label_display_options = convert_labels(
             np.array([b.digit for b in BRAIN_STATE_MAPPER.brain_states]),
-            style="display",
+            style=DISPLAY_FORMAT,
         )
         self.smallest_display_label = np.min(self.label_display_options)
 
-        self.n_epochs = len(self.labels)
-        # process data to show in the upper plot - we just change x limits
-        self.upper_spec, self.upper_f = create_spectrogram(
-            self.eeg, sampling_rate, epoch_length
+        self.ui.upperplots.epoch_length = self.epoch_length
+        self.ui.lowerplots.epoch_length = self.epoch_length
+
+        # get EEG spectrogram and its frequency axis
+        spectrogram, spectrogram_frequencies = create_spectrogram(
+            self.eeg, self.sampling_rate, self.epoch_length
         )
-        # process, bin, ceiling emg for upper plot
-        self.upper_emg = create_upper_emg_signal(self.emg, sampling_rate, epoch_length)
-        self.display_labels = convert_labels(self.labels, "display")
+
+        # calculate and reformat RMS of EMG for each epoch
+        self.upper_emg = create_upper_emg_signal(
+            self.emg, self.sampling_rate, self.epoch_length
+        )
+
+        # rescale the EEG and EMG signals to fit the display
+        self.eeg, self.emg = scale_eeg_emg(self.eeg, self.emg)
+
+        # convert labels to "display" format and make an image to display them
+        self.display_labels = convert_labels(self.labels, DISPLAY_FORMAT)
         self.label_img = create_label_img(
             self.display_labels, self.label_display_options
         )
 
-        self.roi_brain_state = 0
-
-        # set up plots
-        self.ui.upperplots.setup_upper_plots(
+        # set up both figures
+        self.ui.upperplots.setup_upper_figure(
             self.n_epochs,
             self.label_img,
-            self.upper_spec,
-            self.upper_f,
+            spectrogram,
+            spectrogram_frequencies,
             self.upper_emg,
             self.epochs_to_show,
             self.label_display_options,
             BRAIN_STATE_MAPPER,
             self.roi_callback,
         )
-        self.ui.lowerplots.setup_lower_plots(
+        self.ui.lowerplots.setup_lower_figure(
             self.label_img,
-            sampling_rate,
+            self.sampling_rate,
             self.epochs_to_show,
             BRAIN_STATE_MAPPER,
             self.label_display_options,
         )
 
+        # initialize values that can be changed by user input
         self.epoch = 0
         self.eeg_signal_scale_factor = 1
         self.emg_signal_scale_factor = 1
@@ -156,30 +132,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.upper_right_epoch = self.n_epochs - 1
         self.lower_left_epoch = 0
         self.lower_right_epoch = self.epochs_to_show - 1
-
-        self.process_signals()
-
+        self.roi_brain_state = 0
         self.label_roi_mode = False
+        self.autoscroll_state = False
+        # keep track of save state to warn user when they quit
         self.last_saved_labels = copy.deepcopy(self.labels)
 
-        self.autoscroll_state = False
-
-        self.update_lower_plot()
+        # populate the lower figure
+        self.update_lower_figure()
 
         # user input: keyboard shortcuts
         keypress_right = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key.Key_Right), self
         )
         keypress_right.activated.connect(partial(self.shift_epoch, "right"))
-        keypress_right.activated.connect(self.update_lower_plot)
-        keypress_right.activated.connect(self.update_upper_plot)
+        keypress_right.activated.connect(self.update_lower_figure)
+        keypress_right.activated.connect(self.update_upper_figure)
 
         keypress_left = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key.Key_Left), self
         )
         keypress_left.activated.connect(partial(self.shift_epoch, "left"))
-        keypress_left.activated.connect(self.update_lower_plot)
-        keypress_left.activated.connect(self.update_upper_plot)
+        keypress_left.activated.connect(self.update_lower_figure)
+        keypress_left.activated.connect(self.update_upper_figure)
 
         keypress_zoom_in_x = list()
         for zoom_key in [QtCore.Qt.Key.Key_Plus, QtCore.Qt.Key.Key_Equal]:
@@ -421,13 +396,13 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.display_labels = convert_labels(
             self.labels,
-            style="display",
+            style=DISPLAY_FORMAT,
         )
         self.label_img = create_label_img(
             self.display_labels, self.label_display_options
         )
-        self.update_upper_plot()
-        self.update_lower_plot()
+        self.update_upper_figure()
+        self.update_lower_figure()
         self.exit_label_roi_mode()
 
     def exit_label_roi_mode(self):
@@ -440,7 +415,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_roi_mode = True
         self.roi_brain_state = brain_state
         self.ui.upperplots.roi_patch.set(
-            facecolor=LABEL_CMAP[convert_labels(np.array([brain_state]), "display")]
+            facecolor=LABEL_CMAP[
+                convert_labels(np.array([brain_state]), DISPLAY_FORMAT)
+            ]
         )
         self.ui.upperplots.roi.set_active(True)
 
@@ -481,15 +458,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # totally rebuild lower plots
         self.ui.lowerplots.canvas.figure.clf()
-        self.ui.lowerplots.setup_lower_plots(
+        self.ui.lowerplots.setup_lower_figure(
             self.label_img,
-            sampling_rate,
+            self.sampling_rate,
             self.epochs_to_show,
             BRAIN_STATE_MAPPER,
             self.label_display_options,
         )
-        self.update_upper_plot()
-        self.update_lower_plot()
+        self.update_upper_figure()
+        self.update_lower_figure()
 
     def update_signal_offset(self, signal: str, direction: str):
         offset_increments = {"up": 0.02, "down": -0.02}
@@ -497,7 +474,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.eeg_signal_offset += offset_increments[direction]
         else:
             self.emg_signal_offset += offset_increments[direction]
-        self.update_lower_plot()
+        self.update_lower_figure()
 
     def update_signal_zoom(self, signal: str, direction: str):
         zoom_factors = {"in": 1.08, "out": 0.95}
@@ -505,7 +482,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.eeg_signal_scale_factor *= zoom_factors[direction]
         else:
             self.emg_signal_scale_factor *= zoom_factors[direction]
-        self.update_lower_plot()
+        self.update_lower_figure()
 
     def update_autoscroll_state(self, checked):
         self.autoscroll_state = checked
@@ -550,24 +527,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.labels[self.epoch] = digit
         display_label = convert_labels(
             np.array([digit]),
-            style="display",
+            style=DISPLAY_FORMAT,
         )[0]
         self.display_labels[self.epoch] = display_label
         self.modify_label_img(display_label)
         if self.autoscroll_state and self.epoch < self.n_epochs - 1:
             self.shift_epoch("right")
-        self.update_upper_plot()
-        self.update_lower_plot()
-
-    def process_signals(self):
-        self.eeg = self.eeg - np.mean(self.eeg)
-        self.emg = self.emg - np.mean(self.emg)
-        self.eeg = self.eeg / np.percentile(self.eeg, 95) / 2.2
-        self.emg = self.emg / np.percentile(self.emg, 95) / 2.2
+        self.update_upper_figure()
+        self.update_lower_figure()
 
     def get_signal_to_plot(self):
-        left = int(self.lower_left_epoch * sampling_rate * epoch_length)
-        right = int((self.lower_right_epoch + 1) * sampling_rate * epoch_length)
+        left = int(self.lower_left_epoch * self.sampling_rate * self.epoch_length)
+        right = int(
+            (self.lower_right_epoch + 1) * self.sampling_rate * self.epoch_length
+        )
         return (
             self.eeg[left:right],
             self.emg[left:right],
@@ -639,7 +612,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
 
-    def update_upper_plot(self):
+    def update_upper_figure(self):
         self.update_upper_marker()
         self.ui.upperplots.label_img_ref.set(data=self.label_img)
         self.ui.upperplots.canvas.draw()
@@ -647,10 +620,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_lower_epoch_marker(self):
         # plot marker for selected epoch
         marker_left = (
-            (self.epoch - self.lower_left_epoch) * epoch_length * sampling_rate
+            (self.epoch - self.lower_left_epoch)
+            * self.epoch_length
+            * self.sampling_rate
         )
         marker_right = (
-            (1 + self.epoch - self.lower_left_epoch) * epoch_length * sampling_rate
+            (1 + self.epoch - self.lower_left_epoch)
+            * self.epoch_length
+            * self.sampling_rate
         )
         self.ui.lowerplots.top_marker[0].set_xdata([marker_left, marker_left])
         self.ui.lowerplots.top_marker[1].set_xdata([marker_left, marker_right])
@@ -659,7 +636,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.bottom_marker[1].set_xdata([marker_left, marker_right])
         self.ui.lowerplots.bottom_marker[2].set_xdata([marker_right, marker_right])
 
-    def update_lower_plot(self):
+    def update_lower_figure(self):
         # get signals to plot
         eeg, emg, labels = self.get_signal_to_plot()
         # zoom in or out
@@ -684,7 +661,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.canvas.axes[1].set_xticklabels(
             [
                 "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))
-                for x in x_ticks * epoch_length
+                for x in x_ticks * self.epoch_length
             ]
         )
 
@@ -729,7 +706,56 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lower_right_epoch = self.epoch + lower_epoch_padding
 
         # refresh lower plot
-        self.update_lower_plot()
+        self.update_lower_figure()
+
+
+def convert_labels(labels: np.array, style: str) -> np.array:
+    if style == DISPLAY_FORMAT:
+        # convert 0 to 10, undefined to 0
+        labels = [i if i != 0 else 10 for i in labels]
+        return np.array([i if i != UNDEFINED_LABEL else 0 for i in labels])
+    elif style == DIGIT_FORMAT:
+        # convert 0 to undefined, 10 to 0
+        labels = [i if i != 0 else UNDEFINED_LABEL for i in labels]
+        return np.array([i if i != 10 else 0 for i in labels])
+    else:
+        raise Exception(f"style must be '{DISPLAY_FORMAT}' or '{DIGIT_FORMAT}'")
+
+
+def create_label_img(labels, label_display_options):
+    smallest_display_label = np.min(label_display_options)
+    label_img = np.ones(
+        [
+            (np.max(label_display_options) - smallest_display_label + 1),
+            len(labels),
+            4,
+        ]
+    )
+    for i, label in enumerate(labels):
+        if label > 0:
+            label_img[label - smallest_display_label, i, :] = LABEL_CMAP[label]
+        else:
+            label_img[:, i] = np.array([0, 0, 0, 1])
+    return label_img
+
+
+def create_upper_emg_signal(emg, sampling_rate, epoch_length):
+    binned_emg = process_emg(
+        emg,
+        sampling_rate,
+        epoch_length,
+    )
+    emg_ceiling = np.mean(binned_emg) + np.std(binned_emg) * 2.5
+    binned_emg[binned_emg > emg_ceiling] = emg_ceiling
+    return binned_emg
+
+
+def scale_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
+    eeg = eeg - np.mean(eeg)
+    emg = emg - np.mean(emg)
+    eeg = eeg / np.percentile(eeg, 95) / 2.2
+    emg = emg / np.percentile(emg, 95) / 2.2
+    return eeg, emg
 
 
 ## EXECUTE APP
