@@ -1,3 +1,6 @@
+# Widget that displays a matplotlib FigureCanvas
+from collections.abc import Callable
+
 import matplotlib.ticker as mticker
 import numpy as np
 from matplotlib.backend_bases import MouseButton
@@ -8,75 +11,80 @@ from matplotlib.patches import Rectangle
 from matplotlib.widgets import RectangleSelector
 from PySide6.QtWidgets import *
 
-from accusleepy.utils.constants import MAX_LOWER_XTICK_N
+from accusleepy.utils.misc import BrainStateMapper
 
-# icons from Arkinasi, https://www.flaticon.com/authors/arkinasi
-# and kendis lasman, https://www.flaticon.com/packs/ui-79
-
+# upper limit of spectrogram y-axis, in Hz
 SPEC_UPPER_F = 30
-SPEC_YTICK_INTERVAL = 10
+# interval of spectrogram y-axis ticks, in Hz
+SPEC_Y_TICK_INTERVAL = 10
 
-LEFT_MARGIN = 0.07
-RIGHT_MARGIN = 0.95
+# margins around subplots in the figure
+SUBPLOT_LEFT_MARGIN = 0.07
+SUBPLOT_RIGHT_MARGIN = 0.95
 
-
-def resample_x_ticks(x_ticks):
-    """Choose a subset of x_ticks to display
-
-    :param x_ticks: full set of x_ticks
-    :return: smaller subset of x_ticks
-    """
-    n_ticks = len(x_ticks) + 1  # add imaginary one at the end
-    if n_ticks < MAX_LOWER_XTICK_N:
-        return x_ticks
-    if n_ticks % MAX_LOWER_XTICK_N < n_ticks % (MAX_LOWER_XTICK_N - 2):
-        x_ticks = x_ticks[:: int(n_ticks / MAX_LOWER_XTICK_N)]
-    else:
-        x_ticks = x_ticks[:: int(n_ticks / (MAX_LOWER_XTICK_N - 2))]
-    return x_ticks
+# maximum number of x-axis ticks to show on the lower plot
+MAX_LOWER_X_TICK_N = 7
 
 
 class MplWidget(QWidget):
+    """Widget that displays a matplotlib FigureCanvas"""
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        # set up the canvas and store a reference to its axes
         self.canvas = FigureCanvas(Figure())
+        self.canvas.axes = None
 
+        # set the widget layout and remove the margins
         vertical_layout = QVBoxLayout()
         vertical_layout.addWidget(self.canvas)
         vertical_layout.setContentsMargins(0, 0, 0, 0)
-        self.canvas.axes = None
         self.setLayout(vertical_layout)
 
-        # upper plot uses these
+        # given during the setup process
+        self.epoch_length = None
+
+        # upper plot references
         self.upper_marker = None
         self.label_img_ref = None
         self.spec_ref = None
         self.roi = None
         self.roi_patch = None
 
-        # lower plot uses these
+        # lower plot references
         self.eeg_line = None
         self.emg_line = None
         self.top_marker = None
         self.bottom_marker = None
 
-        self.epoch_length = None
-
     def setup_upper_plots(
         self,
-        n_epochs,
-        label_img,
-        spec,
-        f,
-        emg,
-        epoch_length,
-        epochs_to_show,
-        label_display_options,
-        brain_state_mapper,
-        roi_function,
+        n_epochs: int,
+        label_img: np.array,
+        spec: np.array,
+        f: np.array,
+        emg: np.array,
+        epochs_to_show: int,
+        label_display_options: np.array,
+        brain_state_mapper: BrainStateMapper,
+        roi_function: Callable,
     ):
-        self.epoch_length = epoch_length
+        """Initialize upper FigureCanvas for the manual scoring GUI
+
+        :param n_epochs: number of epochs in the recording
+        :param label_img: brain state labels, as an image
+        :param spec: EEG spectrogram image
+        :param f: EEG spectrogram frequency axis
+        :param emg: EMG RMS per epoch
+        :param epochs_to_show: number of epochs to show in the lower plot
+        :param label_display_options: valid brain state y-axis locations
+        :param brain_state_mapper: set of brain states options
+        :param roi_function: callback for ROI selection
+        """
+        # references to parts of the epoch marker
         self.upper_marker = list()
+
+        # subplot layout
         height_ratios = [8, 2, 12, 13]
         gs1 = GridSpec(4, 1, hspace=0, height_ratios=height_ratios)
         gs2 = GridSpec(4, 1, hspace=0.4, height_ratios=height_ratios)
@@ -87,10 +95,14 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs2[3]))
         self.canvas.figure.subplots_adjust(top=0.98, bottom=0.02, right=0.98)
 
+        # the subplots might have different axes limits one day
         for i in range(4):
             axes[i].set_xlim((-0.5, n_epochs + 0.5))
 
-        # brain states
+        # brain state subplot
+        axes[0].set_ylim(
+            [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
+        )
         axes[0].set_xticks([])
         axes[0].set_yticks(
             label_display_options - np.min(label_display_options),
@@ -101,13 +113,10 @@ class MplWidget(QWidget):
             label_display_options - np.min(label_display_options),
         )
         ax2.set_yticklabels([b.digit for b in brain_state_mapper.brain_states])
-
-        axes[0].set_ylim(
-            [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
-        )
         self.label_img_ref = axes[0].imshow(
             label_img, aspect="auto", origin="lower", interpolation="None"
         )
+        # add the ROI selection widget, but disable it until it's needed
         self.roi = RectangleSelector(
             ax=axes[0],
             onselect=roi_function,
@@ -115,21 +124,20 @@ class MplWidget(QWidget):
             button=MouseButton(1),
         )
         self.roi.set_active(False)
-        # since there are no other rectangles except the background,
-        # we can keep a reference to the ROI patch so we can change its color
+        # since there are no other rectangles in the subplot except the background,
+        # we can keep a reference to the ROI patch and change its color later
         self.roi_patch = [c for c in axes[0].get_children() if type(c) == Rectangle][0]
 
-        # epoch marker
-        axes[1].axis("off")
+        # epoch marker subplot
         axes[1].set_ylim((0, 1))
-        # line
+        axes[1].axis("off")
         self.upper_marker.append(
             axes[1].plot([-0.5, epochs_to_show - 0.5], [0.5, 0.5], "r")[0]
         )
-        # marker
         self.upper_marker.append(axes[1].plot([0], [0.5], "rD")[0])
 
-        # spectrogram
+        # EEG spectrogram subplot
+        # select subset of frequencies to show
         f = f[f <= SPEC_UPPER_F]
         spec = spec[0 : len(f), :]
         axes[2].set_ylabel("EEG", rotation="horizontal", ha="right")
@@ -137,17 +145,14 @@ class MplWidget(QWidget):
             np.linspace(
                 0,
                 len(f),
-                1 + int(SPEC_UPPER_F / SPEC_YTICK_INTERVAL),
+                1 + int(SPEC_UPPER_F / SPEC_Y_TICK_INTERVAL),
             ),
         )
         axes[2].set_yticklabels(
-            [
-                i  # f"{i} hz"
-                for i in np.arange(
-                    0, SPEC_UPPER_F + SPEC_YTICK_INTERVAL, SPEC_YTICK_INTERVAL
-                )
-            ]
+            np.arange(0, SPEC_UPPER_F + SPEC_Y_TICK_INTERVAL, SPEC_Y_TICK_INTERVAL)
         )
+        axes[2].tick_params(axis="both", which="major", labelsize=8)
+        axes[2].xaxis.set_major_formatter(mticker.FuncFormatter(self.time_formatter))
         self.spec_ref = axes[2].imshow(
             spec,
             vmin=np.percentile(spec, 2),
@@ -156,10 +161,8 @@ class MplWidget(QWidget):
             origin="lower",
             interpolation="None",
         )
-        axes[2].tick_params(axis="both", which="major", labelsize=8)
-        axes[2].xaxis.set_major_formatter(mticker.FuncFormatter(self.fmtsec))
 
-        # emg
+        # EMG subplot
         axes[3].set_xticks([])
         axes[3].set_yticks([])
         axes[3].set_ylabel("EMG", rotation="horizontal", ha="right")
@@ -169,84 +172,115 @@ class MplWidget(QWidget):
             linewidth=0.5,
         )
 
-        self.canvas.figure.subplots_adjust(left=LEFT_MARGIN, right=RIGHT_MARGIN)
+        self.canvas.figure.subplots_adjust(
+            left=SUBPLOT_LEFT_MARGIN, right=SUBPLOT_RIGHT_MARGIN
+        )
 
         self.canvas.axes = axes
 
     def setup_lower_plots(
         self,
-        label_img,
-        sampling_rate,
-        epoch_length,
-        epochs_to_show,
-        brain_state_mapper,
-        label_display_options,
+        label_img: np.array,
+        sampling_rate: int | float,
+        epochs_to_show: int,
+        brain_state_mapper: BrainStateMapper,
+        label_display_options: np.array,
     ):
+        """Initialize lower FigureCanvas for the manual scoring GUI
+
+        :param label_img: brain state labels, as an image
+        :param sampling_rate: EEG/EMG sampling rate, in Hz
+        :param epochs_to_show: number of epochs to show in the lower plot
+        :param brain_state_mapper: set of brain states options
+        :param label_display_options: valid brain state y-axis locations
+        """
+        # number of samples in one epoch
+        samples_per_epoch = sampling_rate * self.epoch_length
+        # number of EEG/EMG samples to plot
+        samples_shown = samples_per_epoch * epochs_to_show
+
+        # references to parts of the epoch markers
         self.top_marker = list()
         self.bottom_marker = list()
+        # epoch marker display parameters
+        marker_dy = 0.25
+        marker_y_offset_top = 0.02
+        marker_y_offset_bottom = 0.01
 
-        # set plot spacing
+        # subplot layout
         gs1 = GridSpec(3, 1, hspace=0)
         gs2 = GridSpec(3, 1, hspace=0.5)
-        # create axes
         axes = list()
         axes.append(self.canvas.figure.add_subplot(gs1[0]))
         axes.append(self.canvas.figure.add_subplot(gs1[1]))
         axes.append(self.canvas.figure.add_subplot(gs2[2]))
         self.canvas.figure.subplots_adjust(top=0.98, bottom=0.02, right=0.98)
 
-        marker_dx = sampling_rate * epoch_length
-        marker_dy = 0.25
-
-        # set axis properties
+        # EEG subplot
         axes[0].set_xticks([])
         axes[0].set_yticks([])
-        axes[0].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
+        axes[0].set_xlim((0, samples_shown))
         axes[0].set_ylim((-1, 1))
         axes[0].set_ylabel("EEG", rotation="horizontal", ha="right")
         self.eeg_line = axes[0].plot(
-            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)),
+            np.zeros(int(samples_shown)),
             "k",
             linewidth=0.5,
         )[0]
-        # plot markers for selected epoch
-        self.top_marker.append(axes[0].plot([0, 0], [1 - marker_dy, 1], "r")[0])
-        self.top_marker.append(axes[0].plot([0, marker_dx], [1, 1], "r")[0])
-        self.top_marker.append(
-            axes[0].plot([marker_dx, marker_dx], [1 - marker_dy, 1], "r")[0]
+        # top epoch marker
+        marker_x = [
+            [0, 0],
+            [0, samples_per_epoch],
+            [samples_per_epoch, samples_per_epoch],
+        ]
+        marker_y = np.array(
+            [
+                [1 - marker_dy, 1],
+                [1, 1],
+                [1 - marker_dy, 1],
+            ]
         )
+        for x, y in zip(marker_x, marker_y):
+            self.top_marker.append(axes[0].plot(x, y - marker_y_offset_top, "r")[0])
 
-        x_ticks = resample_x_ticks(
-            np.arange(
-                0,
-                sampling_rate * epoch_length * epochs_to_show,
-                sampling_rate * epoch_length,
+        # EMG subplot
+        axes[1].set_xticks(
+            resample_x_ticks(
+                np.arange(
+                    0,
+                    samples_shown,
+                    samples_per_epoch,
+                )
             )
         )
-        axes[1].set_xticks(x_ticks)
-        axes[1].set_yticks([])
         axes[1].tick_params(axis="x", which="major", labelsize=8)
-        axes[1].set_ylabel("EMG", rotation="horizontal", ha="right")
-        axes[1].set_xlim((0, sampling_rate * epoch_length * epochs_to_show))
+        axes[1].set_yticks([])
+        axes[1].set_xlim((0, samples_shown))
         axes[1].set_ylim((-1, 1))
+        axes[1].set_ylabel("EMG", rotation="horizontal", ha="right")
         self.emg_line = axes[1].plot(
-            np.zeros(int(epochs_to_show * sampling_rate * epoch_length)),
+            np.zeros(int(samples_shown)),
             "k",
             linewidth=0.5,
         )[0]
-        self.bottom_marker.append(axes[1].plot([0, 0], [-1 + marker_dy, -1], "r")[0])
-        self.bottom_marker.append(axes[1].plot([0, marker_dx], [-1, -1], "r")[0])
-        self.bottom_marker.append(
-            axes[1].plot([marker_dx, marker_dx], [-1 + marker_dy, -1], "r")[0]
-        )
 
-        # brain states
-        axes[2].set_xlim((-0.5, epochs_to_show - 0.5))
+        for x, y in zip(marker_x, marker_y):
+            self.bottom_marker.append(
+                axes[1].plot(x, -1 * (y - marker_y_offset_bottom), "r")[0]
+            )
+
+        # brain state subplot
         axes[2].set_xticks([])
         axes[2].set_yticks(
             label_display_options - np.min(label_display_options),
         )
         axes[2].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
+        ax2 = axes[2].secondary_yaxis("right")
+        ax2.set_yticks(
+            label_display_options - np.min(label_display_options),
+        )
+        ax2.set_yticklabels([b.digit for b in brain_state_mapper.brain_states])
+        axes[2].set_xlim((-0.5, epochs_to_show - 0.5))
         axes[2].set_ylim(
             [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
         )
@@ -256,16 +290,34 @@ class MplWidget(QWidget):
             origin="lower",
             interpolation="None",
         )
-        ax2 = axes[2].secondary_yaxis("right")
-        ax2.set_yticks(
-            label_display_options - np.min(label_display_options),
-        )
-        ax2.set_yticklabels([b.digit for b in brain_state_mapper.brain_states])
 
-        self.canvas.figure.subplots_adjust(left=LEFT_MARGIN, right=RIGHT_MARGIN)
+        self.canvas.figure.subplots_adjust(
+            left=SUBPLOT_LEFT_MARGIN, right=SUBPLOT_RIGHT_MARGIN
+        )
 
         self.canvas.axes = axes
 
-    def fmtsec(self, x, pos):
+    def time_formatter(self, x, pos):
         x = (x + 0.5) * self.epoch_length
         return "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))
+
+
+def resample_x_ticks(x_ticks: np.array) -> np.array:
+    """Choose a subset of x_ticks to display
+
+    The x-axis can get crowded if there are too many timestamps shown.
+    This function resamples the x-axis ticks by a factor of either
+    MAX_LOWER_X_TICK_N or MAX_LOWER_X_TICK_N - 2, whichever is closer
+    to being a factor of the number of ticks.
+
+    :param x_ticks: full set of x_ticks
+    :return: smaller subset of x_ticks
+    """
+    # add one since the tick at the rightmost edge isn't shown
+    n_ticks = len(x_ticks) + 1
+    if n_ticks < MAX_LOWER_X_TICK_N:
+        return x_ticks
+    elif n_ticks % MAX_LOWER_X_TICK_N < n_ticks % (MAX_LOWER_X_TICK_N - 2):
+        return x_ticks[:: int(n_ticks / MAX_LOWER_X_TICK_N)]
+    else:
+        return x_ticks[:: int(n_ticks / (MAX_LOWER_X_TICK_N - 2))]

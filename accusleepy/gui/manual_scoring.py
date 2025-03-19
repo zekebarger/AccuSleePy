@@ -1,3 +1,8 @@
+# AccuSleePy manual scoring GUI
+# Icon sources:
+#   Arkinasi, https://www.flaticon.com/authors/arkinasi
+#   kendis lasman, https://www.flaticon.com/packs/ui-79
+
 import copy
 import os
 import sys
@@ -122,6 +127,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy manual scoring window")
 
+        self.ui.upperplots.epoch_length = epoch_length
+        self.ui.lowerplots.epoch_length = epoch_length
+
         # get set of label options (1-10 range)
         self.label_display_options = convert_labels(
             np.array([b.digit for b in BRAIN_STATE_MAPPER.brain_states]),
@@ -150,7 +158,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.upper_spec,
             self.upper_f,
             self.upper_emg,
-            epoch_length,
             self.epochs_to_show,
             self.label_display_options,
             BRAIN_STATE_MAPPER,
@@ -159,7 +166,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.setup_lower_plots(
             self.label_img,
             sampling_rate,
-            epoch_length,
             self.epochs_to_show,
             BRAIN_STATE_MAPPER,
             self.label_display_options,
@@ -371,10 +377,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.click_to_jump(simulated_click)
 
     def roi_callback(self, eclick, erelease):
-        # print(f"setting {eclick.xdata}-{erelease.xdata} to state {self.roi_state}")
-        epochleft = int(np.ceil(eclick.xdata))
-        epochright = int(np.floor(erelease.xdata))
-
         self.labels[int(np.ceil(eclick.xdata)) : int(np.floor(erelease.xdata)) + 1] = (
             self.roi_brain_state
         )
@@ -443,7 +445,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lowerplots.setup_lower_plots(
             self.label_img,
             sampling_rate,
-            epoch_length,
             self.epochs_to_show,
             BRAIN_STATE_MAPPER,
             self.label_display_options,
