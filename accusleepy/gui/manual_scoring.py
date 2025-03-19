@@ -32,39 +32,20 @@ from accusleepy.utils.signal_processing import create_spectrogram, process_emg
 #   <include location="resources.qrc"/>
 #  </resources>
 
-# https://github.com/RamanLukashevich/Easy_Statistica/blob/main/mplwidget.py
-
-
-# revisit this...
-KEY_MAP = {
-    "backspace": QtCore.Qt.Key.Key_Backspace,
-    "right": QtCore.Qt.Key.Key_Right,
-    "left": QtCore.Qt.Key.Key_Left,
-    "up": QtCore.Qt.Key.Key_Up,
-    "down": QtCore.Qt.Key.Key_Down,
-    "control": QtCore.Qt.Key.Key_Control,
-    "esc": QtCore.Qt.Key.Key_Escape,
-    "space": QtCore.Qt.Key.Key_Space,
-    # QtCore.Qt.Key.Key_Tab: "tab",
-    # QtCore.Qt.Key.Key_Return: "enter",
-    # QtCore.Qt.Key.Key_Enter: "enter",
-    # QtCore.Qt.Key.Key_End: "end",
-    # QtCore.Qt.Key.Key_Home: "home",
-    # QtCore.Qt.Key.Key_Delete: "delete",
-}
-
 
 # THESE SHOULD BE ENTERED
 sampling_rate = 512
 epoch_length = 2.5
 
-
+# colormap for displaying brain state labels
 LABEL_CMAP = np.concatenate(
     [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
 
 
 class MyPopup(QtWidgets.QWidget):
+    """Popup shown when a user tries to quit with unsaved changes"""
+
     def __init__(self):
         QtWidgets.QWidget.__init__(self)
 
@@ -186,58 +167,172 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_roi_mode = False
         self.last_saved_labels = copy.deepcopy(self.labels)
 
+        self.autoscroll_state = False
+
         self.update_lower_plot()
 
-        # user input
-        keypress_right = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["right"]), self)
+        # user input: keyboard shortcuts
+        keypress_right = QtGui.QShortcut(
+            QtGui.QKeySequence(QtCore.Qt.Key.Key_Right), self
+        )
         keypress_right.activated.connect(partial(self.shift_epoch, "right"))
         keypress_right.activated.connect(self.update_lower_plot)
         keypress_right.activated.connect(self.update_upper_plot)
 
-        keypress_left = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["left"]), self)
+        keypress_left = QtGui.QShortcut(
+            QtGui.QKeySequence(QtCore.Qt.Key.Key_Left), self
+        )
         keypress_left.activated.connect(partial(self.shift_epoch, "left"))
         keypress_left.activated.connect(self.update_lower_plot)
         keypress_left.activated.connect(self.update_upper_plot)
 
-        keypress_zoom_in_x = QtGui.QShortcut(QtGui.QKeySequence("+"), self)
-        keypress_zoom_in_x.activated.connect(partial(self.zoom_x, "in"))
-        keypress_zoom_in_x2 = QtGui.QShortcut(QtGui.QKeySequence("="), self)
-        keypress_zoom_in_x2.activated.connect(partial(self.zoom_x, "in"))
-        self.ui.xzoomin.clicked.connect(partial(self.zoom_x, "in"))
-        keypress_zoom_out_x = QtGui.QShortcut(QtGui.QKeySequence("-"), self)
+        keypress_zoom_in_x = list()
+        for zoom_key in [QtCore.Qt.Key.Key_Plus, QtCore.Qt.Key.Key_Equal]:
+            keypress_zoom_in_x.append(
+                QtGui.QShortcut(QtGui.QKeySequence(zoom_key), self)
+            )
+            keypress_zoom_in_x[-1].activated.connect(partial(self.zoom_x, "in"))
+
+        keypress_zoom_out_x = QtGui.QShortcut(
+            QtGui.QKeySequence(QtCore.Qt.Key.Key_Minus), self
+        )
         keypress_zoom_out_x.activated.connect(partial(self.zoom_x, "out"))
-        self.ui.xzoomout.clicked.connect(partial(self.zoom_x, "out"))
-        self.ui.xzoomreset.clicked.connect(partial(self.zoom_x, "reset"))
 
         keypress_modify_label = list()
         for brain_state in BRAIN_STATE_MAPPER.brain_states:
             keypress_modify_label.append(
-                QtGui.QShortcut(QtGui.QKeySequence(str(brain_state.digit)), self)
+                QtGui.QShortcut(
+                    QtGui.QKeySequence(QtCore.Qt.Key[f"Key_{brain_state.digit}"]),
+                    self,
+                )
             )
             keypress_modify_label[-1].activated.connect(
-                partial(self.modify_label, brain_state.digit)
+                partial(self.modify_current_epoch_label, brain_state.digit)
             )
-            # this should be optimized!
-            keypress_modify_label[-1].activated.connect(self.update_upper_plot)
-            keypress_modify_label[-1].activated.connect(self.update_lower_plot)
 
         keypress_delete_label = QtGui.QShortcut(
-            QtGui.QKeySequence(KEY_MAP["backspace"]), self
+            QtGui.QKeySequence(QtCore.Qt.Key.Key_Backspace), self
         )
         keypress_delete_label.activated.connect(
-            partial(self.modify_label, UNDEFINED_LABEL)
+            partial(self.modify_current_epoch_label, UNDEFINED_LABEL)
         )
-        keypress_delete_label.activated.connect(self.update_upper_plot)
-        keypress_delete_label.activated.connect(self.update_lower_plot)
 
-        keypress_quit = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+w"), self)
+        keypress_quit = QtGui.QShortcut(
+            QtGui.QKeySequence(
+                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_W)
+            ),
+            self,
+        )
         keypress_quit.activated.connect(self.close)
 
+        keypress_save = QtGui.QShortcut(
+            QtGui.QKeySequence(
+                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_S)
+            ),
+            self,
+        )
+        keypress_save.activated.connect(self.save)
+
+        keypress_roi = list()
+        for brain_state in BRAIN_STATE_MAPPER.brain_states:
+            keypress_roi.append(
+                QtGui.QShortcut(
+                    QtGui.QKeySequence(
+                        QtCore.QKeyCombination(
+                            QtCore.Qt.Modifier.SHIFT,
+                            QtCore.Qt.Key[f"Key_{brain_state.digit}"],
+                        )
+                    ),
+                    self,
+                )
+            )
+            keypress_roi[-1].activated.connect(
+                partial(self.enter_label_roi_mode, brain_state.digit)
+            )
+        keypress_roi.append(
+            QtGui.QShortcut(
+                QtGui.QKeySequence(
+                    QtCore.QKeyCombination(
+                        QtCore.Qt.Modifier.SHIFT,
+                        QtCore.Qt.Key.Key_Backspace,
+                    )
+                ),
+                self,
+            )
+        )
+        keypress_roi[-1].activated.connect(
+            partial(self.enter_label_roi_mode, UNDEFINED_LABEL)
+        )
+
+        keypress_esc = QtGui.QShortcut(
+            QtGui.QKeySequence(QtCore.Qt.Key.Key_Escape), self
+        )
+        keypress_esc.activated.connect(self.exit_label_roi_mode)
+
+        keypress_space = QtGui.QShortcut(
+            QtGui.QKeySequence(QtCore.Qt.Key.Key_Space), self
+        )
+        keypress_space.activated.connect(
+            partial(self.jump_to_next_state, "right", "different")
+        )
+        keypress_shift_right = QtGui.QShortcut(
+            QtGui.QKeySequence(
+                QtCore.QKeyCombination(
+                    QtCore.Qt.Modifier.SHIFT,
+                    QtCore.Qt.Key.Key_Right,
+                )
+            ),
+            self,
+        )
+        keypress_shift_right.activated.connect(
+            partial(self.jump_to_next_state, "right", "different")
+        )
+        keypress_shift_left = QtGui.QShortcut(
+            QtGui.QKeySequence(
+                QtCore.QKeyCombination(
+                    QtCore.Qt.Modifier.SHIFT,
+                    QtCore.Qt.Key.Key_Left,
+                )
+            ),
+            self,
+        )
+        keypress_shift_left.activated.connect(
+            partial(self.jump_to_next_state, "left", "different")
+        )
+        keypress_ctrl_right = QtGui.QShortcut(
+            QtGui.QKeySequence(
+                QtCore.QKeyCombination(
+                    QtCore.Qt.Modifier.CTRL,
+                    QtCore.Qt.Key.Key_Right,
+                )
+            ),
+            self,
+        )
+        keypress_ctrl_right.activated.connect(
+            partial(self.jump_to_next_state, "right", "undefined")
+        )
+        keypress_ctrl_left = QtGui.QShortcut(
+            QtGui.QKeySequence(
+                QtCore.QKeyCombination(
+                    QtCore.Qt.Modifier.CTRL,
+                    QtCore.Qt.Key.Key_Left,
+                )
+            ),
+            self,
+        )
+        keypress_ctrl_left.activated.connect(
+            partial(self.jump_to_next_state, "left", "undefined")
+        )
+
+        # user input: clicks
         self.ui.upperplots.canvas.mpl_connect("button_press_event", self.click_to_jump)
 
-        self.autoscroll_state = False
+        # user input: buttons
+        self.ui.savebutton.clicked.connect(self.save)
+        self.ui.xzoomin.clicked.connect(partial(self.zoom_x, "in"))
+        self.ui.xzoomout.clicked.connect(partial(self.zoom_x, "out"))
+        self.ui.xzoomreset.clicked.connect(partial(self.zoom_x, "reset"))
         self.ui.autoscroll.stateChanged.connect(self.update_autoscroll_state)
-
         self.ui.eegzoomin.clicked.connect(partial(self.update_signal_zoom, "eeg", "in"))
         self.ui.eegzoomout.clicked.connect(
             partial(self.update_signal_zoom, "eeg", "out")
@@ -246,7 +341,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.emgzoomout.clicked.connect(
             partial(self.update_signal_zoom, "emg", "out")
         )
-
         self.ui.eegshiftup.clicked.connect(
             partial(self.update_signal_offset, "eeg", "up")
         )
@@ -259,66 +353,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.emgshiftdown.clicked.connect(
             partial(self.update_signal_offset, "emg", "down")
         )
-
         self.ui.shownepochsplus.clicked.connect(
             partial(self.update_epochs_shown, "plus")
         )
         self.ui.shownepochsminus.clicked.connect(
             partial(self.update_epochs_shown, "minus")
         )
-
         self.ui.specbrighter.clicked.connect(
             partial(self.update_spectrogram_brightness, "brighter")
         )
         self.ui.specdimmer.clicked.connect(
             partial(self.update_spectrogram_brightness, "dimmer")
         )
-
-        keypress_save = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+s"), self)
-        keypress_save.activated.connect(self.save)
-        self.ui.savebutton.clicked.connect(self.save)
-
-        keypress_roi = list()
-        for brain_state in BRAIN_STATE_MAPPER.brain_states:
-            keypress_roi.append(
-                QtGui.QShortcut(
-                    QtGui.QKeySequence("Shift+" + str(brain_state.digit)), self
-                )
-            )
-            keypress_roi[-1].activated.connect(
-                partial(self.enter_label_roi_mode, brain_state.digit)
-            )
-        keypress_roi.append(
-            QtGui.QShortcut(QtGui.QKeySequence("Shift+backspace"), self)
-        )
-        keypress_roi[-1].activated.connect(
-            partial(self.enter_label_roi_mode, UNDEFINED_LABEL)
-        )
-
-        keypress_esc = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["esc"]), self)
-        keypress_esc.activated.connect(self.exit_label_roi_mode)
-
-        keypress_space = QtGui.QShortcut(QtGui.QKeySequence(KEY_MAP["space"]), self)
-        keypress_space.activated.connect(
-            partial(self.jump_to_next_state, "right", "different")
-        )
-        keypress_shift_right = QtGui.QShortcut(QtGui.QKeySequence("Shift+Right"), self)
-        keypress_shift_right.activated.connect(
-            partial(self.jump_to_next_state, "right", "different")
-        )
-        keypress_shift_left = QtGui.QShortcut(QtGui.QKeySequence("Shift+Left"), self)
-        keypress_shift_left.activated.connect(
-            partial(self.jump_to_next_state, "left", "different")
-        )
-        keypress_ctrl_right = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Right"), self)
-        keypress_ctrl_right.activated.connect(
-            partial(self.jump_to_next_state, "right", "undefined")
-        )
-        keypress_ctrl_left = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Left"), self)
-        keypress_ctrl_left.activated.connect(
-            partial(self.jump_to_next_state, "left", "undefined")
-        )
-
         self.ui.helpbutton.clicked.connect(self.show_user_manual)
 
         self.show()
@@ -507,7 +553,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 display_label - self.smallest_display_label, self.epoch, :
             ] = LABEL_CMAP[display_label]
 
-    def modify_label(self, digit):
+    def modify_current_epoch_label(self, digit):
         self.labels[self.epoch] = digit
         display_label = convert_labels(
             np.array([digit]),
@@ -517,6 +563,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.modify_label_img(display_label)
         if self.autoscroll_state and self.epoch < self.n_epochs - 1:
             self.shift_epoch("right")
+        self.update_upper_plot()
+        self.update_lower_plot()
 
     def process_signals(self):
         self.eeg = self.eeg - np.mean(self.eeg)
