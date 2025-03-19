@@ -1,6 +1,7 @@
 import sys
 import os
 from functools import partial
+import copy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -176,6 +177,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.process_signals()
 
         self.label_roi_mode = False
+        self.last_saved_labels = copy.deepcopy(self.labels)
 
         self.update_lower_plot()
 
@@ -314,6 +316,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.show()
 
+    def closeEvent(self, event):
+        if not all(self.labels == self.last_saved_labels):
+            result = QtWidgets.QMessageBox.question(
+                self,
+                "Unsaved changes",
+                "You have unsaved changes. Really quit?",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            )
+            if result == QtWidgets.QMessageBox.Yes:
+                event.accept()
+            else:
+                event.ignore()
+
     def show_user_manual(self):
         self.popup = MyPopup()
         self.popup.setGeometry(QtCore.QRect(50, 100, 350, 400))
@@ -389,6 +404,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def save(self):
         save_labels(self.labels, self.label_file)
+        self.last_saved_labels = copy.deepcopy(self.labels)
 
     def update_spectrogram_brightness(self, direction: str):
         vmin, vmax = self.ui.upperplots.spec_ref.get_clim()
