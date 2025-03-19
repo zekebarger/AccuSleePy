@@ -19,6 +19,8 @@ SPEC_UPPER_F = 30
 SPEC_Y_TICK_INTERVAL = 10
 
 # margins around subplots in the figure
+SUBPLOT_TOP_MARGIN = 0.98
+SUBPLOT_BOTTOM_MARGIN = 0.02
 SUBPLOT_LEFT_MARGIN = 0.07
 SUBPLOT_RIGHT_MARGIN = 0.95
 
@@ -93,7 +95,6 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs1[1]))
         axes.append(self.canvas.figure.add_subplot(gs1[2]))
         axes.append(self.canvas.figure.add_subplot(gs2[3]))
-        self.canvas.figure.subplots_adjust(top=0.98, bottom=0.02, right=0.98)
 
         # the subplots might have different axes limits one day
         for i in range(4):
@@ -173,7 +174,10 @@ class MplWidget(QWidget):
         )
 
         self.canvas.figure.subplots_adjust(
-            left=SUBPLOT_LEFT_MARGIN, right=SUBPLOT_RIGHT_MARGIN
+            left=SUBPLOT_LEFT_MARGIN,
+            right=SUBPLOT_RIGHT_MARGIN,
+            top=SUBPLOT_TOP_MARGIN,
+            bottom=SUBPLOT_BOTTOM_MARGIN,
         )
 
         self.canvas.axes = axes
@@ -214,7 +218,6 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs1[0]))
         axes.append(self.canvas.figure.add_subplot(gs1[1]))
         axes.append(self.canvas.figure.add_subplot(gs2[2]))
-        self.canvas.figure.subplots_adjust(top=0.98, bottom=0.02, right=0.98)
 
         # EEG subplot
         axes[0].set_xticks([])
@@ -292,7 +295,10 @@ class MplWidget(QWidget):
         )
 
         self.canvas.figure.subplots_adjust(
-            left=SUBPLOT_LEFT_MARGIN, right=SUBPLOT_RIGHT_MARGIN
+            left=SUBPLOT_LEFT_MARGIN,
+            right=SUBPLOT_RIGHT_MARGIN,
+            top=SUBPLOT_TOP_MARGIN,
+            bottom=SUBPLOT_BOTTOM_MARGIN,
         )
 
         self.canvas.axes = axes
