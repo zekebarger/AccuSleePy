@@ -41,13 +41,8 @@ epoch_length = 2.5
 LABEL_CMAP = np.concatenate(
     [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
-
-
-class MyPopup(QtWidgets.QWidget):
-    """Popup shown when a user tries to quit with unsaved changes"""
-
-    def __init__(self):
-        QtWidgets.QWidget.__init__(self)
+# relative path to user manual txt file
+USER_MANUAL_FILE = "text/manual1.txt"
 
 
 def convert_labels(labels: np.array, style: str) -> np.array:
@@ -383,13 +378,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 event.ignore()
 
     def show_user_manual(self):
-        self.popup = MyPopup()
+        self.popup = QtWidgets.QWidget()
         self.popup.setGeometry(QtCore.QRect(50, 100, 350, 400))
         grid = QtWidgets.QGridLayout()
         user_manual_file = open(
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), "text/manual1.txt"
-            ),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), USER_MANUAL_FILE),
             "r",
         )
         user_manual_text = user_manual_file.read()
