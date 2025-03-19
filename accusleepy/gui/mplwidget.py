@@ -109,9 +109,7 @@ class MplWidget(QWidget):
         self.roi_patch = [c for c in axes[0].get_children() if type(c) == Rectangle][0]
 
         # epoch marker
-        # axes[1].axis("off") # use this eventually
-        axes[1].set_xticks([])
-        axes[1].set_yticks([])
+        axes[1].axis("off")
         axes[1].set_ylim((0, 1))
         # line
         self.upper_marker.append(

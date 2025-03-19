@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QHBoxLayout,
-    QLabel, QMainWindow, QPushButton, QSizePolicy,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QGridLayout,
+    QHBoxLayout, QLabel, QLayout, QMainWindow,
+    QPushButton, QSizePolicy, QVBoxLayout, QWidget)
 
 from mplwidget import MplWidget
 import resources_rc
@@ -205,6 +205,7 @@ class Ui_Window1(object):
         self.horizontalLayoutWidget_3.setGeometry(QRect(840, 150, 131, 41))
         self.horizontalLayout_3 = QHBoxLayout(self.horizontalLayoutWidget_3)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.horizontalLayout_3.setContentsMargins(2, 0, 2, 0)
         self.xzoomin = QPushButton(self.horizontalLayoutWidget_3)
         self.xzoomin.setObjectName(u"xzoomin")
@@ -235,18 +236,9 @@ class Ui_Window1(object):
 
         self.horizontalLayout_3.addWidget(self.xzoomreset)
 
-        self.savebutton = QPushButton(self.centralwidget)
-        self.savebutton.setObjectName(u"savebutton")
-        self.savebutton.setGeometry(QRect(881, 29, 50, 51))
-        self.savebutton.setStyleSheet(u"background-color: rgb(237, 241, 241);")
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/save.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.savebutton.setIcon(icon9)
-        self.savebutton.setIconSize(QSize(24, 24))
-        self.savebutton.setAutoRepeat(True)
         self.verticalLayoutWidget = QWidget(self.centralwidget)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(10, 10, 821, 581))
+        self.verticalLayoutWidget.setGeometry(QRect(0, 10, 831, 581))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -265,6 +257,48 @@ class Ui_Window1(object):
         self.lowerplots.setAutoFillBackground(False)
 
         self.verticalLayout.addWidget(self.lowerplots)
+
+        self.line = QFrame(self.centralwidget)
+        self.line.setObjectName(u"line")
+        self.line.setGeometry(QRect(0, 291, 991, 20))
+        self.line.setFrameShape(QFrame.Shape.HLine)
+        self.line.setFrameShadow(QFrame.Shadow.Sunken)
+        self.horizontalLayoutWidget_4 = QWidget(self.centralwidget)
+        self.horizontalLayoutWidget_4.setObjectName(u"horizontalLayoutWidget_4")
+        self.horizontalLayoutWidget_4.setGeometry(QRect(845, 20, 121, 61))
+        self.horizontalLayout_4 = QHBoxLayout(self.horizontalLayoutWidget_4)
+        self.horizontalLayout_4.setSpacing(20)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.savebutton = QPushButton(self.horizontalLayoutWidget_4)
+        self.savebutton.setObjectName(u"savebutton")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.savebutton.sizePolicy().hasHeightForWidth())
+        self.savebutton.setSizePolicy(sizePolicy2)
+        self.savebutton.setStyleSheet(u"background-color: rgb(237, 241, 241);")
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/save.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.savebutton.setIcon(icon9)
+        self.savebutton.setIconSize(QSize(28, 28))
+        self.savebutton.setAutoRepeat(True)
+
+        self.horizontalLayout_4.addWidget(self.savebutton)
+
+        self.helpbutton = QPushButton(self.horizontalLayoutWidget_4)
+        self.helpbutton.setObjectName(u"helpbutton")
+        sizePolicy2.setHeightForWidth(self.helpbutton.sizePolicy().hasHeightForWidth())
+        self.helpbutton.setSizePolicy(sizePolicy2)
+        self.helpbutton.setStyleSheet(u"background-color: rgb(237, 241, 241);")
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/question.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.helpbutton.setIcon(icon10)
+        self.helpbutton.setIconSize(QSize(28, 28))
+        self.helpbutton.setAutoRepeat(True)
+
+        self.horizontalLayout_4.addWidget(self.helpbutton)
 
         Window1.setCentralWidget(self.centralwidget)
 
@@ -327,5 +361,9 @@ class Ui_Window1(object):
         self.savebutton.setToolTip(QCoreApplication.translate("Window1", u"Save labels (Ctrl+S)", None))
 #endif // QT_CONFIG(tooltip)
         self.savebutton.setText("")
+#if QT_CONFIG(tooltip)
+        self.helpbutton.setToolTip(QCoreApplication.translate("Window1", u"User manual", None))
+#endif // QT_CONFIG(tooltip)
+        self.helpbutton.setText("")
     # retranslateUi
 

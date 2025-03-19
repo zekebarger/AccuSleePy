@@ -1,4 +1,5 @@
 import sys
+import os
 from functools import partial
 
 import matplotlib.pyplot as plt
@@ -55,6 +56,11 @@ epoch_length = 2.5
 LABEL_CMAP = np.concatenate(
     [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
+
+
+class MyPopup(QtWidgets.QWidget):
+    def __init__(self):
+        QtWidgets.QWidget.__init__(self)
 
 
 def convert_labels(labels: np.array, style: str) -> np.array:
@@ -304,7 +310,27 @@ class MainWindow(QtWidgets.QMainWindow):
             partial(self.jump_to_next_state, "left", "undefined")
         )
 
+        self.ui.helpbutton.clicked.connect(self.show_user_manual)
+
         self.show()
+
+    def show_user_manual(self):
+        self.popup = MyPopup()
+        self.popup.setGeometry(QtCore.QRect(50, 100, 350, 400))
+        grid = QtWidgets.QGridLayout()
+        user_manual_file = open(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "text/manual1.txt"
+            ),
+            "r",
+        )
+        user_manual_text = user_manual_file.read()
+        user_manual_file.close()
+        label_widget = QtWidgets.QLabel()
+        label_widget.setText(user_manual_text)
+        grid.addWidget(label_widget)
+        self.popup.setLayout(grid)
+        self.popup.show()
 
     def jump_to_next_state(self, direction: str, target: str):
         simulated_click = SimulatedClick(xdata=self.epoch)
@@ -555,7 +581,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
 
     def update_upper_plot(self):
-        # TODO: reevaluate this...
         self.update_upper_marker()
         self.ui.upperplots.label_img_ref.set(data=self.label_img)
         self.ui.upperplots.canvas.draw()
