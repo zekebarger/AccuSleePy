@@ -4,7 +4,7 @@
 #   kendis lasman, https://www.flaticon.com/packs/ui-79
 
 import copy
-from dataclasses import dataclass
+from types import SimpleNamespace
 import os
 import sys
 from functools import partial
@@ -47,7 +47,6 @@ DISPLAY_FORMAT = "display"
 DIGIT_FORMAT = "digit"
 
 
-# MAIN WINDOW CLASS
 class MainWindow(QtWidgets.QMainWindow):
     """AccuSleePy manual scoring GUI"""
 
@@ -88,7 +87,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.eeg, self.sampling_rate, self.epoch_length
         )
 
-        # calculate and reformat RMS of EMG for each epoch
+        # calculate RMS of EMG for each epoch and apply a ceiling
         self.upper_emg = create_upper_emg_signal(
             self.emg, self.sampling_rate, self.epoch_length
         )
@@ -383,7 +382,7 @@ class MainWindow(QtWidgets.QMainWindow):
         :param target: different or undefined
         """
         # create a simulated click so we can reuse click_to_jump
-        simulated_click = SimulatedClick(xdata=self.epoch)
+        simulated_click = SimpleNamespace(**{"xdata": self.epoch})
         if direction == "right":
             if target == "different":
                 matches = np.where(
@@ -729,12 +728,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_lower_figure()
 
 
-@dataclass
-class SimulatedClick:
-    xdata: int
-
-
 def convert_labels(labels: np.array, style: str) -> np.array:
+    """Convert labels between "display" and "digit" formats
+
+    It's useful to represent brain state labels in two ways:
+    Digit format: this is how labels are represented in files. It matches the digit
+        attribute of the BrainState class as well as the number pressed on the
+        keyboard to set an epoch to that brain state.
+    Display format: the y-axis value associated with a brain state when brain state
+        labels are displayed as an image. This is also the index of the brain state
+        in the colormap. Undefined epochs are mapped to 0, and digits are mapped to
+        the numbers 1-10 in keyboard order (1234567890).
+
+    :param labels: brain state labels
+    :param style: target format for the output
+    :return: formatted labels
+    """
     if style == DISPLAY_FORMAT:
         # convert 0 to 10, undefined to 0
         labels = [i if i != 0 else 10 for i in labels]
@@ -747,8 +756,18 @@ def convert_labels(labels: np.array, style: str) -> np.array:
         raise Exception(f"style must be '{DISPLAY_FORMAT}' or '{DIGIT_FORMAT}'")
 
 
-def create_label_img(labels, label_display_options):
+def create_label_img(labels: np.array, label_display_options: np.array) -> np.array:
+    """Create an image to display brain state labels
+
+    :param labels: brain state labels, in "display" format
+    :param label_display_options: y-axis locations of valid brain state labels
+    :return: brain state label image
+    """
+    # While there can be up to 10 valid brain states, it's possible that not all of them
+    # are in use. We don't need to display brain states below and above the range of
+    # valid brain states, since those rows would always be empty.
     smallest_display_label = np.min(label_display_options)
+    # "background" of the image is white
     label_img = np.ones(
         [
             (np.max(label_display_options) - smallest_display_label + 1),
@@ -760,23 +779,33 @@ def create_label_img(labels, label_display_options):
         if label > 0:
             label_img[label - smallest_display_label, i, :] = LABEL_CMAP[label]
         else:
+            # label is undefined
             label_img[:, i] = np.array([0, 0, 0, 1])
     return label_img
 
 
-def create_upper_emg_signal(emg, sampling_rate, epoch_length):
-    binned_emg = process_emg(
+def create_upper_emg_signal(
+    emg: np.array, sampling_rate: int | float, epoch_length: int | float
+) -> np.array:
+    """Calculate RMS of EMG for each epoch and apply a ceiling
+
+    :param emg: EMG signal
+    :param sampling_rate: sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :return: processed EMG signal
+    """
+    emg_rms = process_emg(
         emg,
         sampling_rate,
         epoch_length,
     )
-    emg_ceiling = np.mean(binned_emg) + np.std(binned_emg) * 2.5
-    binned_emg[binned_emg > emg_ceiling] = emg_ceiling
-    return binned_emg
+    return np.clip(emg_rms, 0, np.mean(emg_rms) + np.std(emg_rms) * 2.5)
 
 
 def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
     """Center and scale the EEG and EMG signals
+
+    A heuristic approach to fitting the EEG and EMG signals in the plot.
 
     :param eeg: EEG signal
     :param emg: EMG signal
@@ -789,7 +818,6 @@ def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
     return eeg, emg
 
 
-## EXECUTE APP
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
