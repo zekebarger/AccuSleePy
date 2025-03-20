@@ -42,9 +42,34 @@ LABEL_CMAP = np.concatenate(
 # relative path to user manual txt file
 USER_MANUAL_FILE = "text/manual1.txt"
 
+# variables used by callbacks
 # label formats
 DISPLAY_FORMAT = "display"
 DIGIT_FORMAT = "digit"
+# offset changes
+OFFSET_UP = "up"
+OFFSET_DOWN = "down"
+OFFSET_INCREMENTS = {OFFSET_UP: 0.02, OFFSET_DOWN: -0.02}
+# changes to number of epochs
+DIRECTION_PLUS = "plus"
+DIRECTION_MINUS = "minus"
+# changes to selected epoch
+DIRECTION_LEFT = "left"
+DIRECTION_RIGHT = "right"
+# zoom directions
+ZOOM_IN = "in"
+ZOOM_OUT = "out"
+ZOOM_RESET = "reset"
+SIGNAL_ZOOM_FACTORS = {ZOOM_IN: 1.08, ZOOM_OUT: 0.95}
+# signal names
+EEG_SIGNAL = "eeg"
+EMG_SIGNAL = "emg"
+# spectrogram color changes
+BRIGHTER = "brighter"
+DIMMER = "dimmer"
+# next epoch target
+DIFFERENT_STATE = "different"
+UNDEFINED_STATE = "undefined"
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -144,14 +169,14 @@ class MainWindow(QtWidgets.QMainWindow):
         keypress_right = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key.Key_Right), self
         )
-        keypress_right.activated.connect(partial(self.shift_epoch, "right"))
+        keypress_right.activated.connect(partial(self.shift_epoch, DIRECTION_RIGHT))
         keypress_right.activated.connect(self.update_lower_figure)
         keypress_right.activated.connect(self.update_upper_figure)
 
         keypress_left = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key.Key_Left), self
         )
-        keypress_left.activated.connect(partial(self.shift_epoch, "left"))
+        keypress_left.activated.connect(partial(self.shift_epoch, DIRECTION_LEFT))
         keypress_left.activated.connect(self.update_lower_figure)
         keypress_left.activated.connect(self.update_upper_figure)
 
@@ -160,12 +185,12 @@ class MainWindow(QtWidgets.QMainWindow):
             keypress_zoom_in_x.append(
                 QtGui.QShortcut(QtGui.QKeySequence(zoom_key), self)
             )
-            keypress_zoom_in_x[-1].activated.connect(partial(self.zoom_x, "in"))
+            keypress_zoom_in_x[-1].activated.connect(partial(self.zoom_x, ZOOM_IN))
 
         keypress_zoom_out_x = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key.Key_Minus), self
         )
-        keypress_zoom_out_x.activated.connect(partial(self.zoom_x, "out"))
+        keypress_zoom_out_x.activated.connect(partial(self.zoom_x, ZOOM_OUT))
 
         keypress_modify_label = list()
         for brain_state in BRAIN_STATE_MAPPER.brain_states:
@@ -242,7 +267,7 @@ class MainWindow(QtWidgets.QMainWindow):
             QtGui.QKeySequence(QtCore.Qt.Key.Key_Space), self
         )
         keypress_space.activated.connect(
-            partial(self.jump_to_next_state, "right", "different")
+            partial(self.jump_to_next_state, DIRECTION_RIGHT, DIFFERENT_STATE)
         )
         keypress_shift_right = QtGui.QShortcut(
             QtGui.QKeySequence(
@@ -254,7 +279,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self,
         )
         keypress_shift_right.activated.connect(
-            partial(self.jump_to_next_state, "right", "different")
+            partial(self.jump_to_next_state, DIRECTION_RIGHT, DIFFERENT_STATE)
         )
         keypress_shift_left = QtGui.QShortcut(
             QtGui.QKeySequence(
@@ -266,7 +291,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self,
         )
         keypress_shift_left.activated.connect(
-            partial(self.jump_to_next_state, "left", "different")
+            partial(self.jump_to_next_state, DIRECTION_LEFT, DIFFERENT_STATE)
         )
         keypress_ctrl_right = QtGui.QShortcut(
             QtGui.QKeySequence(
@@ -278,7 +303,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self,
         )
         keypress_ctrl_right.activated.connect(
-            partial(self.jump_to_next_state, "right", "undefined")
+            partial(self.jump_to_next_state, DIRECTION_RIGHT, UNDEFINED_STATE)
         )
         keypress_ctrl_left = QtGui.QShortcut(
             QtGui.QKeySequence(
@@ -290,7 +315,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self,
         )
         keypress_ctrl_left.activated.connect(
-            partial(self.jump_to_next_state, "left", "undefined")
+            partial(self.jump_to_next_state, DIRECTION_LEFT, UNDEFINED_STATE)
         )
 
         # user input: clicks
@@ -298,47 +323,51 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # user input: buttons
         self.ui.savebutton.clicked.connect(self.save)
-        self.ui.xzoomin.clicked.connect(partial(self.zoom_x, "in"))
-        self.ui.xzoomout.clicked.connect(partial(self.zoom_x, "out"))
-        self.ui.xzoomreset.clicked.connect(partial(self.zoom_x, "reset"))
+        self.ui.xzoomin.clicked.connect(partial(self.zoom_x, ZOOM_IN))
+        self.ui.xzoomout.clicked.connect(partial(self.zoom_x, ZOOM_OUT))
+        self.ui.xzoomreset.clicked.connect(partial(self.zoom_x, ZOOM_RESET))
         self.ui.autoscroll.stateChanged.connect(self.update_autoscroll_state)
-        self.ui.eegzoomin.clicked.connect(partial(self.update_signal_zoom, "eeg", "in"))
-        self.ui.eegzoomout.clicked.connect(
-            partial(self.update_signal_zoom, "eeg", "out")
+        self.ui.eegzoomin.clicked.connect(
+            partial(self.update_signal_zoom, EEG_SIGNAL, ZOOM_IN)
         )
-        self.ui.emgzoomin.clicked.connect(partial(self.update_signal_zoom, "emg", "in"))
+        self.ui.eegzoomout.clicked.connect(
+            partial(self.update_signal_zoom, EEG_SIGNAL, ZOOM_OUT)
+        )
+        self.ui.emgzoomin.clicked.connect(
+            partial(self.update_signal_zoom, EMG_SIGNAL, ZOOM_IN)
+        )
         self.ui.emgzoomout.clicked.connect(
-            partial(self.update_signal_zoom, "emg", "out")
+            partial(self.update_signal_zoom, EMG_SIGNAL, ZOOM_OUT)
         )
         self.ui.eegshiftup.clicked.connect(
-            partial(self.update_signal_offset, "eeg", "up")
+            partial(self.update_signal_offset, EEG_SIGNAL, OFFSET_UP)
         )
         self.ui.eegshiftdown.clicked.connect(
-            partial(self.update_signal_offset, "eeg", "down")
+            partial(self.update_signal_offset, EEG_SIGNAL, OFFSET_DOWN)
         )
         self.ui.emgshiftup.clicked.connect(
-            partial(self.update_signal_offset, "emg", "up")
+            partial(self.update_signal_offset, EMG_SIGNAL, OFFSET_UP)
         )
         self.ui.emgshiftdown.clicked.connect(
-            partial(self.update_signal_offset, "emg", "down")
+            partial(self.update_signal_offset, EMG_SIGNAL, OFFSET_DOWN)
         )
         self.ui.shownepochsplus.clicked.connect(
-            partial(self.update_epochs_shown, "plus")
+            partial(self.update_epochs_shown, DIRECTION_PLUS)
         )
         self.ui.shownepochsminus.clicked.connect(
-            partial(self.update_epochs_shown, "minus")
+            partial(self.update_epochs_shown, DIRECTION_MINUS)
         )
         self.ui.specbrighter.clicked.connect(
-            partial(self.update_spectrogram_brightness, "brighter")
+            partial(self.update_spectrogram_brightness, BRIGHTER)
         )
         self.ui.specdimmer.clicked.connect(
-            partial(self.update_spectrogram_brightness, "dimmer")
+            partial(self.update_spectrogram_brightness, DIMMER)
         )
         self.ui.helpbutton.clicked.connect(self.show_user_manual)
 
         self.show()
 
-    def closeEvent(self, event: QtGui.QCloseEvent):
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """Check if there are unsaved changes before closing"""
         if not all(self.labels == self.last_saved_labels):
             result = QtWidgets.QMessageBox.question(
@@ -352,7 +381,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 event.ignore()
 
-    def show_user_manual(self):
+    def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
         user_manual_file = open(
             os.path.join(os.path.dirname(os.path.abspath(__file__)), USER_MANUAL_FILE),
@@ -370,7 +399,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.popup.setGeometry(QtCore.QRect(50, 100, 350, 400))
         self.popup.show()
 
-    def jump_to_next_state(self, direction: str, target: str):
+    def jump_to_next_state(self, direction: str, target: str) -> None:
         """Jump to epoch based on a target brain state
 
         This allows the user to jump to the next epoch in a given direction
@@ -383,8 +412,8 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         # create a simulated click so we can reuse click_to_jump
         simulated_click = SimpleNamespace(**{"xdata": self.epoch})
-        if direction == "right":
-            if target == "different":
+        if direction == DIRECTION_RIGHT:
+            if target == DIFFERENT_STATE:
                 matches = np.where(
                     self.labels[self.epoch + 1 :] != self.labels[self.epoch]
                 )[0]
@@ -393,7 +422,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if matches.size > 0:
                 simulated_click.xdata = int(matches[0]) + 1 + self.epoch
         else:
-            if target == "different":
+            if target == DIFFERENT_STATE:
                 matches = np.where(
                     self.labels[: self.epoch] != self.labels[self.epoch]
                 )[0]
@@ -403,13 +432,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 simulated_click.xdata = int(matches[-1])
         self.click_to_jump(simulated_click)
 
-    def roi_callback(self, eclick, erelease):
+    def roi_callback(self, eclick, erelease) -> None:
         """Callback for ROI labeling widget
 
         This is called by the RectangleSelector widget when the user finishes
         drawing an ROI. It sets a range of epochs to the desired brain state.
         The function signature is required to have this format.
         """
+        # update all three representations of the labels
         self.labels[int(np.ceil(eclick.xdata)) : int(np.floor(erelease.xdata)) + 1] = (
             self.roi_brain_state
         )
@@ -420,17 +450,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_img = create_label_img(
             self.display_labels, self.label_display_options
         )
+        # update the plots
         self.update_upper_figure()
         self.update_lower_figure()
         self.exit_label_roi_mode()
 
-    def exit_label_roi_mode(self):
+    def exit_label_roi_mode(self) -> None:
+        """Restore the normal GUI state after an ROI is drawn"""
         self.ui.upperplots.roi.set_active(False)
         self.ui.upperplots.roi.set_visible(False)
         self.ui.upperplots.roi.update()
         self.label_roi_mode = False
 
-    def enter_label_roi_mode(self, brain_state):
+    def enter_label_roi_mode(self, brain_state) -> None:
+        """Enter ROI drawing mode
+
+        In this mode, a user can draw an ROI on the upper brain state label
+        image to set a range of epochs to a new brain state.
+
+        :param brain_state: new brain state to set
+        """
         self.label_roi_mode = True
         self.roi_brain_state = brain_state
         self.ui.upperplots.roi_patch.set(
@@ -440,20 +479,36 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.ui.upperplots.roi.set_active(True)
 
-    def save(self):
+    def save(self) -> None:
+        """Save brain state labels to file"""
         save_labels(self.labels, self.label_file)
         self.last_saved_labels = copy.deepcopy(self.labels)
 
-    def update_spectrogram_brightness(self, direction: str):
+    def update_spectrogram_brightness(self, direction: str) -> None:
+        """Modify spectrogram color range based on button press
+
+        :param direction: brighter or dimmer
+        """
         vmin, vmax = self.ui.upperplots.spec_ref.get_clim()
-        if direction == "brighter":
+        if direction == BRIGHTER:
             self.ui.upperplots.spec_ref.set(clim=(vmin, vmax * 0.96))
         else:
             self.ui.upperplots.spec_ref.set(clim=(vmin, vmax * 1.07))
         self.ui.upperplots.canvas.draw()
 
-    def update_epochs_shown(self, direction: str):
-        if direction == "plus":
+    def update_epochs_shown(self, direction: str) -> None:
+        """Change the number of epochs shown based on button press
+
+        The user can change the number of epochs shown in the lower figure
+        via button presses. This requires extensive changes to both figures.
+        The number of epochs can only change in increments of 2 and should
+        always be an odd number >= 3.
+
+        :param direction: plus or minus
+        """
+        # if we are near the beginning or end of the recording, we need
+        # to change the epoch range differently.
+        if direction == DIRECTION_PLUS:
             self.epochs_to_show += 2
             if self.lower_left_epoch == 0:
                 self.lower_right_epoch += 2
@@ -475,7 +530,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.shownepochslabel.setText(str(self.epochs_to_show))
 
-        # totally rebuild lower plots
+        # update display
+        self.update_upper_figure()
+        # rebuild lower figure from scratch
         self.ui.lowerplots.canvas.figure.clf()
         self.ui.lowerplots.setup_lower_figure(
             self.label_img,
@@ -484,63 +541,79 @@ class MainWindow(QtWidgets.QMainWindow):
             BRAIN_STATE_MAPPER,
             self.label_display_options,
         )
-        self.update_upper_figure()
         self.update_lower_figure()
 
-    def update_signal_offset(self, signal: str, direction: str):
-        offset_increments = {"up": 0.02, "down": -0.02}
-        if signal == "eeg":
-            self.eeg_signal_offset += offset_increments[direction]
+    def update_signal_offset(self, signal: str, direction: str) -> None:
+        """Shift EEG or EMG up or down
+
+        :param signal: eeg or emg
+        :param direction: up or down
+        """
+        if signal == EEG_SIGNAL:
+            self.eeg_signal_offset += OFFSET_INCREMENTS[direction]
         else:
-            self.emg_signal_offset += offset_increments[direction]
+            self.emg_signal_offset += OFFSET_INCREMENTS[direction]
         self.update_lower_figure()
 
-    def update_signal_zoom(self, signal: str, direction: str):
-        zoom_factors = {"in": 1.08, "out": 0.95}
-        if signal == "eeg":
-            self.eeg_signal_scale_factor *= zoom_factors[direction]
+    def update_signal_zoom(self, signal: str, direction: str) -> None:
+        """Zoom EEG or EMG y-axis
+
+        :param signal: eeg or emg
+        :param direction: in or out
+        """
+        if signal == EEG_SIGNAL:
+            self.eeg_signal_scale_factor *= SIGNAL_ZOOM_FACTORS[direction]
         else:
-            self.emg_signal_scale_factor *= zoom_factors[direction]
+            self.emg_signal_scale_factor *= SIGNAL_ZOOM_FACTORS[direction]
         self.update_lower_figure()
 
-    def update_autoscroll_state(self, checked):
+    def update_autoscroll_state(self, checked) -> None:
+        """Toggle autoscroll behavior
+
+        If autoscroll is enabled, setting the brain state of the current epoch
+        via a keypress will advance to the next epoch.
+
+        :param checked: state of the checkbox
+        """
         self.autoscroll_state = checked
 
-    def adjust_upper_plot_x_limits(self):
+    def adjust_upper_figure_x_limits(self) -> None:
+        """Update the x-axis limits of the upper figure subplots"""
         for i in range(4):
             self.ui.upperplots.canvas.axes[i].set_xlim(
                 (self.upper_left_epoch - 0.5, self.upper_right_epoch + 0.5)
             )
         self.ui.upperplots.canvas.draw()
 
-    def zoom_x(self, direction: str):
+    def zoom_x(self, direction: str) -> None:
+        """Change upper figure x-axis zoom level
+
+        :param direction: in, out, or reset
+        """
+        zoom_in_factor = 0.45
+        zoom_out_factor = 1.017
         epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
         # is int too imprecise?
-        if direction == "in":
+        if direction == ZOOM_IN:
             self.upper_left_epoch = int(
-                max([self.upper_left_epoch, self.epoch - 0.45 * epochs_shown])
+                max([self.upper_left_epoch, self.epoch - zoom_in_factor * epochs_shown])
             )
             self.upper_right_epoch = int(
-                min([self.upper_right_epoch, self.epoch + 0.45 * epochs_shown])
+                min(
+                    [self.upper_right_epoch, self.epoch + zoom_in_factor * epochs_shown]
+                )
             )
-        elif direction == "out":
-            self.upper_left_epoch = int(max([0, self.epoch - 1.017 * epochs_shown]))
+        elif direction == ZOOM_OUT:
+            self.upper_left_epoch = int(
+                max([0, self.epoch - zoom_out_factor * epochs_shown])
+            )
             self.upper_right_epoch = int(
-                min([self.n_epochs - 1, self.epoch + 1.017 * epochs_shown])
+                min([self.n_epochs - 1, self.epoch + zoom_out_factor * epochs_shown])
             )
         else:  # reset
             self.upper_left_epoch = 0
             self.upper_right_epoch = self.n_epochs - 1
-        self.adjust_upper_plot_x_limits()
-
-    def modify_label_img(self, display_label):
-        if display_label == 0:  # undefined brain state
-            self.label_img[:, self.epoch] = np.array([0, 0, 0, 1])
-        else:
-            self.label_img[:, self.epoch, :] = 1
-            self.label_img[
-                display_label - self.smallest_display_label, self.epoch, :
-            ] = LABEL_CMAP[display_label]
+        self.adjust_upper_figure_x_limits()
 
     def modify_current_epoch_label(self, digit):
         self.labels[self.epoch] = digit
@@ -549,9 +622,17 @@ class MainWindow(QtWidgets.QMainWindow):
             style=DISPLAY_FORMAT,
         )[0]
         self.display_labels[self.epoch] = display_label
-        self.modify_label_img(display_label)
+
+        if display_label == 0:  # undefined brain state in display format
+            self.label_img[:, self.epoch] = np.array([0, 0, 0, 1])
+        else:
+            self.label_img[:, self.epoch, :] = 1
+            self.label_img[
+                display_label - self.smallest_display_label, self.epoch, :
+            ] = LABEL_CMAP[display_label]
+
         if self.autoscroll_state and self.epoch < self.n_epochs - 1:
-            self.shift_epoch("right")
+            self.shift_epoch(DIRECTION_RIGHT)
         self.update_upper_figure()
         self.update_lower_figure()
 
@@ -572,22 +653,22 @@ class MainWindow(QtWidgets.QMainWindow):
         if (
             self.epoch > self.upper_left_epoch + 0.65 * upper_epochs_shown
             and self.upper_right_epoch < (self.n_epochs - 1)
-            and direction == "right"
+            and direction == DIRECTION_RIGHT
         ):
             self.upper_left_epoch += 1
             self.upper_right_epoch += 1
-            self.adjust_upper_plot_x_limits()
+            self.adjust_upper_figure_x_limits()
         elif (
             self.epoch < self.upper_left_epoch + 0.35 * upper_epochs_shown
             and self.upper_left_epoch > 0
-            and direction == "left"
+            and direction == DIRECTION_LEFT
         ):
             self.upper_left_epoch -= 1
             self.upper_right_epoch -= 1
-            self.adjust_upper_plot_x_limits()
+            self.adjust_upper_figure_x_limits()
 
     def shift_epoch(self, direction: str):
-        shift_amount = {"left": -1, "right": 1}[direction]
+        shift_amount = {DIRECTION_LEFT: -1, DIRECTION_RIGHT: 1}[direction]
         # can't move outside min, max epochs
         if not (0 <= (self.epoch + shift_amount) < self.n_epochs):
             return
@@ -710,7 +791,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # update upper marker
         self.update_upper_marker()
         # refresh upper plot
-        self.adjust_upper_plot_x_limits()
+        self.adjust_upper_figure_x_limits()
 
         # update lower plot location
         lower_epoch_padding = int((self.epochs_to_show - 1) / 2)
