@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1171</width>
-    <height>683</height>
+    <width>1200</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -39,7 +39,7 @@
        <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
       </property>
       <item>
-       <widget class="MplWidget" name="upperplots" native="true">
+       <widget class="MplWidget" name="upperfigure" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -62,7 +62,7 @@
        </widget>
       </item>
       <item>
-       <widget class="MplWidget" name="lowerplots" native="true">
+       <widget class="MplWidget" name="lowerfigure" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -128,7 +128,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset>
               <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
             </property>
             <property name="iconSize">
@@ -160,7 +160,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset>
               <normaloff>:/icons/question.png</normaloff>:/icons/question.png</iconset>
             </property>
             <property name="iconSize">
@@ -214,7 +214,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/brightness_up.png</normaloff>:/icons/brightness_up.png</iconset>
               </property>
               <property name="iconSize">
@@ -246,7 +246,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/brightness_down.png</normaloff>:/icons/brightness_down.png</iconset>
               </property>
               <property name="iconSize">
@@ -291,7 +291,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
               </property>
               <property name="iconSize">
@@ -323,7 +323,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
               </property>
               <property name="iconSize">
@@ -355,7 +355,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/home.png</normaloff>:/icons/home.png</iconset>
               </property>
               <property name="iconSize">
@@ -456,7 +456,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/double_up_arrow.png</normaloff>:/icons/double_up_arrow.png</iconset>
               </property>
               <property name="iconSize">
@@ -488,7 +488,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
               </property>
               <property name="iconSize">
@@ -520,7 +520,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/double_down_arrow.png</normaloff>:/icons/double_down_arrow.png</iconset>
               </property>
               <property name="iconSize">
@@ -552,7 +552,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
               </property>
               <property name="iconSize">
@@ -607,7 +607,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/zoom_in.png</normaloff>:/icons/zoom_in.png</iconset>
               </property>
               <property name="iconSize">
@@ -636,7 +636,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/double_down_arrow.png</normaloff>:/icons/double_down_arrow.png</iconset>
               </property>
               <property name="iconSize">
@@ -665,7 +665,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/double_up_arrow.png</normaloff>:/icons/double_up_arrow.png</iconset>
               </property>
               <property name="iconSize">
@@ -694,7 +694,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
               </property>
               <property name="iconSize">
@@ -822,7 +822,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset>
               <normaloff>:/icons/up_arrow.png</normaloff>:/icons/up_arrow.png</iconset>
             </property>
             <property name="iconSize">
@@ -851,7 +851,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset>
               <normaloff>:/icons/down_arrow.png</normaloff>:/icons/down_arrow.png</iconset>
             </property>
             <property name="iconSize">

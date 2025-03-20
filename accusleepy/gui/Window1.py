@@ -27,7 +27,7 @@ class Ui_Window1(object):
     def setupUi(self, Window1):
         if not Window1.objectName():
             Window1.setObjectName(u"Window1")
-        Window1.resize(1171, 683)
+        Window1.resize(1200, 700)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -44,13 +44,13 @@ class Ui_Window1(object):
         self.all_plots.setSpacing(1)
         self.all_plots.setObjectName(u"all_plots")
         self.all_plots.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
-        self.upperplots = MplWidget(self.centralwidget)
-        self.upperplots.setObjectName(u"upperplots")
-        sizePolicy.setHeightForWidth(self.upperplots.sizePolicy().hasHeightForWidth())
-        self.upperplots.setSizePolicy(sizePolicy)
-        self.upperplots.setAutoFillBackground(False)
+        self.upperfigure = MplWidget(self.centralwidget)
+        self.upperfigure.setObjectName(u"upperfigure")
+        sizePolicy.setHeightForWidth(self.upperfigure.sizePolicy().hasHeightForWidth())
+        self.upperfigure.setSizePolicy(sizePolicy)
+        self.upperfigure.setAutoFillBackground(False)
 
-        self.all_plots.addWidget(self.upperplots)
+        self.all_plots.addWidget(self.upperfigure)
 
         self.line = QFrame(self.centralwidget)
         self.line.setObjectName(u"line")
@@ -60,13 +60,13 @@ class Ui_Window1(object):
 
         self.all_plots.addWidget(self.line)
 
-        self.lowerplots = MplWidget(self.centralwidget)
-        self.lowerplots.setObjectName(u"lowerplots")
-        sizePolicy.setHeightForWidth(self.lowerplots.sizePolicy().hasHeightForWidth())
-        self.lowerplots.setSizePolicy(sizePolicy)
-        self.lowerplots.setAutoFillBackground(False)
+        self.lowerfigure = MplWidget(self.centralwidget)
+        self.lowerfigure.setObjectName(u"lowerfigure")
+        sizePolicy.setHeightForWidth(self.lowerfigure.sizePolicy().hasHeightForWidth())
+        self.lowerfigure.setSizePolicy(sizePolicy)
+        self.lowerfigure.setAutoFillBackground(False)
 
-        self.all_plots.addWidget(self.lowerplots)
+        self.all_plots.addWidget(self.lowerfigure)
 
         self.all_plots.setStretch(0, 50)
         self.all_plots.setStretch(1, 1)
