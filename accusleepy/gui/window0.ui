@@ -29,7 +29,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QGridLayout" name="gridLayout" rowstretch="1,5,3,3" columnstretch="1,6">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="1,5,4,3" columnstretch="1,6">
     <property name="leftMargin">
      <number>5</number>
     </property>
@@ -54,8 +54,112 @@
        </sizepolicy>
       </property>
       <property name="title">
-       <string>GroupBox</string>
+       <string>Data / actions for all recordings from this subject</string>
       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,5">
+         <item>
+          <widget class="QPushButton" name="loadcalibrationbutton">
+           <property name="text">
+            <string>Load calibration file</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="calibrationfiletext">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="1,5">
+         <item>
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="text">
+            <string>Load classification model</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="classificationmodeltext">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QPushButton" name="scoreallbutton">
+           <property name="text">
+            <string>Score all automatically</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="scoreallstatus">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Policy::Preferred</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>5</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QCheckBox" name="overwritecheckbox">
+             <property name="text">
+              <string>Only overwrite undefined epochs</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="boutlengthlayout">
+             <item>
+              <widget class="QLabel" name="boutlengthlabel">
+               <property name="text">
+                <string>Minimum bout length (sec):</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="boutlengthinput">
+               <property name="decimals">
+                <number>3</number>
+               </property>
+               <property name="maximum">
+                <double>1000.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </item>
     <item row="0" column="1">
@@ -93,7 +197,7 @@
         </spacer>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="samplingratelayout" stretch="4,2,1">
+        <layout class="QHBoxLayout" name="samplingratelayout" stretch="4,2">
          <property name="spacing">
           <number>5</number>
          </property>
@@ -126,19 +230,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLabel" name="samplingrateindicator1">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>X</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
@@ -158,7 +249,7 @@
         </spacer>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="epochlengthlayout" stretch="4,2,1">
+        <layout class="QHBoxLayout" name="epochlengthlayout" stretch="4,2">
          <property name="spacing">
           <number>5</number>
          </property>
@@ -188,19 +279,6 @@
            </property>
            <property name="singleStep">
             <double>0.500000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="epochlengthindicator1">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>X</string>
            </property>
           </widget>
          </item>
@@ -307,8 +385,94 @@
        </sizepolicy>
       </property>
       <property name="title">
-       <string>GroupBox</string>
+       <string>Data / actions for the selected recording from this subject</string>
       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,5">
+         <item>
+          <widget class="QPushButton" name="recordingfilebutton">
+           <property name="text">
+            <string>Select recording file</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="recordingfiletext">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,5">
+         <item>
+          <widget class="QPushButton" name="labelfilebutton">
+           <property name="text">
+            <string>Select label file</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelfiletext">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="5,5,4,5,5">
+         <item>
+          <widget class="QPushButton" name="pushButton_3">
+           <property name="text">
+            <string>Score manually</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="manualscorestatus">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Policy::Preferred</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>5</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>Create calibration file</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="calibrationstatus">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </item>
     <item row="0" column="0">
@@ -331,7 +495,7 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <widget class="QTextBrowser" name="textBrowser">
+        <widget class="QTextBrowser" name="messagebox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
