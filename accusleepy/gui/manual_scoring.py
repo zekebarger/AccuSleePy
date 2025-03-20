@@ -4,10 +4,10 @@
 #   kendis lasman, https://www.flaticon.com/packs/ui-79
 
 import copy
-from types import SimpleNamespace
 import os
 import sys
 from functools import partial
+from types import SimpleNamespace
 
 import matplotlib.pyplot as plt
 import numpy as np
