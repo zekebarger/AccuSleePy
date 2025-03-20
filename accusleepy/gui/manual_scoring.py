@@ -104,8 +104,8 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.smallest_display_label = np.min(self.label_display_options)
 
-        self.ui.upperplots.epoch_length = self.epoch_length
-        self.ui.lowerplots.epoch_length = self.epoch_length
+        self.ui.upperfigure.epoch_length = self.epoch_length
+        self.ui.lowerfigure.epoch_length = self.epoch_length
 
         # get EEG spectrogram and its frequency axis
         spectrogram, spectrogram_frequencies = create_spectrogram(
@@ -127,7 +127,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         # set up both figures
-        self.ui.upperplots.setup_upper_figure(
+        self.ui.upperfigure.setup_upper_figure(
             self.n_epochs,
             self.label_img,
             spectrogram,
@@ -138,7 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
             BRAIN_STATE_MAPPER,
             self.roi_callback,
         )
-        self.ui.lowerplots.setup_lower_figure(
+        self.ui.lowerfigure.setup_lower_figure(
             self.label_img,
             self.sampling_rate,
             self.epochs_to_show,
@@ -170,15 +170,11 @@ class MainWindow(QtWidgets.QMainWindow):
             QtGui.QKeySequence(QtCore.Qt.Key.Key_Right), self
         )
         keypress_right.activated.connect(partial(self.shift_epoch, DIRECTION_RIGHT))
-        keypress_right.activated.connect(self.update_lower_figure)
-        keypress_right.activated.connect(self.update_upper_figure)
 
         keypress_left = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key.Key_Left), self
         )
         keypress_left.activated.connect(partial(self.shift_epoch, DIRECTION_LEFT))
-        keypress_left.activated.connect(self.update_lower_figure)
-        keypress_left.activated.connect(self.update_upper_figure)
 
         keypress_zoom_in_x = list()
         for zoom_key in [QtCore.Qt.Key.Key_Plus, QtCore.Qt.Key.Key_Equal]:
@@ -319,7 +315,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         # user input: clicks
-        self.ui.upperplots.canvas.mpl_connect("button_press_event", self.click_to_jump)
+        self.ui.upperfigure.canvas.mpl_connect("button_press_event", self.click_to_jump)
 
         # user input: buttons
         self.ui.savebutton.clicked.connect(self.save)
@@ -451,15 +447,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.display_labels, self.label_display_options
         )
         # update the plots
-        self.update_upper_figure()
-        self.update_lower_figure()
+        self.update_figures()
         self.exit_label_roi_mode()
 
     def exit_label_roi_mode(self) -> None:
         """Restore the normal GUI state after an ROI is drawn"""
-        self.ui.upperplots.roi.set_active(False)
-        self.ui.upperplots.roi.set_visible(False)
-        self.ui.upperplots.roi.update()
+        self.ui.upperfigure.roi.set_active(False)
+        self.ui.upperfigure.roi.set_visible(False)
+        self.ui.upperfigure.roi.update()
         self.label_roi_mode = False
 
     def enter_label_roi_mode(self, brain_state) -> None:
@@ -472,12 +467,12 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         self.label_roi_mode = True
         self.roi_brain_state = brain_state
-        self.ui.upperplots.roi_patch.set(
+        self.ui.upperfigure.roi_patch.set(
             facecolor=LABEL_CMAP[
                 convert_labels(np.array([brain_state]), DISPLAY_FORMAT)
             ]
         )
-        self.ui.upperplots.roi.set_active(True)
+        self.ui.upperfigure.roi.set_active(True)
 
     def save(self) -> None:
         """Save brain state labels to file"""
@@ -489,12 +484,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         :param direction: brighter or dimmer
         """
-        vmin, vmax = self.ui.upperplots.spec_ref.get_clim()
+        vmin, vmax = self.ui.upperfigure.spec_ref.get_clim()
         if direction == BRIGHTER:
-            self.ui.upperplots.spec_ref.set(clim=(vmin, vmax * 0.96))
+            self.ui.upperfigure.spec_ref.set(clim=(vmin, vmax * 0.96))
         else:
-            self.ui.upperplots.spec_ref.set(clim=(vmin, vmax * 1.07))
-        self.ui.upperplots.canvas.draw()
+            self.ui.upperfigure.spec_ref.set(clim=(vmin, vmax * 1.07))
+        self.ui.upperfigure.canvas.draw()
 
     def update_epochs_shown(self, direction: str) -> None:
         """Change the number of epochs shown based on button press
@@ -530,18 +525,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.shownepochslabel.setText(str(self.epochs_to_show))
 
-        # update display
-        self.update_upper_figure()
         # rebuild lower figure from scratch
-        self.ui.lowerplots.canvas.figure.clf()
-        self.ui.lowerplots.setup_lower_figure(
+        self.ui.lowerfigure.canvas.figure.clf()
+        self.ui.lowerfigure.setup_lower_figure(
             self.label_img,
             self.sampling_rate,
             self.epochs_to_show,
             BRAIN_STATE_MAPPER,
             self.label_display_options,
         )
-        self.update_lower_figure()
+        self.update_figures()
 
     def update_signal_offset(self, signal: str, direction: str) -> None:
         """Shift EEG or EMG up or down
@@ -580,10 +573,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def adjust_upper_figure_x_limits(self) -> None:
         """Update the x-axis limits of the upper figure subplots"""
         for i in range(4):
-            self.ui.upperplots.canvas.axes[i].set_xlim(
+            self.ui.upperfigure.canvas.axes[i].set_xlim(
                 (self.upper_left_epoch - 0.5, self.upper_right_epoch + 0.5)
             )
-        self.ui.upperplots.canvas.draw()
+        self.ui.upperfigure.canvas.draw()
 
     def zoom_x(self, direction: str) -> None:
         """Change upper figure x-axis zoom level
@@ -615,39 +608,48 @@ class MainWindow(QtWidgets.QMainWindow):
             self.upper_right_epoch = self.n_epochs - 1
         self.adjust_upper_figure_x_limits()
 
-    def modify_current_epoch_label(self, digit):
+    def modify_current_epoch_label(self, digit: int) -> None:
+        """Change the current epoch's brain state label
+
+        :param digit: new brain state label in "digit" format
+        """
         self.labels[self.epoch] = digit
         display_label = convert_labels(
             np.array([digit]),
             style=DISPLAY_FORMAT,
         )[0]
         self.display_labels[self.epoch] = display_label
-
-        if display_label == 0:  # undefined brain state in display format
+        # update the label image
+        if display_label == 0:
             self.label_img[:, self.epoch] = np.array([0, 0, 0, 1])
         else:
             self.label_img[:, self.epoch, :] = 1
             self.label_img[
                 display_label - self.smallest_display_label, self.epoch, :
             ] = LABEL_CMAP[display_label]
-
+        # autoscroll, if that is enabled
         if self.autoscroll_state and self.epoch < self.n_epochs - 1:
-            self.shift_epoch(DIRECTION_RIGHT)
-        self.update_upper_figure()
-        self.update_lower_figure()
+            self.shift_epoch(DIRECTION_RIGHT)  # this calls update_figures()
+        else:
+            self.update_figures()
 
-    def get_signal_to_plot(self):
-        left = int(self.lower_left_epoch * self.sampling_rate * self.epoch_length)
-        right = int(
-            (self.lower_right_epoch + 1) * self.sampling_rate * self.epoch_length
-        )
-        return (
-            self.eeg[left:right],
-            self.emg[left:right],
-            self.display_labels[self.lower_left_epoch : (self.lower_right_epoch + 1)],
-        )
+    def shift_epoch(self, direction: str) -> None:
+        """Set the current epoch one step forward or backward
 
-    def shift_upper_plots(self, direction: str):
+        When the user presses the left or right arrow key, the previous
+        or next epoch will be selected. There are a variety of edge cases
+        that need to be handled separately for the upper and lower figures.
+
+        :param direction: left or right
+        """
+        shift_amount = {DIRECTION_LEFT: -1, DIRECTION_RIGHT: 1}[direction]
+        # prevent movement outside the data range
+        if not (0 <= (self.epoch + shift_amount) < self.n_epochs):
+            return
+
+        # shift to new epoch
+        self.epoch = self.epoch + shift_amount
+
         # update upper plot if needed
         upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
         if (
@@ -667,17 +669,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.upper_right_epoch -= 1
             self.adjust_upper_figure_x_limits()
 
-    def shift_epoch(self, direction: str):
-        shift_amount = {DIRECTION_LEFT: -1, DIRECTION_RIGHT: 1}[direction]
-        # can't move outside min, max epochs
-        if not (0 <= (self.epoch + shift_amount) < self.n_epochs):
-            return
-
-        # shift to new epoch
-        self.epoch = self.epoch + shift_amount
-
-        self.shift_upper_plots(direction)
-
         # update parts of lower plot
         old_window_center = int(self.epochs_to_show / 2) + self.lower_left_epoch
         # change the window bounds if needed
@@ -691,8 +682,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lower_left_epoch += 1
             self.lower_right_epoch += 1
 
-    def update_upper_marker(self):
-        # this pattern appears elsewhere...
+        self.update_figures()
+
+    def update_upper_marker(self) -> None:
+        """Update location of the upper figure's epoch marker"""
         epoch_padding = int((self.epochs_to_show - 1) / 2)
         if self.epoch - epoch_padding < 0:
             left_edge = 0
@@ -703,17 +696,16 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             left_edge = self.epoch - epoch_padding
             right_edge = self.epoch + epoch_padding
-
-        self.ui.upperplots.upper_marker[0].set_xdata(
+        self.ui.upperfigure.upper_marker[0].set_xdata(
             [
                 left_edge - 0.5,
                 right_edge + 0.5,
             ]
         )
-        self.ui.upperplots.upper_marker[1].set_xdata([self.epoch])
+        self.ui.upperfigure.upper_marker[1].set_xdata([self.epoch])
 
-    def update_lower_epoch_marker(self):
-        # plot marker for selected epoch
+    def update_lower_epoch_marker(self) -> None:
+        """Update location of the lower figure's epoch marker"""
         marker_left = (
             (self.epoch - self.lower_left_epoch)
             * self.epoch_length
@@ -724,50 +716,72 @@ class MainWindow(QtWidgets.QMainWindow):
             * self.epoch_length
             * self.sampling_rate
         )
-        self.ui.lowerplots.top_marker[0].set_xdata([marker_left, marker_left])
-        self.ui.lowerplots.top_marker[1].set_xdata([marker_left, marker_right])
-        self.ui.lowerplots.top_marker[2].set_xdata([marker_right, marker_right])
-        self.ui.lowerplots.bottom_marker[0].set_xdata([marker_left, marker_left])
-        self.ui.lowerplots.bottom_marker[1].set_xdata([marker_left, marker_right])
-        self.ui.lowerplots.bottom_marker[2].set_xdata([marker_right, marker_right])
+        self.ui.lowerfigure.top_marker[0].set_xdata([marker_left, marker_left])
+        self.ui.lowerfigure.top_marker[1].set_xdata([marker_left, marker_right])
+        self.ui.lowerfigure.top_marker[2].set_xdata([marker_right, marker_right])
+        self.ui.lowerfigure.bottom_marker[0].set_xdata([marker_left, marker_left])
+        self.ui.lowerfigure.bottom_marker[1].set_xdata([marker_left, marker_right])
+        self.ui.lowerfigure.bottom_marker[2].set_xdata([marker_right, marker_right])
 
-    def update_upper_figure(self):
+    def update_figures(self) -> None:
+        """Update and redraw both figures"""
+        # upper figure
         self.update_upper_marker()
-        self.ui.upperplots.label_img_ref.set(data=self.label_img)
-        self.ui.upperplots.canvas.draw()
+        # this step isn't always needed, but it's not too expensive
+        self.ui.upperfigure.label_img_ref.set(data=self.label_img)
+        self.ui.upperfigure.canvas.draw()
+        # lower figure
+        self.update_lower_figure()
 
-    def update_lower_figure(self):
-        # get signals to plot
-        eeg, emg, labels = self.get_signal_to_plot()
-        # zoom in or out
+    def update_lower_figure(self) -> None:
+        """Update and redraw the lower figure"""
+        # get subset of signals to plot
+        first_sample = int(
+            self.lower_left_epoch * self.sampling_rate * self.epoch_length
+        )
+        last_sample = int(
+            (self.lower_right_epoch + 1) * self.sampling_rate * self.epoch_length
+        )
+        eeg = self.eeg[first_sample:last_sample]
+        emg = self.emg[first_sample:last_sample]
+
+        # scale and shift as needed
         eeg = eeg * self.eeg_signal_scale_factor + self.eeg_signal_offset
         emg = emg * self.emg_signal_scale_factor + self.emg_signal_offset
 
         self.update_lower_epoch_marker()
 
-        # plot eeg and emg
-        self.ui.lowerplots.eeg_line.set_ydata(eeg)
-        self.ui.lowerplots.emg_line.set_ydata(emg)
+        # replot eeg and emg
+        self.ui.lowerfigure.eeg_line.set_ydata(eeg)
+        self.ui.lowerfigure.emg_line.set_ydata(emg)
 
-        # plot brain state
-        self.ui.lowerplots.label_img_ref.set(
+        # replot brain state
+        self.ui.lowerfigure.label_img_ref.set(
             data=self.label_img[
                 :, self.lower_left_epoch : (self.lower_right_epoch + 1), :
             ]
         )
+        # update timestamps
         x_ticks = resample_x_ticks(
             np.arange(self.lower_left_epoch, self.lower_right_epoch + 1)
         )
-        self.ui.lowerplots.canvas.axes[1].set_xticklabels(
+        self.ui.lowerfigure.canvas.axes[1].set_xticklabels(
             [
                 "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))
                 for x in x_ticks * self.epoch_length
             ]
         )
 
-        self.ui.lowerplots.canvas.draw()
+        self.ui.lowerfigure.canvas.draw()
 
-    def click_to_jump(self, event):
+    def click_to_jump(self, event) -> None:
+        """Jump to a new epoch when the user clicks on the upper figure
+
+        This is the callback for mouse clicks on the upper figure. Clicking on
+        any of the subplots will jump to the nearest epoch.
+
+        :param event: a MouseEvent containing the click data
+        """
         # make sure click location is valid
         # and we are not in label ROI mode
         if event.xdata is None or self.label_roi_mode:
@@ -777,8 +791,7 @@ class MainWindow(QtWidgets.QMainWindow):
         upper_epoch_padding = int((upper_epochs_shown - 1) / 2)
         # update epoch
         self.epoch = round(np.clip(event.xdata, 0, self.n_epochs - 1))
-        # update upper plot x limits
-        # find out if the jump puts us too close to either edge
+        # update upper figure x-axis limits
         if self.epoch - upper_epoch_padding < 0:
             self.upper_left_epoch = 0
             self.upper_right_epoch = upper_epochs_shown - 1
@@ -790,10 +803,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.upper_right_epoch = self.epoch + upper_epoch_padding
         # update upper marker
         self.update_upper_marker()
-        # refresh upper plot
         self.adjust_upper_figure_x_limits()
 
-        # update lower plot location
+        # update lower figure x-axis range
         lower_epoch_padding = int((self.epochs_to_show - 1) / 2)
         if self.epoch - lower_epoch_padding < 0:
             self.lower_left_epoch = 0
@@ -805,7 +817,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lower_left_epoch = self.epoch - lower_epoch_padding
             self.lower_right_epoch = self.epoch + lower_epoch_padding
 
-        # refresh lower plot
         self.update_lower_figure()
 
 
