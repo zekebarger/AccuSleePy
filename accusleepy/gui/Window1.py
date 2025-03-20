@@ -27,7 +27,7 @@ class Ui_Window1(object):
     def setupUi(self, Window1):
         if not Window1.objectName():
             Window1.setObjectName(u"Window1")
-        Window1.resize(1171, 683)
+        Window1.resize(1200, 700)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
