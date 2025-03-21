@@ -8,7 +8,7 @@ from Window0 import Ui_Window0
 from accusleepy.utils.misc import Recording
 
 
-MESSAGE_BOX_MAX_DEPTH = 20
+MESSAGE_BOX_MAX_DEPTH = 50
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -21,6 +21,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_Window0()
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy")
+
+        self.epoch_length = 0
 
         # set up the list of recordings
         # create empty recording
@@ -55,8 +57,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.add_button.clicked.connect(self.add_recording)
         self.ui.remove_button.clicked.connect(self.remove_recording)
         self.ui.recording_list_widget.currentRowChanged.connect(self.select_recording)
+        self.ui.sampling_rate_input.valueChanged.connect(self.update_sampling_rate)
+        self.ui.epoch_length_input.valueChanged.connect(self.update_epoch_length)
 
         self.show()
+
+    def show_recording_info(self):
+        self.ui.sampling_rate_input.setValue(
+            self.recordings[self.recording_index].sampling_rate
+        )
+
+    def update_epoch_length(self, new_value):
+        self.epoch_length = new_value
+
+    def update_sampling_rate(self, new_value):
+        self.recordings[self.recording_index].sampling_rate = new_value
 
     def show_message(self, message: str) -> None:
         """Display a new message to the user"""
@@ -70,7 +85,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def select_recording(self, list_index) -> None:
         """Callback for when a recording is selected"""
-        self.show_message(f"selected Recording {self.recordings[list_index].name}")
+        # get index of this recording
+        self.recording_index = list_index
+        # display information about this recording
+        self.show_recording_info()
+        self.ui.selected_recording_groupbox.setTitle(
+            (
+                "Data / actions for the selected recording "
+                f"(Recording {self.recordings[list_index].name}) "
+                "from this subject)"
+            )
+        )
 
     def add_recording(self) -> None:
         """Add new recording to the list"""

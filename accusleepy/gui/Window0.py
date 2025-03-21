@@ -65,14 +65,14 @@ class Ui_Window0(object):
 
         self.epochlengthlayout.addWidget(self.epochlengthlabel)
 
-        self.epochlengthinput = QDoubleSpinBox(self.parametergroupbox)
-        self.epochlengthinput.setObjectName(u"epochlengthinput")
-        sizePolicy1.setHeightForWidth(self.epochlengthinput.sizePolicy().hasHeightForWidth())
-        self.epochlengthinput.setSizePolicy(sizePolicy1)
-        self.epochlengthinput.setMaximum(100000.000000000000000)
-        self.epochlengthinput.setSingleStep(0.500000000000000)
+        self.epoch_length_input = QDoubleSpinBox(self.parametergroupbox)
+        self.epoch_length_input.setObjectName(u"epoch_length_input")
+        sizePolicy1.setHeightForWidth(self.epoch_length_input.sizePolicy().hasHeightForWidth())
+        self.epoch_length_input.setSizePolicy(sizePolicy1)
+        self.epoch_length_input.setMaximum(100000.000000000000000)
+        self.epoch_length_input.setSingleStep(0.500000000000000)
 
-        self.epochlengthlayout.addWidget(self.epochlengthinput)
+        self.epochlengthlayout.addWidget(self.epoch_length_input)
 
         self.horizontalSpacer_3 = QSpacerItem(20, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
 
@@ -136,32 +136,32 @@ class Ui_Window0(object):
         self.recordingactionsgroupbox = QVBoxLayout()
         self.recordingactionsgroupbox.setSpacing(20)
         self.recordingactionsgroupbox.setObjectName(u"recordingactionsgroupbox")
-        self.thisrecordinggroupbox = QGroupBox(self.centralwidget)
-        self.thisrecordinggroupbox.setObjectName(u"thisrecordinggroupbox")
-        sizePolicy.setHeightForWidth(self.thisrecordinggroupbox.sizePolicy().hasHeightForWidth())
-        self.thisrecordinggroupbox.setSizePolicy(sizePolicy)
-        self.verticalLayout_2 = QVBoxLayout(self.thisrecordinggroupbox)
+        self.selected_recording_groupbox = QGroupBox(self.centralwidget)
+        self.selected_recording_groupbox.setObjectName(u"selected_recording_groupbox")
+        sizePolicy.setHeightForWidth(self.selected_recording_groupbox.sizePolicy().hasHeightForWidth())
+        self.selected_recording_groupbox.setSizePolicy(sizePolicy)
+        self.verticalLayout_2 = QVBoxLayout(self.selected_recording_groupbox)
         self.verticalLayout_2.setSpacing(10)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.samplingratelayout = QHBoxLayout()
         self.samplingratelayout.setSpacing(10)
         self.samplingratelayout.setObjectName(u"samplingratelayout")
-        self.samplingratelabel = QLabel(self.thisrecordinggroupbox)
+        self.samplingratelabel = QLabel(self.selected_recording_groupbox)
         self.samplingratelabel.setObjectName(u"samplingratelabel")
         sizePolicy1.setHeightForWidth(self.samplingratelabel.sizePolicy().hasHeightForWidth())
         self.samplingratelabel.setSizePolicy(sizePolicy1)
 
         self.samplingratelayout.addWidget(self.samplingratelabel)
 
-        self.samplingrateinput = QDoubleSpinBox(self.thisrecordinggroupbox)
-        self.samplingrateinput.setObjectName(u"samplingrateinput")
-        sizePolicy1.setHeightForWidth(self.samplingrateinput.sizePolicy().hasHeightForWidth())
-        self.samplingrateinput.setSizePolicy(sizePolicy1)
-        self.samplingrateinput.setMinimum(0.000000000000000)
-        self.samplingrateinput.setMaximum(100000.000000000000000)
+        self.sampling_rate_input = QDoubleSpinBox(self.selected_recording_groupbox)
+        self.sampling_rate_input.setObjectName(u"sampling_rate_input")
+        sizePolicy1.setHeightForWidth(self.sampling_rate_input.sizePolicy().hasHeightForWidth())
+        self.sampling_rate_input.setSizePolicy(sizePolicy1)
+        self.sampling_rate_input.setMinimum(0.000000000000000)
+        self.sampling_rate_input.setMaximum(100000.000000000000000)
 
-        self.samplingratelayout.addWidget(self.samplingrateinput)
+        self.samplingratelayout.addWidget(self.sampling_rate_input)
 
         self.horizontalSpacer_2 = QSpacerItem(20, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
 
@@ -175,7 +175,7 @@ class Ui_Window0(object):
 
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.recordingfilebutton = QPushButton(self.thisrecordinggroupbox)
+        self.recordingfilebutton = QPushButton(self.selected_recording_groupbox)
         self.recordingfilebutton.setObjectName(u"recordingfilebutton")
         sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
@@ -185,7 +185,7 @@ class Ui_Window0(object):
 
         self.horizontalLayout_4.addWidget(self.recordingfilebutton)
 
-        self.recordingfiletext = QLabel(self.thisrecordinggroupbox)
+        self.recordingfiletext = QLabel(self.selected_recording_groupbox)
         self.recordingfiletext.setObjectName(u"recordingfiletext")
 
         self.horizontalLayout_4.addWidget(self.recordingfiletext)
@@ -197,7 +197,7 @@ class Ui_Window0(object):
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.labelfilebutton = QPushButton(self.thisrecordinggroupbox)
+        self.labelfilebutton = QPushButton(self.selected_recording_groupbox)
         self.labelfilebutton.setObjectName(u"labelfilebutton")
         sizePolicy3.setHeightForWidth(self.labelfilebutton.sizePolicy().hasHeightForWidth())
         self.labelfilebutton.setSizePolicy(sizePolicy3)
@@ -205,7 +205,7 @@ class Ui_Window0(object):
 
         self.horizontalLayout_6.addWidget(self.labelfilebutton)
 
-        self.labelfiletext = QLabel(self.thisrecordinggroupbox)
+        self.labelfiletext = QLabel(self.selected_recording_groupbox)
         self.labelfiletext.setObjectName(u"labelfiletext")
 
         self.horizontalLayout_6.addWidget(self.labelfiletext)
@@ -217,14 +217,14 @@ class Ui_Window0(object):
 
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.pushButton_3 = QPushButton(self.thisrecordinggroupbox)
+        self.pushButton_3 = QPushButton(self.selected_recording_groupbox)
         self.pushButton_3.setObjectName(u"pushButton_3")
         sizePolicy1.setHeightForWidth(self.pushButton_3.sizePolicy().hasHeightForWidth())
         self.pushButton_3.setSizePolicy(sizePolicy1)
 
         self.horizontalLayout_5.addWidget(self.pushButton_3)
 
-        self.manualscorestatus = QLabel(self.thisrecordinggroupbox)
+        self.manualscorestatus = QLabel(self.selected_recording_groupbox)
         self.manualscorestatus.setObjectName(u"manualscorestatus")
 
         self.horizontalLayout_5.addWidget(self.manualscorestatus)
@@ -233,14 +233,14 @@ class Ui_Window0(object):
 
         self.horizontalLayout_5.addItem(self.horizontalSpacer_4)
 
-        self.pushButton = QPushButton(self.thisrecordinggroupbox)
+        self.pushButton = QPushButton(self.selected_recording_groupbox)
         self.pushButton.setObjectName(u"pushButton")
         sizePolicy1.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
         self.pushButton.setSizePolicy(sizePolicy1)
 
         self.horizontalLayout_5.addWidget(self.pushButton)
 
-        self.calibrationstatus = QLabel(self.thisrecordinggroupbox)
+        self.calibrationstatus = QLabel(self.selected_recording_groupbox)
         self.calibrationstatus.setObjectName(u"calibrationstatus")
 
         self.horizontalLayout_5.addWidget(self.calibrationstatus)
@@ -257,7 +257,7 @@ class Ui_Window0(object):
         self.verticalLayout_2.setStretch(2, 1)
         self.verticalLayout_2.setStretch(3, 1)
 
-        self.recordingactionsgroupbox.addWidget(self.thisrecordinggroupbox)
+        self.recordingactionsgroupbox.addWidget(self.selected_recording_groupbox)
 
         self.allrecordingsgroupbox = QGroupBox(self.centralwidget)
         self.allrecordingsgroupbox.setObjectName(u"allrecordingsgroupbox")
@@ -342,14 +342,14 @@ class Ui_Window0(object):
 
         self.boutlengthlayout.addWidget(self.boutlengthlabel)
 
-        self.boutlengthinput = QDoubleSpinBox(self.allrecordingsgroupbox)
-        self.boutlengthinput.setObjectName(u"boutlengthinput")
-        sizePolicy1.setHeightForWidth(self.boutlengthinput.sizePolicy().hasHeightForWidth())
-        self.boutlengthinput.setSizePolicy(sizePolicy1)
-        self.boutlengthinput.setDecimals(3)
-        self.boutlengthinput.setMaximum(1000.000000000000000)
+        self.bout_length_input = QDoubleSpinBox(self.allrecordingsgroupbox)
+        self.bout_length_input.setObjectName(u"bout_length_input")
+        sizePolicy1.setHeightForWidth(self.bout_length_input.sizePolicy().hasHeightForWidth())
+        self.bout_length_input.setSizePolicy(sizePolicy1)
+        self.bout_length_input.setDecimals(3)
+        self.bout_length_input.setMaximum(1000.000000000000000)
 
-        self.boutlengthlayout.addWidget(self.boutlengthinput)
+        self.boutlengthlayout.addWidget(self.bout_length_input)
 
 
         self.verticalLayout_4.addLayout(self.boutlengthlayout)
@@ -378,6 +378,9 @@ class Ui_Window0(object):
         self.gridLayout_2.setContentsMargins(10, 10, 10, 10)
         self.message_area = QTextBrowser(self.messagesgroupbox)
         self.message_area.setObjectName(u"message_area")
+        sizePolicy.setHeightForWidth(self.message_area.sizePolicy().hasHeightForWidth())
+        self.message_area.setSizePolicy(sizePolicy)
+        self.message_area.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
 
         self.gridLayout_2.addWidget(self.message_area, 0, 0, 1, 1)
 
@@ -404,7 +407,7 @@ class Ui_Window0(object):
         self.recordinglistgroupbox.setTitle(QCoreApplication.translate("Window0", u"Recording list", None))
         self.add_button.setText(QCoreApplication.translate("Window0", u"add", None))
         self.remove_button.setText(QCoreApplication.translate("Window0", u"remove", None))
-        self.thisrecordinggroupbox.setTitle(QCoreApplication.translate("Window0", u"Data / actions for the selected recording from this subject", None))
+        self.selected_recording_groupbox.setTitle(QCoreApplication.translate("Window0", u"Data / actions for the selected recording (Recording 1) from this subject", None))
         self.samplingratelabel.setText(QCoreApplication.translate("Window0", u"Sampling rate (Hz):", None))
         self.recordingfilebutton.setText(QCoreApplication.translate("Window0", u"Select recording file", None))
         self.recordingfiletext.setText("")

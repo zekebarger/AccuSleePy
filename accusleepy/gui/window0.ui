@@ -95,7 +95,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="epochlengthinput">
+          <widget class="QDoubleSpinBox" name="epoch_length_input">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -213,7 +213,7 @@
        <number>20</number>
       </property>
       <item>
-       <widget class="QGroupBox" name="thisrecordinggroupbox">
+       <widget class="QGroupBox" name="selected_recording_groupbox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -221,7 +221,7 @@
          </sizepolicy>
         </property>
         <property name="title">
-         <string>Data / actions for the selected recording from this subject</string>
+         <string>Data / actions for the selected recording (Recording 1) from this subject</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1,1,1">
          <property name="spacing">
@@ -258,7 +258,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="samplingrateinput">
+            <widget class="QDoubleSpinBox" name="sampling_rate_input">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -555,7 +555,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="boutlengthinput">
+                <widget class="QDoubleSpinBox" name="bout_length_input">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
