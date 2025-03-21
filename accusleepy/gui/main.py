@@ -8,6 +8,9 @@ from Window0 import Ui_Window0
 from accusleepy.utils.misc import Recording
 
 
+MESSAGE_BOX_MAX_DEPTH = 20
+
+
 class MainWindow(QtWidgets.QMainWindow):
     """AccuSleePy main window"""
 
@@ -35,6 +38,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # list of recordings the user has added
         self.recordings = [first_recording]
 
+        # messages to display
+        self.messages = []
+
         # user input
         # keyboard shortcuts
         keypress_quit = QtGui.QShortcut(
@@ -52,9 +58,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.show()
 
+    def show_message(self, message: str) -> None:
+        """Display a new message to the user"""
+        self.messages.append(message)
+        if len(self.messages) > MESSAGE_BOX_MAX_DEPTH:
+            del self.messages[0]
+        self.ui.message_area.setText("\n".join(self.messages))
+        # scroll to the bottom
+        scrollbar = self.ui.message_area.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+
     def select_recording(self, list_index) -> None:
         """Callback for when a recording is selected"""
-        print(f"selected Recording {self.recordings[list_index].name}")
+        self.show_message(f"selected Recording {self.recordings[list_index].name}")
 
     def add_recording(self) -> None:
         """Add new recording to the list"""
@@ -75,12 +91,16 @@ class MainWindow(QtWidgets.QMainWindow):
         # display new list
         self.ui.recording_list_widget.addItem(self.recordings[-1].widget)
         self.ui.recording_list_widget.setCurrentRow(len(self.recordings) - 1)
+        self.show_message(f"added Recording {new_name}")
 
     def remove_recording(self) -> None:
         """Delete selected recording from the list"""
         if len(self.recordings) > 1:
             current_list_index = self.ui.recording_list_widget.currentRow()
             _ = self.ui.recording_list_widget.takeItem(current_list_index)
+            self.show_message(
+                f"deleted Recording {self.recordings[current_list_index].name}"
+            )
             del self.recordings[current_list_index]
 
 

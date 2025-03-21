@@ -375,12 +375,11 @@ class Ui_Window0(object):
         self.messagesgroupbox.setObjectName(u"messagesgroupbox")
         self.gridLayout_2 = QGridLayout(self.messagesgroupbox)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.messagebox = QTextBrowser(self.messagesgroupbox)
-        self.messagebox.setObjectName(u"messagebox")
-        sizePolicy.setHeightForWidth(self.messagebox.sizePolicy().hasHeightForWidth())
-        self.messagebox.setSizePolicy(sizePolicy)
+        self.gridLayout_2.setContentsMargins(10, 10, 10, 10)
+        self.message_area = QTextBrowser(self.messagesgroupbox)
+        self.message_area.setObjectName(u"message_area")
 
-        self.gridLayout_2.addWidget(self.messagebox, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.message_area, 0, 0, 1, 1)
 
 
         self.gridLayout.addWidget(self.messagesgroupbox, 2, 1, 1, 1)
