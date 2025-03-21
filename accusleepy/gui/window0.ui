@@ -30,6 +30,21 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout" rowstretch="1,5,2" columnstretch="1,5">
+    <property name="leftMargin">
+     <number>10</number>
+    </property>
+    <property name="topMargin">
+     <number>10</number>
+    </property>
+    <property name="rightMargin">
+     <number>10</number>
+    </property>
+    <property name="bottomMargin">
+     <number>10</number>
+    </property>
+    <property name="spacing">
+     <number>20</number>
+    </property>
     <item row="0" column="0">
      <widget class="QPushButton" name="usermanualbutton">
       <property name="sizePolicy">
@@ -62,9 +77,9 @@
         <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="epochlengthlayout" stretch="4,2">
+        <layout class="QHBoxLayout" name="epochlengthlayout" stretch="1,1,7">
          <property name="spacing">
-          <number>5</number>
+          <number>10</number>
          </property>
          <item>
           <widget class="QLabel" name="epochlengthlabel">
@@ -95,23 +110,23 @@
            </property>
           </widget>
          </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Policy::Preferred</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>5</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Policy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>5</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -123,6 +138,9 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
       </property>
       <property name="title">
        <string>Recording list</string>
@@ -149,7 +167,7 @@
           <number>20</number>
          </property>
          <item>
-          <widget class="QPushButton" name="addbutton">
+          <widget class="QPushButton" name="add_button">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -162,7 +180,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="removebutton">
+          <widget class="QPushButton" name="remove_button">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -177,7 +195,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidget">
+        <widget class="QListWidget" name="recording_list_widget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -222,9 +240,9 @@
           <number>0</number>
          </property>
          <item>
-          <layout class="QHBoxLayout" name="samplingratelayout" stretch="4,2">
+          <layout class="QHBoxLayout" name="samplingratelayout" stretch="1,1,7">
            <property name="spacing">
-            <number>5</number>
+            <number>10</number>
            </property>
            <item>
             <widget class="QLabel" name="samplingratelabel">
@@ -254,6 +272,22 @@
               <double>100000.000000000000000</double>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Policy::Preferred</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>5</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </item>
@@ -504,6 +538,9 @@
              </item>
              <item>
               <layout class="QHBoxLayout" name="boutlengthlayout">
+               <property name="spacing">
+                <number>5</number>
+               </property>
                <item>
                 <widget class="QLabel" name="boutlengthlabel">
                  <property name="sizePolicy">

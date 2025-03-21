@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import numpy as np
+from PySide6.QtWidgets import QListWidgetItem
 
 # It's convenient to have the brain state labels start at 1 rather than 0.
 # However, they need to be converted to the 0-n range for training and inference.
@@ -46,6 +47,8 @@ class BrainStateMapper:
 
 @dataclass
 class Recording:
-    recording_file: str
-    label_file: str
-    sampling_rate: int | float
+    name: int = 1  # name to show in the GUI
+    recording_file: str = ""  # path to recording file
+    label_file: str = ""  # path to label file
+    sampling_rate: int | float = 0.0  # sampling rate, in Hz
+    widget: QListWidgetItem = None  # reference to widget shown in the GUI

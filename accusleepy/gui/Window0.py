@@ -37,7 +37,9 @@ class Ui_Window0(object):
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
         self.gridLayout = QGridLayout(self.centralwidget)
+        self.gridLayout.setSpacing(20)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(10, 10, 10, 10)
         self.usermanualbutton = QPushButton(self.centralwidget)
         self.usermanualbutton.setObjectName(u"usermanualbutton")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
@@ -54,7 +56,7 @@ class Ui_Window0(object):
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.epochlengthlayout = QHBoxLayout()
-        self.epochlengthlayout.setSpacing(5)
+        self.epochlengthlayout.setSpacing(10)
         self.epochlengthlayout.setObjectName(u"epochlengthlayout")
         self.epochlengthlabel = QLabel(self.parametergroupbox)
         self.epochlengthlabel.setObjectName(u"epochlengthlabel")
@@ -72,14 +74,15 @@ class Ui_Window0(object):
 
         self.epochlengthlayout.addWidget(self.epochlengthinput)
 
-        self.epochlengthlayout.setStretch(0, 4)
-        self.epochlengthlayout.setStretch(1, 2)
+        self.horizontalSpacer_3 = QSpacerItem(20, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.epochlengthlayout.addItem(self.horizontalSpacer_3)
+
+        self.epochlengthlayout.setStretch(0, 1)
+        self.epochlengthlayout.setStretch(1, 1)
+        self.epochlengthlayout.setStretch(2, 7)
 
         self.horizontalLayout_2.addLayout(self.epochlengthlayout)
-
-        self.horizontalSpacer = QSpacerItem(20, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
 
         self.gridLayout.addWidget(self.parametergroupbox, 0, 1, 1, 1)
@@ -88,6 +91,7 @@ class Ui_Window0(object):
         self.recordinglistgroupbox.setObjectName(u"recordinglistgroupbox")
         sizePolicy.setHeightForWidth(self.recordinglistgroupbox.sizePolicy().hasHeightForWidth())
         self.recordinglistgroupbox.setSizePolicy(sizePolicy)
+        self.recordinglistgroupbox.setStyleSheet(u"")
         self.verticalLayout = QVBoxLayout(self.recordinglistgroupbox)
         self.verticalLayout.setSpacing(5)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -95,34 +99,34 @@ class Ui_Window0(object):
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setSpacing(20)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.addbutton = QPushButton(self.recordinglistgroupbox)
-        self.addbutton.setObjectName(u"addbutton")
-        sizePolicy1.setHeightForWidth(self.addbutton.sizePolicy().hasHeightForWidth())
-        self.addbutton.setSizePolicy(sizePolicy1)
+        self.add_button = QPushButton(self.recordinglistgroupbox)
+        self.add_button.setObjectName(u"add_button")
+        sizePolicy1.setHeightForWidth(self.add_button.sizePolicy().hasHeightForWidth())
+        self.add_button.setSizePolicy(sizePolicy1)
 
-        self.horizontalLayout_3.addWidget(self.addbutton)
+        self.horizontalLayout_3.addWidget(self.add_button)
 
-        self.removebutton = QPushButton(self.recordinglistgroupbox)
-        self.removebutton.setObjectName(u"removebutton")
-        sizePolicy1.setHeightForWidth(self.removebutton.sizePolicy().hasHeightForWidth())
-        self.removebutton.setSizePolicy(sizePolicy1)
+        self.remove_button = QPushButton(self.recordinglistgroupbox)
+        self.remove_button.setObjectName(u"remove_button")
+        sizePolicy1.setHeightForWidth(self.remove_button.sizePolicy().hasHeightForWidth())
+        self.remove_button.setSizePolicy(sizePolicy1)
 
-        self.horizontalLayout_3.addWidget(self.removebutton)
+        self.horizontalLayout_3.addWidget(self.remove_button)
 
         self.horizontalLayout_3.setStretch(0, 1)
         self.horizontalLayout_3.setStretch(1, 1)
 
         self.verticalLayout.addLayout(self.horizontalLayout_3)
 
-        self.listWidget = QListWidget(self.recordinglistgroupbox)
-        self.listWidget.setObjectName(u"listWidget")
+        self.recording_list_widget = QListWidget(self.recordinglistgroupbox)
+        self.recording_list_widget.setObjectName(u"recording_list_widget")
         sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.listWidget.sizePolicy().hasHeightForWidth())
-        self.listWidget.setSizePolicy(sizePolicy2)
+        sizePolicy2.setHeightForWidth(self.recording_list_widget.sizePolicy().hasHeightForWidth())
+        self.recording_list_widget.setSizePolicy(sizePolicy2)
 
-        self.verticalLayout.addWidget(self.listWidget)
+        self.verticalLayout.addWidget(self.recording_list_widget)
 
         self.verticalLayout.setStretch(0, 1)
         self.verticalLayout.setStretch(1, 5)
@@ -141,7 +145,7 @@ class Ui_Window0(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.samplingratelayout = QHBoxLayout()
-        self.samplingratelayout.setSpacing(5)
+        self.samplingratelayout.setSpacing(10)
         self.samplingratelayout.setObjectName(u"samplingratelayout")
         self.samplingratelabel = QLabel(self.thisrecordinggroupbox)
         self.samplingratelabel.setObjectName(u"samplingratelabel")
@@ -159,8 +163,13 @@ class Ui_Window0(object):
 
         self.samplingratelayout.addWidget(self.samplingrateinput)
 
-        self.samplingratelayout.setStretch(0, 4)
-        self.samplingratelayout.setStretch(1, 2)
+        self.horizontalSpacer_2 = QSpacerItem(20, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.samplingratelayout.addItem(self.horizontalSpacer_2)
+
+        self.samplingratelayout.setStretch(0, 1)
+        self.samplingratelayout.setStretch(1, 1)
+        self.samplingratelayout.setStretch(2, 7)
 
         self.verticalLayout_2.addLayout(self.samplingratelayout)
 
@@ -324,6 +333,7 @@ class Ui_Window0(object):
         self.verticalLayout_4.addWidget(self.overwritecheckbox)
 
         self.boutlengthlayout = QHBoxLayout()
+        self.boutlengthlayout.setSpacing(5)
         self.boutlengthlayout.setObjectName(u"boutlengthlayout")
         self.boutlengthlabel = QLabel(self.allrecordingsgroupbox)
         self.boutlengthlabel.setObjectName(u"boutlengthlabel")
@@ -393,8 +403,8 @@ class Ui_Window0(object):
         self.parametergroupbox.setTitle(QCoreApplication.translate("Window0", u"Parameters for all recordings from one subject", None))
         self.epochlengthlabel.setText(QCoreApplication.translate("Window0", u"Epoch length (sec):", None))
         self.recordinglistgroupbox.setTitle(QCoreApplication.translate("Window0", u"Recording list", None))
-        self.addbutton.setText(QCoreApplication.translate("Window0", u"add", None))
-        self.removebutton.setText(QCoreApplication.translate("Window0", u"remove", None))
+        self.add_button.setText(QCoreApplication.translate("Window0", u"add", None))
+        self.remove_button.setText(QCoreApplication.translate("Window0", u"remove", None))
         self.thisrecordinggroupbox.setTitle(QCoreApplication.translate("Window0", u"Data / actions for the selected recording from this subject", None))
         self.samplingratelabel.setText(QCoreApplication.translate("Window0", u"Sampling rate (Hz):", None))
         self.recordingfilebutton.setText(QCoreApplication.translate("Window0", u"Select recording file", None))
