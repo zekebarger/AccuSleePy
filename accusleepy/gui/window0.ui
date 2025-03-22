@@ -294,7 +294,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,7">
            <item>
-            <widget class="QPushButton" name="recordingfilebutton">
+            <widget class="QPushButton" name="recording_file_button">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -307,7 +307,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="recordingfiletext">
+            <widget class="QLabel" name="recording_file_label">
              <property name="text">
               <string/>
              </property>
@@ -318,7 +318,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="2,7">
            <item>
-            <widget class="QPushButton" name="labelfilebutton">
+            <widget class="QPushButton" name="label_file_button">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -337,7 +337,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="labelfiletext">
+            <widget class="QLabel" name="label_file_label">
              <property name="text">
               <string/>
              </property>
@@ -348,7 +348,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="2,2,1,2,2">
            <item>
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="manual_scoring_button">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -361,7 +361,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="manualscorestatus">
+            <widget class="QLabel" name="manual_scoring_status">
              <property name="text">
               <string/>
              </property>
@@ -384,7 +384,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="create_calibration_button">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -397,7 +397,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="calibrationstatus">
+            <widget class="QLabel" name="calibration_status">
              <property name="text">
               <string/>
              </property>
@@ -438,7 +438,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="2,7">
            <item>
-            <widget class="QPushButton" name="loadcalibrationbutton">
+            <widget class="QPushButton" name="load_calibration_button">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -451,7 +451,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="calibrationfiletext">
+            <widget class="QLabel" name="calibration_file_label">
              <property name="text">
               <string/>
              </property>
@@ -462,7 +462,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="2,7">
            <item>
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QPushButton" name="load_model_button">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -475,7 +475,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="classificationmodeltext">
+            <widget class="QLabel" name="model_label">
              <property name="text">
               <string/>
              </property>
@@ -486,7 +486,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
-            <widget class="QPushButton" name="scoreallbutton">
+            <widget class="QPushButton" name="score_all_button">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -499,7 +499,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="scoreallstatus">
+            <widget class="QLabel" name="score_all_status">
              <property name="text">
               <string/>
              </property>

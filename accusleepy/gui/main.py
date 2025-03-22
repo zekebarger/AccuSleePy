@@ -59,18 +59,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.recording_list_widget.currentRowChanged.connect(self.select_recording)
         self.ui.sampling_rate_input.valueChanged.connect(self.update_sampling_rate)
         self.ui.epoch_length_input.valueChanged.connect(self.update_epoch_length)
+        self.ui.recording_file_button.clicked.connect(self.select_recording_file)
 
         self.show()
 
-    def show_recording_info(self):
+    def select_recording_file(self) -> None:
+        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog.setWindowTitle("Select recording file")
+        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+
+        if file_dialog.exec():
+            selected_files = file_dialog.selectedFiles()
+            filename = selected_files[0]
+            self.recordings[self.recording_index].recording_file = filename
+            self.ui.recording_file_label.setText(filename)
+
+    def show_recording_info(self) -> None:
         self.ui.sampling_rate_input.setValue(
             self.recordings[self.recording_index].sampling_rate
         )
+        self.ui.recording_file_label.setText(
+            self.recordings[self.recording_index].recording_file
+        )
 
-    def update_epoch_length(self, new_value):
+    def update_epoch_length(self, new_value) -> None:
         self.epoch_length = new_value
 
-    def update_sampling_rate(self, new_value):
+    def update_sampling_rate(self, new_value) -> None:
         self.recordings[self.recording_index].sampling_rate = new_value
 
     def show_message(self, message: str) -> None:
