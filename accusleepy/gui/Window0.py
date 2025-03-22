@@ -346,8 +346,9 @@ class Ui_Window0(object):
         self.bout_length_input.setObjectName(u"bout_length_input")
         sizePolicy1.setHeightForWidth(self.bout_length_input.sizePolicy().hasHeightForWidth())
         self.bout_length_input.setSizePolicy(sizePolicy1)
-        self.bout_length_input.setDecimals(3)
+        self.bout_length_input.setDecimals(2)
         self.bout_length_input.setMaximum(1000.000000000000000)
+        self.bout_length_input.setValue(5.000000000000000)
 
         self.boutlengthlayout.addWidget(self.bout_length_input)
 

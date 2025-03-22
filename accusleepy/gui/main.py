@@ -60,14 +60,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.sampling_rate_input.valueChanged.connect(self.update_sampling_rate)
         self.ui.epoch_length_input.valueChanged.connect(self.update_epoch_length)
         self.ui.recording_file_button.clicked.connect(self.select_recording_file)
+        self.ui.label_file_button.clicked.connect(self.select_label_file)
 
         self.show()
 
+    def select_label_file(self) -> None:
+        """User can select a label file for this recording"""
+        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog.setWindowTitle("Select label file")
+        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setNameFilter("(*.csv)")
+
+        if file_dialog.exec():
+            selected_files = file_dialog.selectedFiles()
+            filename = selected_files[0]
+            self.recordings[self.recording_index].label_file = filename
+            self.ui.label_file_label.setText(filename)
+
     def select_recording_file(self) -> None:
+        """User can select a recording file"""
         file_dialog = QtWidgets.QFileDialog(self)
         file_dialog.setWindowTitle("Select recording file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setNameFilter("(*.parquet *.csv)")
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
