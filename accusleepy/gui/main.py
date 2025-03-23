@@ -7,7 +7,6 @@ from Window0 import Ui_Window0
 
 from accusleepy.utils.misc import Recording
 
-
 MESSAGE_BOX_MAX_DEPTH = 50
 
 
