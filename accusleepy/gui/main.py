@@ -135,10 +135,10 @@ class MainWindow(QtWidgets.QMainWindow):
         new_name = max([r.name for r in self.recordings]) + 1
 
         # add new recording to list
-        # TODO: insert sampling rate
         self.recordings.append(
             Recording(
                 name=new_name,
+                sampling_rate=self.recordings[self.recording_index].sampling_rate,
                 widget=QtWidgets.QListWidgetItem(
                     f"Recording {new_name}", self.ui.recording_list_widget
                 ),
