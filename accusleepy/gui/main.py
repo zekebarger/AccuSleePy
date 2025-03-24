@@ -27,6 +27,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.epoch_length = 0
 
         self.only_overwrite_undefined = False
+        self.min_bout_length = 5
 
         # set up the list of recordings
         # create empty recording
@@ -67,8 +68,12 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.label_file_button.clicked.connect(self.select_label_file)
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
         self.ui.overwritecheckbox.stateChanged.connect(self.only_overwrite_undefined)
+        self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
 
         self.show()
+
+    def update_min_bout_length(self, new_value) -> None:
+        self.min_bout_length = new_value
 
     def update_overwrite_policy(self, checked) -> None:
         """Toggle overwriting policy
