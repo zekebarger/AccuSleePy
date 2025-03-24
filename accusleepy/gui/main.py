@@ -1,10 +1,13 @@
 # AccuSleePy main window
 
+import os
 import sys
 
+import numpy as np
 from PySide6 import QtCore, QtGui, QtWidgets
 from primary_window import Ui_PrimaryWindow
 
+from accusleepy.utils.constants import UNDEFINED_LABEL
 from accusleepy.utils.signal_processing import resample_and_standardize
 from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.misc import Recording
@@ -90,13 +93,20 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         eeg, emg = load_recording(self.recordings[self.recording_index].recording_file)
         label_file = self.recordings[self.recording_index].label_file
-        labels = load_labels(label_file)
         sampling_rate = self.recordings[self.recording_index].sampling_rate
         epoch_length = self.epoch_length
 
         eeg, emg, sampling_rate = resample_and_standardize(
             eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
         )
+
+        if os.path.isfile(label_file):
+            labels = load_labels(label_file)
+        else:
+            labels = (
+                np.ones(int(eeg.size / (sampling_rate * self.epoch_length)))
+                * UNDEFINED_LABEL
+            ).astype(int)
 
         manual_scoring_window = ManualScoringWindow(
             eeg=eeg,
