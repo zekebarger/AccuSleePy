@@ -23,7 +23,7 @@ from accusleepy.utils.fileio import (
     load_recording,
     save_labels,
 )
-from accusleepy.utils.misc import Recording
+from accusleepy.utils.misc import Recording, enforce_min_bout_length
 from accusleepy.utils.signal_processing import resample_and_standardize
 
 MESSAGE_BOX_MAX_DEPTH = 50
@@ -195,7 +195,11 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 ]
 
             # enforce minimum bout length
-            labels = enforce_min_bout_length(labels)
+            labels = enforce_min_bout_length(
+                labels=labels,
+                epoch_length=self.epoch_length,
+                min_bout_length=self.min_bout_length,
+            )
 
             # save results
             save_labels(labels, label_file)
@@ -589,15 +593,6 @@ def check_label_file_validity(
         set([b.digit for b in BRAIN_STATE_MAPPER.brain_states] + [UNDEFINED_LABEL])
     ):
         return "label file contains invalid entries"
-
-
-# todo
-def enforce_min_bout_length(labels: np.array) -> np.array:
-    # if recording is very short, don't change anything
-    if labels.size < 3:
-        return labels
-
-    return labels
 
 
 if __name__ == "__main__":
