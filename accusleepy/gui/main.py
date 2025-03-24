@@ -28,6 +28,8 @@ from accusleepy.utils.signal_processing import resample_and_standardize
 
 MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
+# relative path to user manual txt file
+USER_MANUAL_FILE = "text/main_manual.txt"
 
 
 class AccuSleepWindow(QtWidgets.QMainWindow):
@@ -93,6 +95,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.score_all_button.clicked.connect(self.score_all)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
+        self.ui.user_manual_button.clicked.connect(self.show_user_manual)
 
         self.show()
 
@@ -359,6 +362,13 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             )
         )
 
+        # load the results
+        (
+            self.calibration_data[MIXTURE_MEAN_COL],
+            self.calibration_data[MIXTURE_SD_COL],
+        ) = load_calibration_file(filename)
+        self.ui.calibration_file_label.setText(filename)
+
     def check_single_file_inputs(self, recording_index) -> str:
         sampling_rate = self.recordings[recording_index].sampling_rate
         if self.epoch_length == 0:
@@ -574,6 +584,28 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 f"deleted Recording {self.recordings[current_list_index].name}"
             )
             del self.recordings[current_list_index]
+
+    def show_user_manual(self) -> None:
+        """Show a popup window with the user manual"""
+        user_manual_file = open(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), USER_MANUAL_FILE),
+            "r",
+        )
+        user_manual_text = user_manual_file.read()
+        user_manual_file.close()
+
+        scroll_area = QtWidgets.QScrollArea()
+
+        label_widget = QtWidgets.QLabel()
+        label_widget.setText(user_manual_text)
+        scroll_area.setWidget(label_widget)
+
+        grid = QtWidgets.QGridLayout()
+        grid.addWidget(scroll_area)
+        self.popup = QtWidgets.QWidget()
+        self.popup.setLayout(grid)
+        self.popup.setGeometry(QtCore.QRect(100, 100, 600, 600))
+        self.popup.show()
 
 
 def check_label_file_validity(

@@ -46,7 +46,7 @@
      <number>20</number>
     </property>
     <item row="0" column="0">
-     <widget class="QPushButton" name="usermanualbutton">
+     <widget class="QPushButton" name="user_manual_button">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>

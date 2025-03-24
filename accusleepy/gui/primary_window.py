@@ -40,15 +40,15 @@ class Ui_PrimaryWindow(object):
         self.gridLayout.setSpacing(20)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(10, 10, 10, 10)
-        self.usermanualbutton = QPushButton(self.centralwidget)
-        self.usermanualbutton.setObjectName(u"usermanualbutton")
+        self.user_manual_button = QPushButton(self.centralwidget)
+        self.user_manual_button.setObjectName(u"user_manual_button")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.usermanualbutton.sizePolicy().hasHeightForWidth())
-        self.usermanualbutton.setSizePolicy(sizePolicy1)
+        sizePolicy1.setHeightForWidth(self.user_manual_button.sizePolicy().hasHeightForWidth())
+        self.user_manual_button.setSizePolicy(sizePolicy1)
 
-        self.gridLayout.addWidget(self.usermanualbutton, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.user_manual_button, 0, 0, 1, 1)
 
         self.parametergroupbox = QGroupBox(self.centralwidget)
         self.parametergroupbox.setObjectName(u"parametergroupbox")
@@ -433,7 +433,7 @@ class Ui_PrimaryWindow(object):
 
     def retranslateUi(self, PrimaryWindow):
         PrimaryWindow.setWindowTitle(QCoreApplication.translate("PrimaryWindow", u"MainWindow", None))
-        self.usermanualbutton.setText(QCoreApplication.translate("PrimaryWindow", u"User manual", None))
+        self.user_manual_button.setText(QCoreApplication.translate("PrimaryWindow", u"User manual", None))
         self.parametergroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Parameters for all recordings from one subject", None))
         self.epochlengthlabel.setText(QCoreApplication.translate("PrimaryWindow", u"Epoch length (sec):", None))
         self.recordinglistgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Recording list", None))
