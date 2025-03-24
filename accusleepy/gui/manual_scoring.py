@@ -17,12 +17,9 @@ from viewer_window import Ui_ViewerWindow
 
 from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording, save_labels
-from accusleepy.utils.signal_processing import (
-    create_spectrogram,
-    process_emg,
-    resample_and_standardize,
-)
-
+from accusleepy.utils.signal_processing import (create_spectrogram,
+                                                process_emg,
+                                                resample_and_standardize)
 
 # NOTES
 # magic spell:

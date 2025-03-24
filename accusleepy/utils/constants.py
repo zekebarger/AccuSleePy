@@ -16,7 +16,7 @@ MIXTURE_WEIGHTS = np.array([0.1, 0.35, 0.55])  # rem, wake, nrem
 
 
 # # probably don't change these unless you really need to # #
-UNDEFINED_LABEL = -1  # can't be the same as a digit in BRAIN_STATES
+UNDEFINED_LABEL = -1  # can't be the same as a digit in BRAIN_STATES, must be an integer
 # annotation file columns
 FILENAME_COL = "filename"
 LABEL_COL = "label"

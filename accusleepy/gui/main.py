@@ -4,16 +4,17 @@ import os
 import sys
 
 import numpy as np
-from PySide6 import QtCore, QtGui, QtWidgets
 from primary_window import Ui_PrimaryWindow
+from PySide6 import QtCore, QtGui, QtWidgets
 
-from accusleepy.utils.constants import UNDEFINED_LABEL
-from accusleepy.utils.signal_processing import resample_and_standardize
+from accusleepy.gui.manual_scoring import ManualScoringWindow
+from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.misc import Recording
-from accusleepy.gui.manual_scoring import ManualScoringWindow
+from accusleepy.utils.signal_processing import resample_and_standardize
 
 MESSAGE_BOX_MAX_DEPTH = 50
+LABEL_LENGTH_ERROR = "label file length does not match recording length"
 
 
 class AccuSleepWindow(QtWidgets.QMainWindow):
@@ -150,6 +151,43 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 * UNDEFINED_LABEL
             ).astype(int)
 
+        label_error = check_label_file_validity(
+            labels=labels,
+            samples_in_recording=eeg.size,
+            sampling_rate=sampling_rate,
+            epoch_length=epoch_length,
+        )
+        if label_error:
+            # if the label length is only off by one, we can try to fix it
+            # and show a warning
+            if label_error == LABEL_LENGTH_ERROR:
+                samples_per_epoch = sampling_rate * epoch_length
+                epochs_in_recording = int(eeg.size / samples_per_epoch)
+                if epochs_in_recording - labels.size == 1:
+                    labels = np.concatenate((labels, np.array([UNDEFINED_LABEL])))
+                    self.show_message(
+                        (
+                            "WARNING: an undefined epoch was added to "
+                            "the label file to correct its length."
+                        )
+                    )
+                elif labels.size - epochs_in_recording == 1:
+                    labels = labels[:-1]
+                    self.show_message(
+                        (
+                            "WARNING: the last epoch was removed from "
+                            "the label file to correct its length."
+                        )
+                    )
+                else:
+                    self.ui.manual_scoring_status.setText("invalid label file")
+                    self.show_message(f"ERROR: {label_error}")
+                    return
+            else:
+                self.ui.manual_scoring_status.setText("invalid label file")
+                self.show_message(f"ERROR: {label_error}")
+                return
+
         self.ui.manual_scoring_status.setText("")
         self.show_message(
             f"Viewing recording {self.recordings[self.recording_index].name}"
@@ -277,6 +315,25 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 f"deleted Recording {self.recordings[current_list_index].name}"
             )
             del self.recordings[current_list_index]
+
+
+def check_label_file_validity(
+    labels: np.array,
+    samples_in_recording: int,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+) -> str:
+    # check that length is correct
+    samples_per_epoch = sampling_rate * epoch_length
+    epochs_in_recording = int(samples_in_recording / samples_per_epoch)
+    if epochs_in_recording != labels.size:
+        return LABEL_LENGTH_ERROR
+
+    # check that entries are valid
+    if not set(labels.tolist()).issubset(
+        set([b.digit for b in BRAIN_STATE_MAPPER.brain_states] + [UNDEFINED_LABEL])
+    ):
+        return "label file contains invalid entries"
 
 
 if __name__ == "__main__":
