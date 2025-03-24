@@ -9,8 +9,13 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.utils.classification import create_calibration_file
-from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
-from accusleepy.utils.fileio import load_labels, load_recording
+from accusleepy.utils.constants import (
+    BRAIN_STATE_MAPPER,
+    UNDEFINED_LABEL,
+    MIXTURE_MEAN_COL,
+    MIXTURE_SD_COL,
+)
+from accusleepy.utils.fileio import load_labels, load_recording, load_calibration_file
 from accusleepy.utils.misc import Recording
 from accusleepy.utils.signal_processing import resample_and_standardize
 
@@ -31,6 +36,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.epoch_length = 0
 
+        self.calibration_data = {MIXTURE_MEAN_COL: None, MIXTURE_SD_COL: None}
         self.only_overwrite_undefined = False
         self.min_bout_length = 5
 
@@ -74,10 +80,40 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.create_label_button.clicked.connect(self.create_label_file)
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
         self.ui.create_calibration_button.clicked.connect(self.create_calibration_file)
+        self.ui.load_calibration_button.clicked.connect(self.load_calibration_file)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
 
         self.show()
+
+    def load_calibration_file(self):
+        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog.setWindowTitle("Select calibration file")
+        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setNameFilter("*.csv")
+
+        if file_dialog.exec():
+            selected_files = file_dialog.selectedFiles()
+            filename = selected_files[0]
+            if not os.path.isfile(filename):
+                self.show_message("ERROR: calibration file does not exist")
+                return
+            try:
+                (
+                    self.calibration_data[MIXTURE_MEAN_COL],
+                    self.calibration_data[MIXTURE_SD_COL],
+                ) = load_calibration_file(filename)
+            except Exception:
+                self.show_message(
+                    (
+                        "ERROR: could not load calibration file. Check user "
+                        "manual for instructions on creating this file."
+                    )
+                )
+                return
+
+            self.ui.calibration_file_label.setText(filename)
 
     def load_single_recording(self, status_widget):
         error_message = self.check_single_file_inputs()
