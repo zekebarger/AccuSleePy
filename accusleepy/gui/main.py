@@ -3,21 +3,24 @@
 import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from Window0 import Ui_Window0
+from primary_window import Ui_PrimaryWindow
 
+from accusleepy.utils.signal_processing import resample_and_standardize
+from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.misc import Recording
+from accusleepy.gui.manual_scoring import ManualScoringWindow
 
 MESSAGE_BOX_MAX_DEPTH = 50
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class AccuSleepWindow(QtWidgets.QMainWindow):
     """AccuSleePy main window"""
 
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super(AccuSleepWindow, self).__init__()
 
         # initialize the UI
-        self.ui = Ui_Window0()
+        self.ui = Ui_PrimaryWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy")
 
@@ -60,8 +63,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.epoch_length_input.valueChanged.connect(self.update_epoch_length)
         self.ui.recording_file_button.clicked.connect(self.select_recording_file)
         self.ui.label_file_button.clicked.connect(self.select_label_file)
+        self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
 
         self.show()
+
+    def manual_scoring(self) -> None:
+
+        eeg, emg = load_recording(self.recordings[self.recording_index].recording_file)
+        label_file = self.recordings[self.recording_index].label_file
+        labels = load_labels(label_file)
+        sampling_rate = self.recordings[self.recording_index].sampling_rate
+        epoch_length = self.epoch_length
+
+        eeg, emg, sampling_rate = resample_and_standardize(
+            eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
+        )
+
+        manual_scoring_window = ManualScoringWindow(
+            eeg=eeg,
+            emg=emg,
+            label_file=label_file,
+            labels=labels,
+            sampling_rate=sampling_rate,
+            epoch_length=epoch_length,
+        )
+        manual_scoring_window.setWindowTitle(f"AccuSleePy viewer: {label_file}")
+
+        # dlg = ManualScoringWindow(self)
+        manual_scoring_window.exec()
 
     def select_label_file(self) -> None:
         """User can select a label file for this recording"""
@@ -97,6 +126,9 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.ui.recording_file_label.setText(
             self.recordings[self.recording_index].recording_file
+        )
+        self.ui.label_file_label.setText(
+            self.recordings[self.recording_index].label_file
         )
 
     def update_epoch_length(self, new_value) -> None:
@@ -163,5 +195,5 @@ class MainWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
+    window = AccuSleepWindow()
     sys.exit(app.exec())

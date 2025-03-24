@@ -13,15 +13,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mplwidget import resample_x_ticks
 from PySide6 import QtCore, QtGui, QtWidgets
-from Window1 import Ui_Window1
+from viewer_window import Ui_ViewerWindow
 
 from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording, save_labels
-from accusleepy.utils.signal_processing import create_spectrogram, process_emg
+from accusleepy.utils.signal_processing import (
+    create_spectrogram,
+    process_emg,
+    resample_and_standardize,
+)
+
 
 # NOTES
 # magic spell:
-# /Users/zeke/PycharmProjects/AccuSleePy/.venv/lib/python3.13/site-packages/PySide6/Qt/libexec/uic -g python accusleepy/gui/window1.ui -o accusleepy/gui/Window1.py
+# /Users/zeke/PycharmProjects/AccuSleePy/.venv/lib/python3.13/site-packages/PySide6/Qt/libexec/uic -g python accusleepy/gui/<something>.ui -o accusleepy/gui/<something>.py
 
 # other magic spell (if the icon set is altered)
 # pyside6-rcc accusleepy/gui/resources.qrc -o accusleepy/gui/resources_rc.py
@@ -72,25 +77,31 @@ DIFFERENT_STATE = "different"
 UNDEFINED_STATE = "undefined"
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class ManualScoringWindow(QtWidgets.QDialog):
     """AccuSleePy manual scoring GUI"""
 
-    def __init__(self):
-        super(MainWindow, self).__init__()
+    def __init__(
+        self,
+        eeg: np.array,
+        emg: np.array,
+        label_file: str,
+        labels: np.array,
+        sampling_rate: int | float,
+        epoch_length: int | float,
+    ):
+        super(ManualScoringWindow, self).__init__()
 
-        # THESE SHOULD BE USER INPUT SOMEHOW
-        self.label_file = "/Users/zeke/PycharmProjects/AccuSleePy/sample_labels.csv"
-        self.eeg, self.emg = load_recording(
-            "/Users/zeke/PycharmProjects/AccuSleePy/sample_recording.parquet"
-        )
-        self.labels = load_labels(self.label_file)
-        self.sampling_rate = 512
-        self.epoch_length = 2.5
+        self.label_file = label_file
+        self.eeg = eeg
+        self.emg = emg
+        self.labels = labels
+        self.sampling_rate = sampling_rate
+        self.epoch_length = epoch_length
 
         self.n_epochs = len(self.labels)
 
         # initialize the UI
-        self.ui = Ui_Window1()
+        self.ui = Ui_ViewerWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy manual scoring window")
 
@@ -911,6 +922,26 @@ def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
 
 
 if __name__ == "__main__":
+
+    eeg, emg = load_recording(
+        "/Users/zeke/PycharmProjects/AccuSleePy/sample_recording.parquet"
+    )
+    label_file = "/Users/zeke/PycharmProjects/AccuSleePy/sample_labels.csv"
+    labels = load_labels(label_file)
+    sampling_rate = 512
+    epoch_length = 2.5
+
+    eeg, emg, sampling_rate = resample_and_standardize(
+        eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
+    )
+
     app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
+    window = ManualScoringWindow(
+        eeg=eeg,
+        emg=emg,
+        label_file=label_file,
+        labels=labels,
+        sampling_rate=sampling_rate,
+        epoch_length=epoch_length,
+    )
     sys.exit(app.exec())

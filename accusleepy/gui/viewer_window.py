@@ -1,50 +1,46 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'window1.ui'
+## Form generated from reading UI file 'viewer_window.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-import resources_rc
-from mplwidget import MplWidget
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-                            QMetaObject, QObject, QPoint, QRect, QSize, Qt,
-                            QTime, QUrl)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
-                           QFontDatabase, QGradient, QIcon, QImage,
-                           QKeySequence, QLinearGradient, QPainter, QPalette,
-                           QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QGridLayout,
-                               QHBoxLayout, QLabel, QLayout, QMainWindow,
-                               QPushButton, QSizePolicy, QSpacerItem,
-                               QVBoxLayout, QWidget)
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QFrame,
+    QGridLayout, QHBoxLayout, QLabel, QLayout,
+    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
+    QWidget)
 
+from mplwidget import MplWidget
+import resources_rc
 
-class Ui_Window1(object):
-    def setupUi(self, Window1):
-        if not Window1.objectName():
-            Window1.setObjectName(u"Window1")
-        Window1.resize(1200, 700)
+class Ui_ViewerWindow(object):
+    def setupUi(self, ViewerWindow):
+        if not ViewerWindow.objectName():
+            ViewerWindow.setObjectName(u"ViewerWindow")
+        ViewerWindow.resize(1200, 700)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(Window1.sizePolicy().hasHeightForWidth())
-        Window1.setSizePolicy(sizePolicy)
-        Window1.setStyleSheet(u"background-color: white;")
-        self.centralwidget = QWidget(Window1)
-        self.centralwidget.setObjectName(u"centralwidget")
-        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
-        self.centralwidget.setSizePolicy(sizePolicy)
-        self.horizontalLayout = QHBoxLayout(self.centralwidget)
+        sizePolicy.setHeightForWidth(ViewerWindow.sizePolicy().hasHeightForWidth())
+        ViewerWindow.setSizePolicy(sizePolicy)
+        ViewerWindow.setStyleSheet(u"background-color: white;")
+        self.horizontalLayout = QHBoxLayout(ViewerWindow)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.all_plots = QVBoxLayout()
         self.all_plots.setSpacing(1)
         self.all_plots.setObjectName(u"all_plots")
         self.all_plots.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
-        self.upperfigure = MplWidget(self.centralwidget)
+        self.upperfigure = MplWidget(ViewerWindow)
         self.upperfigure.setObjectName(u"upperfigure")
         sizePolicy.setHeightForWidth(self.upperfigure.sizePolicy().hasHeightForWidth())
         self.upperfigure.setSizePolicy(sizePolicy)
@@ -52,7 +48,7 @@ class Ui_Window1(object):
 
         self.all_plots.addWidget(self.upperfigure)
 
-        self.line = QFrame(self.centralwidget)
+        self.line = QFrame(ViewerWindow)
         self.line.setObjectName(u"line")
         self.line.setLineWidth(2)
         self.line.setFrameShape(QFrame.Shape.HLine)
@@ -60,7 +56,7 @@ class Ui_Window1(object):
 
         self.all_plots.addWidget(self.line)
 
-        self.lowerfigure = MplWidget(self.centralwidget)
+        self.lowerfigure = MplWidget(ViewerWindow)
         self.lowerfigure.setObjectName(u"lowerfigure")
         sizePolicy.setHeightForWidth(self.lowerfigure.sizePolicy().hasHeightForWidth())
         self.lowerfigure.setSizePolicy(sizePolicy)
@@ -88,7 +84,7 @@ class Ui_Window1(object):
         self.save_help_buttons.setSpacing(20)
         self.save_help_buttons.setObjectName(u"save_help_buttons")
         self.save_help_buttons.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
-        self.savebutton = QPushButton(self.centralwidget)
+        self.savebutton = QPushButton(ViewerWindow)
         self.savebutton.setObjectName(u"savebutton")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
@@ -104,7 +100,7 @@ class Ui_Window1(object):
 
         self.save_help_buttons.addWidget(self.savebutton)
 
-        self.helpbutton = QPushButton(self.centralwidget)
+        self.helpbutton = QPushButton(ViewerWindow)
         self.helpbutton.setObjectName(u"helpbutton")
         sizePolicy1.setHeightForWidth(self.helpbutton.sizePolicy().hasHeightForWidth())
         self.helpbutton.setSizePolicy(sizePolicy1)
@@ -128,7 +124,7 @@ class Ui_Window1(object):
         self.zoom_and_brightness.setObjectName(u"zoom_and_brightness")
         self.brightness_buttons = QHBoxLayout()
         self.brightness_buttons.setObjectName(u"brightness_buttons")
-        self.specbrighter = QPushButton(self.centralwidget)
+        self.specbrighter = QPushButton(ViewerWindow)
         self.specbrighter.setObjectName(u"specbrighter")
         sizePolicy1.setHeightForWidth(self.specbrighter.sizePolicy().hasHeightForWidth())
         self.specbrighter.setSizePolicy(sizePolicy1)
@@ -141,7 +137,7 @@ class Ui_Window1(object):
 
         self.brightness_buttons.addWidget(self.specbrighter)
 
-        self.specdimmer = QPushButton(self.centralwidget)
+        self.specdimmer = QPushButton(ViewerWindow)
         self.specdimmer.setObjectName(u"specdimmer")
         sizePolicy1.setHeightForWidth(self.specdimmer.sizePolicy().hasHeightForWidth())
         self.specdimmer.setSizePolicy(sizePolicy1)
@@ -161,7 +157,7 @@ class Ui_Window1(object):
         self.zoom_buttons.setObjectName(u"zoom_buttons")
         self.zoom_buttons.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
         self.zoom_buttons.setContentsMargins(2, -1, 2, -1)
-        self.xzoomin = QPushButton(self.centralwidget)
+        self.xzoomin = QPushButton(ViewerWindow)
         self.xzoomin.setObjectName(u"xzoomin")
         sizePolicy1.setHeightForWidth(self.xzoomin.sizePolicy().hasHeightForWidth())
         self.xzoomin.setSizePolicy(sizePolicy1)
@@ -174,7 +170,7 @@ class Ui_Window1(object):
 
         self.zoom_buttons.addWidget(self.xzoomin)
 
-        self.xzoomout = QPushButton(self.centralwidget)
+        self.xzoomout = QPushButton(ViewerWindow)
         self.xzoomout.setObjectName(u"xzoomout")
         sizePolicy1.setHeightForWidth(self.xzoomout.sizePolicy().hasHeightForWidth())
         self.xzoomout.setSizePolicy(sizePolicy1)
@@ -187,7 +183,7 @@ class Ui_Window1(object):
 
         self.zoom_buttons.addWidget(self.xzoomout)
 
-        self.xzoomreset = QPushButton(self.centralwidget)
+        self.xzoomreset = QPushButton(ViewerWindow)
         self.xzoomreset.setObjectName(u"xzoomreset")
         sizePolicy1.setHeightForWidth(self.xzoomreset.sizePolicy().hasHeightForWidth())
         self.xzoomreset.setSizePolicy(sizePolicy1)
@@ -235,7 +231,7 @@ class Ui_Window1(object):
         self.eegbuttons.setObjectName(u"eegbuttons")
         self.eegbuttons.setHorizontalSpacing(10)
         self.eegbuttons.setVerticalSpacing(20)
-        self.eegshiftup = QPushButton(self.centralwidget)
+        self.eegshiftup = QPushButton(ViewerWindow)
         self.eegshiftup.setObjectName(u"eegshiftup")
         sizePolicy1.setHeightForWidth(self.eegshiftup.sizePolicy().hasHeightForWidth())
         self.eegshiftup.setSizePolicy(sizePolicy1)
@@ -248,7 +244,7 @@ class Ui_Window1(object):
 
         self.eegbuttons.addWidget(self.eegshiftup, 0, 1, 1, 1)
 
-        self.eegzoomout = QPushButton(self.centralwidget)
+        self.eegzoomout = QPushButton(ViewerWindow)
         self.eegzoomout.setObjectName(u"eegzoomout")
         sizePolicy1.setHeightForWidth(self.eegzoomout.sizePolicy().hasHeightForWidth())
         self.eegzoomout.setSizePolicy(sizePolicy1)
@@ -259,7 +255,7 @@ class Ui_Window1(object):
 
         self.eegbuttons.addWidget(self.eegzoomout, 1, 0, 1, 1)
 
-        self.eegshiftdown = QPushButton(self.centralwidget)
+        self.eegshiftdown = QPushButton(ViewerWindow)
         self.eegshiftdown.setObjectName(u"eegshiftdown")
         sizePolicy1.setHeightForWidth(self.eegshiftdown.sizePolicy().hasHeightForWidth())
         self.eegshiftdown.setSizePolicy(sizePolicy1)
@@ -272,7 +268,7 @@ class Ui_Window1(object):
 
         self.eegbuttons.addWidget(self.eegshiftdown, 1, 1, 1, 1)
 
-        self.eegzoomin = QPushButton(self.centralwidget)
+        self.eegzoomin = QPushButton(ViewerWindow)
         self.eegzoomin.setObjectName(u"eegzoomin")
         sizePolicy1.setHeightForWidth(self.eegzoomin.sizePolicy().hasHeightForWidth())
         self.eegzoomin.setSizePolicy(sizePolicy1)
@@ -294,7 +290,7 @@ class Ui_Window1(object):
         self.emgbuttons.setObjectName(u"emgbuttons")
         self.emgbuttons.setHorizontalSpacing(10)
         self.emgbuttons.setVerticalSpacing(20)
-        self.emgzoomin = QPushButton(self.centralwidget)
+        self.emgzoomin = QPushButton(ViewerWindow)
         self.emgzoomin.setObjectName(u"emgzoomin")
         sizePolicy1.setHeightForWidth(self.emgzoomin.sizePolicy().hasHeightForWidth())
         self.emgzoomin.setSizePolicy(sizePolicy1)
@@ -305,7 +301,7 @@ class Ui_Window1(object):
 
         self.emgbuttons.addWidget(self.emgzoomin, 0, 0, 1, 1)
 
-        self.emgshiftdown = QPushButton(self.centralwidget)
+        self.emgshiftdown = QPushButton(ViewerWindow)
         self.emgshiftdown.setObjectName(u"emgshiftdown")
         sizePolicy1.setHeightForWidth(self.emgshiftdown.sizePolicy().hasHeightForWidth())
         self.emgshiftdown.setSizePolicy(sizePolicy1)
@@ -316,7 +312,7 @@ class Ui_Window1(object):
 
         self.emgbuttons.addWidget(self.emgshiftdown, 1, 1, 1, 1)
 
-        self.emgshiftup = QPushButton(self.centralwidget)
+        self.emgshiftup = QPushButton(ViewerWindow)
         self.emgshiftup.setObjectName(u"emgshiftup")
         sizePolicy1.setHeightForWidth(self.emgshiftup.sizePolicy().hasHeightForWidth())
         self.emgshiftup.setSizePolicy(sizePolicy1)
@@ -327,7 +323,7 @@ class Ui_Window1(object):
 
         self.emgbuttons.addWidget(self.emgshiftup, 0, 1, 1, 1)
 
-        self.emgzoomout = QPushButton(self.centralwidget)
+        self.emgzoomout = QPushButton(ViewerWindow)
         self.emgzoomout.setObjectName(u"emgzoomout")
         sizePolicy1.setHeightForWidth(self.emgzoomout.sizePolicy().hasHeightForWidth())
         self.emgzoomout.setSizePolicy(sizePolicy1)
@@ -351,7 +347,7 @@ class Ui_Window1(object):
         self.autoscroll_layout = QVBoxLayout()
         self.autoscroll_layout.setObjectName(u"autoscroll_layout")
         self.autoscroll_layout.setContentsMargins(30, -1, 20, -1)
-        self.autoscroll = QCheckBox(self.centralwidget)
+        self.autoscroll = QCheckBox(ViewerWindow)
         self.autoscroll.setObjectName(u"autoscroll")
         sizePolicy1.setHeightForWidth(self.autoscroll.sizePolicy().hasHeightForWidth())
         self.autoscroll.setSizePolicy(sizePolicy1)
@@ -369,7 +365,7 @@ class Ui_Window1(object):
         self.epoch_controls.setObjectName(u"epoch_controls")
         self.epoch_controls.setHorizontalSpacing(2)
         self.epoch_controls.setVerticalSpacing(10)
-        self.shownepochslabel = QLabel(self.centralwidget)
+        self.shownepochslabel = QLabel(ViewerWindow)
         self.shownepochslabel.setObjectName(u"shownepochslabel")
         sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
@@ -380,14 +376,14 @@ class Ui_Window1(object):
 
         self.epoch_controls.addWidget(self.shownepochslabel, 0, 1, 1, 1)
 
-        self.epochsword = QLabel(self.centralwidget)
+        self.epochsword = QLabel(ViewerWindow)
         self.epochsword.setObjectName(u"epochsword")
         sizePolicy1.setHeightForWidth(self.epochsword.sizePolicy().hasHeightForWidth())
         self.epochsword.setSizePolicy(sizePolicy1)
 
         self.epoch_controls.addWidget(self.epochsword, 0, 0, 1, 1)
 
-        self.shownepochsplus = QPushButton(self.centralwidget)
+        self.shownepochsplus = QPushButton(ViewerWindow)
         self.shownepochsplus.setObjectName(u"shownepochsplus")
         sizePolicy1.setHeightForWidth(self.shownepochsplus.sizePolicy().hasHeightForWidth())
         self.shownepochsplus.setSizePolicy(sizePolicy1)
@@ -400,7 +396,7 @@ class Ui_Window1(object):
 
         self.epoch_controls.addWidget(self.shownepochsplus, 1, 1, 1, 1)
 
-        self.shownepochsminus = QPushButton(self.centralwidget)
+        self.shownepochsminus = QPushButton(ViewerWindow)
         self.shownepochsminus.setObjectName(u"shownepochsminus")
         sizePolicy1.setHeightForWidth(self.shownepochsminus.sizePolicy().hasHeightForWidth())
         self.shownepochsminus.setSizePolicy(sizePolicy1)
@@ -440,57 +436,55 @@ class Ui_Window1(object):
 
         self.horizontalLayout.setStretch(0, 20)
         self.horizontalLayout.setStretch(1, 1)
-        Window1.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(Window1)
+        self.retranslateUi(ViewerWindow)
 
-        QMetaObject.connectSlotsByName(Window1)
+        QMetaObject.connectSlotsByName(ViewerWindow)
     # setupUi
 
-    def retranslateUi(self, Window1):
-        Window1.setWindowTitle(QCoreApplication.translate("Window1", u"MainWindow", None))
+    def retranslateUi(self, ViewerWindow):
 #if QT_CONFIG(tooltip)
-        self.savebutton.setToolTip(QCoreApplication.translate("Window1", u"Save labels (Ctrl+S)", None))
+        self.savebutton.setToolTip(QCoreApplication.translate("ViewerWindow", u"Save labels (Ctrl+S)", None))
 #endif // QT_CONFIG(tooltip)
         self.savebutton.setText("")
 #if QT_CONFIG(tooltip)
-        self.helpbutton.setToolTip(QCoreApplication.translate("Window1", u"User manual", None))
+        self.helpbutton.setToolTip(QCoreApplication.translate("ViewerWindow", u"User manual", None))
 #endif // QT_CONFIG(tooltip)
         self.helpbutton.setText("")
 #if QT_CONFIG(tooltip)
-        self.specbrighter.setToolTip(QCoreApplication.translate("Window1", u"Increase brightness", None))
+        self.specbrighter.setToolTip(QCoreApplication.translate("ViewerWindow", u"Increase brightness", None))
 #endif // QT_CONFIG(tooltip)
         self.specbrighter.setText("")
 #if QT_CONFIG(tooltip)
-        self.specdimmer.setToolTip(QCoreApplication.translate("Window1", u"Decrease brightness", None))
+        self.specdimmer.setToolTip(QCoreApplication.translate("ViewerWindow", u"Decrease brightness", None))
 #endif // QT_CONFIG(tooltip)
         self.specdimmer.setText("")
 #if QT_CONFIG(tooltip)
-        self.xzoomin.setToolTip(QCoreApplication.translate("Window1", u"Zoom in (+)", None))
+        self.xzoomin.setToolTip(QCoreApplication.translate("ViewerWindow", u"Zoom in (+)", None))
 #endif // QT_CONFIG(tooltip)
         self.xzoomin.setText("")
 #if QT_CONFIG(tooltip)
-        self.xzoomout.setToolTip(QCoreApplication.translate("Window1", u"Zoom out (-)", None))
+        self.xzoomout.setToolTip(QCoreApplication.translate("ViewerWindow", u"Zoom out (-)", None))
 #endif // QT_CONFIG(tooltip)
         self.xzoomout.setText("")
 #if QT_CONFIG(tooltip)
-        self.xzoomreset.setToolTip(QCoreApplication.translate("Window1", u"Reset zoom", None))
+        self.xzoomreset.setToolTip(QCoreApplication.translate("ViewerWindow", u"Reset zoom", None))
 #endif // QT_CONFIG(tooltip)
         self.xzoomreset.setText("")
 #if QT_CONFIG(tooltip)
-        self.eegshiftup.setToolTip(QCoreApplication.translate("Window1", u"Shift signal up", None))
+        self.eegshiftup.setToolTip(QCoreApplication.translate("ViewerWindow", u"Shift signal up", None))
 #endif // QT_CONFIG(tooltip)
         self.eegshiftup.setText("")
 #if QT_CONFIG(tooltip)
-        self.eegzoomout.setToolTip(QCoreApplication.translate("Window1", u"Scale signal down", None))
+        self.eegzoomout.setToolTip(QCoreApplication.translate("ViewerWindow", u"Scale signal down", None))
 #endif // QT_CONFIG(tooltip)
         self.eegzoomout.setText("")
 #if QT_CONFIG(tooltip)
-        self.eegshiftdown.setToolTip(QCoreApplication.translate("Window1", u"Shift signal down", None))
+        self.eegshiftdown.setToolTip(QCoreApplication.translate("ViewerWindow", u"Shift signal down", None))
 #endif // QT_CONFIG(tooltip)
         self.eegshiftdown.setText("")
 #if QT_CONFIG(tooltip)
-        self.eegzoomin.setToolTip(QCoreApplication.translate("Window1", u"Scale signal up", None))
+        self.eegzoomin.setToolTip(QCoreApplication.translate("ViewerWindow", u"Scale signal up", None))
 #endif // QT_CONFIG(tooltip)
         self.eegzoomin.setText("")
         self.emgzoomin.setText("")
@@ -498,12 +492,13 @@ class Ui_Window1(object):
         self.emgshiftup.setText("")
         self.emgzoomout.setText("")
 #if QT_CONFIG(tooltip)
-        self.autoscroll.setToolTip(QCoreApplication.translate("Window1", u"Step forward when setting brain state", None))
+        self.autoscroll.setToolTip(QCoreApplication.translate("ViewerWindow", u"Step forward when setting brain state", None))
 #endif // QT_CONFIG(tooltip)
-        self.autoscroll.setText(QCoreApplication.translate("Window1", u"Auto scroll", None))
-        self.shownepochslabel.setText(QCoreApplication.translate("Window1", u"5", None))
-        self.epochsword.setText(QCoreApplication.translate("Window1", u"Epochs:", None))
+        self.autoscroll.setText(QCoreApplication.translate("ViewerWindow", u"Auto scroll", None))
+        self.shownepochslabel.setText(QCoreApplication.translate("ViewerWindow", u"5", None))
+        self.epochsword.setText(QCoreApplication.translate("ViewerWindow", u"Epochs:", None))
         self.shownepochsplus.setText("")
         self.shownepochsminus.setText("")
+        pass
     # retranslateUi
 

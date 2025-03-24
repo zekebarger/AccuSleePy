@@ -191,7 +191,9 @@ def process_emg(
         output="ba",
         fs=sampling_rate,
     )
-    filtered = filtfilt(b, a, x=emg, padlen=sampling_rate)  # todo padlen set correctly?
+    filtered = filtfilt(
+        b, a, x=emg, padlen=int(np.ceil(sampling_rate))
+    )  # todo padlen set correctly?
 
     # since resample() was called, this will be extremely close to an integer
     samples_per_epoch = int(sampling_rate * epoch_length)

@@ -1,40 +1,38 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'window0.ui'
+## Form generated from reading UI file 'primary_window.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-import resources_rc
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-                            QMetaObject, QObject, QPoint, QRect, QSize, Qt,
-                            QTime, QUrl)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
-                           QFontDatabase, QGradient, QIcon, QImage,
-                           QKeySequence, QLinearGradient, QPainter, QPalette,
-                           QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox,
-                               QGridLayout, QGroupBox, QHBoxLayout, QLabel,
-                               QListWidget, QListWidgetItem, QMainWindow,
-                               QPushButton, QSizePolicy, QSpacerItem,
-                               QTextBrowser, QVBoxLayout, QWidget)
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QGridLayout,
+    QGroupBox, QHBoxLayout, QLabel, QListWidget,
+    QListWidgetItem, QMainWindow, QPushButton, QSizePolicy,
+    QSpacerItem, QTextBrowser, QVBoxLayout, QWidget)
+import resources_rc
 
-
-class Ui_Window0(object):
-    def setupUi(self, Window0):
-        if not Window0.objectName():
-            Window0.setObjectName(u"Window0")
-        Window0.resize(1079, 686)
+class Ui_PrimaryWindow(object):
+    def setupUi(self, PrimaryWindow):
+        if not PrimaryWindow.objectName():
+            PrimaryWindow.setObjectName(u"PrimaryWindow")
+        PrimaryWindow.resize(1079, 686)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(Window0.sizePolicy().hasHeightForWidth())
-        Window0.setSizePolicy(sizePolicy)
-        Window0.setStyleSheet(u"background-color: white;")
-        self.centralwidget = QWidget(Window0)
+        sizePolicy.setHeightForWidth(PrimaryWindow.sizePolicy().hasHeightForWidth())
+        PrimaryWindow.setSizePolicy(sizePolicy)
+        PrimaryWindow.setStyleSheet(u"background-color: white;")
+        self.centralwidget = QWidget(PrimaryWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
@@ -395,40 +393,40 @@ class Ui_Window0(object):
         self.gridLayout.setRowStretch(2, 2)
         self.gridLayout.setColumnStretch(0, 1)
         self.gridLayout.setColumnStretch(1, 5)
-        Window0.setCentralWidget(self.centralwidget)
+        PrimaryWindow.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(Window0)
+        self.retranslateUi(PrimaryWindow)
 
-        QMetaObject.connectSlotsByName(Window0)
+        QMetaObject.connectSlotsByName(PrimaryWindow)
     # setupUi
 
-    def retranslateUi(self, Window0):
-        Window0.setWindowTitle(QCoreApplication.translate("Window0", u"MainWindow", None))
-        self.usermanualbutton.setText(QCoreApplication.translate("Window0", u"User manual", None))
-        self.parametergroupbox.setTitle(QCoreApplication.translate("Window0", u"Parameters for all recordings from one subject", None))
-        self.epochlengthlabel.setText(QCoreApplication.translate("Window0", u"Epoch length (sec):", None))
-        self.recordinglistgroupbox.setTitle(QCoreApplication.translate("Window0", u"Recording list", None))
-        self.add_button.setText(QCoreApplication.translate("Window0", u"add", None))
-        self.remove_button.setText(QCoreApplication.translate("Window0", u"remove", None))
-        self.selected_recording_groupbox.setTitle(QCoreApplication.translate("Window0", u"Data / actions for the selected recording (Recording 1) from this subject", None))
-        self.samplingratelabel.setText(QCoreApplication.translate("Window0", u"Sampling rate (Hz):", None))
-        self.recording_file_button.setText(QCoreApplication.translate("Window0", u"Select recording file", None))
+    def retranslateUi(self, PrimaryWindow):
+        PrimaryWindow.setWindowTitle(QCoreApplication.translate("PrimaryWindow", u"MainWindow", None))
+        self.usermanualbutton.setText(QCoreApplication.translate("PrimaryWindow", u"User manual", None))
+        self.parametergroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Parameters for all recordings from one subject", None))
+        self.epochlengthlabel.setText(QCoreApplication.translate("PrimaryWindow", u"Epoch length (sec):", None))
+        self.recordinglistgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Recording list", None))
+        self.add_button.setText(QCoreApplication.translate("PrimaryWindow", u"add", None))
+        self.remove_button.setText(QCoreApplication.translate("PrimaryWindow", u"remove", None))
+        self.selected_recording_groupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for the selected recording (Recording 1) from this subject", None))
+        self.samplingratelabel.setText(QCoreApplication.translate("PrimaryWindow", u"Sampling rate (Hz):", None))
+        self.recording_file_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select recording file", None))
         self.recording_file_label.setText("")
-        self.label_file_button.setText(QCoreApplication.translate("Window0", u"Select label file", None))
+        self.label_file_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select label file", None))
         self.label_file_label.setText("")
-        self.manual_scoring_button.setText(QCoreApplication.translate("Window0", u"Score manually", None))
+        self.manual_scoring_button.setText(QCoreApplication.translate("PrimaryWindow", u"Score manually", None))
         self.manual_scoring_status.setText("")
-        self.create_calibration_button.setText(QCoreApplication.translate("Window0", u"Create calibration file", None))
+        self.create_calibration_button.setText(QCoreApplication.translate("PrimaryWindow", u"Create calibration file", None))
         self.calibration_status.setText("")
-        self.allrecordingsgroupbox.setTitle(QCoreApplication.translate("Window0", u"Data / actions for all recordings from this subject", None))
-        self.load_calibration_button.setText(QCoreApplication.translate("Window0", u"Load calibration file", None))
+        self.allrecordingsgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for all recordings from this subject", None))
+        self.load_calibration_button.setText(QCoreApplication.translate("PrimaryWindow", u"Load calibration file", None))
         self.calibration_file_label.setText("")
-        self.load_model_button.setText(QCoreApplication.translate("Window0", u"Load classification model", None))
+        self.load_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Load classification model", None))
         self.model_label.setText("")
-        self.score_all_button.setText(QCoreApplication.translate("Window0", u"Score all automatically", None))
+        self.score_all_button.setText(QCoreApplication.translate("PrimaryWindow", u"Score all automatically", None))
         self.score_all_status.setText("")
-        self.overwritecheckbox.setText(QCoreApplication.translate("Window0", u"Only overwrite undefined epochs", None))
-        self.boutlengthlabel.setText(QCoreApplication.translate("Window0", u"Minimum bout length (sec):", None))
-        self.messagesgroupbox.setTitle(QCoreApplication.translate("Window0", u"Messages", None))
+        self.overwritecheckbox.setText(QCoreApplication.translate("PrimaryWindow", u"Only overwrite undefined epochs", None))
+        self.boutlengthlabel.setText(QCoreApplication.translate("PrimaryWindow", u"Minimum bout length (sec):", None))
+        self.messagesgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Messages", None))
     # retranslateUi
 
