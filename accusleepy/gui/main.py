@@ -11,11 +11,16 @@ from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.utils.classification import create_calibration_file
 from accusleepy.utils.constants import (
     BRAIN_STATE_MAPPER,
-    UNDEFINED_LABEL,
     MIXTURE_MEAN_COL,
     MIXTURE_SD_COL,
+    UNDEFINED_LABEL,
 )
-from accusleepy.utils.fileio import load_labels, load_recording, load_calibration_file
+from accusleepy.utils.fileio import (
+    load_calibration_file,
+    load_labels,
+    load_model,
+    load_recording,
+)
 from accusleepy.utils.misc import Recording
 from accusleepy.utils.signal_processing import resample_and_standardize
 
@@ -37,6 +42,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.epoch_length = 0
 
         self.calibration_data = {MIXTURE_MEAN_COL: None, MIXTURE_SD_COL: None}
+        self.model = None
         self.only_overwrite_undefined = False
         self.min_bout_length = 5
 
@@ -81,10 +87,37 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
         self.ui.create_calibration_button.clicked.connect(self.create_calibration_file)
         self.ui.load_calibration_button.clicked.connect(self.load_calibration_file)
+        self.ui.load_model_button.clicked.connect(self.load_model)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
 
         self.show()
+
+    def load_model(self):
+        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog.setWindowTitle("Select classification model")
+        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setNameFilter("*.pth")
+
+        if file_dialog.exec():
+            selected_files = file_dialog.selectedFiles()
+            filename = selected_files[0]
+            if not os.path.isfile(filename):
+                self.show_message("ERROR: model file does not exist")
+                return
+            try:
+                self.model = load_model(filename)
+            except Exception:
+                self.show_message(
+                    (
+                        "ERROR: could not load classification model. Check "
+                        "user manual for instructions on creating this file."
+                    )
+                )
+                return
+
+            self.ui.model_label.setText(filename)
 
     def load_calibration_file(self):
         file_dialog = QtWidgets.QFileDialog(self)
