@@ -8,9 +8,10 @@ from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.utils.classification import create_calibration_file
+from accusleepy.utils.classification import create_calibration_file, score_recording
 from accusleepy.utils.constants import (
     BRAIN_STATE_MAPPER,
+    EPOCHS_PER_IMG,
     MIXTURE_MEAN_COL,
     MIXTURE_SD_COL,
     UNDEFINED_LABEL,
@@ -20,6 +21,7 @@ from accusleepy.utils.fileio import (
     load_labels,
     load_model,
     load_recording,
+    save_labels,
 )
 from accusleepy.utils.misc import Recording
 from accusleepy.utils.signal_processing import resample_and_standardize
@@ -88,10 +90,124 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.create_calibration_button.clicked.connect(self.create_calibration_file)
         self.ui.load_calibration_button.clicked.connect(self.load_calibration_file)
         self.ui.load_model_button.clicked.connect(self.load_model)
+        self.ui.score_all_button.clicked.connect(self.score_all)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
 
         self.show()
+
+    def score_all(self):
+        # check basic inputs
+        if self.calibration_data[MIXTURE_MEAN_COL] is None:
+            self.ui.score_all_status.setText("missing calibration file")
+            self.show_message("ERROR: no calibration file selected")
+            return
+        if self.model is None:
+            self.ui.score_all_status.setText("missing classification model")
+            self.show_message("ERROR: no classification model file selected")
+            return
+        if self.min_bout_length < self.epoch_length:
+            self.ui.score_all_status.setText("invalid minimum bout length")
+            self.show_message("ERROR: minimum bout length must be >= epoch length")
+            return
+
+        # check some inputs for each recording
+        for recording_index in range(len(self.recordings)):
+            error_message = self.check_single_file_inputs(recording_index)
+            if error_message:
+                self.ui.score_all_status.setText(
+                    f"error on recording {self.recordings[recording_index].name}"
+                )
+                self.show_message(
+                    f"ERROR ({self.recordings[recording_index].name}): {error_message}"
+                )
+                return
+
+        # score each recording
+        self.ui.score_all_status.setText("running...")
+        for recording_index in range(len(self.recordings)):
+            try:
+                eeg, emg = load_recording(
+                    self.recordings[recording_index].recording_file
+                )
+                sampling_rate = self.recordings[recording_index].sampling_rate
+
+                eeg, emg, sampling_rate = resample_and_standardize(
+                    eeg=eeg,
+                    emg=emg,
+                    sampling_rate=sampling_rate,
+                    epoch_length=self.epoch_length,
+                )
+            except Exception:
+                self.show_message(
+                    (
+                        "ERROR: could not load recording "
+                        f"{self.recordings[recording_index].name}."
+                        "This recording will be skipped."
+                    )
+                )
+                continue
+
+            label_file = self.recordings[recording_index].label_file
+            if os.path.isfile(label_file):
+                try:
+                    existing_labels = load_labels(label_file)
+                except Exception:
+                    self.show_message(
+                        (
+                            "ERROR: could not load existing labels for recording "
+                            f"{self.recordings[recording_index].name}."
+                            "This recording will be skipped."
+                        )
+                    )
+                    continue
+                # only check the length
+                samples_per_epoch = sampling_rate * self.epoch_length
+                epochs_in_recording = int(eeg.size / samples_per_epoch)
+                if epochs_in_recording != existing_labels.size:
+                    self.show_message(
+                        (
+                            "ERROR: existing labels for recording "
+                            f"{self.recordings[recording_index].name} "
+                            "do not match the recording length. "
+                            "This recording will be skipped."
+                        )
+                    )
+                    continue
+            else:
+                existing_labels = None
+
+            labels = score_recording(
+                model=self.model,
+                eeg=eeg,
+                emg=emg,
+                mixture_means=self.calibration_data[MIXTURE_MEAN_COL],
+                mixture_sds=self.calibration_data[MIXTURE_SD_COL],
+                sampling_rate=sampling_rate,
+                epoch_length=self.epoch_length,
+                epochs_per_img=EPOCHS_PER_IMG,
+            )
+
+            # overwrite as needed
+            if existing_labels is not None and self.only_overwrite_undefined:
+                labels[existing_labels != UNDEFINED_LABEL] = existing_labels[
+                    existing_labels != UNDEFINED_LABEL
+                ]
+
+            # enforce minimum bout length
+            labels = enforce_min_bout_length(labels)
+
+            # save results
+            save_labels(labels, label_file)
+            self.show_message(
+                (
+                    "Saved labels for recording "
+                    f"{self.recordings[recording_index].name} "
+                    f"to {label_file}"
+                )
+            )
+
+        self.ui.score_all_status.setText("")
 
     def load_model(self):
         file_dialog = QtWidgets.QFileDialog(self)
@@ -149,7 +265,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             self.ui.calibration_file_label.setText(filename)
 
     def load_single_recording(self, status_widget):
-        error_message = self.check_single_file_inputs()
+        error_message = self.check_single_file_inputs(self.recording_index)
         if error_message:
             status_widget.setText(error_message)
             self.show_message(f"ERROR: {error_message}")
@@ -170,10 +286,12 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             return None, None, None, False
 
         sampling_rate = self.recordings[self.recording_index].sampling_rate
-        epoch_length = self.epoch_length
 
         eeg, emg, sampling_rate = resample_and_standardize(
-            eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
+            eeg=eeg,
+            emg=emg,
+            sampling_rate=sampling_rate,
+            epoch_length=self.epoch_length,
         )
 
         return eeg, emg, sampling_rate, True
@@ -237,8 +355,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             )
         )
 
-    def check_single_file_inputs(self) -> str:
-        sampling_rate = self.recordings[self.recording_index].sampling_rate
+    def check_single_file_inputs(self, recording_index) -> str:
+        sampling_rate = self.recordings[recording_index].sampling_rate
         if self.epoch_length == 0:
             return "epoch length can't be 0"
         if sampling_rate == 0:
@@ -471,6 +589,15 @@ def check_label_file_validity(
         set([b.digit for b in BRAIN_STATE_MAPPER.brain_states] + [UNDEFINED_LABEL])
     ):
         return "label file contains invalid entries"
+
+
+# todo
+def enforce_min_bout_length(labels: np.array) -> np.array:
+    # if recording is very short, don't change anything
+    if labels.size < 3:
+        return labels
+
+    return labels
 
 
 if __name__ == "__main__":
