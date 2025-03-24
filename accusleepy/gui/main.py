@@ -26,6 +26,7 @@ from accusleepy.utils.fileio import (
 from accusleepy.utils.misc import Recording, enforce_min_bout_length
 from accusleepy.utils.signal_processing import resample_and_standardize
 
+# max number of messages to display
 MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to user manual txt file
@@ -43,24 +44,21 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy")
 
+        # initialize info about the recordings, classification data / settings
         self.epoch_length = 0
-
         self.calibration_data = {MIXTURE_MEAN_COL: None, MIXTURE_SD_COL: None}
         self.model = None
         self.only_overwrite_undefined = False
         self.min_bout_length = 5
 
         # set up the list of recordings
-        # create empty recording
         first_recording = Recording(
             widget=QtWidgets.QListWidgetItem(
                 "Recording 1", self.ui.recording_list_widget
             ),
         )
-        # show it in the list widget
         self.ui.recording_list_widget.addItem(first_recording.widget)
         self.ui.recording_list_widget.setCurrentRow(0)
-
         # index of currently selected recording in the list
         self.recording_index = 0
         # list of recordings the user has added
@@ -69,8 +67,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         # messages to display
         self.messages = []
 
-        # user input
-        # keyboard shortcuts
+        # user input: keyboard shortcuts
         keypress_quit = QtGui.QShortcut(
             QtGui.QKeySequence(
                 QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_W)
@@ -79,7 +76,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         keypress_quit.activated.connect(self.close)
 
-        # button presses
+        # user input: button presses
         self.ui.add_button.clicked.connect(self.add_recording)
         self.ui.remove_button.clicked.connect(self.remove_recording)
         self.ui.recording_list_widget.currentRowChanged.connect(self.select_recording)
@@ -99,7 +96,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.show()
 
-    def score_all(self):
+    def score_all(self) -> None:
+        """Score all recordings using the classification model"""
         # check basic inputs
         if self.calibration_data[MIXTURE_MEAN_COL] is None:
             self.ui.score_all_status.setText("missing calibration file")
@@ -114,6 +112,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             self.show_message("ERROR: minimum bout length must be >= epoch length")
             return
 
+        self.ui.score_all_status.setText("running...")
+        self.ui.score_all_status.repaint()
+        app.processEvents()
+
         # check some inputs for each recording
         for recording_index in range(len(self.recordings)):
             error_message = self.check_single_file_inputs(recording_index)
@@ -127,7 +129,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 return
 
         # score each recording
-        self.ui.score_all_status.setText("running...")
         for recording_index in range(len(self.recordings)):
             try:
                 eeg, emg = load_recording(
@@ -396,6 +397,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.only_overwrite_undefined = checked
 
     def manual_scoring(self) -> None:
+        self.ui.manual_scoring_status.setText("loading...")
+        self.ui.manual_scoring_status.repaint()
+        app.processEvents()
+
         eeg, emg, sampling_rate, success = self.load_single_recording(
             self.ui.calibration_status
         )
@@ -459,10 +464,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.show_message(f"ERROR: {label_error}")
                 return
 
-        self.ui.manual_scoring_status.setText("")
         self.show_message(
             f"Viewing recording {self.recordings[self.recording_index].name}"
         )
+        self.ui.manual_scoring_status.setText("file is open")
 
         manual_scoring_window = ManualScoringWindow(
             eeg=eeg,
@@ -474,6 +479,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         manual_scoring_window.setWindowTitle(f"AccuSleePy viewer: {label_file}")
         manual_scoring_window.exec()
+        self.ui.manual_scoring_status.setText("")
 
     def create_label_file(self) -> None:
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
