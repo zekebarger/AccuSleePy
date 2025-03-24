@@ -65,7 +65,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.sampling_rate_input.valueChanged.connect(self.update_sampling_rate)
         self.ui.epoch_length_input.valueChanged.connect(self.update_epoch_length)
         self.ui.recording_file_button.clicked.connect(self.select_recording_file)
-        self.ui.label_file_button.clicked.connect(self.select_label_file)
+        self.ui.select_label_button.clicked.connect(self.select_label_file)
+        self.ui.create_label_button.clicked.connect(self.create_label_file)
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
@@ -109,6 +110,16 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         # dlg = ManualScoringWindow(self)
         manual_scoring_window.exec()
+
+    def create_label_file(self) -> None:
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self,
+            caption="Set filename for label file (nothing will be overwritten yet)",
+            filter="*.csv",
+        )
+        if filename:
+            self.recordings[self.recording_index].label_file = filename
+            self.ui.label_file_label.setText(filename)
 
     def select_label_file(self) -> None:
         """User can select a label file for this recording"""

@@ -25,7 +25,7 @@ class Ui_PrimaryWindow(object):
     def setupUi(self, PrimaryWindow):
         if not PrimaryWindow.objectName():
             PrimaryWindow.setObjectName(u"PrimaryWindow")
-        PrimaryWindow.resize(1079, 686)
+        PrimaryWindow.resize(1034, 686)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -190,28 +190,59 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_4.addWidget(self.recording_file_label)
 
-        self.horizontalLayout_4.setStretch(0, 2)
-        self.horizontalLayout_4.setStretch(1, 7)
+        self.horizontalLayout_4.setStretch(0, 5)
+        self.horizontalLayout_4.setStretch(1, 12)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.label_file_button = QPushButton(self.selected_recording_groupbox)
-        self.label_file_button.setObjectName(u"label_file_button")
-        sizePolicy3.setHeightForWidth(self.label_file_button.sizePolicy().hasHeightForWidth())
-        self.label_file_button.setSizePolicy(sizePolicy3)
-        self.label_file_button.setBaseSize(QSize(0, 0))
+        self.select_or_create_layout = QHBoxLayout()
+        self.select_or_create_layout.setSpacing(5)
+        self.select_or_create_layout.setObjectName(u"select_or_create_layout")
+        self.select_label_button = QPushButton(self.selected_recording_groupbox)
+        self.select_label_button.setObjectName(u"select_label_button")
+        sizePolicy3.setHeightForWidth(self.select_label_button.sizePolicy().hasHeightForWidth())
+        self.select_label_button.setSizePolicy(sizePolicy3)
+        self.select_label_button.setBaseSize(QSize(0, 0))
 
-        self.horizontalLayout_6.addWidget(self.label_file_button)
+        self.select_or_create_layout.addWidget(self.select_label_button)
+
+        self.or_label = QLabel(self.selected_recording_groupbox)
+        self.or_label.setObjectName(u"or_label")
+        sizePolicy3.setHeightForWidth(self.or_label.sizePolicy().hasHeightForWidth())
+        self.or_label.setSizePolicy(sizePolicy3)
+        self.or_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.select_or_create_layout.addWidget(self.or_label)
+
+        self.create_label_button = QPushButton(self.selected_recording_groupbox)
+        self.create_label_button.setObjectName(u"create_label_button")
+        sizePolicy3.setHeightForWidth(self.create_label_button.sizePolicy().hasHeightForWidth())
+        self.create_label_button.setSizePolicy(sizePolicy3)
+
+        self.select_or_create_layout.addWidget(self.create_label_button)
+
+        self.label_text = QLabel(self.selected_recording_groupbox)
+        self.label_text.setObjectName(u"label_text")
+        sizePolicy3.setHeightForWidth(self.label_text.sizePolicy().hasHeightForWidth())
+        self.label_text.setSizePolicy(sizePolicy3)
+
+        self.select_or_create_layout.addWidget(self.label_text)
+
+        self.select_or_create_layout.setStretch(0, 3)
+        self.select_or_create_layout.setStretch(1, 1)
+        self.select_or_create_layout.setStretch(2, 3)
+
+        self.horizontalLayout_6.addLayout(self.select_or_create_layout)
 
         self.label_file_label = QLabel(self.selected_recording_groupbox)
         self.label_file_label.setObjectName(u"label_file_label")
 
         self.horizontalLayout_6.addWidget(self.label_file_label)
 
-        self.horizontalLayout_6.setStretch(0, 2)
-        self.horizontalLayout_6.setStretch(1, 7)
+        self.horizontalLayout_6.setStretch(0, 5)
+        self.horizontalLayout_6.setStretch(1, 12)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_6)
 
@@ -281,8 +312,8 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_7.addWidget(self.calibration_file_label)
 
-        self.horizontalLayout_7.setStretch(0, 2)
-        self.horizontalLayout_7.setStretch(1, 7)
+        self.horizontalLayout_7.setStretch(0, 5)
+        self.horizontalLayout_7.setStretch(1, 12)
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_7)
 
@@ -300,8 +331,8 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_9.addWidget(self.model_label)
 
-        self.horizontalLayout_9.setStretch(0, 2)
-        self.horizontalLayout_9.setStretch(1, 7)
+        self.horizontalLayout_9.setStretch(0, 5)
+        self.horizontalLayout_9.setStretch(1, 12)
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_9)
 
@@ -412,7 +443,10 @@ class Ui_PrimaryWindow(object):
         self.samplingratelabel.setText(QCoreApplication.translate("PrimaryWindow", u"Sampling rate (Hz):", None))
         self.recording_file_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select recording file", None))
         self.recording_file_label.setText("")
-        self.label_file_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select label file", None))
+        self.select_label_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select", None))
+        self.or_label.setText(QCoreApplication.translate("PrimaryWindow", u"or", None))
+        self.create_label_button.setText(QCoreApplication.translate("PrimaryWindow", u"create", None))
+        self.label_text.setText(QCoreApplication.translate("PrimaryWindow", u"label file", None))
         self.label_file_label.setText("")
         self.manual_scoring_button.setText(QCoreApplication.translate("PrimaryWindow", u"Score manually", None))
         self.manual_scoring_status.setText("")
