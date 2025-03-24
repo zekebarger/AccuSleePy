@@ -8,6 +8,7 @@ from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.gui.manual_scoring import ManualScoringWindow
+from accusleepy.utils.classification import create_calibration_file
 from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
 from accusleepy.utils.fileio import load_labels, load_recording
 from accusleepy.utils.misc import Recording
@@ -72,10 +73,100 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.select_label_button.clicked.connect(self.select_label_file)
         self.ui.create_label_button.clicked.connect(self.create_label_file)
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
+        self.ui.create_calibration_button.clicked.connect(self.create_calibration_file)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
 
         self.show()
+
+    def load_single_recording(self, status_widget):
+        error_message = self.check_single_file_inputs()
+        if error_message:
+            status_widget.setText(error_message)
+            self.show_message(f"ERROR: {error_message}")
+            return None, None, None, False
+
+        try:
+            eeg, emg = load_recording(
+                self.recordings[self.recording_index].recording_file
+            )
+        except Exception:
+            status_widget.setText("could not load recording")
+            self.show_message(
+                (
+                    "ERROR: could not load recording. "
+                    "Check user manual for formatting instructions."
+                )
+            )
+            return None, None, None, False
+
+        sampling_rate = self.recordings[self.recording_index].sampling_rate
+        epoch_length = self.epoch_length
+
+        eeg, emg, sampling_rate = resample_and_standardize(
+            eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
+        )
+
+        return eeg, emg, sampling_rate, True
+
+    def create_calibration_file(self):
+        eeg, emg, sampling_rate, success = self.load_single_recording(
+            self.ui.calibration_status
+        )
+        if not success:
+            return
+
+        label_file = self.recordings[self.recording_index].label_file
+        if not os.path.isfile(label_file):
+            self.ui.calibration_status.setText("label file does not exist")
+            self.show_message("ERROR: label file does not exist")
+            return
+        try:
+            labels = load_labels(label_file)
+        except Exception:
+            self.ui.calibration_status.setText("could not load labels")
+            self.show_message(
+                (
+                    "ERROR: could not load labels. "
+                    "Check user manual for formatting instructions."
+                )
+            )
+            return
+        label_error = check_label_file_validity(
+            labels=labels,
+            samples_in_recording=eeg.size,
+            sampling_rate=sampling_rate,
+            epoch_length=self.epoch_length,
+        )
+        if label_error:
+            self.ui.calibration_status.setText("invalid label file")
+            self.show_message(f"ERROR: {label_error}")
+            return
+
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self,
+            caption="Save calibration file as",
+            filter="*.csv",
+        )
+        if not filename:
+            return
+
+        create_calibration_file(
+            filename=filename,
+            eeg=eeg,
+            emg=emg,
+            labels=labels,
+            sampling_rate=sampling_rate,
+            epoch_length=self.epoch_length,
+        )
+        self.ui.calibration_status.setText("")
+        self.show_message(
+            (
+                "Created calibration file using recording "
+                f"{self.recordings[self.recording_index].name} "
+                f"at {filename}"
+            )
+        )
 
     def check_single_file_inputs(self) -> str:
         sampling_rate = self.recordings[self.recording_index].sampling_rate
@@ -104,34 +195,13 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.only_overwrite_undefined = checked
 
     def manual_scoring(self) -> None:
-        error_message = self.check_single_file_inputs()
-        if error_message:
-            self.ui.manual_scoring_status.setText(error_message)
-            self.show_message(f"ERROR: {error_message}")
-            return
-
-        try:
-            eeg, emg = load_recording(
-                self.recordings[self.recording_index].recording_file
-            )
-        except Exception:
-            self.ui.manual_scoring_status.setText("could not load recording")
-            self.show_message(
-                (
-                    "ERROR: could not load recording. "
-                    "Check user manual for formatting instructions."
-                )
-            )
+        eeg, emg, sampling_rate, success = self.load_single_recording(
+            self.ui.calibration_status
+        )
+        if not success:
             return
 
         label_file = self.recordings[self.recording_index].label_file
-        sampling_rate = self.recordings[self.recording_index].sampling_rate
-        epoch_length = self.epoch_length
-
-        eeg, emg, sampling_rate = resample_and_standardize(
-            eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
-        )
-
         if os.path.isfile(label_file):
             try:
                 labels = load_labels(label_file)
@@ -155,13 +225,13 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             labels=labels,
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
-            epoch_length=epoch_length,
+            epoch_length=self.epoch_length,
         )
         if label_error:
             # if the label length is only off by one, we can try to fix it
             # and show a warning
             if label_error == LABEL_LENGTH_ERROR:
-                samples_per_epoch = sampling_rate * epoch_length
+                samples_per_epoch = sampling_rate * self.epoch_length
                 epochs_in_recording = int(eeg.size / samples_per_epoch)
                 if epochs_in_recording - labels.size == 1:
                     labels = np.concatenate((labels, np.array([UNDEFINED_LABEL])))
@@ -199,11 +269,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             label_file=label_file,
             labels=labels,
             sampling_rate=sampling_rate,
-            epoch_length=epoch_length,
+            epoch_length=self.epoch_length,
         )
         manual_scoring_window.setWindowTitle(f"AccuSleePy viewer: {label_file}")
-
-        # dlg = ManualScoringWindow(self)
         manual_scoring_window.exec()
 
     def create_label_file(self) -> None:
