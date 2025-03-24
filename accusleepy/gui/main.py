@@ -76,6 +76,19 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.show()
 
+    def check_single_file_inputs(self) -> str:
+        sampling_rate = self.recordings[self.recording_index].sampling_rate
+        if self.epoch_length == 0:
+            return "epoch length can't be 0"
+        if sampling_rate == 0:
+            return "sampling rate can't be 0"
+        if self.epoch_length > sampling_rate:
+            return "invalid epoch length or sampling rate"
+        if self.recordings[self.recording_index].recording_file == "":
+            return "no recording selected"
+        if self.recordings[self.recording_index].label_file == "":
+            return "no label file selected"
+
     def update_min_bout_length(self, new_value) -> None:
         self.min_bout_length = new_value
 
@@ -90,8 +103,26 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.only_overwrite_undefined = checked
 
     def manual_scoring(self) -> None:
+        error_message = self.check_single_file_inputs()
+        if error_message:
+            self.ui.manual_scoring_status.setText(error_message)
+            self.show_message(f"ERROR: {error_message}")
+            return
 
-        eeg, emg = load_recording(self.recordings[self.recording_index].recording_file)
+        try:
+            eeg, emg = load_recording(
+                self.recordings[self.recording_index].recording_file
+            )
+        except Exception:
+            self.ui.manual_scoring_status.setText("could not load recording")
+            self.show_message(
+                (
+                    "ERROR: could not load recording. "
+                    "Check user manual for formatting instructions."
+                )
+            )
+            return
+
         label_file = self.recordings[self.recording_index].label_file
         sampling_rate = self.recordings[self.recording_index].sampling_rate
         epoch_length = self.epoch_length
@@ -101,12 +132,28 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
 
         if os.path.isfile(label_file):
-            labels = load_labels(label_file)
+            try:
+                labels = load_labels(label_file)
+            except Exception:
+                self.ui.manual_scoring_status.setText("could not load labels")
+                self.show_message(
+                    (
+                        "ERROR: could not load labels. "
+                        "Check user manual for formatting instructions."
+                    )
+                )
+                return
+
         else:
             labels = (
                 np.ones(int(eeg.size / (sampling_rate * self.epoch_length)))
                 * UNDEFINED_LABEL
             ).astype(int)
+
+        self.ui.manual_scoring_status.setText("")
+        self.show_message(
+            f"Viewing recording {self.recordings[self.recording_index].name}"
+        )
 
         manual_scoring_window = ManualScoringWindow(
             eeg=eeg,
