@@ -26,6 +26,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.epoch_length = 0
 
+        self.only_overwrite_undefined = False
+
         # set up the list of recordings
         # create empty recording
         first_recording = Recording(
@@ -64,8 +66,19 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.recording_file_button.clicked.connect(self.select_recording_file)
         self.ui.label_file_button.clicked.connect(self.select_label_file)
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
+        self.ui.overwritecheckbox.stateChanged.connect(self.only_overwrite_undefined)
 
         self.show()
+
+    def update_overwrite_policy(self, checked) -> None:
+        """Toggle overwriting policy
+
+        If the checkbox is enabled, only epochs where the brain state is set to
+        undefined will be overwritten by the automatic scoring process.
+
+        :param checked: state of the checkbox
+        """
+        self.only_overwrite_undefined = checked
 
     def manual_scoring(self) -> None:
 
