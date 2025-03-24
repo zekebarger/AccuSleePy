@@ -67,7 +67,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.recording_file_button.clicked.connect(self.select_recording_file)
         self.ui.label_file_button.clicked.connect(self.select_label_file)
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
-        self.ui.overwritecheckbox.stateChanged.connect(self.only_overwrite_undefined)
+        self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
 
         self.show()
