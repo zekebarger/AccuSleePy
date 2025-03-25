@@ -8,13 +8,19 @@ from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.utils.classification import (create_calibration_file,
-                                             score_recording)
-from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EPOCHS_PER_IMG,
-                                        MIXTURE_MEAN_COL, MIXTURE_SD_COL,
-                                        UNDEFINED_LABEL)
-from accusleepy.utils.fileio import (load_calibration_file, load_labels,
-                                     load_model, load_recording, save_labels)
+from accusleepy.utils.classification import create_calibration_file, score_recording
+from accusleepy.utils.constants import (
+    BRAIN_STATE_MAPPER,
+    EPOCHS_PER_IMG,
+    UNDEFINED_LABEL,
+)
+from accusleepy.utils.fileio import (
+    load_calibration_file,
+    load_labels,
+    load_model,
+    load_recording,
+    save_labels,
+)
 from accusleepy.utils.misc import Recording, enforce_min_bout_length
 from accusleepy.utils.signal_processing import resample_and_standardize
 
@@ -38,7 +44,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         # initialize info about the recordings, classification data / settings
         self.epoch_length = 0
-        self.calibration_data = {MIXTURE_MEAN_COL: None, MIXTURE_SD_COL: None}
         self.model = None
         self.only_overwrite_undefined = False
         self.min_bout_length = 5
@@ -79,7 +84,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.create_label_button.clicked.connect(self.create_label_file)
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
         self.ui.create_calibration_button.clicked.connect(self.create_calibration_file)
-        self.ui.load_calibration_button.clicked.connect(self.load_calibration_file)
+        self.ui.select_calibration_button.clicked.connect(self.select_calibration_file)
         self.ui.load_model_button.clicked.connect(self.load_model)
         self.ui.score_all_button.clicked.connect(self.score_all)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
@@ -91,10 +96,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
     def score_all(self) -> None:
         """Score all recordings using the classification model"""
         # check basic inputs
-        if self.calibration_data[MIXTURE_MEAN_COL] is None:
-            self.ui.score_all_status.setText("missing calibration file")
-            self.show_message("ERROR: no calibration file selected")
-            return
         if self.model is None:
             self.ui.score_all_status.setText("missing classification model")
             self.show_message("ERROR: no classification model file selected")
@@ -119,9 +120,21 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                     f"ERROR ({self.recordings[recording_index].name}): {error_message}"
                 )
                 return
+            if self.recordings[recording_index].calibration_file == "":
+                self.ui.score_all_status.setText(
+                    f"error on recording {self.recordings[recording_index].name}"
+                )
+                self.show_message(
+                    (
+                        f"ERROR ({self.recordings[recording_index].name}): "
+                        "no calibration file selected"
+                    )
+                )
+                return
 
         # score each recording
         for recording_index in range(len(self.recordings)):
+            # load EEG, EMG
             try:
                 eeg, emg = load_recording(
                     self.recordings[recording_index].recording_file
@@ -144,6 +157,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
                 continue
 
+            # load labels
             label_file = self.recordings[recording_index].label_file
             if os.path.isfile(label_file):
                 try:
@@ -173,12 +187,39 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             else:
                 existing_labels = None
 
+            # load calibration data
+            if not os.path.isfile(self.recordings[recording_index].calibration_file):
+                self.show_message(
+                    (
+                        "ERROR: calibration file does not exist for recording "
+                        f"{self.recordings[recording_index].name}. "
+                        "This recording will be skipped."
+                    )
+                )
+                continue
+            try:
+                (
+                    mixture_means,
+                    mixture_sds,
+                ) = load_calibration_file(
+                    self.recordings[recording_index].calibration_file
+                )
+            except Exception:
+                self.show_message(
+                    (
+                        "ERROR: could not load calibration file for recording "
+                        f"{self.recordings[recording_index].name}. "
+                        "This recording will be skipped."
+                    )
+                )
+                continue
+
             labels = score_recording(
                 model=self.model,
                 eeg=eeg,
                 emg=emg,
-                mixture_means=self.calibration_data[MIXTURE_MEAN_COL],
-                mixture_sds=self.calibration_data[MIXTURE_SD_COL],
+                mixture_means=mixture_means,
+                mixture_sds=mixture_sds,
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
                 epochs_per_img=EPOCHS_PER_IMG,
@@ -236,36 +277,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
             self.ui.model_label.setText(filename)
 
-    def load_calibration_file(self) -> None:
-        """Load calibration data from file"""
-        file_dialog = QtWidgets.QFileDialog(self)
-        file_dialog.setWindowTitle("Select calibration file")
-        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*.csv")
-
-        if file_dialog.exec():
-            selected_files = file_dialog.selectedFiles()
-            filename = selected_files[0]
-            if not os.path.isfile(filename):
-                self.show_message("ERROR: calibration file does not exist")
-                return
-            try:
-                (
-                    self.calibration_data[MIXTURE_MEAN_COL],
-                    self.calibration_data[MIXTURE_SD_COL],
-                ) = load_calibration_file(filename)
-            except Exception:
-                self.show_message(
-                    (
-                        "ERROR: could not load calibration file. Check user "
-                        "manual for instructions on creating this file."
-                    )
-                )
-                return
-
-            self.ui.calibration_file_label.setText(filename)
-
     def load_single_recording(
         self, status_widget: QtWidgets.QLabel
     ) -> (np.array, np.array, int | float, bool):
@@ -313,8 +324,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         """Creates a calibration file
 
         This loads a recording and its labels, checks that the labels are
-        all valid, creates the calibration file, and makes the contents of
-        the calibration file available to the main window.
+        all valid, creates the calibration file, and sets the
+        "calibration file" property of the current recording to be the
+        newly created file.
         """
         # load the recording
         eeg, emg, sampling_rate, success = self.load_single_recording(
@@ -378,11 +390,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             )
         )
 
-        # get the contents of the calibration file
-        (
-            self.calibration_data[MIXTURE_MEAN_COL],
-            self.calibration_data[MIXTURE_SD_COL],
-        ) = load_calibration_file(filename)
+        self.recordings[self.recording_index].calibration_file = filename
         self.ui.calibration_file_label.setText(filename)
 
     def check_single_file_inputs(self, recording_index: int) -> str:
@@ -434,7 +442,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         # load the recording
         eeg, emg, sampling_rate, success = self.load_single_recording(
-            self.ui.calibration_status
+            self.ui.manual_scoring_status
         )
         if not success:
             return
@@ -541,6 +549,20 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             self.recordings[self.recording_index].label_file = filename
             self.ui.label_file_label.setText(filename)
 
+    def select_calibration_file(self) -> None:
+        """User can select a calibration file"""
+        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog.setWindowTitle("Select calibration file")
+        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setNameFilter("*.csv")
+
+        if file_dialog.exec():
+            selected_files = file_dialog.selectedFiles()
+            filename = selected_files[0]
+            self.recordings[self.recording_index].calibration_file = filename
+            self.ui.calibration_file_label.setText(filename)
+
     def select_recording_file(self) -> None:
         """User can select a recording file"""
         file_dialog = QtWidgets.QFileDialog(self)
@@ -565,6 +587,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         self.ui.label_file_label.setText(
             self.recordings[self.recording_index].label_file
+        )
+        self.ui.calibration_file_label.setText(
+            self.recordings[self.recording_index].calibration_file
         )
 
     def update_epoch_length(self, new_value: int | float) -> None:
@@ -604,11 +629,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         # display information about this recording
         self.show_recording_info()
         self.ui.selected_recording_groupbox.setTitle(
-            (
-                "Data / actions for the selected recording "
-                f"(Recording {self.recordings[list_index].name}) "
-                "from this subject)"
-            )
+            f"Data / actions for Recording {self.recordings[list_index].name}"
         )
 
     def add_recording(self) -> None:

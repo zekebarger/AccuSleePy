@@ -52,6 +52,7 @@ class Recording:
     name: int = 1  # name to show in the GUI
     recording_file: str = ""  # path to recording file
     label_file: str = ""  # path to label file
+    calibration_file: str = ""  # path to calibration file
     sampling_rate: int | float = 0.0  # sampling rate, in Hz
     widget: QListWidgetItem = None  # reference to widget shown in the GUI
 
@@ -112,6 +113,9 @@ def enforce_min_bout_length(
     """
     # if recording is very short, don't change anything
     if labels.size < 3:
+        return labels
+
+    if epoch_length == min_bout_length:
         return labels
 
     # get minimum number of epochs in a bout

@@ -10,19 +10,18 @@ This interface allows a user to assign brain state labels to 1-channel
 electroencephalogram (EEG) and electromyogram (EMG) data. The algorithm
 has (so far) only been tested on rodents, not humans.
 The overall workflow looks like this:
-1. Enter the epoch length for all recordings from one subject. This
-    determines the time resolution of the brain state labels.
-2. For each recording from this subject, add it to the recording list,
-    enter its sampling rate, load the EEG/EMG data, and determine where
-    to save the brain state labels (or load the labels if they already
-    exist)
+1. Enter the epoch length for all recordings. This determines the time
+    resolution of the brain state labels.
+2. For each of your recordings, add to the recording list, enter its
+    sampling rate, load the EEG/EMG data, and determine where to save
+    the brain state labels (or load the labels if they already exist)
 (At this point, you can score the recordings manually)
-3. Choose a representative recording that has some epochs of each state
-    labeled and use it to create a calibration data file (or load the
-    calibration data file if it already exists)
+3. For each recording, create a calibration file using a small amount
+    of labeled data, or choose a calibration file created using
+    another recording from the same subject and under the same recording
+    conditions (i.e., equipment)
 4. Choose a trained classification model file with a matching epoch size
-5. Score all recordings for this subject automatically
-6. Start over for the next subject
+5. Score all recordings automatically using the classifier
 The next section describes how to structure the inputs to this program.
 
 -----------------------------------------------------------------------
@@ -61,27 +60,28 @@ to consult its user manual.
 Section 4: Automatically scoring recordings with a classification model
 -----------------------------------------------------------------------
 Automatic brain state scoring requires the inputs described in
-Section 3, as well as a calibration data file and a trained classifier.
-If you already have both of these files, proceed to Section 4C.
+Section 3, as well as calibration data files and a trained classifier.
+If you already have all of these files, proceed to Section 4C.
 
---- Section 4A: Creating a calibration data file ---
-You must create a new calibration data file for each subject. If you
-record from the same subject using different recording equipment, you
-must create a new calibration data file for each combination of
-subject + recording setup. This ensures that inputs to the classifier
-are in the same range as its training data.
+--- Section 4A: Creating calibration data files ---
+Each recording must have a calibration file assigned to it.
+This file lets AccuSleep transform features of the EEG and EMG data so
+that they are in the same range as the classifier's training data.
+You can use the same calibration file for multiple recordings, as long
+as they come from the same subject and were collected under the same
+recording conditions (i.e., the same recording equipment was used).
 To create a calibration data file:
-1. Following the steps in Section 3, enter the information for one
-    recording.
+1. Ensure you have a file containing brain state labels. You can create
+    this file by following the steps in Section 3, or select an
+    existing label file.
 2. The label file must contain at least some labels for each sleep
-    stage (REM, wakefulness, and NREM). It is recommended to label at
-    least several minutes of each stage, and more labels will improve
-    classification accuracy. If the label file already meets this
-    condition, continue to the next step. Otherwise, click
-    'score manually', assign some brain state labels to the recording,
-    and save the labels.
+    stage (e.g., REM, wakefulness, and NREM). It is recommended to
+    label at least several minutes of each stage, and more labels can
+    improve classification accuracy.
 3. Click 'Create calibration file'.
 4. Enter a filename for the calibration data file.
+5. The calibration file will automatically be assigned to the currently
+    selected recording.
 
 --- Section 4B: Creating a trained network file ---
 Pre-trained neural networks are provided with AccuSleePy for epoch
@@ -90,17 +90,10 @@ your own network, [IN PROGRESS]
 
 --- Section 4C: Automatic labeling ---
 Instructions for automatic labeling using this GUI are below.
-1. Set the epoch length for all recordings, and complete steps 1-3 of
-    Section 3 (specifying the recording file  label file) for
-    each recording from one subject. Since each subject requires its
-    own calibration file, only recordings from one subject can be
-    scored at a time. If the recording conditions are different in
-    some recordings (e.g., a different amplifier was used), remove
-    these recordings from the recording list and process them
-    separately with their own calibration file.
-2. If you completed the steps in Section 4A, a calibration data file
-    has already been specified. Otherwise, click
-    'Load calibration file' to load the calibration data file.
+1. Set the epoch length for all recordings.
+2. Select the recording file, label file, and calibration file to use
+    for each recording. See section 4A for instructions on creating
+    calibration files.
 3. Click 'Load classification model' to load the trained classification
     model. The epoch length used when training this network should be
     the same as the current epoch length.

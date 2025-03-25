@@ -64,7 +64,7 @@ class Ui_PrimaryWindow(object):
         self.messagesgroupbox.setStyleSheet(u"")
         self.gridLayout_2 = QGridLayout(self.messagesgroupbox)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.gridLayout_2.setContentsMargins(10, 10, 10, 10)
+        self.gridLayout_2.setContentsMargins(5, 5, 5, 5)
         self.message_area = QTextBrowser(self.messagesgroupbox)
         self.message_area.setObjectName(u"message_area")
         sizePolicy1.setHeightForWidth(self.message_area.sizePolicy().hasHeightForWidth())
@@ -78,7 +78,7 @@ class Ui_PrimaryWindow(object):
         self.scoring_tab_layout.addWidget(self.messagesgroupbox, 1, 1, 1, 1)
 
         self.recordingactionsgroupbox = QVBoxLayout()
-        self.recordingactionsgroupbox.setSpacing(20)
+        self.recordingactionsgroupbox.setSpacing(35)
         self.recordingactionsgroupbox.setObjectName(u"recordingactionsgroupbox")
         self.selected_recording_groupbox = QGroupBox(self.scoring_tab)
         self.selected_recording_groupbox.setObjectName(u"selected_recording_groupbox")
@@ -88,7 +88,7 @@ class Ui_PrimaryWindow(object):
         self.verticalLayout_2 = QVBoxLayout(self.selected_recording_groupbox)
         self.verticalLayout_2.setSpacing(10)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setContentsMargins(5, 5, 5, 5)
         self.samplingratelayout = QHBoxLayout()
         self.samplingratelayout.setSpacing(10)
         self.samplingratelayout.setObjectName(u"samplingratelayout")
@@ -123,8 +123,8 @@ class Ui_PrimaryWindow(object):
 
         self.verticalLayout_2.addLayout(self.samplingratelayout)
 
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.select_recording_layout = QHBoxLayout()
+        self.select_recording_layout.setObjectName(u"select_recording_layout")
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setSpacing(5)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -139,7 +139,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout.addWidget(self.recording_file_button)
 
 
-        self.horizontalLayout_4.addLayout(self.horizontalLayout)
+        self.select_recording_layout.addLayout(self.horizontalLayout)
 
         self.recording_file_label = QLabel(self.selected_recording_groupbox)
         self.recording_file_label.setObjectName(u"recording_file_label")
@@ -151,15 +151,15 @@ class Ui_PrimaryWindow(object):
         self.recording_file_label.setStyleSheet(u"background-color: white;")
         self.recording_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.horizontalLayout_4.addWidget(self.recording_file_label)
+        self.select_recording_layout.addWidget(self.recording_file_label)
 
-        self.horizontalLayout_4.setStretch(0, 5)
-        self.horizontalLayout_4.setStretch(1, 12)
+        self.select_recording_layout.setStretch(0, 5)
+        self.select_recording_layout.setStretch(1, 12)
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_4)
+        self.verticalLayout_2.addLayout(self.select_recording_layout)
 
-        self.horizontalLayout_6 = QHBoxLayout()
-        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.label_file_layout = QHBoxLayout()
+        self.label_file_layout.setObjectName(u"label_file_layout")
         self.select_or_create_layout = QHBoxLayout()
         self.select_or_create_layout.setSpacing(5)
         self.select_or_create_layout.setObjectName(u"select_or_create_layout")
@@ -200,7 +200,7 @@ class Ui_PrimaryWindow(object):
         self.select_or_create_layout.setStretch(2, 3)
         self.select_or_create_layout.setStretch(3, 3)
 
-        self.horizontalLayout_6.addLayout(self.select_or_create_layout)
+        self.label_file_layout.addLayout(self.select_or_create_layout)
 
         self.label_file_label = QLabel(self.selected_recording_groupbox)
         self.label_file_label.setObjectName(u"label_file_label")
@@ -209,57 +209,87 @@ class Ui_PrimaryWindow(object):
         self.label_file_label.setStyleSheet(u"background-color: white;")
         self.label_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.horizontalLayout_6.addWidget(self.label_file_label)
+        self.label_file_layout.addWidget(self.label_file_label)
 
-        self.horizontalLayout_6.setStretch(0, 5)
-        self.horizontalLayout_6.setStretch(1, 12)
+        self.label_file_layout.setStretch(0, 5)
+        self.label_file_layout.setStretch(1, 12)
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_6)
+        self.verticalLayout_2.addLayout(self.label_file_layout)
 
-        self.horizontalLayout_5 = QHBoxLayout()
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.manual_scoring_layout = QHBoxLayout()
+        self.manual_scoring_layout.setObjectName(u"manual_scoring_layout")
         self.manual_scoring_button = QPushButton(self.selected_recording_groupbox)
         self.manual_scoring_button.setObjectName(u"manual_scoring_button")
         sizePolicy2.setHeightForWidth(self.manual_scoring_button.sizePolicy().hasHeightForWidth())
         self.manual_scoring_button.setSizePolicy(sizePolicy2)
 
-        self.horizontalLayout_5.addWidget(self.manual_scoring_button)
+        self.manual_scoring_layout.addWidget(self.manual_scoring_button)
 
         self.manual_scoring_status = QLabel(self.selected_recording_groupbox)
         self.manual_scoring_status.setObjectName(u"manual_scoring_status")
         self.manual_scoring_status.setStyleSheet(u"background-color: transparent;")
 
-        self.horizontalLayout_5.addWidget(self.manual_scoring_status)
+        self.manual_scoring_layout.addWidget(self.manual_scoring_status)
 
         self.create_calibration_button = QPushButton(self.selected_recording_groupbox)
         self.create_calibration_button.setObjectName(u"create_calibration_button")
         sizePolicy2.setHeightForWidth(self.create_calibration_button.sizePolicy().hasHeightForWidth())
         self.create_calibration_button.setSizePolicy(sizePolicy2)
 
-        self.horizontalLayout_5.addWidget(self.create_calibration_button)
+        self.manual_scoring_layout.addWidget(self.create_calibration_button)
 
         self.calibration_status = QLabel(self.selected_recording_groupbox)
         self.calibration_status.setObjectName(u"calibration_status")
         self.calibration_status.setStyleSheet(u"background-color: transparent;")
 
-        self.horizontalLayout_5.addWidget(self.calibration_status)
+        self.manual_scoring_layout.addWidget(self.calibration_status)
 
         self.horizontalSpacer_4 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_5.addItem(self.horizontalSpacer_4)
+        self.manual_scoring_layout.addItem(self.horizontalSpacer_4)
 
-        self.horizontalLayout_5.setStretch(0, 2)
-        self.horizontalLayout_5.setStretch(1, 3)
-        self.horizontalLayout_5.setStretch(2, 2)
-        self.horizontalLayout_5.setStretch(3, 3)
-        self.horizontalLayout_5.setStretch(4, 1)
+        self.manual_scoring_layout.setStretch(0, 2)
+        self.manual_scoring_layout.setStretch(1, 3)
+        self.manual_scoring_layout.setStretch(2, 2)
+        self.manual_scoring_layout.setStretch(3, 3)
+        self.manual_scoring_layout.setStretch(4, 1)
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_5)
+        self.verticalLayout_2.addLayout(self.manual_scoring_layout)
+
+        self.load_calibration_layout = QHBoxLayout()
+        self.load_calibration_layout.setObjectName(u"load_calibration_layout")
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setSpacing(5)
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.select_calibration_button = QPushButton(self.selected_recording_groupbox)
+        self.select_calibration_button.setObjectName(u"select_calibration_button")
+        sizePolicy3.setHeightForWidth(self.select_calibration_button.sizePolicy().hasHeightForWidth())
+        self.select_calibration_button.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_10.addWidget(self.select_calibration_button)
+
+
+        self.load_calibration_layout.addLayout(self.horizontalLayout_10)
+
+        self.calibration_file_label = QLabel(self.selected_recording_groupbox)
+        self.calibration_file_label.setObjectName(u"calibration_file_label")
+        sizePolicy4.setHeightForWidth(self.calibration_file_label.sizePolicy().hasHeightForWidth())
+        self.calibration_file_label.setSizePolicy(sizePolicy4)
+        self.calibration_file_label.setStyleSheet(u"background-color: white;")
+        self.calibration_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.load_calibration_layout.addWidget(self.calibration_file_label)
+
+        self.load_calibration_layout.setStretch(0, 5)
+        self.load_calibration_layout.setStretch(1, 12)
+
+        self.verticalLayout_2.addLayout(self.load_calibration_layout)
 
         self.verticalLayout_2.setStretch(0, 1)
         self.verticalLayout_2.setStretch(1, 1)
         self.verticalLayout_2.setStretch(2, 1)
         self.verticalLayout_2.setStretch(3, 1)
+        self.verticalLayout_2.setStretch(4, 1)
 
         self.recordingactionsgroupbox.addWidget(self.selected_recording_groupbox)
 
@@ -271,36 +301,7 @@ class Ui_PrimaryWindow(object):
         self.verticalLayout_3 = QVBoxLayout(self.allrecordingsgroupbox)
         self.verticalLayout_3.setSpacing(10)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_7 = QHBoxLayout()
-        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.horizontalLayout_10 = QHBoxLayout()
-        self.horizontalLayout_10.setSpacing(5)
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.load_calibration_button = QPushButton(self.allrecordingsgroupbox)
-        self.load_calibration_button.setObjectName(u"load_calibration_button")
-        sizePolicy3.setHeightForWidth(self.load_calibration_button.sizePolicy().hasHeightForWidth())
-        self.load_calibration_button.setSizePolicy(sizePolicy3)
-
-        self.horizontalLayout_10.addWidget(self.load_calibration_button)
-
-
-        self.horizontalLayout_7.addLayout(self.horizontalLayout_10)
-
-        self.calibration_file_label = QLabel(self.allrecordingsgroupbox)
-        self.calibration_file_label.setObjectName(u"calibration_file_label")
-        sizePolicy4.setHeightForWidth(self.calibration_file_label.sizePolicy().hasHeightForWidth())
-        self.calibration_file_label.setSizePolicy(sizePolicy4)
-        self.calibration_file_label.setStyleSheet(u"background-color: white;")
-        self.calibration_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.horizontalLayout_7.addWidget(self.calibration_file_label)
-
-        self.horizontalLayout_7.setStretch(0, 5)
-        self.horizontalLayout_7.setStretch(1, 12)
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout_7)
-
+        self.verticalLayout_3.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.horizontalLayout_11 = QHBoxLayout()
@@ -396,11 +397,11 @@ class Ui_PrimaryWindow(object):
         self.verticalLayout_3.addLayout(self.horizontalLayout_8)
 
         self.verticalLayout_3.setStretch(0, 2)
-        self.verticalLayout_3.setStretch(1, 2)
-        self.verticalLayout_3.setStretch(2, 3)
+        self.verticalLayout_3.setStretch(1, 3)
 
         self.recordingactionsgroupbox.addWidget(self.allrecordingsgroupbox)
 
+        self.recordingactionsgroupbox.setStretch(0, 2)
         self.recordingactionsgroupbox.setStretch(1, 1)
 
         self.scoring_tab_layout.addLayout(self.recordingactionsgroupbox, 0, 1, 1, 1)
@@ -408,6 +409,7 @@ class Ui_PrimaryWindow(object):
         self.left_col_layout = QVBoxLayout()
         self.left_col_layout.setSpacing(25)
         self.left_col_layout.setObjectName(u"left_col_layout")
+        self.left_col_layout.setContentsMargins(5, 5, 5, 5)
         self.epoch_length_layout = QVBoxLayout()
         self.epoch_length_layout.setSpacing(5)
         self.epoch_length_layout.setObjectName(u"epoch_length_layout")
@@ -441,7 +443,7 @@ class Ui_PrimaryWindow(object):
         self.verticalLayout = QVBoxLayout(self.recordinglistgroupbox)
         self.verticalLayout.setSpacing(5)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setContentsMargins(5, 5, 5, 5)
         self.add_remove_layout = QHBoxLayout()
         self.add_remove_layout.setSpacing(20)
         self.add_remove_layout.setObjectName(u"add_remove_layout")
@@ -533,8 +535,8 @@ class Ui_PrimaryWindow(object):
         QWidget.setTabOrder(self.manual_scoring_button, self.create_calibration_button)
         QWidget.setTabOrder(self.create_calibration_button, self.add_button)
         QWidget.setTabOrder(self.add_button, self.remove_button)
-        QWidget.setTabOrder(self.remove_button, self.load_calibration_button)
-        QWidget.setTabOrder(self.load_calibration_button, self.load_model_button)
+        QWidget.setTabOrder(self.remove_button, self.select_calibration_button)
+        QWidget.setTabOrder(self.select_calibration_button, self.load_model_button)
         QWidget.setTabOrder(self.load_model_button, self.score_all_button)
         QWidget.setTabOrder(self.score_all_button, self.overwritecheckbox)
         QWidget.setTabOrder(self.overwritecheckbox, self.bout_length_input)
@@ -553,7 +555,7 @@ class Ui_PrimaryWindow(object):
     def retranslateUi(self, PrimaryWindow):
         PrimaryWindow.setWindowTitle(QCoreApplication.translate("PrimaryWindow", u"MainWindow", None))
         self.messagesgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Messages", None))
-        self.selected_recording_groupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for the selected recording (Recording 1) from this subject", None))
+        self.selected_recording_groupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for Recording 1", None))
         self.samplingratelabel.setText(QCoreApplication.translate("PrimaryWindow", u"Sampling rate (Hz):", None))
         self.recording_file_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select recording file", None))
         self.recording_file_label.setText("")
@@ -566,9 +568,9 @@ class Ui_PrimaryWindow(object):
         self.manual_scoring_status.setText("")
         self.create_calibration_button.setText(QCoreApplication.translate("PrimaryWindow", u"Create calibration file", None))
         self.calibration_status.setText("")
-        self.allrecordingsgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for all recordings from this subject", None))
-        self.load_calibration_button.setText(QCoreApplication.translate("PrimaryWindow", u"Load calibration file", None))
+        self.select_calibration_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select calibration file", None))
         self.calibration_file_label.setText("")
+        self.allrecordingsgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for all recordings", None))
         self.load_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Load classification model", None))
         self.model_label.setText("")
         self.score_all_button.setText(QCoreApplication.translate("PrimaryWindow", u"Score all automatically", None))
