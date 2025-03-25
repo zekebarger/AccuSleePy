@@ -2,18 +2,24 @@
 
 import datetime
 import os
+import shutil
 import sys
-
 
 import numpy as np
 from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.utils.classification import create_calibration_file, score_recording
+from accusleepy.utils.classification import (
+    create_calibration_file,
+    score_recording,
+    train_model,
+)
 from accusleepy.utils.constants import (
     BRAIN_STATE_MAPPER,
+    DEFAULT_MODEL_TYPE,
     EPOCHS_PER_IMG,
+    KEY_TO_MODEL_TYPE,
     UNDEFINED_LABEL,
 )
 from accusleepy.utils.fileio import (
@@ -22,9 +28,14 @@ from accusleepy.utils.fileio import (
     load_model,
     load_recording,
     save_labels,
+    save_model,
 )
 from accusleepy.utils.misc import Recording, enforce_min_bout_length
-from accusleepy.utils.signal_processing import resample_and_standardize
+from accusleepy.utils.signal_processing import (
+    ANNOTATIONS_FILENAME,
+    create_training_images,
+    resample_and_standardize,
+)
 
 # max number of messages to display
 MESSAGE_BOX_MAX_DEPTH = 50
@@ -54,6 +65,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.training_epochs_per_img = 9
         self.delete_training_images = True
         self.training_image_dir = ""
+        self.model_type = DEFAULT_MODEL_TYPE
 
         # set up the list of recordings
         first_recording = Recording(
@@ -104,8 +116,88 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.show()
 
-    def train_model(self):
-        pass
+    def train_model(self) -> None:
+        # check basic training inputs
+        if (
+            self.model_type == DEFAULT_MODEL_TYPE
+            and self.training_epochs_per_img % 2 == 0
+        ):
+            self.show_message(
+                (
+                    "ERROR: for the default model type, number of epochs "
+                    "per image must be an odd number."
+                )
+            )
+            return
+        if self.training_image_dir == "":
+            self.show_message("ERROR: no folder selected for training images.")
+            return
+
+        # check some inputs for each recording
+        for recording_index in range(len(self.recordings)):
+            error_message = self.check_single_file_inputs(recording_index)
+            if error_message:
+                self.show_message(
+                    f"ERROR ({self.recordings[recording_index].name}): {error_message}"
+                )
+                return
+
+        # get filename for the new model
+        model_filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self,
+            caption="Save classification model file as",
+            filter="*.pth",
+        )
+        if not model_filename:
+            self.show_message("Model training canceled, no filename given")
+
+        # create image folder
+        if os.path.exists(self.training_image_dir):
+            self.show_message(
+                f"Warning: training image folder exists, will be overwritten"
+            )
+        os.makedirs(self.training_image_dir, exist_ok=True)
+
+        # create training images
+        self.show_message(f"Creating training images in {self.training_image_dir}")
+        self.ui.message_area.repaint()
+        app.processEvents()
+        failed_recordings = create_training_images(
+            recordings=self.recordings,
+            output_path=self.training_image_dir,
+            epoch_length=self.epoch_length,
+            epochs_per_img=self.training_epochs_per_img,
+        )
+        if len(failed_recordings) > 0:
+            if len(failed_recordings) == len(self.recordings):
+                self.show_message(f"ERROR: no recordings were valid!")
+            else:
+                self.show_message(
+                    (
+                        "WARNING: the following recordings could not be"
+                        "loaded and will not be used for training: "
+                        f"{', '.join([str(r) for r in failed_recordings])}"
+                    )
+                )
+
+        # train model
+        model = train_model(
+            annotations_file=os.path.join(
+                self.training_image_dir, ANNOTATIONS_FILENAME
+            ),
+            img_dir=self.training_image_dir,
+            epochs_per_image=self.training_epochs_per_img,
+            model_type=self.model_type,
+        )
+
+        # save model
+        save_model(model=model, filename=model_filename)
+
+        # optionally delete images
+        if self.delete_training_images:
+            shutil.rmtree(self.training_image_dir)
+
+        self.show_message(f"Training complete, saved model to {model_filename}")
 
     def set_training_folder(self):
         training_folder_parent = QtWidgets.QFileDialog.getExistingDirectory(
@@ -250,7 +342,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
                 continue
 
-            # todo use model's epochs per img
             labels = score_recording(
                 model=self.model,
                 eeg=eeg,
@@ -259,7 +350,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 mixture_sds=mixture_sds,
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
-                epochs_per_img=EPOCHS_PER_IMG,
             )
 
             # overwrite as needed
@@ -699,6 +789,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 f"deleted Recording {self.recordings[current_list_index].name}"
             )
             del self.recordings[current_list_index]
+            self.recording_index = self.ui.recording_list_widget.currentRow()
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""

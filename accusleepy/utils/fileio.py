@@ -33,13 +33,17 @@ def load_calibration_file(filename: str) -> (np.array, np.array):
     return mixture_means, mixture_sds
 
 
-def save_model(model: SSANN, output_dir: str, filename: str) -> None:
-    torch.save(model.state_dict(), os.path.join(output_dir, filename) + ".pth")
+def save_model(model: SSANN, filename: str) -> None:
+    torch.save(model.state_dict(), filename)
 
 
 def load_model(file_path: str) -> SSANN:
-    model = SSANN()
-    model.load_state_dict(torch.load(file_path, weights_only=True))
+    weights = torch.load(file_path, weights_only=True)
+    model = SSANN(
+        epochs_per_image=int(weights["epochs_per_image"].item()),
+        model_type=c.KEY_TO_MODEL_TYPE[int(weights["model_type"].item())],
+    )
+    model.load_state_dict(weights)
     return model
 
 

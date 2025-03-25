@@ -701,7 +701,7 @@ class Ui_PrimaryWindow(object):
         self.retranslateUi(PrimaryWindow)
 
         self.upper_tab_widget.setCurrentIndex(0)
-        self.lower_tab_widget.setCurrentIndex(1)
+        self.lower_tab_widget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(PrimaryWindow)

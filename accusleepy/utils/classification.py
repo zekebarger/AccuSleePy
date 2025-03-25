@@ -59,7 +59,9 @@ def get_device():
     )
 
 
-def train_model(annotations_file: str, img_dir: str) -> SSANN:
+def train_model(
+    annotations_file: str, img_dir: str, epochs_per_image: int, model_type: str
+) -> SSANN:
     training_data = AccuSleepImageDataset(
         annotations_file=annotations_file,
         img_dir=img_dir,
@@ -67,7 +69,7 @@ def train_model(annotations_file: str, img_dir: str) -> SSANN:
     train_dataloader = DataLoader(training_data, batch_size=BATCH_SIZE, shuffle=True)
 
     device = get_device()
-    model = SSANN().to(device)
+    model = SSANN(epochs_per_image=epochs_per_image, model_type=model_type).to(device)
     model.train()
 
     weight = torch.tensor(
@@ -120,7 +122,6 @@ def test_model(
             mixture_sds,
             recording.sampling_rate,
             epoch_length,
-            epochs_per_img=epochs_per_img,
         )
 
         all_labels = np.concatenate([all_labels, labels])
@@ -131,7 +132,6 @@ def test_model(
     )
 
 
-# todo use mode's epochs per img
 def score_recording(
     model: SSANN,
     eeg: np.array,
@@ -140,7 +140,6 @@ def score_recording(
     mixture_sds: np.array,
     sampling_rate: int | float,
     epoch_length: int | float,
-    epochs_per_img: int = c.EPOCHS_PER_IMG,
 ) -> np.array:
     """Use classification model to get brain state labels for a recording
 
@@ -153,13 +152,13 @@ def score_recording(
     :param mixture_sds:
     :param sampling_rate:
     :param epoch_length:
-    :param epochs_per_img:
     :return:
     """
     # prepare model
     device = get_device()
     model = model.to(device)
     model.eval()
+    epochs_per_img = int(model.epochs_per_image.item())
 
     # create and scale eeg+emg spectrogram
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)

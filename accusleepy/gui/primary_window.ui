@@ -482,7 +482,7 @@
             <item>
              <widget class="QTabWidget" name="lower_tab_widget">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="classification_tab">
                <property name="styleSheet">
