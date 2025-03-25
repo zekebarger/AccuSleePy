@@ -463,14 +463,14 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_6.addWidget(self.label_2)
 
-        self.post_hoc_button = QRadioButton(self.model_training_tab)
-        self.post_hoc_button.setObjectName(u"post_hoc_button")
-        self.post_hoc_button.setEnabled(False)
-        sizePolicy2.setHeightForWidth(self.post_hoc_button.sizePolicy().hasHeightForWidth())
-        self.post_hoc_button.setSizePolicy(sizePolicy2)
-        self.post_hoc_button.setChecked(True)
+        self.default_type_button = QRadioButton(self.model_training_tab)
+        self.default_type_button.setObjectName(u"default_type_button")
+        self.default_type_button.setEnabled(False)
+        sizePolicy2.setHeightForWidth(self.default_type_button.sizePolicy().hasHeightForWidth())
+        self.default_type_button.setSizePolicy(sizePolicy2)
+        self.default_type_button.setChecked(True)
 
-        self.horizontalLayout_6.addWidget(self.post_hoc_button)
+        self.horizontalLayout_6.addWidget(self.default_type_button)
 
         self.real_time_button = QRadioButton(self.model_training_tab)
         self.real_time_button.setObjectName(u"real_time_button")
@@ -701,7 +701,7 @@ class Ui_PrimaryWindow(object):
         self.retranslateUi(PrimaryWindow)
 
         self.upper_tab_widget.setCurrentIndex(0)
-        self.lower_tab_widget.setCurrentIndex(0)
+        self.lower_tab_widget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(PrimaryWindow)
@@ -735,7 +735,7 @@ class Ui_PrimaryWindow(object):
         self.label.setText(QCoreApplication.translate("PrimaryWindow", u"Epochs per image:", None))
         self.delete_image_box.setText(QCoreApplication.translate("PrimaryWindow", u"Delete images after training", None))
         self.label_2.setText(QCoreApplication.translate("PrimaryWindow", u"Model type:", None))
-        self.post_hoc_button.setText(QCoreApplication.translate("PrimaryWindow", u"Post-hoc", None))
+        self.default_type_button.setText(QCoreApplication.translate("PrimaryWindow", u"Default", None))
         self.real_time_button.setText(QCoreApplication.translate("PrimaryWindow", u"Real-time", None))
         self.train_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Train classification model", None))
         self.training_folder_button.setText(QCoreApplication.translate("PrimaryWindow", u"Set training image directory", None))

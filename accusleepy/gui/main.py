@@ -1,7 +1,9 @@
 # AccuSleePy main window
 
+import datetime
 import os
 import sys
+
 
 import numpy as np
 from primary_window import Ui_PrimaryWindow
@@ -106,7 +108,15 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         pass
 
     def set_training_folder(self):
-        pass
+        training_folder_parent = QtWidgets.QFileDialog.getExistingDirectory(
+            self, "Select directory for training images"
+        )
+        if training_folder_parent:
+            self.training_image_dir = os.path.join(
+                training_folder_parent,
+                "images_" + datetime.datetime.now().strftime("%Y%m%d%H%M"),
+            )
+            self.ui.image_folder_label.setText(self.training_image_dir)
 
     def update_image_deletion(self) -> None:
         """Update choice of whether to delete images after training"""
@@ -240,6 +250,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
                 continue
 
+            # todo use model's epochs per img
             labels = score_recording(
                 model=self.model,
                 eeg=eeg,

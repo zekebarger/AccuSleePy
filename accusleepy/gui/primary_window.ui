@@ -482,7 +482,7 @@
             <item>
              <widget class="QTabWidget" name="lower_tab_widget">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="classification_tab">
                <property name="styleSheet">
@@ -800,7 +800,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QRadioButton" name="post_hoc_button">
+                       <widget class="QRadioButton" name="default_type_button">
                         <property name="enabled">
                          <bool>false</bool>
                         </property>
@@ -811,7 +811,7 @@
                          </sizepolicy>
                         </property>
                         <property name="text">
-                         <string>Post-hoc</string>
+                         <string>Default</string>
                         </property>
                         <property name="checked">
                          <bool>true</bool>

@@ -13,8 +13,12 @@ IMAGE_HEIGHT = (
 
 
 class SSANN(nn.Module):
-    def __init__(self):
+    def __init__(self, epochs_per_image: int, model_type: str = c.DEFAULT_MODEL_TYPE):
         super().__init__()
+
+        self.epochs_per_image = epochs_per_image
+        self.model_type = model_type
+
         self.pool = nn.MaxPool2d(2, 2)
         self.conv1 = nn.Conv2d(
             in_channels=1, out_channels=8, kernel_size=3, padding="same"
