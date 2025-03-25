@@ -102,16 +102,16 @@
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
              <property name="leftMargin">
-              <number>10</number>
+              <number>5</number>
              </property>
              <property name="topMargin">
-              <number>10</number>
+              <number>5</number>
              </property>
              <property name="rightMargin">
-              <number>10</number>
+              <number>5</number>
              </property>
              <property name="bottomMargin">
-              <number>10</number>
+              <number>5</number>
              </property>
              <item row="0" column="0">
               <widget class="QTextBrowser" name="message_area">
@@ -133,9 +133,9 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <layout class="QVBoxLayout" name="recordingactionsgroupbox" stretch="0,1">
+           <layout class="QVBoxLayout" name="recordingactionsgroupbox" stretch="2,1">
             <property name="spacing">
-             <number>20</number>
+             <number>35</number>
             </property>
             <item>
              <widget class="QGroupBox" name="selected_recording_groupbox">
@@ -151,23 +151,23 @@
                </font>
               </property>
               <property name="title">
-               <string>Data / actions for the selected recording (Recording 1) from this subject</string>
+               <string>Data / actions for Recording 1</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,1,1,1">
+              <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,1,1,1,1">
                <property name="spacing">
                 <number>10</number>
                </property>
                <property name="leftMargin">
-                <number>0</number>
+                <number>5</number>
                </property>
                <property name="topMargin">
-                <number>0</number>
+                <number>5</number>
                </property>
                <property name="rightMargin">
-                <number>0</number>
+                <number>5</number>
                </property>
                <property name="bottomMargin">
-                <number>0</number>
+                <number>5</number>
                </property>
                <item>
                 <layout class="QHBoxLayout" name="samplingratelayout" stretch="1,1,7">
@@ -228,7 +228,7 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="5,12">
+                <layout class="QHBoxLayout" name="select_recording_layout" stretch="5,12">
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout">
                    <property name="spacing">
@@ -271,7 +271,7 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="5,12">
+                <layout class="QHBoxLayout" name="label_file_layout" stretch="5,12">
                  <item>
                   <layout class="QHBoxLayout" name="select_or_create_layout" stretch="3,1,3,3">
                    <property name="spacing">
@@ -368,7 +368,7 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="2,3,2,3,1">
+                <layout class="QHBoxLayout" name="manual_scoring_layout" stretch="2,3,2,3,1">
                  <item>
                   <widget class="QPushButton" name="manual_scoring_button">
                    <property name="sizePolicy">
@@ -433,50 +433,15 @@
                  </item>
                 </layout>
                </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="allrecordingsgroupbox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>13</pointsize>
-               </font>
-              </property>
-              <property name="title">
-               <string>Data / actions for all recordings from this subject</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,2,3">
-               <property name="spacing">
-                <number>10</number>
-               </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="5,12">
+                <layout class="QHBoxLayout" name="load_calibration_layout" stretch="5,12">
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_10">
                    <property name="spacing">
                     <number>5</number>
                    </property>
                    <item>
-                    <widget class="QPushButton" name="load_calibration_button">
+                    <widget class="QPushButton" name="select_calibration_button">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -484,7 +449,7 @@
                       </sizepolicy>
                      </property>
                      <property name="text">
-                      <string>Load calibration file</string>
+                      <string>Select calibration file</string>
                      </property>
                     </widget>
                    </item>
@@ -511,6 +476,41 @@
                  </item>
                 </layout>
                </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="allrecordingsgroupbox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>13</pointsize>
+               </font>
+              </property>
+              <property name="title">
+               <string>Data / actions for all recordings from this subject</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,3">
+               <property name="spacing">
+                <number>10</number>
+               </property>
+               <property name="leftMargin">
+                <number>5</number>
+               </property>
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="rightMargin">
+                <number>5</number>
+               </property>
+               <property name="bottomMargin">
+                <number>5</number>
+               </property>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="5,12">
                  <item>
@@ -675,6 +675,18 @@
             <property name="spacing">
              <number>25</number>
             </property>
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>5</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>5</number>
+            </property>
             <item>
              <layout class="QVBoxLayout" name="epoch_length_layout">
               <property name="spacing">
@@ -741,16 +753,16 @@
                 <number>5</number>
                </property>
                <property name="leftMargin">
-                <number>0</number>
+                <number>5</number>
                </property>
                <property name="topMargin">
-                <number>0</number>
+                <number>5</number>
                </property>
                <property name="rightMargin">
-                <number>0</number>
+                <number>5</number>
                </property>
                <property name="bottomMargin">
-                <number>0</number>
+                <number>5</number>
                </property>
                <item>
                 <layout class="QHBoxLayout" name="add_remove_layout" stretch="1,1">
@@ -874,7 +886,7 @@
   <tabstop>create_calibration_button</tabstop>
   <tabstop>add_button</tabstop>
   <tabstop>remove_button</tabstop>
-  <tabstop>load_calibration_button</tabstop>
+  <tabstop>select_calibration_button</tabstop>
   <tabstop>load_model_button</tabstop>
   <tabstop>score_all_button</tabstop>
   <tabstop>overwritecheckbox</tabstop>
