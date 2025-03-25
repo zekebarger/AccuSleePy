@@ -47,6 +47,10 @@ class Ui_PrimaryWindow(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.user_manual_button.sizePolicy().hasHeightForWidth())
         self.user_manual_button.setSizePolicy(sizePolicy1)
+        icon = QIcon()
+        icon.addFile(u":/icons/question.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.user_manual_button.setIcon(icon)
+        self.user_manual_button.setIconSize(QSize(24, 24))
 
         self.gridLayout.addWidget(self.user_manual_button, 0, 0, 1, 1)
 
@@ -433,7 +437,7 @@ class Ui_PrimaryWindow(object):
 
     def retranslateUi(self, PrimaryWindow):
         PrimaryWindow.setWindowTitle(QCoreApplication.translate("PrimaryWindow", u"MainWindow", None))
-        self.user_manual_button.setText(QCoreApplication.translate("PrimaryWindow", u"User manual", None))
+        self.user_manual_button.setText("")
         self.parametergroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Parameters for all recordings from one subject", None))
         self.epochlengthlabel.setText(QCoreApplication.translate("PrimaryWindow", u"Epoch length (sec):", None))
         self.recordinglistgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Recording list", None))
