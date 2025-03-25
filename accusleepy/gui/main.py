@@ -8,12 +8,19 @@ from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.utils.classification import (create_calibration_file,
-                                             score_recording)
-from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EPOCHS_PER_IMG,
-                                        UNDEFINED_LABEL)
-from accusleepy.utils.fileio import (load_calibration_file, load_labels,
-                                     load_model, load_recording, save_labels)
+from accusleepy.utils.classification import create_calibration_file, score_recording
+from accusleepy.utils.constants import (
+    BRAIN_STATE_MAPPER,
+    EPOCHS_PER_IMG,
+    UNDEFINED_LABEL,
+)
+from accusleepy.utils.fileio import (
+    load_calibration_file,
+    load_labels,
+    load_model,
+    load_recording,
+    save_labels,
+)
 from accusleepy.utils.misc import Recording, enforce_min_bout_length
 from accusleepy.utils.signal_processing import resample_and_standardize
 
@@ -40,6 +47,11 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.model = None
         self.only_overwrite_undefined = False
         self.min_bout_length = 5
+
+        # initialize model training variables
+        self.training_epochs_per_img = 9
+        self.delete_training_images = True
+        self.training_image_dir = ""
 
         # set up the list of recordings
         first_recording = Recording(
@@ -83,8 +95,29 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
         self.ui.user_manual_button.clicked.connect(self.show_user_manual)
+        self.ui.image_number_input.valueChanged.connect(self.update_epochs_per_img)
+        self.ui.delete_image_box.stateChanged.connect(self.update_image_deletion)
+        self.ui.training_folder_button.clicked.connect(self.set_training_folder)
+        self.ui.train_model_button.clicked.connect(self.train_model)
 
         self.show()
+
+    def train_model(self):
+        pass
+
+    def set_training_folder(self):
+        pass
+
+    def update_image_deletion(self) -> None:
+        """Update choice of whether to delete images after training"""
+        self.delete_training_images = self.ui.delete_image_box.isChecked()
+
+    def update_epochs_per_img(self, new_value) -> None:
+        """Update number of epochs per image
+
+        :param new_value: new number of epochs per image
+        """
+        self.training_epochs_per_img = new_value
 
     def score_all(self) -> None:
         """Score all recordings using the classification model"""

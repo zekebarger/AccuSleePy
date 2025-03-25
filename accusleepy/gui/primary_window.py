@@ -423,16 +423,16 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_5.addWidget(self.label)
 
-        self.spinBox = QSpinBox(self.model_training_tab)
-        self.spinBox.setObjectName(u"spinBox")
-        sizePolicy2.setHeightForWidth(self.spinBox.sizePolicy().hasHeightForWidth())
-        self.spinBox.setSizePolicy(sizePolicy2)
-        self.spinBox.setStyleSheet(u"background-color: white;")
-        self.spinBox.setMinimum(1)
-        self.spinBox.setMaximum(999)
-        self.spinBox.setValue(9)
+        self.image_number_input = QSpinBox(self.model_training_tab)
+        self.image_number_input.setObjectName(u"image_number_input")
+        sizePolicy2.setHeightForWidth(self.image_number_input.sizePolicy().hasHeightForWidth())
+        self.image_number_input.setSizePolicy(sizePolicy2)
+        self.image_number_input.setStyleSheet(u"background-color: white;")
+        self.image_number_input.setMinimum(1)
+        self.image_number_input.setMaximum(999)
+        self.image_number_input.setValue(9)
 
-        self.horizontalLayout_5.addWidget(self.spinBox)
+        self.horizontalLayout_5.addWidget(self.image_number_input)
 
 
         self.top_training_layout.addLayout(self.horizontalLayout_5)
