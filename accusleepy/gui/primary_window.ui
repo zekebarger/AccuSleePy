@@ -493,7 +493,7 @@
                </font>
               </property>
               <property name="title">
-               <string>Data / actions for all recordings from this subject</string>
+               <string>Data / actions for all recordings</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,3">
                <property name="spacing">

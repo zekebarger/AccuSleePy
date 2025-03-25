@@ -570,7 +570,7 @@ class Ui_PrimaryWindow(object):
         self.calibration_status.setText("")
         self.select_calibration_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select calibration file", None))
         self.calibration_file_label.setText("")
-        self.allrecordingsgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for all recordings from this subject", None))
+        self.allrecordingsgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for all recordings", None))
         self.load_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Load classification model", None))
         self.model_label.setText("")
         self.score_all_button.setText(QCoreApplication.translate("PrimaryWindow", u"Score all automatically", None))
