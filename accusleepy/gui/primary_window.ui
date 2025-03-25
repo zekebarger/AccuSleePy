@@ -29,7 +29,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QGridLayout" name="gridLayout" rowstretch="5,2" columnstretch="1,10">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="2,1" columnstretch="1,10">
     <property name="leftMargin">
      <number>10</number>
     </property>
@@ -495,7 +495,7 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <property name="spacing">
-              <number>5</number>
+              <number>10</number>
              </property>
              <item>
               <widget class="QCheckBox" name="overwritecheckbox">
@@ -595,6 +595,9 @@
        <font>
         <pointsize>13</pointsize>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
       </property>
       <property name="title">
        <string>Messages</string>
@@ -797,6 +800,25 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>epoch_length_input</tabstop>
+  <tabstop>sampling_rate_input</tabstop>
+  <tabstop>recording_file_button</tabstop>
+  <tabstop>select_label_button</tabstop>
+  <tabstop>create_label_button</tabstop>
+  <tabstop>manual_scoring_button</tabstop>
+  <tabstop>create_calibration_button</tabstop>
+  <tabstop>add_button</tabstop>
+  <tabstop>remove_button</tabstop>
+  <tabstop>load_calibration_button</tabstop>
+  <tabstop>load_model_button</tabstop>
+  <tabstop>score_all_button</tabstop>
+  <tabstop>overwritecheckbox</tabstop>
+  <tabstop>bout_length_input</tabstop>
+  <tabstop>user_manual_button</tabstop>
+  <tabstop>recording_list_widget</tabstop>
+  <tabstop>message_area</tabstop>
+ </tabstops>
  <resources>
   <include location="resources.qrc"/>
  </resources>
