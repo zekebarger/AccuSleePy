@@ -217,7 +217,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.ui.score_all_status.setText("")
 
-    def load_model(self):
+    def load_model(self) -> None:
+        """Load trained classification model from file"""
         file_dialog = QtWidgets.QFileDialog(self)
         file_dialog.setWindowTitle("Select classification model")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
@@ -243,7 +244,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
             self.ui.model_label.setText(filename)
 
-    def load_calibration_file(self):
+    def load_calibration_file(self) -> None:
+        """Load calibration data from file"""
         file_dialog = QtWidgets.QFileDialog(self)
         file_dialog.setWindowTitle("Select calibration file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
@@ -272,7 +274,18 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
             self.ui.calibration_file_label.setText(filename)
 
-    def load_single_recording(self, status_widget):
+    def load_single_recording(
+        self, status_widget: QtWidgets.QLabel
+    ) -> (np.array, np.array, int | float, bool):
+        """Load and preprocess one recording
+
+        This loads one recording, resamples it, and standardizes its length.
+        If an error occurs during this process, it is displayed in the
+        indicated widget.
+
+        :param status_widget: UI element on which to display error messages
+        :return: EEG data, EMG data, sampling rate, process completion
+        """
         error_message = self.check_single_file_inputs(self.recording_index)
         if error_message:
             status_widget.setText(error_message)
@@ -304,13 +317,21 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         return eeg, emg, sampling_rate, True
 
-    def create_calibration_file(self):
+    def create_calibration_file(self) -> None:
+        """Creates a calibration file
+
+        This loads a recording and its labels, checks that the labels are
+        all valid, creates the calibration file, and makes the contents of
+        the calibration file available to the main window.
+        """
+        # load the recording
         eeg, emg, sampling_rate, success = self.load_single_recording(
             self.ui.calibration_status
         )
         if not success:
             return
 
+        # load the labels
         label_file = self.recordings[self.recording_index].label_file
         if not os.path.isfile(label_file):
             self.ui.calibration_status.setText("label file does not exist")
@@ -327,17 +348,18 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
             )
             return
-        label_error = check_label_file_validity(
+        label_error_message = check_label_file_validity(
             labels=labels,
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
         )
-        if label_error:
+        if label_error_message:
             self.ui.calibration_status.setText("invalid label file")
-            self.show_message(f"ERROR: {label_error}")
+            self.show_message(f"ERROR: {label_error_message}")
             return
 
+        # get the name for the calibration file
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             caption="Save calibration file as",
@@ -354,6 +376,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
         )
+
         self.ui.calibration_status.setText("")
         self.show_message(
             (
@@ -363,14 +386,24 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             )
         )
 
-        # load the results
+        # get the contents of the calibration file
         (
             self.calibration_data[MIXTURE_MEAN_COL],
             self.calibration_data[MIXTURE_SD_COL],
         ) = load_calibration_file(filename)
         self.ui.calibration_file_label.setText(filename)
 
-    def check_single_file_inputs(self, recording_index) -> str:
+    def check_single_file_inputs(self, recording_index: int) -> str:
+        """Check that a recording's inputs appear valid
+
+        This runs some basic tests for whether it will be possible to
+        load and score a recording. If any test fails, we return an
+        error message.
+
+        :param recording_index: index of the recording in the list of
+            all recordings.
+        :return: error message
+        """
         sampling_rate = self.recordings[recording_index].sampling_rate
         if self.epoch_length == 0:
             return "epoch length can't be 0"
@@ -384,6 +417,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             return "no label file selected"
 
     def update_min_bout_length(self, new_value) -> None:
+        """Update the minimum bout length
+
+        :param new_value: new minimum bout length, in seconds
+        """
         self.min_bout_length = new_value
 
     def update_overwrite_policy(self, checked) -> None:
@@ -397,16 +434,21 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.only_overwrite_undefined = checked
 
     def manual_scoring(self) -> None:
+        """View the selected recording for manual scoring"""
+        # immediately display a status message
         self.ui.manual_scoring_status.setText("loading...")
         self.ui.manual_scoring_status.repaint()
         app.processEvents()
 
+        # load the recording
         eeg, emg, sampling_rate, success = self.load_single_recording(
             self.ui.calibration_status
         )
         if not success:
             return
 
+        # if the labels exist, load them
+        # otherwise, create a blank set of labels
         label_file = self.recordings[self.recording_index].label_file
         if os.path.isfile(label_file):
             try:
@@ -420,13 +462,13 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                     )
                 )
                 return
-
         else:
             labels = (
                 np.ones(int(eeg.size / (sampling_rate * self.epoch_length)))
                 * UNDEFINED_LABEL
             ).astype(int)
 
+        # check that all labels are valid
         label_error = check_label_file_validity(
             labels=labels,
             samples_in_recording=eeg.size,
@@ -434,7 +476,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             epoch_length=self.epoch_length,
         )
         if label_error:
-            # if the label length is only off by one, we can try to fix it
+            # if the label length is only off by one, pad or truncate as needed
             # and show a warning
             if label_error == LABEL_LENGTH_ERROR:
                 samples_per_epoch = sampling_rate * self.epoch_length
@@ -469,6 +511,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         self.ui.manual_scoring_status.setText("file is open")
 
+        # launch the manual scoring window
         manual_scoring_window = ManualScoringWindow(
             eeg=eeg,
             emg=emg,
@@ -482,6 +525,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.manual_scoring_status.setText("")
 
     def create_label_file(self) -> None:
+        """Set the filename for a new label file"""
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             caption="Set filename for label file (nothing will be overwritten yet)",
@@ -492,7 +536,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             self.ui.label_file_label.setText(filename)
 
     def select_label_file(self) -> None:
-        """User can select a label file for this recording"""
+        """User can select an existing label file"""
         file_dialog = QtWidgets.QFileDialog(self)
         file_dialog.setWindowTitle("Select label file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
@@ -520,6 +564,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             self.ui.recording_file_label.setText(filename)
 
     def show_recording_info(self) -> None:
+        """Update the UI to show info for the selected recording"""
         self.ui.sampling_rate_input.setValue(
             self.recordings[self.recording_index].sampling_rate
         )
@@ -530,14 +575,25 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             self.recordings[self.recording_index].label_file
         )
 
-    def update_epoch_length(self, new_value) -> None:
+    def update_epoch_length(self, new_value: int | float) -> None:
+        """Update the epoch length when the widget state changes
+
+        :param new_value: new epoch length
+        """
         self.epoch_length = new_value
 
-    def update_sampling_rate(self, new_value) -> None:
+    def update_sampling_rate(self, new_value: int | float) -> None:
+        """Update recording's sampling rate when the widget state changes
+
+        :param new_value: new sampling rate
+        """
         self.recordings[self.recording_index].sampling_rate = new_value
 
     def show_message(self, message: str) -> None:
-        """Display a new message to the user"""
+        """Display a new message to the user
+
+        :param message: message to display
+        """
         self.messages.append(message)
         if len(self.messages) > MESSAGE_BOX_MAX_DEPTH:
             del self.messages[0]
@@ -546,8 +602,11 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         scrollbar = self.ui.message_area.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
-    def select_recording(self, list_index) -> None:
-        """Callback for when a recording is selected"""
+    def select_recording(self, list_index: int) -> None:
+        """Callback for when a recording is selected
+
+        :param list_index: index of this recording in the list widget
+        """
         # get index of this recording
         self.recording_index = list_index
         # display information about this recording
@@ -600,12 +659,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         user_manual_text = user_manual_file.read()
         user_manual_file.close()
 
-        scroll_area = QtWidgets.QScrollArea()
-
         label_widget = QtWidgets.QLabel()
         label_widget.setText(user_manual_text)
+        scroll_area = QtWidgets.QScrollArea()
         scroll_area.setWidget(label_widget)
-
         grid = QtWidgets.QGridLayout()
         grid.addWidget(scroll_area)
         self.popup = QtWidgets.QWidget()
@@ -620,6 +677,17 @@ def check_label_file_validity(
     sampling_rate: int | float,
     epoch_length: int | float,
 ) -> str:
+    """Check whether a set of brain state labels is valid
+
+    This returns an error message if a problem is found with the
+    brain state labels.
+
+    :param labels: brain state labels
+    :param samples_in_recording: number of samples in the recording
+    :param sampling_rate: sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :return: error message
+    """
     # check that length is correct
     samples_per_epoch = sampling_rate * epoch_length
     epochs_in_recording = int(samples_in_recording / samples_per_epoch)
