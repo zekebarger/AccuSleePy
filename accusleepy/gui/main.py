@@ -348,7 +348,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
             )
             return
-        label_error_message = check_label_file_validity(
+        label_error_message = check_label_validity(
             labels=labels,
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
@@ -469,7 +469,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             ).astype(int)
 
         # check that all labels are valid
-        label_error = check_label_file_validity(
+        label_error = check_label_validity(
             labels=labels,
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
@@ -671,7 +671,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.popup.show()
 
 
-def check_label_file_validity(
+def check_label_validity(
     labels: np.array,
     samples_in_recording: int,
     sampling_rate: int | float,
