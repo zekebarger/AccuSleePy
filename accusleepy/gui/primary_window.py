@@ -17,9 +17,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QGridLayout,
     QGroupBox, QHBoxLayout, QLabel, QListWidget,
-    QListWidgetItem, QMainWindow, QPushButton, QSizePolicy,
-    QSpacerItem, QTabWidget, QTextBrowser, QVBoxLayout,
-    QWidget)
+    QListWidgetItem, QMainWindow, QPushButton, QRadioButton,
+    QSizePolicy, QSpacerItem, QSpinBox, QTabWidget,
+    QTextBrowser, QVBoxLayout, QWidget)
 import resources_rc
 
 class Ui_PrimaryWindow(object):
@@ -408,10 +408,149 @@ class Ui_PrimaryWindow(object):
         self.gridLayout_7 = QGridLayout(self.model_training_tab)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.gridLayout_7.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout_6 = QGridLayout()
-        self.gridLayout_6.setObjectName(u"gridLayout_6")
+        self.model_training_layout = QGridLayout()
+        self.model_training_layout.setObjectName(u"model_training_layout")
+        self.top_training_layout = QHBoxLayout()
+        self.top_training_layout.setSpacing(10)
+        self.top_training_layout.setObjectName(u"top_training_layout")
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setSpacing(5)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.label = QLabel(self.model_training_tab)
+        self.label.setObjectName(u"label")
+        sizePolicy2.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy2)
 
-        self.gridLayout_7.addLayout(self.gridLayout_6, 0, 0, 1, 1)
+        self.horizontalLayout_5.addWidget(self.label)
+
+        self.spinBox = QSpinBox(self.model_training_tab)
+        self.spinBox.setObjectName(u"spinBox")
+        sizePolicy2.setHeightForWidth(self.spinBox.sizePolicy().hasHeightForWidth())
+        self.spinBox.setSizePolicy(sizePolicy2)
+        self.spinBox.setStyleSheet(u"background-color: white;")
+        self.spinBox.setMinimum(1)
+        self.spinBox.setMaximum(999)
+        self.spinBox.setValue(9)
+
+        self.horizontalLayout_5.addWidget(self.spinBox)
+
+
+        self.top_training_layout.addLayout(self.horizontalLayout_5)
+
+        self.horizontalSpacer = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.top_training_layout.addItem(self.horizontalSpacer)
+
+        self.delete_image_box = QCheckBox(self.model_training_tab)
+        self.delete_image_box.setObjectName(u"delete_image_box")
+        sizePolicy2.setHeightForWidth(self.delete_image_box.sizePolicy().hasHeightForWidth())
+        self.delete_image_box.setSizePolicy(sizePolicy2)
+        self.delete_image_box.setChecked(True)
+
+        self.top_training_layout.addWidget(self.delete_image_box)
+
+        self.horizontalSpacer_6 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.top_training_layout.addItem(self.horizontalSpacer_6)
+
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.label_2 = QLabel(self.model_training_tab)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setEnabled(False)
+        sizePolicy2.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_6.addWidget(self.label_2)
+
+        self.post_hoc_button = QRadioButton(self.model_training_tab)
+        self.post_hoc_button.setObjectName(u"post_hoc_button")
+        self.post_hoc_button.setEnabled(False)
+        sizePolicy2.setHeightForWidth(self.post_hoc_button.sizePolicy().hasHeightForWidth())
+        self.post_hoc_button.setSizePolicy(sizePolicy2)
+        self.post_hoc_button.setChecked(True)
+
+        self.horizontalLayout_6.addWidget(self.post_hoc_button)
+
+        self.real_time_button = QRadioButton(self.model_training_tab)
+        self.real_time_button.setObjectName(u"real_time_button")
+        self.real_time_button.setEnabled(False)
+        sizePolicy2.setHeightForWidth(self.real_time_button.sizePolicy().hasHeightForWidth())
+        self.real_time_button.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_6.addWidget(self.real_time_button)
+
+        self.horizontalLayout_6.setStretch(0, 2)
+        self.horizontalLayout_6.setStretch(1, 3)
+        self.horizontalLayout_6.setStretch(2, 3)
+
+        self.top_training_layout.addLayout(self.horizontalLayout_6)
+
+        self.horizontalSpacer_3 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.top_training_layout.addItem(self.horizontalSpacer_3)
+
+        self.top_training_layout.setStretch(0, 2)
+        self.top_training_layout.setStretch(1, 1)
+        self.top_training_layout.setStretch(2, 2)
+        self.top_training_layout.setStretch(3, 1)
+        self.top_training_layout.setStretch(4, 3)
+        self.top_training_layout.setStretch(5, 1)
+
+        self.model_training_layout.addLayout(self.top_training_layout, 0, 0, 1, 1)
+
+        self.bottom_training_layout = QHBoxLayout()
+        self.bottom_training_layout.setObjectName(u"bottom_training_layout")
+        self.horizontalSpacer_7 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.bottom_training_layout.addItem(self.horizontalSpacer_7)
+
+        self.train_model_button = QPushButton(self.model_training_tab)
+        self.train_model_button.setObjectName(u"train_model_button")
+        sizePolicy2.setHeightForWidth(self.train_model_button.sizePolicy().hasHeightForWidth())
+        self.train_model_button.setSizePolicy(sizePolicy2)
+
+        self.bottom_training_layout.addWidget(self.train_model_button)
+
+        self.horizontalSpacer_8 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.bottom_training_layout.addItem(self.horizontalSpacer_8)
+
+
+        self.model_training_layout.addLayout(self.bottom_training_layout, 2, 0, 1, 1)
+
+        self.middle_training_layout = QHBoxLayout()
+        self.middle_training_layout.setObjectName(u"middle_training_layout")
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.training_folder_button = QPushButton(self.model_training_tab)
+        self.training_folder_button.setObjectName(u"training_folder_button")
+        sizePolicy3.setHeightForWidth(self.training_folder_button.sizePolicy().hasHeightForWidth())
+        self.training_folder_button.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_2.addWidget(self.training_folder_button)
+
+
+        self.middle_training_layout.addLayout(self.horizontalLayout_2)
+
+        self.image_folder_label = QLabel(self.model_training_tab)
+        self.image_folder_label.setObjectName(u"image_folder_label")
+        sizePolicy4.setHeightForWidth(self.image_folder_label.sizePolicy().hasHeightForWidth())
+        self.image_folder_label.setSizePolicy(sizePolicy4)
+        self.image_folder_label.setStyleSheet(u"background-color: white;")
+
+        self.middle_training_layout.addWidget(self.image_folder_label)
+
+        self.middle_training_layout.setStretch(0, 5)
+        self.middle_training_layout.setStretch(1, 12)
+
+        self.model_training_layout.addLayout(self.middle_training_layout, 1, 0, 1, 1)
+
+        self.model_training_layout.setRowStretch(0, 1)
+        self.model_training_layout.setRowStretch(1, 1)
+        self.model_training_layout.setRowStretch(2, 1)
+
+        self.gridLayout_7.addLayout(self.model_training_layout, 0, 0, 1, 1)
 
         self.lower_tab_widget.addTab(self.model_training_tab, "")
 
@@ -593,6 +732,14 @@ class Ui_PrimaryWindow(object):
         self.load_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Load classification model", None))
         self.model_label.setText("")
         self.lower_tab_widget.setTabText(self.lower_tab_widget.indexOf(self.classification_tab), QCoreApplication.translate("PrimaryWindow", u"Classification", None))
+        self.label.setText(QCoreApplication.translate("PrimaryWindow", u"Epochs per image:", None))
+        self.delete_image_box.setText(QCoreApplication.translate("PrimaryWindow", u"Delete images after training", None))
+        self.label_2.setText(QCoreApplication.translate("PrimaryWindow", u"Model type:", None))
+        self.post_hoc_button.setText(QCoreApplication.translate("PrimaryWindow", u"Post-hoc", None))
+        self.real_time_button.setText(QCoreApplication.translate("PrimaryWindow", u"Real-time", None))
+        self.train_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Train classification model", None))
+        self.training_folder_button.setText(QCoreApplication.translate("PrimaryWindow", u"Set training image directory", None))
+        self.image_folder_label.setText("")
         self.lower_tab_widget.setTabText(self.lower_tab_widget.indexOf(self.model_training_tab), QCoreApplication.translate("PrimaryWindow", u"Model training", None))
         self.epochlengthlabel.setText(QCoreApplication.translate("PrimaryWindow", u"Epoch length (sec):", None))
         self.recordinglistgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Recording list", None))
