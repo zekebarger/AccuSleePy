@@ -115,17 +115,6 @@ def resample_and_standardize(
     return eeg, emg, sampling_rate
 
 
-# todo: replace this
-def truncate_signals(
-    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
-) -> (np.array, np.array):
-    samples_per_epoch = int(sampling_rate * epoch_length)
-
-    new_eeg = eeg[: len(eeg) - (len(eeg) % samples_per_epoch)]
-    new_emg = emg[: len(emg) - (len(emg) % samples_per_epoch)]
-    return new_eeg, new_emg
-
-
 def create_spectrogram(
     eeg: np.array,
     sampling_rate: int | float,
@@ -211,7 +200,6 @@ def create_eeg_emg_image(
     emg: np.array,
     sampling_rate: int | float,
     epoch_length: int | float,
-    emg_copies: int = c.EMG_COPIES,
 ) -> np.array:
     spec, f = create_spectrogram(eeg, sampling_rate, epoch_length)
     f_lower_idx = sum(f < c.DOWNSAMPLING_START_FREQ)
@@ -228,7 +216,7 @@ def create_eeg_emg_image(
 
     emg_log_rms = process_emg(emg, sampling_rate, epoch_length)
     output = np.concatenate(
-        [modified_spectrogram, np.tile(emg_log_rms, (emg_copies, 1))]
+        [modified_spectrogram, np.tile(emg_log_rms, (c.EMG_COPIES, 1))]
     )
     return output
 
@@ -238,6 +226,7 @@ def get_mixture_values(img: np.array, labels: np.array) -> (np.array, np.array):
 
     means = list()
     variances = list()
+    mixture_weights = c.BRAIN_STATE_MAPPER.mixture_weights
 
     for i in range(c.BRAIN_STATE_MAPPER.n_classes):
         means.append(np.mean(img[:, labels == i], axis=1))
@@ -246,9 +235,9 @@ def get_mixture_values(img: np.array, labels: np.array) -> (np.array, np.array):
     means = np.array(means)
     variances = np.array(variances)
 
-    mixture_means = means.T @ c.MIXTURE_WEIGHTS
+    mixture_means = means.T @ mixture_weights
     mixture_sds = np.sqrt(
-        variances.T @ c.MIXTURE_WEIGHTS
+        variances.T @ mixture_weights
         + (
             (
                 mixture_means
@@ -256,7 +245,7 @@ def get_mixture_values(img: np.array, labels: np.array) -> (np.array, np.array):
             )
             ** 2
         ).T
-        @ c.MIXTURE_WEIGHTS
+        @ mixture_weights
     )
 
     return mixture_means, mixture_sds

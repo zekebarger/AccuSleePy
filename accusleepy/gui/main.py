@@ -8,19 +8,12 @@ from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.utils.classification import create_calibration_file, score_recording
-from accusleepy.utils.constants import (
-    BRAIN_STATE_MAPPER,
-    EPOCHS_PER_IMG,
-    UNDEFINED_LABEL,
-)
-from accusleepy.utils.fileio import (
-    load_calibration_file,
-    load_labels,
-    load_model,
-    load_recording,
-    save_labels,
-)
+from accusleepy.utils.classification import (create_calibration_file,
+                                             score_recording)
+from accusleepy.utils.constants import (BRAIN_STATE_MAPPER, EPOCHS_PER_IMG,
+                                        UNDEFINED_LABEL)
+from accusleepy.utils.fileio import (load_calibration_file, load_labels,
+                                     load_model, load_recording, save_labels)
 from accusleepy.utils.misc import Recording, enforce_min_bout_length
 from accusleepy.utils.signal_processing import resample_and_standardize
 

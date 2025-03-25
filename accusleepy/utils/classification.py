@@ -67,7 +67,9 @@ def train_model(annotations_file: str, img_dir: str) -> SSANN:
     model = SSANN().to(device)
     model.train()
 
-    weight = torch.tensor((c.MIXTURE_WEIGHTS**-1).astype("float32")).to(device)
+    weight = torch.tensor(
+        (c.BRAIN_STATE_MAPPER.mixture_weights**-1).astype("float32")
+    ).to(device)
     criterion = nn.CrossEntropyLoss(weight=weight)
     optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 

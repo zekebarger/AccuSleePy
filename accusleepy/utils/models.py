@@ -1,8 +1,15 @@
+import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
 
 import accusleepy.utils.constants as c
+
+IMAGE_HEIGHT = (
+    len(np.arange(0, c.DOWNSAMPLING_START_FREQ, 1 / c.MIN_WINDOW_LEN))
+    + len(np.arange(c.DOWNSAMPLING_START_FREQ, c.UPPER_FREQ, 2 / c.MIN_WINDOW_LEN))
+    + c.EMG_COPIES
+)
 
 
 class SSANN(nn.Module):
@@ -21,9 +28,7 @@ class SSANN(nn.Module):
         self.conv1_bn = nn.BatchNorm2d(8)
         self.conv2_bn = nn.BatchNorm2d(16)
         self.conv3_bn = nn.BatchNorm2d(32)
-        self.fc1 = nn.Linear(
-            int(32 * c.IMAGE_HEIGHT / 8), c.BRAIN_STATE_MAPPER.n_classes
-        )
+        self.fc1 = nn.Linear(int(32 * IMAGE_HEIGHT / 8), c.BRAIN_STATE_MAPPER.n_classes)
 
     def forward(self, x):
         x = x.float()
