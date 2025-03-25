@@ -9,7 +9,6 @@ BRAIN_STATES = [
     BrainState("Wake", 2, True, 0.35),
     BrainState("NREM", 3, True, 0.55),
 ]
-EPOCHS_PER_IMG = 9
 
 
 # # probably don't change these unless you really need to # #

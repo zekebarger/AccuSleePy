@@ -18,7 +18,6 @@ from accusleepy.utils.classification import (
 from accusleepy.utils.constants import (
     BRAIN_STATE_MAPPER,
     DEFAULT_MODEL_TYPE,
-    EPOCHS_PER_IMG,
     KEY_TO_MODEL_TYPE,
     UNDEFINED_LABEL,
 )

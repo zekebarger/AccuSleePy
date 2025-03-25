@@ -285,7 +285,7 @@ def create_training_images(
     recordings: list[Recording],
     output_path: str,
     epoch_length: int | float,
-    epochs_per_img: int = c.EPOCHS_PER_IMG,
+    epochs_per_img: int,
 ) -> list[int]:
     """Create training dataset
 

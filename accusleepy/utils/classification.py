@@ -95,7 +95,6 @@ def test_model(
     model: SSANN,
     recordings: list[Recording],
     epoch_length: int | float,
-    epochs_per_img: int = c.EPOCHS_PER_IMG,
 ) -> None:
     all_labels = np.empty(0).astype(int)
     all_predictions = np.empty(0).astype(int)
