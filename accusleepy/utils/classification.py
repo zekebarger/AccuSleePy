@@ -15,7 +15,7 @@ from accusleepy.utils.models import SSANN
 from accusleepy.utils.signal_processing import (create_eeg_emg_image,
                                                 format_img, get_mixture_values,
                                                 mixture_z_score_img,
-                                                truncate_signals)
+                                                resample_and_standardize)
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
@@ -97,7 +97,12 @@ def test_model(
         eeg, emg = load_recording(recording.recording_file)
         labels = load_labels(recording.label_file)
 
-        eeg, emg = truncate_signals(eeg, emg, recording.sampling_rate, epoch_length)
+        eeg, emg, recording.sampling_rate = resample_and_standardize(
+            eeg=eeg,
+            emg=emg,
+            sampling_rate=recording.sampling_rate,
+            epoch_length=epoch_length,
+        )
         img = create_eeg_emg_image(eeg, emg, recording.sampling_rate, epoch_length)
         mixture_means, mixture_sds = get_mixture_values(
             img, c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
@@ -131,13 +136,24 @@ def score_recording(
     epoch_length: int | float,
     epochs_per_img: int = c.EPOCHS_PER_IMG,
 ) -> np.array:
+    """Use classification model to get brain state labels for a recording
+
+    Assumes signals have been preprocessed
+
+    :param model:
+    :param eeg:
+    :param emg:
+    :param mixture_means:
+    :param mixture_sds:
+    :param sampling_rate:
+    :param epoch_length:
+    :param epochs_per_img:
+    :return:
+    """
     # prepare model
     device = get_device()
     model = model.to(device)
     model.eval()
-
-    # preprocess eeg, emg
-    eeg, emg = truncate_signals(eeg, emg, sampling_rate, epoch_length)
 
     # create and scale eeg+emg spectrogram
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
@@ -169,9 +185,20 @@ def create_calibration_file(
     sampling_rate: int | float,
     epoch_length: int | float,
 ) -> None:
+    """Create file of calibration data for a subject
+
+    Assumes signals have been preprocessed
+
+    :param filename:
+    :param eeg:
+    :param emg:
+    :param labels:
+    :param sampling_rate:
+    :param epoch_length:
+    :return:
+    """
     # labels = DIGITS
 
-    eeg, emg = truncate_signals(eeg, emg, sampling_rate, epoch_length)
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
     mixture_means, mixture_sds = get_mixture_values(
         img, c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)

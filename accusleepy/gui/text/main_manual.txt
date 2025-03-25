@@ -1,0 +1,117 @@
+Section 1: Overview of the GUI
+Section 2: AccuSleePy file types
+Section 3: Manually assigning brain state labels
+Section 4: Automatically assigning brain state labels
+
+-----------------------------------------------------------------------
+Section 1: Overview of the primary interface
+-----------------------------------------------------------------------
+This interface allows a user to assign brain state labels to 1-channel
+electroencephalogram (EEG) and electromyogram (EMG) data. The algorithm
+has (so far) only been tested on rodents, not humans.
+The overall workflow looks like this:
+1. Enter the epoch length for all recordings from one subject. This
+    determines the time resolution of the brain state labels.
+2. For each recording from this subject, add it to the recording list,
+    enter its sampling rate, load the EEG/EMG data, and determine where
+    to save the brain state labels (or load the labels if they already
+    exist)
+(At this point, you can score the recordings manually)
+3. Choose a representative recording that has some epochs of each state
+    labeled and use it to create a calibration data file (or load the
+    calibration data file if it already exists)
+4. Choose a trained classification model file with a matching epoch size
+5. Score all recordings for this subject automatically
+6. Start over for the next subject
+The next section describes how to structure the inputs to this program.
+
+-----------------------------------------------------------------------
+Section 2: AccuSleePy file types
+-----------------------------------------------------------------------
+There are four types of files associated with AccuSleePy:
+Recording file: a .csv or .parquet file containing one column of EEG
+    data and one column of EMG data. The column names must match the
+    ones listed in constants.py (EEG_COL, EMG_COL).
+Label file: a .csv file with one column whose title matches
+    BRAIN_STATE_COL in constants.py, with entries that are either the
+    undefined brain state (UNDEFINED_LABEL) or one of the valid
+    "digit" attributes of your BRAIN_STATES. By default, these are 1-3
+    and REM = 1, wake = 2, NREM = 3.
+Calibration data file: required for automatic labeling. See Section 4
+    for details.
+Trained classification model: required for automatic labeling. See
+    Section 4 for details.
+
+-----------------------------------------------------------------------
+Section 3: Manually assigning brain state labels
+-----------------------------------------------------------------------
+1. Select the recording you wish to modify from the recording list, or
+    add a new one.
+2. Click the 'Select recording file' button to set the location of the
+    EEG/EMG data.
+3. Click the 'Select' label file button to choose an existing label
+    file, or click the 'create' label file button to enter the filename
+    for a new label file.
+4. Click 'Score manually' to launch an interactive window for manual
+    brain state labeling. Close the window when you are finished.
+This interface has many useful keyboard shortcuts, so it's recommended
+to consult its user manual.
+
+-----------------------------------------------------------------------
+Section 4: Automatically scoring recordings with a classification model
+-----------------------------------------------------------------------
+Automatic brain state scoring requires the inputs described in
+Section 3, as well as a calibration data file and a trained classifier.
+If you already have both of these files, proceed to Section 4C.
+
+--- Section 4A: Creating a calibration data file ---
+You must create a new calibration data file for each subject. If you
+record from the same subject using different recording equipment, you
+must create a new calibration data file for each combination of
+subject + recording setup. This ensures that inputs to the classifier
+are in the same range as its training data.
+To create a calibration data file:
+1. Following the steps in Section 3, enter the information for one
+    recording.
+2. The label file must contain at least some labels for each sleep
+    stage (REM, wakefulness, and NREM). It is recommended to label at
+    least several minutes of each stage, and more labels will improve
+    classification accuracy. If the label file already meets this
+    condition, continue to the next step. Otherwise, click
+    'score manually', assign some brain state labels to the recording,
+    and save the labels.
+3. Click 'Create calibration file'.
+4. Enter a filename for the calibration data file.
+
+--- Section 4B: Creating a trained network file ---
+Pre-trained neural networks are provided with AccuSleePy for epoch
+lengths of 2.5, 4, 5, 10, 15, and 30 seconds. If you wish to train
+your own network, [IN PROGRESS]
+
+--- Section 4C: Automatic labeling ---
+Instructions for automatic labeling using this GUI are below.
+1. Set the epoch length for all recordings, and complete steps 1-3 of
+    Section 3 (specifying the recording file  label file) for
+    each recording from one subject. Since each subject requires its
+    own calibration file, only recordings from one subject can be
+    scored at a time. If the recording conditions are different in
+    some recordings (e.g., a different amplifier was used), remove
+    these recordings from the recording list and process them
+    separately with their own calibration file.
+2. If you completed the steps in Section 4A, a calibration data file
+    has already been specified. Otherwise, click
+    'Load calibration file' to load the calibration data file.
+3. Click 'Load classification model' to load the trained classification
+    model. The epoch length used when training this network should be
+    the same as the current epoch length.
+4. If you wish to preserve any existing labels in the label file, and
+    only overwrite undefined epochs, check the box labeled
+    'Only overwrite undefined epochs'.
+5. Set the minimum bout length, in seconds. A typical value could be 5.
+    Following automatic labeling, any brain state bout shorter than this
+    duration will be reassigned to the surrounding stage (if the stages
+    on either side of the bout match).
+6. Click 'Score all automatically' to score all recordings in the
+    recording list. Labels will be saved to the file specified by
+    the 'Select or create label file' field of each recording. You can
+    click 'Score manually' to visualize the results.

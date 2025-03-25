@@ -16,6 +16,106 @@ SPECTROGRAM_UPPER_FREQ = 64
 ANNOTATIONS_FILENAME = "annotations.csv"
 
 
+# todo
+"""
+samples_per_epoch = sampling_rate * epoch_length
+samples_per_epoch % 1 = excess
+1 / excess = nth epoch will have an extra sample, or...
+nth epoch will NOT have a "fake" sample appended and will have a real one instead
+so, upsample? and modify SR. and should decide to truncate or pad basead on whichever 
+makes the smallest change
+
+"""
+
+
+def resample(
+    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
+) -> (np.array, np.array, float):
+    """Resample recording so that epochs contain equal numbers of samples
+
+    If the number of samples per epoch is not an integer, epoch-level calculations
+    are much more difficult. To avoid this, we can resample the EEG and EMG signals
+    and adjust the sampling rate accordingly.
+
+    :param eeg: EEG signal
+    :param emg: EMG signal
+    :param sampling_rate: original sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :return: resampled EEG & EMG and updated sampling rate
+    """
+    samples_per_epoch = sampling_rate * epoch_length
+    if samples_per_epoch % 1 == 0:
+        return eeg, emg, sampling_rate
+
+    resampled = list()
+    for arr in [eeg, emg]:
+        x = np.arange(0, arr.size)
+        x_new = np.linspace(
+            0,
+            arr.size - 1,
+            int(arr.size * np.ceil(samples_per_epoch) / samples_per_epoch),
+        )
+        resampled.append(np.interp(x_new, x, arr))
+
+    eeg = resampled[0]
+    emg = resampled[1]
+    new_sampling_rate = np.ceil(samples_per_epoch) / samples_per_epoch * sampling_rate
+    return eeg, emg, new_sampling_rate
+
+
+def standardize_signal_length(
+    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
+) -> (np.array, np.array):
+    """Truncate or pad EEG/EMG signals to have an integer number of epochs
+
+    :param eeg: EEG signal
+    :param emg: EMG signal
+    :param sampling_rate: original sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :return: EEG and EMG signals
+    """
+    # since resample() was called, this will be extremely close to an integer
+    samples_per_epoch = int(sampling_rate * epoch_length)
+    signal_length = eeg.size
+
+    # pad the signal at the end in case we need more samples
+    eeg = np.concatenate((eeg, np.ones(samples_per_epoch) * eeg[-1]))
+    emg = np.concatenate((emg, np.ones(samples_per_epoch) * emg[-1]))
+
+    excess_samples = signal_length % samples_per_epoch
+    if excess_samples < samples_per_epoch / 2:
+        last_index = signal_length - excess_samples
+    else:
+        last_index = signal_length + excess_samples
+
+    return eeg[:last_index], emg[:last_index]
+
+
+def resample_and_standardize(
+    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
+) -> (np.array, np.array, float):
+    """Preprocess EEG and EMG signals
+
+    Adjust the length and sampling rate of the EEG and EMG signals so that
+    each epoch contains an integer number of samples and each recording
+    contains an integer number of epochs.
+
+    :param eeg: EEG signal
+    :param emg: EMG signal
+    :param sampling_rate: sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :return: processed EEG & EMG signals, and the new sampling rate
+    """
+    eeg, emg, sampling_rate = resample(
+        eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
+    )
+    eeg, emg = standardize_signal_length(
+        eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
+    )
+    return eeg, emg, sampling_rate
+
+
+# todo: replace this
 def truncate_signals(
     eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
 ) -> (np.array, np.array):
@@ -33,7 +133,19 @@ def create_spectrogram(
     time_bandwidth=2,
     n_tapers=3,
 ) -> (np.array, np.array):
+    """Create an EEG spectrogram image
+
+    :param eeg: EEG signal
+    :param sampling_rate: sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :param time_bandwidth: time-half bandwidth product
+    :param n_tapers: number of DPSS tapers to use
+    :return: spectrogram and its frequency axis
+    """
     window_length_sec = max(c.MIN_WINDOW_LEN, epoch_length)
+    # pad the EEG signal so that the first spectrogram window is centered
+    # on the first epoch
+    # it's possible there's some jank here, if this isn't close to an integer
     pad_length = int((sampling_rate * (window_length_sec - epoch_length) / 2))
     padded_eeg = np.concatenate(
         [eeg[:pad_length][::-1], eeg, eeg[(len(eeg) - pad_length) :][::-1]]
@@ -79,8 +191,11 @@ def process_emg(
         output="ba",
         fs=sampling_rate,
     )
-    filtered = filtfilt(b, a, x=emg, padlen=sampling_rate)  # padlen?
+    filtered = filtfilt(
+        b, a, x=emg, padlen=int(np.ceil(sampling_rate))
+    )  # todo padlen set correctly?
 
+    # since resample() was called, this will be extremely close to an integer
     samples_per_epoch = int(sampling_rate * epoch_length)
     reshaped = np.reshape(
         filtered,
@@ -195,6 +310,13 @@ def create_training_images(
     epoch_length: int | float,
     epochs_per_img: int = c.EPOCHS_PER_IMG,
 ) -> None:
+    """Create training dataset
+
+    :param recordings: list of recordings in the training set
+    :param output_path: where to store training images
+    :param epoch_length: epoch length, in seconds
+    :param epochs_per_img: # number of epochs shown in each image
+    """
     n_files = len(recordings)
 
     filenames = list()
