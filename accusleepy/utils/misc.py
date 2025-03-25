@@ -61,12 +61,23 @@ class Bout:
     length: int
     start_index: int
     end_index: int
-    # state: int
     surrounding_state: int
 
 
-# get row index of latest adjacent bout (of same length) recursively
-def find_last_adjacent_bout(sorted_bouts, bout_index):
+def find_last_adjacent_bout(sorted_bouts: list[Bout], bout_index: int) -> int:
+    """Find index of last consecutive same-length bout
+
+     When running the post-processing step that enforces a minimum duration
+     for brain state bouts, there is a special case when bouts below the
+     duration threshold occur consecutively. This function performs a
+     recursive search for the index of a bout at the end of such a sequence.
+     When initially called, bout_index will always be 0. If, for example, the
+     first three bouts in the list are consecutive, the function will return 2.
+
+    :param sorted_bouts: list of brain state bouts, sorted by start time
+    :param bout_index: index of the bout in question
+    :return: index of the last consecutive same-length bout
+    """
     # if we're at the end of the bout list, stop
     if bout_index == len(sorted_bouts) - 1:
         return bout_index
@@ -82,8 +93,23 @@ def find_last_adjacent_bout(sorted_bouts, bout_index):
 def enforce_min_bout_length(
     labels: np.array, epoch_length: int | float, min_bout_length: int | float
 ) -> np.array:
-    # all entries in labels must be digits in the 0-9 range
+    """Ensure brain state bouts meet the min length requirement
 
+    As a post-processing step for sleep scoring, we can require that any
+    bout (continuous period) of a brain state have a minimum duration.
+    This function sets any bout shorter than the minimum duration to the
+    surrounding brain state (if the states on the left and right sides
+    are the same). In the case where there are consecutive short bouts,
+    it either creates a transition at the midpoint or removes all short
+    bouts, depending on whether the number is even or odd. For example:
+    ...AAABABAAA...  -> ...AAAAAAAAA...
+    ...AAABABABBB... -> ...AAAAABBBBB...
+
+    :param labels: brain state labels (digits in the 0-9 range)
+    :param epoch_length: epoch length, in seconds
+    :param min_bout_length: minimum bout length, in seconds
+    :return: updated brain state labels
+    """
     # if recording is very short, don't change anything
     if labels.size < 3:
         return labels
@@ -119,7 +145,6 @@ def enforce_min_bout_length(
                             length=span[1] - span[0],
                             start_index=span[0],
                             end_index=span[1],
-                            # state=state,
                             surrounding_state=other_state,
                         )
                     )
@@ -133,10 +158,6 @@ def enforce_min_bout_length(
         # sort by start index
         sorted_bouts = sorted(bouts, key=attrgetter("start_index"))
 
-        # Work through the list. If several bouts of the same length are
-        # adjacent, either eliminate them all or create a transition halfway
-        # through if there are an even or odd number of short bouts,
-        # respectively.
         while len(sorted_bouts) > 0:
             # get row index of latest adjacent bout (of same length)
             last_adjacent_bout_index = find_last_adjacent_bout(sorted_bouts, 0)
