@@ -17,6 +17,7 @@ class BrainState:
     name: str  # friendly name
     digit: int  # number 0-9 - used as keyboard shortcut
     is_scored: bool  # whether a classification model should score this state
+    frequency: int | float  # typical relative frequency, between 0 and 1
 
 
 class BrainStateMapper:
@@ -25,6 +26,7 @@ class BrainStateMapper:
 
         self.digit_to_class = {undefined_label: None}
         self.class_to_digit = dict()
+        self.mixture_weights = list()
         i = 0
         for brain_state in self.brain_states:
             if brain_state.digit == undefined_label:
@@ -34,11 +36,16 @@ class BrainStateMapper:
             if brain_state.is_scored:
                 self.digit_to_class[brain_state.digit] = i
                 self.class_to_digit[i] = brain_state.digit
+                self.mixture_weights.append(brain_state.frequency)
                 i += 1
             else:
                 self.digit_to_class[brain_state.digit] = None
 
         self.n_classes = i
+
+        self.mixture_weights = np.array(self.mixture_weights)
+        if np.sum(self.mixture_weights) != 1:
+            raise Exception(f"Typical brain state frequencies must sum to 1")
 
     def convert_digit_to_class(self, digits):
         return np.array([self.digit_to_class[i] for i in digits])

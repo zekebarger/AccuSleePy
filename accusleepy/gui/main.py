@@ -1,6 +1,8 @@
 # AccuSleePy main window
 
+import datetime
 import os
+import shutil
 import sys
 
 import numpy as np
@@ -8,11 +10,20 @@ from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.utils.classification import create_calibration_file, score_recording
+from accusleepy.utils.classification import (
+    create_calibration_file,
+    score_recording,
+    train_model,
+)
 from accusleepy.utils.constants import (
     BRAIN_STATE_MAPPER,
-    EPOCHS_PER_IMG,
+    DEFAULT_MODEL_TYPE,
+    KEY_TO_MODEL_TYPE,
     UNDEFINED_LABEL,
+    RECORDING_FILE_TYPES,
+    LABEL_FILE_TYPE,
+    CALIBRATION_FILE_TYPE,
+    MODEL_FILE_TYPE,
 )
 from accusleepy.utils.fileio import (
     load_calibration_file,
@@ -20,9 +31,14 @@ from accusleepy.utils.fileio import (
     load_model,
     load_recording,
     save_labels,
+    save_model,
 )
 from accusleepy.utils.misc import Recording, enforce_min_bout_length
-from accusleepy.utils.signal_processing import resample_and_standardize
+from accusleepy.utils.signal_processing import (
+    ANNOTATIONS_FILENAME,
+    create_training_images,
+    resample_and_standardize,
+)
 
 # max number of messages to display
 MESSAGE_BOX_MAX_DEPTH = 50
@@ -47,6 +63,12 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.model = None
         self.only_overwrite_undefined = False
         self.min_bout_length = 5
+
+        # initialize model training variables
+        self.training_epochs_per_img = 9
+        self.delete_training_images = True
+        self.training_image_dir = ""
+        self.model_type = DEFAULT_MODEL_TYPE
 
         # set up the list of recordings
         first_recording = Recording(
@@ -90,8 +112,170 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
         self.ui.user_manual_button.clicked.connect(self.show_user_manual)
+        self.ui.image_number_input.valueChanged.connect(self.update_epochs_per_img)
+        self.ui.delete_image_box.stateChanged.connect(self.update_image_deletion)
+        self.ui.training_folder_button.clicked.connect(self.set_training_folder)
+        self.ui.train_model_button.clicked.connect(self.train_model)
+
+        # user input: drag and drop
+        self.ui.recording_file_label.installEventFilter(self)
+        self.ui.label_file_label.installEventFilter(self)
+        self.ui.calibration_file_label.installEventFilter(self)
+        self.ui.model_label.installEventFilter(self)
 
         self.show()
+
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+        """Filter mouse events to detect when user drags/drops a file
+
+        :param obj: UI object receiving the event
+        :param event: mouse event
+        :return: whether to filter (block) the event
+        """
+        filename = None
+        if obj in [
+            self.ui.recording_file_label,
+            self.ui.label_file_label,
+            self.ui.calibration_file_label,
+            self.ui.model_label,
+        ]:
+            event.accept()
+            if event.type() == QtCore.QEvent.Drop:
+                urls = event.mimeData().urls()
+                if len(urls) == 1:
+                    filename = urls[0].toLocalFile()
+
+        if filename is None:
+            return super().eventFilter(obj, event)
+
+        _, file_extension = os.path.splitext(filename)
+
+        if obj == self.ui.recording_file_label:
+            if file_extension in RECORDING_FILE_TYPES:
+                self.recordings[self.recording_index].recording_file = filename
+                self.ui.recording_file_label.setText(filename)
+        elif obj == self.ui.label_file_label:
+            if file_extension == LABEL_FILE_TYPE:
+                self.recordings[self.recording_index].label_file = filename
+                self.ui.label_file_label.setText(filename)
+        elif obj == self.ui.calibration_file_label:
+            if file_extension == CALIBRATION_FILE_TYPE:
+                self.recordings[self.recording_index].calibration_file = filename
+                self.ui.calibration_file_label.setText(filename)
+        elif obj == self.ui.model_label:
+            try:
+                self.model = load_model(filename)
+            except Exception:
+                self.show_message(f"ERROR: could not load model from {filename} ")
+                return super().eventFilter(obj, event)
+            self.ui.model_label.setText(filename)
+
+        return super().eventFilter(obj, event)
+
+    def train_model(self) -> None:
+        # check basic training inputs
+        if (
+            self.model_type == DEFAULT_MODEL_TYPE
+            and self.training_epochs_per_img % 2 == 0
+        ):
+            self.show_message(
+                (
+                    "ERROR: for the default model type, number of epochs "
+                    "per image must be an odd number."
+                )
+            )
+            return
+        if self.training_image_dir == "":
+            self.show_message("ERROR: no folder selected for training images.")
+            return
+
+        # check some inputs for each recording
+        for recording_index in range(len(self.recordings)):
+            error_message = self.check_single_file_inputs(recording_index)
+            if error_message:
+                self.show_message(
+                    f"ERROR ({self.recordings[recording_index].name}): {error_message}"
+                )
+                return
+
+        # get filename for the new model
+        model_filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self,
+            caption="Save classification model file as",
+            filter="*" + MODEL_FILE_TYPE,
+        )
+        if not model_filename:
+            self.show_message("Model training canceled, no filename given")
+
+        # create image folder
+        if os.path.exists(self.training_image_dir):
+            self.show_message(
+                f"Warning: training image folder exists, will be overwritten"
+            )
+        os.makedirs(self.training_image_dir, exist_ok=True)
+
+        # create training images
+        self.show_message(f"Creating training images in {self.training_image_dir}")
+        self.ui.message_area.repaint()
+        app.processEvents()
+        failed_recordings = create_training_images(
+            recordings=self.recordings,
+            output_path=self.training_image_dir,
+            epoch_length=self.epoch_length,
+            epochs_per_img=self.training_epochs_per_img,
+        )
+        if len(failed_recordings) > 0:
+            if len(failed_recordings) == len(self.recordings):
+                self.show_message(f"ERROR: no recordings were valid!")
+            else:
+                self.show_message(
+                    (
+                        "WARNING: the following recordings could not be"
+                        "loaded and will not be used for training: "
+                        f"{', '.join([str(r) for r in failed_recordings])}"
+                    )
+                )
+
+        # train model
+        model = train_model(
+            annotations_file=os.path.join(
+                self.training_image_dir, ANNOTATIONS_FILENAME
+            ),
+            img_dir=self.training_image_dir,
+            epochs_per_image=self.training_epochs_per_img,
+            model_type=self.model_type,
+        )
+
+        # save model
+        save_model(model=model, filename=model_filename)
+
+        # optionally delete images
+        if self.delete_training_images:
+            shutil.rmtree(self.training_image_dir)
+
+        self.show_message(f"Training complete, saved model to {model_filename}")
+
+    def set_training_folder(self):
+        training_folder_parent = QtWidgets.QFileDialog.getExistingDirectory(
+            self, "Select directory for training images"
+        )
+        if training_folder_parent:
+            self.training_image_dir = os.path.join(
+                training_folder_parent,
+                "images_" + datetime.datetime.now().strftime("%Y%m%d%H%M"),
+            )
+            self.ui.image_folder_label.setText(self.training_image_dir)
+
+    def update_image_deletion(self) -> None:
+        """Update choice of whether to delete images after training"""
+        self.delete_training_images = self.ui.delete_image_box.isChecked()
+
+    def update_epochs_per_img(self, new_value) -> None:
+        """Update number of epochs per image
+
+        :param new_value: new number of epochs per image
+        """
+        self.training_epochs_per_img = new_value
 
     def score_all(self) -> None:
         """Score all recordings using the classification model"""
@@ -222,7 +406,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 mixture_sds=mixture_sds,
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
-                epochs_per_img=EPOCHS_PER_IMG,
             )
 
             # overwrite as needed
@@ -256,7 +439,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         file_dialog.setWindowTitle("Select classification model")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*.pth")
+        file_dialog.setNameFilter("*" + MODEL_FILE_TYPE)
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -367,7 +550,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             caption="Save calibration file as",
-            filter="*.csv",
+            filter="*" + CALIBRATION_FILE_TYPE,
         )
         if not filename:
             return
@@ -529,7 +712,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             caption="Set filename for label file (nothing will be overwritten yet)",
-            filter="*.csv",
+            filter="*" + LABEL_FILE_TYPE,
         )
         if filename:
             self.recordings[self.recording_index].label_file = filename
@@ -541,7 +724,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         file_dialog.setWindowTitle("Select label file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("(*.csv)")
+        file_dialog.setNameFilter("*" + LABEL_FILE_TYPE)
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -555,7 +738,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         file_dialog.setWindowTitle("Select calibration file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*.csv")
+        file_dialog.setNameFilter("*" + CALIBRATION_FILE_TYPE)
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -569,7 +752,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         file_dialog.setWindowTitle("Select recording file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("(*.parquet *.csv)")
+        file_dialog.setNameFilter(f"(*{' *'.join(RECORDING_FILE_TYPES)})")
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -662,6 +845,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 f"deleted Recording {self.recordings[current_list_index].name}"
             )
             del self.recordings[current_list_index]
+            self.recording_index = self.ui.recording_list_widget.currentRow()
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""

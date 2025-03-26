@@ -33,8 +33,8 @@ def load_calibration_file(filename: str) -> (np.array, np.array):
     return mixture_means, mixture_sds
 
 
-def save_model(model: SSANN, output_dir: str, filename: str) -> None:
-    torch.save(model.state_dict(), os.path.join(output_dir, filename) + ".pth")
+def save_model(model: SSANN, filename: str) -> None:
+    torch.save(model.state_dict(), filename)
 
 
 def load_model(file_path: str) -> SSANN:

@@ -17,9 +17,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QGridLayout,
     QGroupBox, QHBoxLayout, QLabel, QListWidget,
-    QListWidgetItem, QMainWindow, QPushButton, QSizePolicy,
-    QSpacerItem, QTabWidget, QTextBrowser, QVBoxLayout,
-    QWidget)
+    QListWidgetItem, QMainWindow, QPushButton, QRadioButton,
+    QSizePolicy, QSpacerItem, QSpinBox, QTabWidget,
+    QTextBrowser, QVBoxLayout, QWidget)
 import resources_rc
 
 class Ui_PrimaryWindow(object):
@@ -32,16 +32,16 @@ class Ui_PrimaryWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(PrimaryWindow.sizePolicy().hasHeightForWidth())
         PrimaryWindow.setSizePolicy(sizePolicy)
-        PrimaryWindow.setStyleSheet(u"background-color: white;")
+        PrimaryWindow.setStyleSheet(u"")
         self.centralwidget = QWidget(PrimaryWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
-        self.gridLayout = QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(0, 10, 0, 0)
-        self.tabWidget = QTabWidget(self.centralwidget)
-        self.tabWidget.setObjectName(u"tabWidget")
+        self.verticalLayout_5 = QVBoxLayout(self.centralwidget)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.verticalLayout_5.setContentsMargins(0, 10, 0, 0)
+        self.upper_tab_widget = QTabWidget(self.centralwidget)
+        self.upper_tab_widget.setObjectName(u"upper_tab_widget")
         self.scoring_tab = QWidget()
         self.scoring_tab.setObjectName(u"scoring_tab")
         self.gridLayout_3 = QGridLayout(self.scoring_tab)
@@ -148,6 +148,7 @@ class Ui_PrimaryWindow(object):
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.recording_file_label.sizePolicy().hasHeightForWidth())
         self.recording_file_label.setSizePolicy(sizePolicy4)
+        self.recording_file_label.setAcceptDrops(True)
         self.recording_file_label.setStyleSheet(u"background-color: white;")
         self.recording_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -206,6 +207,7 @@ class Ui_PrimaryWindow(object):
         self.label_file_label.setObjectName(u"label_file_label")
         sizePolicy4.setHeightForWidth(self.label_file_label.sizePolicy().hasHeightForWidth())
         self.label_file_label.setSizePolicy(sizePolicy4)
+        self.label_file_label.setAcceptDrops(True)
         self.label_file_label.setStyleSheet(u"background-color: white;")
         self.label_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -275,6 +277,7 @@ class Ui_PrimaryWindow(object):
         self.calibration_file_label.setObjectName(u"calibration_file_label")
         sizePolicy4.setHeightForWidth(self.calibration_file_label.sizePolicy().hasHeightForWidth())
         self.calibration_file_label.setSizePolicy(sizePolicy4)
+        self.calibration_file_label.setAcceptDrops(True)
         self.calibration_file_label.setStyleSheet(u"background-color: white;")
         self.calibration_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -293,63 +296,36 @@ class Ui_PrimaryWindow(object):
 
         self.recordingactionsgroupbox.addWidget(self.selected_recording_groupbox)
 
-        self.allrecordingsgroupbox = QGroupBox(self.scoring_tab)
-        self.allrecordingsgroupbox.setObjectName(u"allrecordingsgroupbox")
-        sizePolicy.setHeightForWidth(self.allrecordingsgroupbox.sizePolicy().hasHeightForWidth())
-        self.allrecordingsgroupbox.setSizePolicy(sizePolicy)
-        self.allrecordingsgroupbox.setFont(font)
-        self.verticalLayout_3 = QVBoxLayout(self.allrecordingsgroupbox)
-        self.verticalLayout_3.setSpacing(10)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout_9 = QHBoxLayout()
-        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.horizontalLayout_11 = QHBoxLayout()
-        self.horizontalLayout_11.setSpacing(5)
-        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
-        self.load_model_button = QPushButton(self.allrecordingsgroupbox)
-        self.load_model_button.setObjectName(u"load_model_button")
-        sizePolicy3.setHeightForWidth(self.load_model_button.sizePolicy().hasHeightForWidth())
-        self.load_model_button.setSizePolicy(sizePolicy3)
-
-        self.horizontalLayout_11.addWidget(self.load_model_button)
-
-
-        self.horizontalLayout_9.addLayout(self.horizontalLayout_11)
-
-        self.model_label = QLabel(self.allrecordingsgroupbox)
-        self.model_label.setObjectName(u"model_label")
-        sizePolicy4.setHeightForWidth(self.model_label.sizePolicy().hasHeightForWidth())
-        self.model_label.setSizePolicy(sizePolicy4)
-        self.model_label.setStyleSheet(u"background-color: white;")
-        self.model_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.horizontalLayout_9.addWidget(self.model_label)
-
-        self.horizontalLayout_9.setStretch(0, 5)
-        self.horizontalLayout_9.setStretch(1, 12)
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout_9)
-
-        self.horizontalLayout_8 = QHBoxLayout()
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.score_all_button = QPushButton(self.allrecordingsgroupbox)
+        self.lower_tab_widget = QTabWidget(self.scoring_tab)
+        self.lower_tab_widget.setObjectName(u"lower_tab_widget")
+        self.classification_tab = QWidget()
+        self.classification_tab.setObjectName(u"classification_tab")
+        self.classification_tab.setStyleSheet(u"")
+        self.gridLayout = QGridLayout(self.classification_tab)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setVerticalSpacing(10)
+        self.gridLayout.setContentsMargins(5, 5, 5, 5)
+        self.gridLayout_4 = QGridLayout()
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.score_all_layout = QHBoxLayout()
+        self.score_all_layout.setObjectName(u"score_all_layout")
+        self.score_all_button = QPushButton(self.classification_tab)
         self.score_all_button.setObjectName(u"score_all_button")
         sizePolicy2.setHeightForWidth(self.score_all_button.sizePolicy().hasHeightForWidth())
         self.score_all_button.setSizePolicy(sizePolicy2)
 
-        self.horizontalLayout_8.addWidget(self.score_all_button)
+        self.score_all_layout.addWidget(self.score_all_button)
 
-        self.score_all_status = QLabel(self.allrecordingsgroupbox)
+        self.score_all_status = QLabel(self.classification_tab)
         self.score_all_status.setObjectName(u"score_all_status")
         self.score_all_status.setStyleSheet(u"background-color: transparent;")
 
-        self.horizontalLayout_8.addWidget(self.score_all_status)
+        self.score_all_layout.addWidget(self.score_all_status)
 
         self.verticalLayout_4 = QVBoxLayout()
         self.verticalLayout_4.setSpacing(10)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.overwritecheckbox = QCheckBox(self.allrecordingsgroupbox)
+        self.overwritecheckbox = QCheckBox(self.classification_tab)
         self.overwritecheckbox.setObjectName(u"overwritecheckbox")
         sizePolicy2.setHeightForWidth(self.overwritecheckbox.sizePolicy().hasHeightForWidth())
         self.overwritecheckbox.setSizePolicy(sizePolicy2)
@@ -360,7 +336,7 @@ class Ui_PrimaryWindow(object):
         self.boutlengthlayout = QHBoxLayout()
         self.boutlengthlayout.setSpacing(5)
         self.boutlengthlayout.setObjectName(u"boutlengthlayout")
-        self.boutlengthlabel = QLabel(self.allrecordingsgroupbox)
+        self.boutlengthlabel = QLabel(self.classification_tab)
         self.boutlengthlabel.setObjectName(u"boutlengthlabel")
         sizePolicy2.setHeightForWidth(self.boutlengthlabel.sizePolicy().hasHeightForWidth())
         self.boutlengthlabel.setSizePolicy(sizePolicy2)
@@ -368,7 +344,7 @@ class Ui_PrimaryWindow(object):
 
         self.boutlengthlayout.addWidget(self.boutlengthlabel)
 
-        self.bout_length_input = QDoubleSpinBox(self.allrecordingsgroupbox)
+        self.bout_length_input = QDoubleSpinBox(self.classification_tab)
         self.bout_length_input.setObjectName(u"bout_length_input")
         sizePolicy2.setHeightForWidth(self.bout_length_input.sizePolicy().hasHeightForWidth())
         self.bout_length_input.setSizePolicy(sizePolicy2)
@@ -383,26 +359,208 @@ class Ui_PrimaryWindow(object):
         self.verticalLayout_4.addLayout(self.boutlengthlayout)
 
 
-        self.horizontalLayout_8.addLayout(self.verticalLayout_4)
+        self.score_all_layout.addLayout(self.verticalLayout_4)
 
         self.horizontalSpacer_5 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_8.addItem(self.horizontalSpacer_5)
+        self.score_all_layout.addItem(self.horizontalSpacer_5)
 
-        self.horizontalLayout_8.setStretch(0, 3)
-        self.horizontalLayout_8.setStretch(1, 3)
-        self.horizontalLayout_8.setStretch(2, 4)
-        self.horizontalLayout_8.setStretch(3, 2)
+        self.score_all_layout.setStretch(0, 3)
+        self.score_all_layout.setStretch(1, 3)
+        self.score_all_layout.setStretch(2, 4)
+        self.score_all_layout.setStretch(3, 2)
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_8)
+        self.gridLayout_4.addLayout(self.score_all_layout, 1, 0, 1, 1)
 
-        self.verticalLayout_3.setStretch(0, 2)
-        self.verticalLayout_3.setStretch(1, 3)
+        self.load_model_layout = QHBoxLayout()
+        self.load_model_layout.setObjectName(u"load_model_layout")
+        self.horizontalLayout_11 = QHBoxLayout()
+        self.horizontalLayout_11.setSpacing(5)
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.load_model_button = QPushButton(self.classification_tab)
+        self.load_model_button.setObjectName(u"load_model_button")
+        sizePolicy3.setHeightForWidth(self.load_model_button.sizePolicy().hasHeightForWidth())
+        self.load_model_button.setSizePolicy(sizePolicy3)
 
-        self.recordingactionsgroupbox.addWidget(self.allrecordingsgroupbox)
+        self.horizontalLayout_11.addWidget(self.load_model_button)
+
+
+        self.load_model_layout.addLayout(self.horizontalLayout_11)
+
+        self.model_label = QLabel(self.classification_tab)
+        self.model_label.setObjectName(u"model_label")
+        sizePolicy4.setHeightForWidth(self.model_label.sizePolicy().hasHeightForWidth())
+        self.model_label.setSizePolicy(sizePolicy4)
+        self.model_label.setAcceptDrops(True)
+        self.model_label.setStyleSheet(u"background-color: white;")
+        self.model_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.load_model_layout.addWidget(self.model_label)
+
+        self.load_model_layout.setStretch(0, 5)
+        self.load_model_layout.setStretch(1, 12)
+
+        self.gridLayout_4.addLayout(self.load_model_layout, 0, 0, 1, 1)
+
+
+        self.gridLayout.addLayout(self.gridLayout_4, 0, 0, 1, 1)
+
+        self.gridLayout.setColumnStretch(0, 2)
+        self.lower_tab_widget.addTab(self.classification_tab, "")
+        self.model_training_tab = QWidget()
+        self.model_training_tab.setObjectName(u"model_training_tab")
+        self.gridLayout_7 = QGridLayout(self.model_training_tab)
+        self.gridLayout_7.setObjectName(u"gridLayout_7")
+        self.gridLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.model_training_layout = QGridLayout()
+        self.model_training_layout.setObjectName(u"model_training_layout")
+        self.top_training_layout = QHBoxLayout()
+        self.top_training_layout.setSpacing(10)
+        self.top_training_layout.setObjectName(u"top_training_layout")
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setSpacing(5)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.label = QLabel(self.model_training_tab)
+        self.label.setObjectName(u"label")
+        sizePolicy2.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_5.addWidget(self.label)
+
+        self.image_number_input = QSpinBox(self.model_training_tab)
+        self.image_number_input.setObjectName(u"image_number_input")
+        sizePolicy2.setHeightForWidth(self.image_number_input.sizePolicy().hasHeightForWidth())
+        self.image_number_input.setSizePolicy(sizePolicy2)
+        self.image_number_input.setStyleSheet(u"background-color: white;")
+        self.image_number_input.setMinimum(1)
+        self.image_number_input.setMaximum(999)
+        self.image_number_input.setValue(9)
+
+        self.horizontalLayout_5.addWidget(self.image_number_input)
+
+
+        self.top_training_layout.addLayout(self.horizontalLayout_5)
+
+        self.horizontalSpacer = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.top_training_layout.addItem(self.horizontalSpacer)
+
+        self.delete_image_box = QCheckBox(self.model_training_tab)
+        self.delete_image_box.setObjectName(u"delete_image_box")
+        sizePolicy2.setHeightForWidth(self.delete_image_box.sizePolicy().hasHeightForWidth())
+        self.delete_image_box.setSizePolicy(sizePolicy2)
+        self.delete_image_box.setChecked(True)
+
+        self.top_training_layout.addWidget(self.delete_image_box)
+
+        self.horizontalSpacer_6 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.top_training_layout.addItem(self.horizontalSpacer_6)
+
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.label_2 = QLabel(self.model_training_tab)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setEnabled(False)
+        sizePolicy2.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_6.addWidget(self.label_2)
+
+        self.default_type_button = QRadioButton(self.model_training_tab)
+        self.default_type_button.setObjectName(u"default_type_button")
+        self.default_type_button.setEnabled(False)
+        sizePolicy2.setHeightForWidth(self.default_type_button.sizePolicy().hasHeightForWidth())
+        self.default_type_button.setSizePolicy(sizePolicy2)
+        self.default_type_button.setChecked(True)
+
+        self.horizontalLayout_6.addWidget(self.default_type_button)
+
+        self.real_time_button = QRadioButton(self.model_training_tab)
+        self.real_time_button.setObjectName(u"real_time_button")
+        self.real_time_button.setEnabled(False)
+        sizePolicy2.setHeightForWidth(self.real_time_button.sizePolicy().hasHeightForWidth())
+        self.real_time_button.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_6.addWidget(self.real_time_button)
+
+        self.horizontalLayout_6.setStretch(0, 2)
+        self.horizontalLayout_6.setStretch(1, 3)
+        self.horizontalLayout_6.setStretch(2, 3)
+
+        self.top_training_layout.addLayout(self.horizontalLayout_6)
+
+        self.horizontalSpacer_3 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.top_training_layout.addItem(self.horizontalSpacer_3)
+
+        self.top_training_layout.setStretch(0, 2)
+        self.top_training_layout.setStretch(1, 1)
+        self.top_training_layout.setStretch(2, 2)
+        self.top_training_layout.setStretch(3, 1)
+        self.top_training_layout.setStretch(4, 3)
+        self.top_training_layout.setStretch(5, 1)
+
+        self.model_training_layout.addLayout(self.top_training_layout, 0, 0, 1, 1)
+
+        self.bottom_training_layout = QHBoxLayout()
+        self.bottom_training_layout.setObjectName(u"bottom_training_layout")
+        self.horizontalSpacer_7 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.bottom_training_layout.addItem(self.horizontalSpacer_7)
+
+        self.train_model_button = QPushButton(self.model_training_tab)
+        self.train_model_button.setObjectName(u"train_model_button")
+        sizePolicy2.setHeightForWidth(self.train_model_button.sizePolicy().hasHeightForWidth())
+        self.train_model_button.setSizePolicy(sizePolicy2)
+
+        self.bottom_training_layout.addWidget(self.train_model_button)
+
+        self.horizontalSpacer_8 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.bottom_training_layout.addItem(self.horizontalSpacer_8)
+
+
+        self.model_training_layout.addLayout(self.bottom_training_layout, 2, 0, 1, 1)
+
+        self.middle_training_layout = QHBoxLayout()
+        self.middle_training_layout.setObjectName(u"middle_training_layout")
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.training_folder_button = QPushButton(self.model_training_tab)
+        self.training_folder_button.setObjectName(u"training_folder_button")
+        sizePolicy3.setHeightForWidth(self.training_folder_button.sizePolicy().hasHeightForWidth())
+        self.training_folder_button.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_2.addWidget(self.training_folder_button)
+
+
+        self.middle_training_layout.addLayout(self.horizontalLayout_2)
+
+        self.image_folder_label = QLabel(self.model_training_tab)
+        self.image_folder_label.setObjectName(u"image_folder_label")
+        sizePolicy4.setHeightForWidth(self.image_folder_label.sizePolicy().hasHeightForWidth())
+        self.image_folder_label.setSizePolicy(sizePolicy4)
+        self.image_folder_label.setStyleSheet(u"background-color: white;")
+
+        self.middle_training_layout.addWidget(self.image_folder_label)
+
+        self.middle_training_layout.setStretch(0, 5)
+        self.middle_training_layout.setStretch(1, 12)
+
+        self.model_training_layout.addLayout(self.middle_training_layout, 1, 0, 1, 1)
+
+        self.model_training_layout.setRowStretch(0, 1)
+        self.model_training_layout.setRowStretch(1, 1)
+        self.model_training_layout.setRowStretch(2, 1)
+
+        self.gridLayout_7.addLayout(self.model_training_layout, 0, 0, 1, 1)
+
+        self.lower_tab_widget.addTab(self.model_training_tab, "")
+
+        self.recordingactionsgroupbox.addWidget(self.lower_tab_widget)
 
         self.recordingactionsgroupbox.setStretch(0, 2)
-        self.recordingactionsgroupbox.setStretch(1, 1)
 
         self.scoring_tab_layout.addLayout(self.recordingactionsgroupbox, 0, 1, 1, 1)
 
@@ -511,7 +669,7 @@ class Ui_PrimaryWindow(object):
 
         self.gridLayout_3.addLayout(self.scoring_tab_layout, 0, 0, 1, 1)
 
-        self.tabWidget.addTab(self.scoring_tab, "")
+        self.upper_tab_widget.addTab(self.scoring_tab, "")
         self.settings_tab = QWidget()
         self.settings_tab.setObjectName(u"settings_tab")
         self.gridLayout_5 = QGridLayout(self.settings_tab)
@@ -522,9 +680,9 @@ class Ui_PrimaryWindow(object):
 
         self.gridLayout_5.addLayout(self.settings_tab_layout, 0, 0, 1, 1)
 
-        self.tabWidget.addTab(self.settings_tab, "")
+        self.upper_tab_widget.addTab(self.settings_tab, "")
 
-        self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
+        self.verticalLayout_5.addWidget(self.upper_tab_widget)
 
         PrimaryWindow.setCentralWidget(self.centralwidget)
         QWidget.setTabOrder(self.epoch_length_input, self.sampling_rate_input)
@@ -546,7 +704,8 @@ class Ui_PrimaryWindow(object):
 
         self.retranslateUi(PrimaryWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.upper_tab_widget.setCurrentIndex(0)
+        self.lower_tab_widget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(PrimaryWindow)
@@ -559,30 +718,57 @@ class Ui_PrimaryWindow(object):
         self.samplingratelabel.setText(QCoreApplication.translate("PrimaryWindow", u"Sampling rate (Hz):", None))
         self.recording_file_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select recording file", None))
         self.recording_file_label.setText("")
+#if QT_CONFIG(tooltip)
+        self.select_label_button.setToolTip(QCoreApplication.translate("PrimaryWindow", u"Select existing label file", None))
+#endif // QT_CONFIG(tooltip)
         self.select_label_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select", None))
         self.or_label.setText(QCoreApplication.translate("PrimaryWindow", u"or", None))
+#if QT_CONFIG(tooltip)
+        self.create_label_button.setToolTip(QCoreApplication.translate("PrimaryWindow", u"Choose filename for new label file", None))
+#endif // QT_CONFIG(tooltip)
         self.create_label_button.setText(QCoreApplication.translate("PrimaryWindow", u"create", None))
         self.label_text.setText(QCoreApplication.translate("PrimaryWindow", u"label file", None))
         self.label_file_label.setText("")
+#if QT_CONFIG(tooltip)
+        self.manual_scoring_button.setToolTip(QCoreApplication.translate("PrimaryWindow", u"View and edit brain state labels for this recording", None))
+#endif // QT_CONFIG(tooltip)
         self.manual_scoring_button.setText(QCoreApplication.translate("PrimaryWindow", u"Score manually", None))
         self.manual_scoring_status.setText("")
         self.create_calibration_button.setText(QCoreApplication.translate("PrimaryWindow", u"Create calibration file", None))
         self.calibration_status.setText("")
         self.select_calibration_button.setText(QCoreApplication.translate("PrimaryWindow", u"Select calibration file", None))
         self.calibration_file_label.setText("")
-        self.allrecordingsgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Data / actions for all recordings", None))
-        self.load_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Load classification model", None))
-        self.model_label.setText("")
+#if QT_CONFIG(tooltip)
+        self.score_all_button.setToolTip(QCoreApplication.translate("PrimaryWindow", u"Use classification model to score all recordings", None))
+#endif // QT_CONFIG(tooltip)
         self.score_all_button.setText(QCoreApplication.translate("PrimaryWindow", u"Score all automatically", None))
         self.score_all_status.setText("")
         self.overwritecheckbox.setText(QCoreApplication.translate("PrimaryWindow", u"Only overwrite undefined epochs", None))
         self.boutlengthlabel.setText(QCoreApplication.translate("PrimaryWindow", u"Minimum bout length (sec):", None))
+        self.load_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Load classification model", None))
+        self.model_label.setText("")
+        self.lower_tab_widget.setTabText(self.lower_tab_widget.indexOf(self.classification_tab), QCoreApplication.translate("PrimaryWindow", u"Classification", None))
+        self.label.setText(QCoreApplication.translate("PrimaryWindow", u"Epochs per image:", None))
+        self.delete_image_box.setText(QCoreApplication.translate("PrimaryWindow", u"Delete images after training", None))
+        self.label_2.setText(QCoreApplication.translate("PrimaryWindow", u"Model type:", None))
+        self.default_type_button.setText(QCoreApplication.translate("PrimaryWindow", u"Default", None))
+        self.real_time_button.setText(QCoreApplication.translate("PrimaryWindow", u"Real-time", None))
+        self.train_model_button.setText(QCoreApplication.translate("PrimaryWindow", u"Train classification model", None))
+#if QT_CONFIG(tooltip)
+        self.training_folder_button.setToolTip(QCoreApplication.translate("PrimaryWindow", u"A temporary folder will be created here", None))
+#endif // QT_CONFIG(tooltip)
+        self.training_folder_button.setText(QCoreApplication.translate("PrimaryWindow", u"Set training image directory", None))
+        self.image_folder_label.setText("")
+        self.lower_tab_widget.setTabText(self.lower_tab_widget.indexOf(self.model_training_tab), QCoreApplication.translate("PrimaryWindow", u"Model training", None))
         self.epochlengthlabel.setText(QCoreApplication.translate("PrimaryWindow", u"Epoch length (sec):", None))
         self.recordinglistgroupbox.setTitle(QCoreApplication.translate("PrimaryWindow", u"Recording list", None))
         self.add_button.setText(QCoreApplication.translate("PrimaryWindow", u"add", None))
         self.remove_button.setText(QCoreApplication.translate("PrimaryWindow", u"remove", None))
+#if QT_CONFIG(tooltip)
+        self.user_manual_button.setToolTip(QCoreApplication.translate("PrimaryWindow", u"User manual", None))
+#endif // QT_CONFIG(tooltip)
         self.user_manual_button.setText("")
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.scoring_tab), QCoreApplication.translate("PrimaryWindow", u"Sleep scoring", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.settings_tab), QCoreApplication.translate("PrimaryWindow", u"Settings", None))
+        self.upper_tab_widget.setTabText(self.upper_tab_widget.indexOf(self.scoring_tab), QCoreApplication.translate("PrimaryWindow", u"Sleep scoring", None))
+        self.upper_tab_widget.setTabText(self.upper_tab_widget.indexOf(self.settings_tab), QCoreApplication.translate("PrimaryWindow", u"Settings", None))
     # retranslateUi
 

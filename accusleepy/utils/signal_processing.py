@@ -16,18 +16,6 @@ SPECTROGRAM_UPPER_FREQ = 64
 ANNOTATIONS_FILENAME = "annotations.csv"
 
 
-# todo
-"""
-samples_per_epoch = sampling_rate * epoch_length
-samples_per_epoch % 1 = excess
-1 / excess = nth epoch will have an extra sample, or...
-nth epoch will NOT have a "fake" sample appended and will have a real one instead
-so, upsample? and modify SR. and should decide to truncate or pad basead on whichever 
-makes the smallest change
-
-"""
-
-
 def resample(
     eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
 ) -> (np.array, np.array, float):
@@ -115,17 +103,6 @@ def resample_and_standardize(
     return eeg, emg, sampling_rate
 
 
-# todo: replace this
-def truncate_signals(
-    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
-) -> (np.array, np.array):
-    samples_per_epoch = int(sampling_rate * epoch_length)
-
-    new_eeg = eeg[: len(eeg) - (len(eeg) % samples_per_epoch)]
-    new_emg = emg[: len(emg) - (len(emg) % samples_per_epoch)]
-    return new_eeg, new_emg
-
-
 def create_spectrogram(
     eeg: np.array,
     sampling_rate: int | float,
@@ -211,7 +188,6 @@ def create_eeg_emg_image(
     emg: np.array,
     sampling_rate: int | float,
     epoch_length: int | float,
-    emg_copies: int = c.EMG_COPIES,
 ) -> np.array:
     spec, f = create_spectrogram(eeg, sampling_rate, epoch_length)
     f_lower_idx = sum(f < c.DOWNSAMPLING_START_FREQ)
@@ -228,7 +204,7 @@ def create_eeg_emg_image(
 
     emg_log_rms = process_emg(emg, sampling_rate, epoch_length)
     output = np.concatenate(
-        [modified_spectrogram, np.tile(emg_log_rms, (emg_copies, 1))]
+        [modified_spectrogram, np.tile(emg_log_rms, (c.EMG_COPIES, 1))]
     )
     return output
 
@@ -238,6 +214,7 @@ def get_mixture_values(img: np.array, labels: np.array) -> (np.array, np.array):
 
     means = list()
     variances = list()
+    mixture_weights = c.BRAIN_STATE_MAPPER.mixture_weights
 
     for i in range(c.BRAIN_STATE_MAPPER.n_classes):
         means.append(np.mean(img[:, labels == i], axis=1))
@@ -246,9 +223,9 @@ def get_mixture_values(img: np.array, labels: np.array) -> (np.array, np.array):
     means = np.array(means)
     variances = np.array(variances)
 
-    mixture_means = means.T @ c.MIXTURE_WEIGHTS
+    mixture_means = means.T @ mixture_weights
     mixture_sds = np.sqrt(
-        variances.T @ c.MIXTURE_WEIGHTS
+        variances.T @ mixture_weights
         + (
             (
                 mixture_means
@@ -256,7 +233,7 @@ def get_mixture_values(img: np.array, labels: np.array) -> (np.array, np.array):
             )
             ** 2
         ).T
-        @ c.MIXTURE_WEIGHTS
+        @ mixture_weights
     )
 
     return mixture_means, mixture_sds
@@ -308,41 +285,52 @@ def create_training_images(
     recordings: list[Recording],
     output_path: str,
     epoch_length: int | float,
-    epochs_per_img: int = c.EPOCHS_PER_IMG,
-) -> None:
+    epochs_per_img: int,
+) -> list[int]:
     """Create training dataset
 
     :param recordings: list of recordings in the training set
     :param output_path: where to store training images
     :param epoch_length: epoch length, in seconds
     :param epochs_per_img: # number of epochs shown in each image
+    :return:
     """
-    n_files = len(recordings)
-
+    failed_recordings = list()
     filenames = list()
     all_labels = np.empty(0).astype(int)
-    for i in range(n_files):
-        eeg, emg = load_recording(recordings[i].recording_file)
-        labels = load_labels(recordings[i].label_file)
+    for recording in recordings:
+        try:
+            eeg, emg = load_recording(recording.recording_file)
+            sampling_rate = recording.sampling_rate
+            eeg, emg, sampling_rate = resample_and_standardize(
+                eeg=eeg,
+                emg=emg,
+                sampling_rate=sampling_rate,
+                epoch_length=epoch_length,
+            )
 
-        labels = c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
-        img = create_eeg_emg_image(eeg, emg, recordings[i].sampling_rate, epoch_length)
-        img = mixture_z_score_img(img, labels)
-        img = format_img(img, epochs_per_img)
+            labels = load_labels(recording.label_file)
+            labels = c.BRAIN_STATE_MAPPER.convert_digit_to_class(labels)
+            img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+            img = mixture_z_score_img(img, labels)
+            img = format_img(img, epochs_per_img)
 
-        for j in range(img.shape[1] - epochs_per_img + 1):
-            if labels[j] is None:
-                continue
-            im = img[:, j : (j + epochs_per_img)]
-            filename = f"file_{i}_{j}_{labels[j]}.png"
-            filenames.append(filename)
-            Image.fromarray(im).save(os.path.join(output_path, filename))
+            for j in range(img.shape[1] - epochs_per_img + 1):
+                if labels[j] is None:
+                    continue
+                im = img[:, j : (j + epochs_per_img)]
+                filename = f"recording_{recording.name}_{j}_{labels[j]}.png"
+                filenames.append(filename)
+                Image.fromarray(im).save(os.path.join(output_path, filename))
 
-        all_labels = np.concatenate([all_labels, labels])
+            all_labels = np.concatenate([all_labels, labels])
+        except Exception as e:
+            print(e)
+            failed_recordings.append(recording.name)
 
     pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: all_labels}).to_csv(
         os.path.join(output_path, ANNOTATIONS_FILENAME),
         index=False,
     )
 
-    print(f"finished generating {len(all_labels)} images")
+    return failed_recordings
