@@ -148,6 +148,7 @@ class Ui_PrimaryWindow(object):
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.recording_file_label.sizePolicy().hasHeightForWidth())
         self.recording_file_label.setSizePolicy(sizePolicy4)
+        self.recording_file_label.setAcceptDrops(True)
         self.recording_file_label.setStyleSheet(u"background-color: white;")
         self.recording_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -206,6 +207,7 @@ class Ui_PrimaryWindow(object):
         self.label_file_label.setObjectName(u"label_file_label")
         sizePolicy4.setHeightForWidth(self.label_file_label.sizePolicy().hasHeightForWidth())
         self.label_file_label.setSizePolicy(sizePolicy4)
+        self.label_file_label.setAcceptDrops(True)
         self.label_file_label.setStyleSheet(u"background-color: white;")
         self.label_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -275,6 +277,7 @@ class Ui_PrimaryWindow(object):
         self.calibration_file_label.setObjectName(u"calibration_file_label")
         sizePolicy4.setHeightForWidth(self.calibration_file_label.sizePolicy().hasHeightForWidth())
         self.calibration_file_label.setSizePolicy(sizePolicy4)
+        self.calibration_file_label.setAcceptDrops(True)
         self.calibration_file_label.setStyleSheet(u"background-color: white;")
         self.calibration_file_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -388,6 +391,7 @@ class Ui_PrimaryWindow(object):
         self.model_label.setObjectName(u"model_label")
         sizePolicy4.setHeightForWidth(self.model_label.sizePolicy().hasHeightForWidth())
         self.model_label.setSizePolicy(sizePolicy4)
+        self.model_label.setAcceptDrops(True)
         self.model_label.setStyleSheet(u"background-color: white;")
         self.model_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 

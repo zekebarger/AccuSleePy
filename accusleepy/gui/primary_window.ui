@@ -257,6 +257,9 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="acceptDrops">
+                    <bool>true</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: white;</string>
                    </property>
@@ -353,6 +356,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="acceptDrops">
+                    <bool>true</bool>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: white;</string>
@@ -462,6 +468,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="acceptDrops">
+                    <bool>true</bool>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: white;</string>
@@ -649,6 +658,9 @@
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="acceptDrops">
+                       <bool>true</bool>
                       </property>
                       <property name="styleSheet">
                        <string notr="true">background-color: white;</string>

@@ -20,6 +20,10 @@ from accusleepy.utils.constants import (
     DEFAULT_MODEL_TYPE,
     KEY_TO_MODEL_TYPE,
     UNDEFINED_LABEL,
+    RECORDING_FILE_TYPES,
+    LABEL_FILE_TYPE,
+    CALIBRATION_FILE_TYPE,
+    MODEL_FILE_TYPE,
 )
 from accusleepy.utils.fileio import (
     load_calibration_file,
@@ -113,7 +117,60 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.training_folder_button.clicked.connect(self.set_training_folder)
         self.ui.train_model_button.clicked.connect(self.train_model)
 
+        # user input: drag and drop
+        self.ui.recording_file_label.installEventFilter(self)
+        self.ui.label_file_label.installEventFilter(self)
+        self.ui.calibration_file_label.installEventFilter(self)
+        self.ui.model_label.installEventFilter(self)
+
         self.show()
+
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+        """Filter mouse events to detect when user drags/drops a file
+
+        :param obj: UI object receiving the event
+        :param event: mouse event
+        :return: whether to filter (block) the event
+        """
+        filename = None
+        if obj in [
+            self.ui.recording_file_label,
+            self.ui.label_file_label,
+            self.ui.calibration_file_label,
+            self.ui.model_label,
+        ]:
+            event.accept()
+            if event.type() == QtCore.QEvent.Drop:
+                urls = event.mimeData().urls()
+                if len(urls) == 1:
+                    filename = urls[0].toLocalFile()
+
+        if filename is None:
+            return super().eventFilter(obj, event)
+
+        _, file_extension = os.path.splitext(filename)
+
+        if obj == self.ui.recording_file_label:
+            if file_extension in RECORDING_FILE_TYPES:
+                self.recordings[self.recording_index].recording_file = filename
+                self.ui.recording_file_label.setText(filename)
+        elif obj == self.ui.label_file_label:
+            if file_extension == LABEL_FILE_TYPE:
+                self.recordings[self.recording_index].label_file = filename
+                self.ui.label_file_label.setText(filename)
+        elif obj == self.ui.calibration_file_label:
+            if file_extension == CALIBRATION_FILE_TYPE:
+                self.recordings[self.recording_index].calibration_file = filename
+                self.ui.calibration_file_label.setText(filename)
+        elif obj == self.ui.model_label:
+            try:
+                self.model = load_model(filename)
+            except Exception:
+                self.show_message(f"ERROR: could not load model from {filename} ")
+                return super().eventFilter(obj, event)
+            self.ui.model_label.setText(filename)
+
+        return super().eventFilter(obj, event)
 
     def train_model(self) -> None:
         # check basic training inputs
@@ -145,7 +202,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         model_filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             caption="Save classification model file as",
-            filter="*.pth",
+            filter="*" + MODEL_FILE_TYPE,
         )
         if not model_filename:
             self.show_message("Model training canceled, no filename given")
@@ -382,7 +439,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         file_dialog.setWindowTitle("Select classification model")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*.pth")
+        file_dialog.setNameFilter("*" + MODEL_FILE_TYPE)
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -493,7 +550,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             caption="Save calibration file as",
-            filter="*.csv",
+            filter="*" + CALIBRATION_FILE_TYPE,
         )
         if not filename:
             return
@@ -655,7 +712,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             caption="Set filename for label file (nothing will be overwritten yet)",
-            filter="*.csv",
+            filter="*" + LABEL_FILE_TYPE,
         )
         if filename:
             self.recordings[self.recording_index].label_file = filename
@@ -667,7 +724,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         file_dialog.setWindowTitle("Select label file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("(*.csv)")
+        file_dialog.setNameFilter("*" + LABEL_FILE_TYPE)
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -681,7 +738,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         file_dialog.setWindowTitle("Select calibration file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*.csv")
+        file_dialog.setNameFilter("*" + CALIBRATION_FILE_TYPE)
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
@@ -695,7 +752,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         file_dialog.setWindowTitle("Select recording file")
         file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("(*.parquet *.csv)")
+        file_dialog.setNameFilter(f"(*{' *'.join(RECORDING_FILE_TYPES)})")
 
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
