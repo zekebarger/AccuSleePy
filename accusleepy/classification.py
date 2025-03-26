@@ -9,16 +9,13 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
 
 import accusleepy.config as c
-from accusleepy.fileio import load_labels, load_recording
+from accusleepy.fileio import load_config, load_labels, load_recording
 from accusleepy.misc import BrainStateMapper, Recording
 from accusleepy.models import SSANN
-from accusleepy.signal_processing import (
-    create_eeg_emg_image,
-    format_img,
-    get_mixture_values,
-    mixture_z_score_img,
-    resample_and_standardize,
-)
+from accusleepy.signal_processing import (create_eeg_emg_image, format_img,
+                                          get_mixture_values,
+                                          mixture_z_score_img,
+                                          resample_and_standardize)
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
@@ -109,7 +106,7 @@ def test_model(
     all_labels = np.empty(0).astype(int)
     all_predictions = np.empty(0).astype(int)
 
-    brain_state_mapper = c.load_config()
+    brain_state_mapper = load_config()
 
     for recording in recordings:
         eeg, emg = load_recording(recording.recording_file)

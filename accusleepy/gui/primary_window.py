@@ -16,10 +16,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QGridLayout,
-    QGroupBox, QHBoxLayout, QLabel, QListWidget,
-    QListWidgetItem, QMainWindow, QPushButton, QRadioButton,
-    QSizePolicy, QSpacerItem, QSpinBox, QTabWidget,
-    QTextBrowser, QVBoxLayout, QWidget)
+    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+    QListWidget, QListWidgetItem, QMainWindow, QPushButton,
+    QRadioButton, QSizePolicy, QSpacerItem, QSpinBox,
+    QTabWidget, QTextBrowser, QVBoxLayout, QWidget)
 import resources_rc
 
 class Ui_PrimaryWindow(object):
@@ -42,6 +42,7 @@ class Ui_PrimaryWindow(object):
         self.verticalLayout_5.setContentsMargins(0, 10, 0, 0)
         self.upper_tab_widget = QTabWidget(self.centralwidget)
         self.upper_tab_widget.setObjectName(u"upper_tab_widget")
+        self.upper_tab_widget.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.scoring_tab = QWidget()
         self.scoring_tab.setObjectName(u"scoring_tab")
         self.gridLayout_3 = QGridLayout(self.scoring_tab)
@@ -677,6 +678,795 @@ class Ui_PrimaryWindow(object):
         self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
         self.settings_tab_layout = QGridLayout()
         self.settings_tab_layout.setObjectName(u"settings_tab_layout")
+        self.verticalLayout_3 = QVBoxLayout()
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.settings_text = QLabel(self.settings_tab)
+        self.settings_text.setObjectName(u"settings_text")
+        self.settings_text.setStyleSheet(u"background-color: white;")
+
+        self.verticalLayout_3.addWidget(self.settings_text)
+
+
+        self.settings_tab_layout.addLayout(self.verticalLayout_3, 0, 1, 1, 1)
+
+        self.verticalLayout_6 = QVBoxLayout()
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.label_15 = QLabel(self.settings_tab)
+        self.label_15.setObjectName(u"label_15")
+        sizePolicy3.setHeightForWidth(self.label_15.sizePolicy().hasHeightForWidth())
+        self.label_15.setSizePolicy(sizePolicy3)
+        self.label_15.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_3.addWidget(self.label_15)
+
+        self.label_14 = QLabel(self.settings_tab)
+        self.label_14.setObjectName(u"label_14")
+        sizePolicy3.setHeightForWidth(self.label_14.sizePolicy().hasHeightForWidth())
+        self.label_14.setSizePolicy(sizePolicy3)
+        self.label_14.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_3.addWidget(self.label_14)
+
+        self.label_16 = QLabel(self.settings_tab)
+        self.label_16.setObjectName(u"label_16")
+        sizePolicy3.setHeightForWidth(self.label_16.sizePolicy().hasHeightForWidth())
+        self.label_16.setSizePolicy(sizePolicy3)
+        self.label_16.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_3.addWidget(self.label_16)
+
+        self.label_13 = QLabel(self.settings_tab)
+        self.label_13.setObjectName(u"label_13")
+        sizePolicy3.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
+        self.label_13.setSizePolicy(sizePolicy3)
+        self.label_13.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_3.addWidget(self.label_13)
+
+        self.label_18 = QLabel(self.settings_tab)
+        self.label_18.setObjectName(u"label_18")
+        sizePolicy3.setHeightForWidth(self.label_18.sizePolicy().hasHeightForWidth())
+        self.label_18.setSizePolicy(sizePolicy3)
+        self.label_18.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_3.addWidget(self.label_18)
+
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_3)
+
+        self.horizontalLayout_17 = QHBoxLayout()
+        self.horizontalLayout_17.setObjectName(u"horizontalLayout_17")
+        self.label_12 = QLabel(self.settings_tab)
+        self.label_12.setObjectName(u"label_12")
+        sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.label_12.sizePolicy().hasHeightForWidth())
+        self.label_12.setSizePolicy(sizePolicy6)
+        font1 = QFont()
+        font1.setPointSize(16)
+        self.label_12.setFont(font1)
+        self.label_12.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_17.addWidget(self.label_12)
+
+        self.horizontalSpacer_11 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_17.addItem(self.horizontalSpacer_11)
+
+        self.enable_state_1 = QCheckBox(self.settings_tab)
+        self.enable_state_1.setObjectName(u"enable_state_1")
+        sizePolicy2.setHeightForWidth(self.enable_state_1.sizePolicy().hasHeightForWidth())
+        self.enable_state_1.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_17.addWidget(self.enable_state_1)
+
+        self.horizontalSpacer_12 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_17.addItem(self.horizontalSpacer_12)
+
+        self.state_name_1 = QLineEdit(self.settings_tab)
+        self.state_name_1.setObjectName(u"state_name_1")
+        sizePolicy2.setHeightForWidth(self.state_name_1.sizePolicy().hasHeightForWidth())
+        self.state_name_1.setSizePolicy(sizePolicy2)
+        self.state_name_1.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        self.horizontalLayout_17.addWidget(self.state_name_1)
+
+        self.horizontalSpacer_13 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_17.addItem(self.horizontalSpacer_13)
+
+        self.state_scored_1 = QCheckBox(self.settings_tab)
+        self.state_scored_1.setObjectName(u"state_scored_1")
+        sizePolicy2.setHeightForWidth(self.state_scored_1.sizePolicy().hasHeightForWidth())
+        self.state_scored_1.setSizePolicy(sizePolicy2)
+        self.state_scored_1.setChecked(True)
+
+        self.horizontalLayout_17.addWidget(self.state_scored_1)
+
+        self.horizontalSpacer_14 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_17.addItem(self.horizontalSpacer_14)
+
+        self.state_frequency_1 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_1.setObjectName(u"state_frequency_1")
+        self.state_frequency_1.setMaximum(1.000000000000000)
+        self.state_frequency_1.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_17.addWidget(self.state_frequency_1)
+
+        self.horizontalLayout_17.setStretch(0, 3)
+        self.horizontalLayout_17.setStretch(1, 1)
+        self.horizontalLayout_17.setStretch(2, 1)
+        self.horizontalLayout_17.setStretch(3, 1)
+        self.horizontalLayout_17.setStretch(4, 3)
+        self.horizontalLayout_17.setStretch(5, 1)
+        self.horizontalLayout_17.setStretch(6, 1)
+        self.horizontalLayout_17.setStretch(7, 1)
+        self.horizontalLayout_17.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_17)
+
+        self.horizontalLayout_16 = QHBoxLayout()
+        self.horizontalLayout_16.setObjectName(u"horizontalLayout_16")
+        self.label_11 = QLabel(self.settings_tab)
+        self.label_11.setObjectName(u"label_11")
+        sizePolicy6.setHeightForWidth(self.label_11.sizePolicy().hasHeightForWidth())
+        self.label_11.setSizePolicy(sizePolicy6)
+        self.label_11.setFont(font1)
+        self.label_11.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_16.addWidget(self.label_11)
+
+        self.horizontalSpacer_15 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_16.addItem(self.horizontalSpacer_15)
+
+        self.enable_state_2 = QCheckBox(self.settings_tab)
+        self.enable_state_2.setObjectName(u"enable_state_2")
+        sizePolicy2.setHeightForWidth(self.enable_state_2.sizePolicy().hasHeightForWidth())
+        self.enable_state_2.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_16.addWidget(self.enable_state_2)
+
+        self.horizontalSpacer_16 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_16.addItem(self.horizontalSpacer_16)
+
+        self.state_name_2 = QLineEdit(self.settings_tab)
+        self.state_name_2.setObjectName(u"state_name_2")
+        sizePolicy2.setHeightForWidth(self.state_name_2.sizePolicy().hasHeightForWidth())
+        self.state_name_2.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_16.addWidget(self.state_name_2)
+
+        self.horizontalSpacer_17 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_16.addItem(self.horizontalSpacer_17)
+
+        self.state_scored_2 = QCheckBox(self.settings_tab)
+        self.state_scored_2.setObjectName(u"state_scored_2")
+        sizePolicy2.setHeightForWidth(self.state_scored_2.sizePolicy().hasHeightForWidth())
+        self.state_scored_2.setSizePolicy(sizePolicy2)
+        self.state_scored_2.setChecked(True)
+
+        self.horizontalLayout_16.addWidget(self.state_scored_2)
+
+        self.horizontalSpacer_18 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_16.addItem(self.horizontalSpacer_18)
+
+        self.state_frequency_2 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_2.setObjectName(u"state_frequency_2")
+        self.state_frequency_2.setMaximum(1.000000000000000)
+        self.state_frequency_2.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_16.addWidget(self.state_frequency_2)
+
+        self.horizontalLayout_16.setStretch(0, 3)
+        self.horizontalLayout_16.setStretch(1, 1)
+        self.horizontalLayout_16.setStretch(2, 1)
+        self.horizontalLayout_16.setStretch(3, 1)
+        self.horizontalLayout_16.setStretch(4, 3)
+        self.horizontalLayout_16.setStretch(5, 1)
+        self.horizontalLayout_16.setStretch(6, 1)
+        self.horizontalLayout_16.setStretch(7, 1)
+        self.horizontalLayout_16.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_16)
+
+        self.horizontalLayout_15 = QHBoxLayout()
+        self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
+        self.label_10 = QLabel(self.settings_tab)
+        self.label_10.setObjectName(u"label_10")
+        sizePolicy6.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
+        self.label_10.setSizePolicy(sizePolicy6)
+        self.label_10.setFont(font1)
+        self.label_10.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_15.addWidget(self.label_10)
+
+        self.horizontalSpacer_19 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_15.addItem(self.horizontalSpacer_19)
+
+        self.enable_state_3 = QCheckBox(self.settings_tab)
+        self.enable_state_3.setObjectName(u"enable_state_3")
+        sizePolicy2.setHeightForWidth(self.enable_state_3.sizePolicy().hasHeightForWidth())
+        self.enable_state_3.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_15.addWidget(self.enable_state_3)
+
+        self.horizontalSpacer_20 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_15.addItem(self.horizontalSpacer_20)
+
+        self.state_name_3 = QLineEdit(self.settings_tab)
+        self.state_name_3.setObjectName(u"state_name_3")
+        sizePolicy2.setHeightForWidth(self.state_name_3.sizePolicy().hasHeightForWidth())
+        self.state_name_3.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_15.addWidget(self.state_name_3)
+
+        self.horizontalSpacer_21 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_15.addItem(self.horizontalSpacer_21)
+
+        self.state_scored_3 = QCheckBox(self.settings_tab)
+        self.state_scored_3.setObjectName(u"state_scored_3")
+        sizePolicy2.setHeightForWidth(self.state_scored_3.sizePolicy().hasHeightForWidth())
+        self.state_scored_3.setSizePolicy(sizePolicy2)
+        self.state_scored_3.setChecked(True)
+
+        self.horizontalLayout_15.addWidget(self.state_scored_3)
+
+        self.horizontalSpacer_22 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_15.addItem(self.horizontalSpacer_22)
+
+        self.state_frequency_3 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_3.setObjectName(u"state_frequency_3")
+        self.state_frequency_3.setMaximum(1.000000000000000)
+        self.state_frequency_3.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_15.addWidget(self.state_frequency_3)
+
+        self.horizontalLayout_15.setStretch(0, 3)
+        self.horizontalLayout_15.setStretch(1, 1)
+        self.horizontalLayout_15.setStretch(2, 1)
+        self.horizontalLayout_15.setStretch(3, 1)
+        self.horizontalLayout_15.setStretch(4, 3)
+        self.horizontalLayout_15.setStretch(5, 1)
+        self.horizontalLayout_15.setStretch(6, 1)
+        self.horizontalLayout_15.setStretch(7, 1)
+        self.horizontalLayout_15.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_15)
+
+        self.horizontalLayout_14 = QHBoxLayout()
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.label_9 = QLabel(self.settings_tab)
+        self.label_9.setObjectName(u"label_9")
+        sizePolicy6.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
+        self.label_9.setSizePolicy(sizePolicy6)
+        self.label_9.setFont(font1)
+        self.label_9.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_14.addWidget(self.label_9)
+
+        self.horizontalSpacer_23 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_23)
+
+        self.enable_state_4 = QCheckBox(self.settings_tab)
+        self.enable_state_4.setObjectName(u"enable_state_4")
+        sizePolicy2.setHeightForWidth(self.enable_state_4.sizePolicy().hasHeightForWidth())
+        self.enable_state_4.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_14.addWidget(self.enable_state_4)
+
+        self.horizontalSpacer_24 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_24)
+
+        self.state_name_4 = QLineEdit(self.settings_tab)
+        self.state_name_4.setObjectName(u"state_name_4")
+        sizePolicy2.setHeightForWidth(self.state_name_4.sizePolicy().hasHeightForWidth())
+        self.state_name_4.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_14.addWidget(self.state_name_4)
+
+        self.horizontalSpacer_25 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_25)
+
+        self.state_scored_4 = QCheckBox(self.settings_tab)
+        self.state_scored_4.setObjectName(u"state_scored_4")
+        sizePolicy2.setHeightForWidth(self.state_scored_4.sizePolicy().hasHeightForWidth())
+        self.state_scored_4.setSizePolicy(sizePolicy2)
+        self.state_scored_4.setChecked(True)
+
+        self.horizontalLayout_14.addWidget(self.state_scored_4)
+
+        self.horizontalSpacer_26 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_26)
+
+        self.state_frequency_4 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_4.setObjectName(u"state_frequency_4")
+        self.state_frequency_4.setMaximum(1.000000000000000)
+        self.state_frequency_4.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_14.addWidget(self.state_frequency_4)
+
+        self.horizontalLayout_14.setStretch(0, 3)
+        self.horizontalLayout_14.setStretch(1, 1)
+        self.horizontalLayout_14.setStretch(2, 1)
+        self.horizontalLayout_14.setStretch(3, 1)
+        self.horizontalLayout_14.setStretch(4, 3)
+        self.horizontalLayout_14.setStretch(5, 1)
+        self.horizontalLayout_14.setStretch(6, 1)
+        self.horizontalLayout_14.setStretch(7, 1)
+        self.horizontalLayout_14.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_14)
+
+        self.horizontalLayout_13 = QHBoxLayout()
+        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
+        self.label_8 = QLabel(self.settings_tab)
+        self.label_8.setObjectName(u"label_8")
+        sizePolicy6.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
+        self.label_8.setSizePolicy(sizePolicy6)
+        self.label_8.setFont(font1)
+        self.label_8.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_13.addWidget(self.label_8)
+
+        self.horizontalSpacer_30 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_13.addItem(self.horizontalSpacer_30)
+
+        self.enable_state_5 = QCheckBox(self.settings_tab)
+        self.enable_state_5.setObjectName(u"enable_state_5")
+        sizePolicy2.setHeightForWidth(self.enable_state_5.sizePolicy().hasHeightForWidth())
+        self.enable_state_5.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_13.addWidget(self.enable_state_5)
+
+        self.horizontalSpacer_29 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_13.addItem(self.horizontalSpacer_29)
+
+        self.state_name_5 = QLineEdit(self.settings_tab)
+        self.state_name_5.setObjectName(u"state_name_5")
+        sizePolicy2.setHeightForWidth(self.state_name_5.sizePolicy().hasHeightForWidth())
+        self.state_name_5.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_13.addWidget(self.state_name_5)
+
+        self.horizontalSpacer_28 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_13.addItem(self.horizontalSpacer_28)
+
+        self.state_scored_5 = QCheckBox(self.settings_tab)
+        self.state_scored_5.setObjectName(u"state_scored_5")
+        sizePolicy2.setHeightForWidth(self.state_scored_5.sizePolicy().hasHeightForWidth())
+        self.state_scored_5.setSizePolicy(sizePolicy2)
+        self.state_scored_5.setChecked(True)
+
+        self.horizontalLayout_13.addWidget(self.state_scored_5)
+
+        self.horizontalSpacer_27 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_13.addItem(self.horizontalSpacer_27)
+
+        self.state_frequency_5 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_5.setObjectName(u"state_frequency_5")
+        self.state_frequency_5.setMaximum(1.000000000000000)
+        self.state_frequency_5.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_13.addWidget(self.state_frequency_5)
+
+        self.horizontalLayout_13.setStretch(0, 3)
+        self.horizontalLayout_13.setStretch(1, 1)
+        self.horizontalLayout_13.setStretch(2, 1)
+        self.horizontalLayout_13.setStretch(3, 1)
+        self.horizontalLayout_13.setStretch(4, 3)
+        self.horizontalLayout_13.setStretch(5, 1)
+        self.horizontalLayout_13.setStretch(6, 1)
+        self.horizontalLayout_13.setStretch(7, 1)
+        self.horizontalLayout_13.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_13)
+
+        self.horizontalLayout_12 = QHBoxLayout()
+        self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
+        self.label_7 = QLabel(self.settings_tab)
+        self.label_7.setObjectName(u"label_7")
+        sizePolicy6.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
+        self.label_7.setSizePolicy(sizePolicy6)
+        self.label_7.setFont(font1)
+        self.label_7.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_12.addWidget(self.label_7)
+
+        self.horizontalSpacer_31 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_12.addItem(self.horizontalSpacer_31)
+
+        self.enable_state_6 = QCheckBox(self.settings_tab)
+        self.enable_state_6.setObjectName(u"enable_state_6")
+        sizePolicy2.setHeightForWidth(self.enable_state_6.sizePolicy().hasHeightForWidth())
+        self.enable_state_6.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_12.addWidget(self.enable_state_6)
+
+        self.horizontalSpacer_32 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_12.addItem(self.horizontalSpacer_32)
+
+        self.state_name_6 = QLineEdit(self.settings_tab)
+        self.state_name_6.setObjectName(u"state_name_6")
+        sizePolicy2.setHeightForWidth(self.state_name_6.sizePolicy().hasHeightForWidth())
+        self.state_name_6.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_12.addWidget(self.state_name_6)
+
+        self.horizontalSpacer_33 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_12.addItem(self.horizontalSpacer_33)
+
+        self.state_scored_6 = QCheckBox(self.settings_tab)
+        self.state_scored_6.setObjectName(u"state_scored_6")
+        sizePolicy2.setHeightForWidth(self.state_scored_6.sizePolicy().hasHeightForWidth())
+        self.state_scored_6.setSizePolicy(sizePolicy2)
+        self.state_scored_6.setChecked(True)
+
+        self.horizontalLayout_12.addWidget(self.state_scored_6)
+
+        self.horizontalSpacer_34 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_12.addItem(self.horizontalSpacer_34)
+
+        self.state_frequency_6 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_6.setObjectName(u"state_frequency_6")
+        self.state_frequency_6.setMaximum(1.000000000000000)
+        self.state_frequency_6.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_12.addWidget(self.state_frequency_6)
+
+        self.horizontalLayout_12.setStretch(0, 3)
+        self.horizontalLayout_12.setStretch(1, 1)
+        self.horizontalLayout_12.setStretch(2, 1)
+        self.horizontalLayout_12.setStretch(3, 1)
+        self.horizontalLayout_12.setStretch(4, 3)
+        self.horizontalLayout_12.setStretch(5, 1)
+        self.horizontalLayout_12.setStretch(6, 1)
+        self.horizontalLayout_12.setStretch(7, 1)
+        self.horizontalLayout_12.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_12)
+
+        self.horizontalLayout_9 = QHBoxLayout()
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.label_6 = QLabel(self.settings_tab)
+        self.label_6.setObjectName(u"label_6")
+        sizePolicy6.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
+        self.label_6.setSizePolicy(sizePolicy6)
+        self.label_6.setFont(font1)
+        self.label_6.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_9.addWidget(self.label_6)
+
+        self.horizontalSpacer_35 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_9.addItem(self.horizontalSpacer_35)
+
+        self.enable_state_7 = QCheckBox(self.settings_tab)
+        self.enable_state_7.setObjectName(u"enable_state_7")
+        sizePolicy2.setHeightForWidth(self.enable_state_7.sizePolicy().hasHeightForWidth())
+        self.enable_state_7.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_9.addWidget(self.enable_state_7)
+
+        self.horizontalSpacer_36 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_9.addItem(self.horizontalSpacer_36)
+
+        self.state_name_7 = QLineEdit(self.settings_tab)
+        self.state_name_7.setObjectName(u"state_name_7")
+        sizePolicy2.setHeightForWidth(self.state_name_7.sizePolicy().hasHeightForWidth())
+        self.state_name_7.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_9.addWidget(self.state_name_7)
+
+        self.horizontalSpacer_37 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_9.addItem(self.horizontalSpacer_37)
+
+        self.state_scored_7 = QCheckBox(self.settings_tab)
+        self.state_scored_7.setObjectName(u"state_scored_7")
+        sizePolicy2.setHeightForWidth(self.state_scored_7.sizePolicy().hasHeightForWidth())
+        self.state_scored_7.setSizePolicy(sizePolicy2)
+        self.state_scored_7.setChecked(True)
+
+        self.horizontalLayout_9.addWidget(self.state_scored_7)
+
+        self.horizontalSpacer_38 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_9.addItem(self.horizontalSpacer_38)
+
+        self.state_frequency_7 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_7.setObjectName(u"state_frequency_7")
+        self.state_frequency_7.setMaximum(1.000000000000000)
+        self.state_frequency_7.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_9.addWidget(self.state_frequency_7)
+
+        self.horizontalLayout_9.setStretch(0, 3)
+        self.horizontalLayout_9.setStretch(1, 1)
+        self.horizontalLayout_9.setStretch(2, 1)
+        self.horizontalLayout_9.setStretch(3, 1)
+        self.horizontalLayout_9.setStretch(4, 3)
+        self.horizontalLayout_9.setStretch(5, 1)
+        self.horizontalLayout_9.setStretch(6, 1)
+        self.horizontalLayout_9.setStretch(7, 1)
+        self.horizontalLayout_9.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_9)
+
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.label_5 = QLabel(self.settings_tab)
+        self.label_5.setObjectName(u"label_5")
+        sizePolicy6.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
+        self.label_5.setSizePolicy(sizePolicy6)
+        self.label_5.setFont(font1)
+        self.label_5.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_8.addWidget(self.label_5)
+
+        self.horizontalSpacer_39 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_39)
+
+        self.enable_state_8 = QCheckBox(self.settings_tab)
+        self.enable_state_8.setObjectName(u"enable_state_8")
+        sizePolicy2.setHeightForWidth(self.enable_state_8.sizePolicy().hasHeightForWidth())
+        self.enable_state_8.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_8.addWidget(self.enable_state_8)
+
+        self.horizontalSpacer_40 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_40)
+
+        self.state_name_8 = QLineEdit(self.settings_tab)
+        self.state_name_8.setObjectName(u"state_name_8")
+        sizePolicy2.setHeightForWidth(self.state_name_8.sizePolicy().hasHeightForWidth())
+        self.state_name_8.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_8.addWidget(self.state_name_8)
+
+        self.horizontalSpacer_41 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_41)
+
+        self.state_scored_8 = QCheckBox(self.settings_tab)
+        self.state_scored_8.setObjectName(u"state_scored_8")
+        sizePolicy2.setHeightForWidth(self.state_scored_8.sizePolicy().hasHeightForWidth())
+        self.state_scored_8.setSizePolicy(sizePolicy2)
+        self.state_scored_8.setChecked(True)
+
+        self.horizontalLayout_8.addWidget(self.state_scored_8)
+
+        self.horizontalSpacer_42 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_42)
+
+        self.state_frequency_8 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_8.setObjectName(u"state_frequency_8")
+        self.state_frequency_8.setMaximum(1.000000000000000)
+        self.state_frequency_8.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_8.addWidget(self.state_frequency_8)
+
+        self.horizontalLayout_8.setStretch(0, 3)
+        self.horizontalLayout_8.setStretch(1, 1)
+        self.horizontalLayout_8.setStretch(2, 1)
+        self.horizontalLayout_8.setStretch(3, 1)
+        self.horizontalLayout_8.setStretch(4, 3)
+        self.horizontalLayout_8.setStretch(5, 1)
+        self.horizontalLayout_8.setStretch(6, 1)
+        self.horizontalLayout_8.setStretch(7, 1)
+        self.horizontalLayout_8.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_8)
+
+        self.horizontalLayout_7 = QHBoxLayout()
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.label_4 = QLabel(self.settings_tab)
+        self.label_4.setObjectName(u"label_4")
+        sizePolicy6.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
+        self.label_4.setSizePolicy(sizePolicy6)
+        self.label_4.setFont(font1)
+        self.label_4.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_7.addWidget(self.label_4)
+
+        self.horizontalSpacer_43 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_7.addItem(self.horizontalSpacer_43)
+
+        self.enable_state_9 = QCheckBox(self.settings_tab)
+        self.enable_state_9.setObjectName(u"enable_state_9")
+        sizePolicy2.setHeightForWidth(self.enable_state_9.sizePolicy().hasHeightForWidth())
+        self.enable_state_9.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_7.addWidget(self.enable_state_9)
+
+        self.horizontalSpacer_44 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_7.addItem(self.horizontalSpacer_44)
+
+        self.state_name_9 = QLineEdit(self.settings_tab)
+        self.state_name_9.setObjectName(u"state_name_9")
+        sizePolicy2.setHeightForWidth(self.state_name_9.sizePolicy().hasHeightForWidth())
+        self.state_name_9.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_7.addWidget(self.state_name_9)
+
+        self.horizontalSpacer_45 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_7.addItem(self.horizontalSpacer_45)
+
+        self.state_scored_9 = QCheckBox(self.settings_tab)
+        self.state_scored_9.setObjectName(u"state_scored_9")
+        sizePolicy2.setHeightForWidth(self.state_scored_9.sizePolicy().hasHeightForWidth())
+        self.state_scored_9.setSizePolicy(sizePolicy2)
+        self.state_scored_9.setChecked(True)
+
+        self.horizontalLayout_7.addWidget(self.state_scored_9)
+
+        self.horizontalSpacer_46 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_7.addItem(self.horizontalSpacer_46)
+
+        self.state_frequency_9 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_9.setObjectName(u"state_frequency_9")
+        self.state_frequency_9.setMaximum(1.000000000000000)
+        self.state_frequency_9.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_7.addWidget(self.state_frequency_9)
+
+        self.horizontalLayout_7.setStretch(0, 3)
+        self.horizontalLayout_7.setStretch(1, 1)
+        self.horizontalLayout_7.setStretch(2, 1)
+        self.horizontalLayout_7.setStretch(3, 1)
+        self.horizontalLayout_7.setStretch(4, 3)
+        self.horizontalLayout_7.setStretch(5, 1)
+        self.horizontalLayout_7.setStretch(6, 1)
+        self.horizontalLayout_7.setStretch(7, 1)
+        self.horizontalLayout_7.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_7)
+
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.label_3 = QLabel(self.settings_tab)
+        self.label_3.setObjectName(u"label_3")
+        sizePolicy6.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
+        self.label_3.setSizePolicy(sizePolicy6)
+        self.label_3.setFont(font1)
+        self.label_3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_4.addWidget(self.label_3)
+
+        self.horizontalSpacer_47 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_47)
+
+        self.enable_state_0 = QCheckBox(self.settings_tab)
+        self.enable_state_0.setObjectName(u"enable_state_0")
+        sizePolicy2.setHeightForWidth(self.enable_state_0.sizePolicy().hasHeightForWidth())
+        self.enable_state_0.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_4.addWidget(self.enable_state_0)
+
+        self.horizontalSpacer_48 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_48)
+
+        self.state_name_0 = QLineEdit(self.settings_tab)
+        self.state_name_0.setObjectName(u"state_name_0")
+        sizePolicy2.setHeightForWidth(self.state_name_0.sizePolicy().hasHeightForWidth())
+        self.state_name_0.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_4.addWidget(self.state_name_0)
+
+        self.horizontalSpacer_50 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_50)
+
+        self.state_scored_0 = QCheckBox(self.settings_tab)
+        self.state_scored_0.setObjectName(u"state_scored_0")
+        sizePolicy2.setHeightForWidth(self.state_scored_0.sizePolicy().hasHeightForWidth())
+        self.state_scored_0.setSizePolicy(sizePolicy2)
+        self.state_scored_0.setChecked(True)
+
+        self.horizontalLayout_4.addWidget(self.state_scored_0)
+
+        self.horizontalSpacer_49 = QSpacerItem(5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_49)
+
+        self.state_frequency_0 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_0.setObjectName(u"state_frequency_0")
+        self.state_frequency_0.setMaximum(1.000000000000000)
+        self.state_frequency_0.setSingleStep(0.010000000000000)
+
+        self.horizontalLayout_4.addWidget(self.state_frequency_0)
+
+        self.horizontalLayout_4.setStretch(0, 3)
+        self.horizontalLayout_4.setStretch(1, 1)
+        self.horizontalLayout_4.setStretch(2, 1)
+        self.horizontalLayout_4.setStretch(3, 1)
+        self.horizontalLayout_4.setStretch(4, 3)
+        self.horizontalLayout_4.setStretch(5, 1)
+        self.horizontalLayout_4.setStretch(6, 1)
+        self.horizontalLayout_4.setStretch(7, 1)
+        self.horizontalLayout_4.setStretch(8, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_4)
+
+        self.horizontalLayout_18 = QHBoxLayout()
+        self.horizontalLayout_18.setSpacing(10)
+        self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
+        self.horizontalSpacer_9 = QSpacerItem(10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_18.addItem(self.horizontalSpacer_9)
+
+        self.save_config_button = QPushButton(self.settings_tab)
+        self.save_config_button.setObjectName(u"save_config_button")
+        sizePolicy2.setHeightForWidth(self.save_config_button.sizePolicy().hasHeightForWidth())
+        self.save_config_button.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_18.addWidget(self.save_config_button)
+
+        self.save_config_status = QLabel(self.settings_tab)
+        self.save_config_status.setObjectName(u"save_config_status")
+        sizePolicy3.setHeightForWidth(self.save_config_status.sizePolicy().hasHeightForWidth())
+        self.save_config_status.setSizePolicy(sizePolicy3)
+        self.save_config_status.setStyleSheet(u"background-color: transparent;")
+
+        self.horizontalLayout_18.addWidget(self.save_config_status)
+
+        self.horizontalLayout_18.setStretch(0, 3)
+        self.horizontalLayout_18.setStretch(1, 1)
+        self.horizontalLayout_18.setStretch(2, 3)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_18)
+
+        self.verticalLayout_6.setStretch(0, 2)
+        self.verticalLayout_6.setStretch(1, 2)
+        self.verticalLayout_6.setStretch(2, 2)
+        self.verticalLayout_6.setStretch(3, 2)
+        self.verticalLayout_6.setStretch(4, 2)
+        self.verticalLayout_6.setStretch(5, 2)
+        self.verticalLayout_6.setStretch(6, 2)
+        self.verticalLayout_6.setStretch(7, 2)
+        self.verticalLayout_6.setStretch(8, 2)
+        self.verticalLayout_6.setStretch(9, 2)
+        self.verticalLayout_6.setStretch(10, 2)
+        self.verticalLayout_6.setStretch(11, 3)
+
+        self.settings_tab_layout.addLayout(self.verticalLayout_6, 0, 0, 1, 1)
+
+        self.settings_tab_layout.setColumnStretch(0, 1)
+        self.settings_tab_layout.setColumnStretch(1, 1)
 
         self.gridLayout_5.addLayout(self.settings_tab_layout, 0, 0, 1, 1)
 
@@ -769,6 +1559,44 @@ class Ui_PrimaryWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.user_manual_button.setText("")
         self.upper_tab_widget.setTabText(self.upper_tab_widget.indexOf(self.scoring_tab), QCoreApplication.translate("PrimaryWindow", u"Sleep scoring", None))
+        self.settings_text.setText("")
+        self.label_15.setText(QCoreApplication.translate("PrimaryWindow", u"Key", None))
+        self.label_14.setText(QCoreApplication.translate("PrimaryWindow", u"Enabled", None))
+        self.label_16.setText(QCoreApplication.translate("PrimaryWindow", u"Name", None))
+        self.label_13.setText(QCoreApplication.translate("PrimaryWindow", u"Scored", None))
+        self.label_18.setText(QCoreApplication.translate("PrimaryWindow", u"Frequency", None))
+        self.label_12.setText(QCoreApplication.translate("PrimaryWindow", u"1", None))
+        self.enable_state_1.setText("")
+        self.state_scored_1.setText("")
+        self.label_11.setText(QCoreApplication.translate("PrimaryWindow", u"2", None))
+        self.enable_state_2.setText("")
+        self.state_scored_2.setText("")
+        self.label_10.setText(QCoreApplication.translate("PrimaryWindow", u"3", None))
+        self.enable_state_3.setText("")
+        self.state_scored_3.setText("")
+        self.label_9.setText(QCoreApplication.translate("PrimaryWindow", u"4", None))
+        self.enable_state_4.setText("")
+        self.state_scored_4.setText("")
+        self.label_8.setText(QCoreApplication.translate("PrimaryWindow", u"5", None))
+        self.enable_state_5.setText("")
+        self.state_scored_5.setText("")
+        self.label_7.setText(QCoreApplication.translate("PrimaryWindow", u"6", None))
+        self.enable_state_6.setText("")
+        self.state_scored_6.setText("")
+        self.label_6.setText(QCoreApplication.translate("PrimaryWindow", u"7", None))
+        self.enable_state_7.setText("")
+        self.state_scored_7.setText("")
+        self.label_5.setText(QCoreApplication.translate("PrimaryWindow", u"8", None))
+        self.enable_state_8.setText("")
+        self.state_scored_8.setText("")
+        self.label_4.setText(QCoreApplication.translate("PrimaryWindow", u"9", None))
+        self.enable_state_9.setText("")
+        self.state_scored_9.setText("")
+        self.label_3.setText(QCoreApplication.translate("PrimaryWindow", u"0", None))
+        self.enable_state_0.setText("")
+        self.state_scored_0.setText("")
+        self.save_config_button.setText(QCoreApplication.translate("PrimaryWindow", u"Save", None))
+        self.save_config_status.setText("")
         self.upper_tab_widget.setTabText(self.upper_tab_widget.indexOf(self.settings_tab), QCoreApplication.translate("PrimaryWindow", u"Settings", None))
     # retranslateUi
 
