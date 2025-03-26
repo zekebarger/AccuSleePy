@@ -87,10 +87,29 @@ To create a calibration data file:
 5. The calibration file will automatically be assigned to the currently
     selected recording.
 
---- Section 4B: Creating a trained network file ---
-Pre-trained neural networks are provided with AccuSleePy for epoch
-lengths of 2.5, 4, 5, 10, 15, and 30 seconds. If you wish to train
-your own network, [IN PROGRESS]
+--- Section 4B: Training your own classification model ---
+Pre-trained classification models are provided with AccuSleePy for
+epoch lengths of 2.5, 4, 5, and 10 seconds. These models are the
+"default" type, in that they use several epochs of data before and
+after any given epoch when scoring that epoch. (The other model type,
+called "real-time", only uses data from the current epoch and several
+preceding epochs.
+To train a new model on your own data:
+1. Add your scored recordings to the recording list. Make sure the
+    sampling rate, recording file, and label file are set for each
+    recording.
+2. Click the "Model training" tab
+3. Choose the number of epochs to consider when scoring each epoch.
+    This will be the "width" of the training images. For "default"
+    type models, this must be an odd number. In general, about 30
+    seconds worth of data is enough.
+4. Choose whether the images used to train the model should be
+    deleted once training is complete.
+5. Select a directory where the training images will be saved. A
+    new directory with an automatically generated name will be
+    created inside the directory you choose.
+6. Click the "Train classification model" button and enter a
+    filename for the trained model. Training can take some time.
 
 --- Section 4C: Automatic labeling ---
 Instructions for automatic labeling using this GUI are below.
