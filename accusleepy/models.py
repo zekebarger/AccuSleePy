@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-import accusleepy.utils.constants as c
+import accusleepy.config as c
 
 IMAGE_HEIGHT = (
     len(np.arange(0, c.DOWNSAMPLING_START_FREQ, 1 / c.MIN_WINDOW_LEN))

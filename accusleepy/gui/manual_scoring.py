@@ -15,11 +15,10 @@ from mplwidget import resample_x_ticks
 from PySide6 import QtCore, QtGui, QtWidgets
 from viewer_window import Ui_ViewerWindow
 
-from accusleepy.utils.constants import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
-from accusleepy.utils.fileio import load_labels, load_recording, save_labels
-from accusleepy.utils.signal_processing import (create_spectrogram,
-                                                process_emg,
-                                                resample_and_standardize)
+from accusleepy.config import BRAIN_STATE_MAPPER, UNDEFINED_LABEL
+from accusleepy.fileio import load_labels, load_recording, save_labels
+from accusleepy.signal_processing import (create_spectrogram, process_emg,
+                                          resample_and_standardize)
 
 # NOTES
 # magic spell:

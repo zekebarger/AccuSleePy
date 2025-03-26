@@ -11,7 +11,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.widgets import RectangleSelector
 from PySide6.QtWidgets import *
 
-from accusleepy.utils.misc import BrainStateMapper
+from accusleepy.misc import BrainStateMapper
 
 # upper limit of spectrogram y-axis, in Hz
 SPEC_UPPER_F = 30

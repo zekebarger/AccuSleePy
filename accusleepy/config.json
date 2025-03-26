@@ -1,0 +1,22 @@
+{"brain_states":
+  [
+    {
+      "name": "REM",
+      "digit": 1,
+      "is_scored": true,
+      "frequency": 0.1
+    },
+    {
+      "name": "Wake",
+      "digit": 2,
+      "is_scored": true,
+      "frequency": 0.35
+    },
+    {
+      "name": "NREM",
+      "digit": 3,
+      "is_scored": true,
+      "frequency": 0.55
+    }
+  ]
+}

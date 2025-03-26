@@ -8,17 +8,14 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
 
-import accusleepy.utils.constants as c
-from accusleepy.utils.fileio import load_labels, load_recording
-from accusleepy.utils.misc import Recording
-from accusleepy.utils.models import SSANN
-from accusleepy.utils.signal_processing import (
-    create_eeg_emg_image,
-    format_img,
-    get_mixture_values,
-    mixture_z_score_img,
-    resample_and_standardize,
-)
+import accusleepy.config as c
+from accusleepy.fileio import load_labels, load_recording
+from accusleepy.misc import Recording
+from accusleepy.models import SSANN
+from accusleepy.signal_processing import (create_eeg_emg_image, format_img,
+                                          get_mixture_values,
+                                          mixture_z_score_img,
+                                          resample_and_standardize)
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3

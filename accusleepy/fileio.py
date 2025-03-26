@@ -5,8 +5,8 @@ import pandas as pd
 import scipy.io
 import torch
 
-import accusleepy.utils.constants as c
-from accusleepy.utils.models import SSANN
+import accusleepy.config as c
+from accusleepy.models import SSANN
 
 
 def load_mat_files(file_path: str) -> (np.array, np.array, np.array):

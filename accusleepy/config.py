@@ -1,4 +1,7 @@
-from accusleepy.utils.misc import BrainState, BrainStateMapper
+import json
+import os
+
+from accusleepy.misc import BRAIN_STATES_KEY, BrainState, BrainStateMapper
 
 # # change these as needed # #
 # Recommended to set the digits in the order they appear on the keyboard, 1234567890
@@ -39,3 +42,21 @@ RECORDING_FILE_TYPES = [".parquet", ".csv"]
 LABEL_FILE_TYPE = ".csv"
 CALIBRATION_FILE_TYPE = ".csv"
 MODEL_FILE_TYPE = ".pth"
+CONFIG_FILE = "config.json"
+
+
+def load_config() -> BrainStateMapper:
+    with open(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "r"
+    ) as f:
+        data = json.load(f)
+    return BrainStateMapper(
+        [BrainState(**b) for b in data[BRAIN_STATES_KEY]], UNDEFINED_LABEL
+    )
+
+
+def save_config(brain_state_mapper: BrainStateMapper) -> None:
+    with open(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "w"
+    ) as f:
+        json.dump(brain_state_mapper.output_dict(), f, indent=4)
