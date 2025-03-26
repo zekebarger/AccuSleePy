@@ -38,12 +38,8 @@ def save_model(model: SSANN, filename: str) -> None:
 
 
 def load_model(file_path: str) -> SSANN:
-    weights = torch.load(file_path, weights_only=True)
-    model = SSANN(
-        epochs_per_image=int(weights["epochs_per_image"].item()),
-        model_type=c.KEY_TO_MODEL_TYPE[int(weights["model_type"].item())],
-    )
-    model.load_state_dict(weights)
+    model = SSANN()
+    model.load_state_dict(torch.load(file_path, weights_only=True))
     return model
 
 

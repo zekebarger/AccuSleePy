@@ -69,7 +69,14 @@ def train_model(
     train_dataloader = DataLoader(training_data, batch_size=BATCH_SIZE, shuffle=True)
 
     device = get_device()
-    model = SSANN(epochs_per_image=epochs_per_image, model_type=model_type).to(device)
+    model = SSANN()
+    model.epochs_per_image = torch.nn.Parameter(
+        torch.Tensor([epochs_per_image]), requires_grad=False
+    )
+    model.model_type = torch.nn.Parameter(
+        torch.Tensor([c.MODEL_TYPE_TO_KEY[model_type]]), requires_grad=False
+    )
+    model.to(device)
     model.train()
 
     weight = torch.tensor(

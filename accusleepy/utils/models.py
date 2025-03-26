@@ -13,15 +13,13 @@ IMAGE_HEIGHT = (
 
 
 class SSANN(nn.Module):
-    def __init__(self, epochs_per_image: int, model_type: str = c.DEFAULT_MODEL_TYPE):
+    def __init__(
+        self,
+    ):  # , epochs_per_image: int, model_type: str = c.DEFAULT_MODEL_TYPE):
         super().__init__()
 
-        self.epochs_per_image = nn.Parameter(
-            torch.Tensor([epochs_per_image]), requires_grad=False
-        )
-        self.model_type = nn.Parameter(
-            torch.Tensor([c.MODEL_TYPE_TO_KEY[model_type]]), requires_grad=False
-        )
+        self.epochs_per_image = nn.Parameter(torch.Tensor(1), requires_grad=False)
+        self.model_type = nn.Parameter(torch.Tensor(1), requires_grad=False)
 
         self.pool = nn.MaxPool2d(2, 2)
         self.conv1 = nn.Conv2d(
