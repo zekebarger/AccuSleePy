@@ -294,6 +294,9 @@
                        <height>0</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Select existing label file</string>
+                     </property>
                      <property name="text">
                       <string>Select</string>
                      </property>
@@ -325,6 +328,9 @@
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="toolTip">
+                      <string>Choose filename for new label file</string>
                      </property>
                      <property name="text">
                       <string>create</string>
@@ -382,6 +388,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>View and edit brain state labels for this recording</string>
                    </property>
                    <property name="text">
                     <string>Score manually</string>
@@ -527,6 +536,9 @@
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="toolTip">
+                       <string>Use classification model to score all recordings</string>
                       </property>
                       <property name="text">
                        <string>Score all automatically</string>
@@ -927,6 +939,9 @@
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
+                        <property name="toolTip">
+                         <string>A temporary folder will be created here</string>
+                        </property>
                         <property name="text">
                          <string>Set training image directory</string>
                         </property>
@@ -1112,6 +1127,9 @@
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>User manual</string>
                 </property>
                 <property name="layoutDirection">
                  <enum>Qt::LayoutDirection::LeftToRight</enum>
