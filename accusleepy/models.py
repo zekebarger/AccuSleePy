@@ -13,9 +13,7 @@ IMAGE_HEIGHT = (
 
 
 class SSANN(nn.Module):
-    def __init__(
-        self,
-    ):  # , epochs_per_image: int, model_type: str = c.DEFAULT_MODEL_TYPE):
+    def __init__(self, n_classes: int):
         super().__init__()
 
         self.epochs_per_image = nn.Parameter(torch.Tensor(1), requires_grad=False)
@@ -34,7 +32,7 @@ class SSANN(nn.Module):
         self.conv1_bn = nn.BatchNorm2d(8)
         self.conv2_bn = nn.BatchNorm2d(16)
         self.conv3_bn = nn.BatchNorm2d(32)
-        self.fc1 = nn.Linear(int(32 * IMAGE_HEIGHT / 8), c.BRAIN_STATE_MAPPER.n_classes)
+        self.fc1 = nn.Linear(int(32 * IMAGE_HEIGHT / 8), n_classes)
 
     def forward(self, x):
         x = x.float()

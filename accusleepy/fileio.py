@@ -37,9 +37,9 @@ def save_model(model: SSANN, filename: str) -> None:
     torch.save(model.state_dict(), filename)
 
 
-def load_model(file_path: str) -> SSANN:
-    model = SSANN()
-    model.load_state_dict(torch.load(file_path, weights_only=True))
+def load_model(filename: str, n_classes: int) -> SSANN:
+    model = SSANN(n_classes=n_classes)
+    model.load_state_dict(torch.load(filename, weights_only=True))
     return model
 
 

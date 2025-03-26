@@ -45,7 +45,9 @@ class BrainStateMapper:
 
         self.mixture_weights = np.array(self.mixture_weights)
         if np.sum(self.mixture_weights) != 1:
-            raise Exception(f"Typical brain state frequencies must sum to 1")
+            raise Exception(
+                f"Typical frequencies for scored brain states must sum to 1"
+            )
 
     def convert_digit_to_class(self, digits):
         return np.array([self.digit_to_class[i] for i in digits])
