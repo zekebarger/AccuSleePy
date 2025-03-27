@@ -51,6 +51,7 @@ class MplWidget(QWidget):
         self.label_img_ref = None
         self.spec_ref = None
         self.roi = None
+        self.editing_patch = None
         self.roi_patch = None
 
         # lower plot references
@@ -118,6 +119,20 @@ class MplWidget(QWidget):
         self.label_img_ref = axes[0].imshow(
             label_img, aspect="auto", origin="lower", interpolation="None"
         )
+        # add patch to dim the display when creating an ROI
+        self.editing_patch = axes[0].add_patch(
+            Rectangle(
+                xy=(-0.5, -0.5),
+                width=n_epochs + 1,
+                height=np.max(label_display_options)
+                - np.min(label_display_options)
+                + 1,
+                color="white",
+                edgecolor=None,
+                alpha=0.4,
+                visible=False,
+            )
+        )
         # add the ROI selection widget, but disable it until it's needed
         self.roi = RectangleSelector(
             ax=axes[0],
@@ -126,9 +141,9 @@ class MplWidget(QWidget):
             button=MouseButton(1),
         )
         self.roi.set_active(False)
-        # since there are no other rectangles in the subplot except the background,
-        # we can keep a reference to the ROI patch and change its color later
-        self.roi_patch = [c for c in axes[0].get_children() if type(c) == Rectangle][0]
+        # keep a reference to the ROI patch so we can change its color later
+        # index 0 is the "editing_patch" created earlier
+        self.roi_patch = [c for c in axes[0].get_children() if type(c) == Rectangle][1]
 
         # epoch marker subplot
         axes[1].set_ylim((0, 1))

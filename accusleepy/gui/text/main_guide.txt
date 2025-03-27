@@ -7,22 +7,26 @@ Section 4: Automatically assigning brain state labels
 Section 1: Overview of the primary interface
 -----------------------------------------------------------------------
 This interface allows a user to assign brain state labels to 1-channel
-electroencephalogram (EEG) and electromyogram (EMG) data. The algorithm
-has (so far) only been tested on rodents, not humans.
+electroencephalogram (EEG) and electromyogram (EMG) data.
 The overall workflow looks like this:
 1. Enter the epoch length for all recordings. This determines the time
     resolution of the brain state labels.
 2. For each of your recordings, add to the recording list, enter its
     sampling rate, load the EEG/EMG data, and determine where to save
     the brain state labels (or load the labels if they already exist)
-(At this point, you can score the recordings manually)
+At this point, you can score the recordings manually.
 3. For each recording, create a calibration file using a small amount
     of labeled data, or choose a calibration file created using
     another recording from the same subject and under the same recording
     conditions (i.e., equipment)
 4. Choose a trained classification model file with a matching epoch size
 5. Score all recordings automatically using the classifier
-The next section describes how to structure the inputs to this program.
+
+By default, there are three brain state options: REM, wake, and NREM.
+If you want to change this configuration, click the "Settings" tab.
+Note that if you change the configuration, you might be unable to load
+existing labels and calibration data, and you may need to train a new
+classification model.
 
 -----------------------------------------------------------------------
 Section 2: AccuSleePy file types

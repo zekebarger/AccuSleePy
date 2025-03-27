@@ -398,6 +398,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         user_manual_file.close()
         label_widget = QtWidgets.QLabel()
         label_widget.setText(user_manual_text)
+        label_widget.setStyleSheet("background-color: white;")
 
         self.popup = QtWidgets.QWidget()
         grid = QtWidgets.QGridLayout()
@@ -467,8 +468,9 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.ui.upperfigure.roi.set_visible(False)
         self.ui.upperfigure.roi.update()
         self.label_roi_mode = False
+        self.ui.upperfigure.editing_patch.set_visible(False)
 
-    def enter_label_roi_mode(self, brain_state) -> None:
+    def enter_label_roi_mode(self, brain_state: int) -> None:
         """Enter ROI drawing mode
 
         In this mode, a user can draw an ROI on the upper brain state label
@@ -483,6 +485,8 @@ class ManualScoringWindow(QtWidgets.QDialog):
                 convert_labels(np.array([brain_state]), DISPLAY_FORMAT)
             ]
         )
+        self.ui.upperfigure.editing_patch.set_visible(True)
+        self.ui.upperfigure.canvas.draw()
         self.ui.upperfigure.roi.set_active(True)
 
     def save(self) -> None:

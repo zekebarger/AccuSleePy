@@ -893,6 +893,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         label_widget = QtWidgets.QLabel()
         label_widget.setText(user_manual_text)
         scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setStyleSheet("background-color: white;")
         scroll_area.setWidget(label_widget)
         grid = QtWidgets.QGridLayout()
         grid.addWidget(scroll_area)
