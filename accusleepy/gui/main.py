@@ -49,7 +49,7 @@ from accusleepy.signal_processing import (
 MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to user manual txt file
-USER_MANUAL_FILE = "text/main_manual.txt"
+USER_MANUAL_FILE = "text/main_guide.txt"
 CONFIG_GUIDE_FILE = "text/config_guide.txt"
 
 
