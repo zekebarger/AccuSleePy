@@ -19,7 +19,7 @@ from accusleepy.config import UNDEFINED_LABEL
 from accusleepy.fileio import load_config, load_labels, load_recording, save_labels
 from accusleepy.signal_processing import (
     create_spectrogram,
-    process_emg,
+    get_emg_power,
     resample_and_standardize,
 )
 
@@ -898,7 +898,7 @@ def create_upper_emg_signal(
     :param epoch_length: epoch length, in seconds
     :return: processed EMG signal
     """
-    emg_rms = process_emg(
+    emg_rms = get_emg_power(
         emg,
         sampling_rate,
         epoch_length,

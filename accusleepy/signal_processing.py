@@ -14,8 +14,12 @@ from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.fileio import Recording, load_labels, load_recording
 from accusleepy.multitaper import spectrogram
 
-ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
+# clip mixture z-scores above and below this level
+# in the matlab implementation, I used 4.5
+ABS_MAX_Z_SCORE = 3.5
+# upper frequency limit when generating EEG spectrograms
 SPECTROGRAM_UPPER_FREQ = 64
+# filename used to store info about training image datasets
 ANNOTATIONS_FILENAME = "annotations.csv"
 
 
@@ -157,9 +161,20 @@ def create_spectrogram(
     return spec, f
 
 
-def process_emg(
+def get_emg_power(
     emg: np.array, sampling_rate: int | float, epoch_length: int | float
 ) -> np.array:
+    """Calculate EMG power for each epoch
+
+    This applies a 20-50 Hz bandpass filter to the EMG,  calculates the RMS
+    in each epoch, and takes the log of the result.
+
+    :param emg: EMG signal
+    :param sampling_rate: sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :return: EMG "power" for each epoch
+    """
+    # filter parameters
     order = 8
     bp_lower = 20
     bp_upper = 50
@@ -171,9 +186,7 @@ def process_emg(
         output="ba",
         fs=sampling_rate,
     )
-    filtered = filtfilt(
-        b, a, x=emg, padlen=int(np.ceil(sampling_rate))
-    )  # todo padlen set correctly?
+    filtered = filtfilt(b, a, x=emg, padlen=int(np.ceil(sampling_rate)))
 
     # since resample() was called, this will be extremely close to an integer
     samples_per_epoch = int(sampling_rate * epoch_length)
@@ -192,6 +205,18 @@ def create_eeg_emg_image(
     sampling_rate: int | float,
     epoch_length: int | float,
 ) -> np.array:
+    """Stack EEG spectrogram and EMG power into an image
+
+    This assumes that each epoch contains an integer number of samples and
+    each recording contains an integer number of epochs. Note that a log
+    transformation is applied to the spectrogram.
+
+    :param eeg: EEG signal
+    :param emg: EMG signal
+    :param sampling_rate: sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :return: combined EEG + EMG image for a recording
+    """
     spec, f = create_spectrogram(eeg, sampling_rate, epoch_length)
     f_lower_idx = sum(f < c.DOWNSAMPLING_START_FREQ)
     f_upper_idx = sum(f < c.UPPER_FREQ)
@@ -205,7 +230,7 @@ def create_eeg_emg_image(
         ]
     )
 
-    emg_log_rms = process_emg(emg, sampling_rate, epoch_length)
+    emg_log_rms = get_emg_power(emg, sampling_rate, epoch_length)
     output = np.concatenate(
         [modified_spectrogram, np.tile(emg_log_rms, (c.EMG_COPIES, 1))]
     )
@@ -215,20 +240,33 @@ def create_eeg_emg_image(
 def get_mixture_values(
     img: np.array, labels: np.array, brain_state_set: BrainStateSet
 ) -> (np.array, np.array):
-    # labels = CLASSES
+    """Compute weighted feature means and SDs for mixture z-scoring
+
+    The outputs of this function can be used to standardize features
+    extracted from all recordings from one subject under the same
+    recording conditions. Note that labels must be in "class" format
+    (i.e., integers between 0 and the number of scored states).
+
+    :param img: combined EEG + EMG image - see create_eeg_emg_image()
+    :param labels: brain state labels, in "class" format
+    :param brain_state_set: set of brain state options
+    :return: mixture means, mixture standard deviations
+    """
 
     means = list()
     variances = list()
     mixture_weights = brain_state_set.mixture_weights
 
+    # get feature means, variances by class
     for i in range(brain_state_set.n_classes):
         means.append(np.mean(img[:, labels == i], axis=1))
         variances.append(np.var(img[:, labels == i], axis=1))
-
     means = np.array(means)
     variances = np.array(variances)
 
+    # mixture means are just weighted averages across classes
     mixture_means = means.T @ mixture_weights
+    # mixture variance is given by the law of total variance
     mixture_sds = np.sqrt(
         variances.T @ mixture_weights
         + (
@@ -248,8 +286,20 @@ def mixture_z_score_img(
     mixture_means: np.array = None,
     mixture_sds: np.array = None,
 ) -> np.array:
-    # labels = CLASSES
+    """Perform mixture z-scoring on a combined EEG+EMG image
 
+    If brain state labels are provided, they will be used to calculate
+    mixture means and SDs. Otherwise, you must provide those inputs.
+    Note that pixel values in the output are in the 0-1 range and will
+    clip z-scores beyond ABS_MAX_Z_SCORE.
+
+    :param img: combined EEG + EMG image - see create_eeg_emg_image()
+    :param brain_state_set: set of brain state options
+    :param labels: labels, in "class" format
+    :param mixture_means: mixture means
+    :param mixture_sds: mixture standard deviations
+    :return:
+    """
     if labels is None and (mixture_means is None or mixture_sds is None):
         raise Exception("must provide either labels or mixture means+SDs")
     if labels is not None and ((mixture_means is not None) ^ (mixture_sds is not None)):
@@ -268,7 +318,20 @@ def mixture_z_score_img(
 
 
 def format_img(img: np.array, epochs_per_img: int) -> np.array:
-    # pad left and right sides
+    """Adjust the format of an EEG+EMG image
+
+    This function converts the values in a combined EEG+EMG image to uint8.
+    This is a convenient format both for storing individual images as files,
+    and for using the images as input to a classifier.
+    This function also adds new epochs to the beginning/end of the
+    recording's image as needed so that an image can be created for every
+    epoch.
+
+    :param img: combined EEG + EMG image
+    :param epochs_per_img: number of epochs in each individual image
+    :return: formatted EEG + EMG image
+    """
+    # pad beginning and end
     pad_width = int((epochs_per_img - 1) / 2)
     img = np.concatenate(
         [
@@ -299,11 +362,17 @@ def create_training_images(
     :param output_path: where to store training images
     :param epoch_length: epoch length, in seconds
     :param epochs_per_img: # number of epochs shown in each image
-    :return:
+    :param brain_state_set: set of brain state options
+    :return: list of the names of any recordings that could not
+            be used to create training images.
     """
+    # recordings that had to be skipped
     failed_recordings = list()
+    # image filenames for valid epochs
     filenames = list()
+    # all valid labels from all valid recordings
     all_labels = np.empty(0).astype(int)
+    # try to load each recording and create training images
     for recording in recordings:
         try:
             eeg, emg = load_recording(recording.recording_file)
@@ -336,6 +405,7 @@ def create_training_images(
             print(e)
             failed_recordings.append(recording.name)
 
+    # annotation file containing info on all images
     pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: all_labels}).to_csv(
         os.path.join(output_path, ANNOTATIONS_FILENAME),
         index=False,
@@ -346,10 +416,12 @@ def create_training_images(
 
 @dataclass
 class Bout:
-    length: int
-    start_index: int
-    end_index: int
-    surrounding_state: int
+    """Stores information about a brain state bout"""
+
+    length: int  # length, in number of epochs
+    start_index: int  # index where bout starts
+    end_index: int  # index where bout ends
+    surrounding_state: int  # brain state on both sides of the bout
 
 
 def find_last_adjacent_bout(sorted_bouts: list[Bout], bout_index: int) -> int:
