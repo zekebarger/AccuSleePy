@@ -1,14 +1,26 @@
 import json
 import os
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 import scipy.io
 import torch
+from PySide6.QtWidgets import QListWidgetItem
 
 import accusleepy.config as c
 from accusleepy.misc import BRAIN_STATES_KEY, BrainState, BrainStateMapper
 from accusleepy.models import SSANN
+
+
+@dataclass
+class Recording:
+    name: int = 1  # name to show in the GUI
+    recording_file: str = ""  # path to recording file
+    label_file: str = ""  # path to label file
+    calibration_file: str = ""  # path to calibration file
+    sampling_rate: int | float = 0.0  # sampling rate, in Hz
+    widget: QListWidgetItem = None  # reference to widget shown in the GUI
 
 
 def load_mat_files(file_path: str) -> (np.array, np.array, np.array):

@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
 import numpy as np
-from PySide6.QtWidgets import (QCheckBox, QDoubleSpinBox, QLabel,
-                               QListWidgetItem)
+from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox, QLabel
 
 BRAIN_STATES_KEY = "brain_states"
 
@@ -68,16 +67,6 @@ class BrainStateMapper:
                 for b in self.brain_states
             ]
         }
-
-
-@dataclass
-class Recording:
-    name: int = 1  # name to show in the GUI
-    recording_file: str = ""  # path to recording file
-    label_file: str = ""  # path to label file
-    calibration_file: str = ""  # path to calibration file
-    sampling_rate: int | float = 0.0  # sampling rate, in Hz
-    widget: QListWidgetItem = None  # reference to widget shown in the GUI
 
 
 @dataclass

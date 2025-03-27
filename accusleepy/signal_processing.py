@@ -10,8 +10,8 @@ from PIL import Image
 from scipy.signal import butter, filtfilt
 
 import accusleepy.config as c
-from accusleepy.fileio import load_labels, load_recording
-from accusleepy.misc import BrainStateMapper, Recording
+from accusleepy.fileio import Recording, load_labels, load_recording
+from accusleepy.misc import BrainStateMapper
 from accusleepy.multitaper import spectrogram
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5

@@ -9,8 +9,9 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
 
 import accusleepy.config as c
-from accusleepy.fileio import load_config, load_labels, load_recording
-from accusleepy.misc import BrainStateMapper, Recording
+from accusleepy.fileio import (Recording, load_config, load_labels,
+                               load_recording)
+from accusleepy.misc import BrainStateMapper
 from accusleepy.models import SSANN
 from accusleepy.signal_processing import (create_eeg_emg_image, format_img,
                                           get_mixture_values,

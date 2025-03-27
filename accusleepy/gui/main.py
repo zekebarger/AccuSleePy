@@ -10,37 +10,20 @@ import numpy as np
 from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from accusleepy.classification import (
-    create_calibration_file,
-    score_recording,
-    train_model,
-)
-from accusleepy.config import (
-    CALIBRATION_FILE_TYPE,
-    DEFAULT_MODEL_TYPE,
-    LABEL_FILE_TYPE,
-    MODEL_FILE_TYPE,
-    RECORDING_FILE_TYPES,
-    UNDEFINED_LABEL,
-)
-from accusleepy.fileio import (
-    load_calibration_file,
-    load_config,
-    load_labels,
-    load_model,
-    load_recording,
-    save_config,
-    save_labels,
-    save_model,
-)
+from accusleepy.classification import (create_calibration_file,
+                                       score_recording, train_model)
+from accusleepy.config import (CALIBRATION_FILE_TYPE, DEFAULT_MODEL_TYPE,
+                               LABEL_FILE_TYPE, MODEL_FILE_TYPE,
+                               RECORDING_FILE_TYPES, UNDEFINED_LABEL)
+from accusleepy.fileio import (Recording, load_calibration_file, load_config,
+                               load_labels, load_model, load_recording,
+                               save_config, save_labels, save_model)
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.misc import BrainState, BrainStateMapper, Recording, StateSettings
-from accusleepy.signal_processing import (
-    ANNOTATIONS_FILENAME,
-    create_training_images,
-    enforce_min_bout_length,
-    resample_and_standardize,
-)
+from accusleepy.misc import BrainState, BrainStateMapper, StateSettings
+from accusleepy.signal_processing import (ANNOTATIONS_FILENAME,
+                                          create_training_images,
+                                          enforce_min_bout_length,
+                                          resample_and_standardize)
 
 # max number of messages to display
 MESSAGE_BOX_MAX_DEPTH = 50
