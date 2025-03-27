@@ -1,3 +1,4 @@
+import json
 import os
 
 import numpy as np
@@ -5,8 +6,9 @@ import pandas as pd
 import scipy.io
 import torch
 
-import accusleepy.utils.constants as c
-from accusleepy.utils.models import SSANN
+import accusleepy.config as c
+from accusleepy.misc import BRAIN_STATES_KEY, BrainState, BrainStateMapper
+from accusleepy.models import SSANN
 
 
 def load_mat_files(file_path: str) -> (np.array, np.array, np.array):
@@ -37,9 +39,9 @@ def save_model(model: SSANN, filename: str) -> None:
     torch.save(model.state_dict(), filename)
 
 
-def load_model(file_path: str) -> SSANN:
-    model = SSANN()
-    model.load_state_dict(torch.load(file_path, weights_only=True))
+def load_model(filename: str, n_classes: int) -> SSANN:
+    model = SSANN(n_classes=n_classes)
+    model.load_state_dict(torch.load(filename, weights_only=True))
     return model
 
 
@@ -69,3 +71,20 @@ def load_labels(file_path: str) -> np.array:
 
 def save_labels(labels: np.array, file_path: str) -> None:
     pd.DataFrame({c.BRAIN_STATE_COL: labels}).to_csv(file_path, index=False)
+
+
+def load_config() -> BrainStateMapper:
+    with open(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "r"
+    ) as f:
+        data = json.load(f)
+    return BrainStateMapper(
+        [BrainState(**b) for b in data[BRAIN_STATES_KEY]], c.UNDEFINED_LABEL
+    )
+
+
+def save_config(brain_state_mapper: BrainStateMapper) -> None:
+    with open(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "w"
+    ) as f:
+        json.dump(brain_state_mapper.output_dict(), f, indent=4)

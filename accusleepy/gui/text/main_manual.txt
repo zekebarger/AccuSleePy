@@ -35,9 +35,9 @@ Recording file: a .csv or .parquet file containing one column of EEG
     data and one column of EMG data. The column names must match the
     ones listed in constants.py (EEG_COL, EMG_COL).
 Label file: a .csv file with one column whose title matches
-    BRAIN_STATE_COL in constants.py, with entries that are either the
+    BRAIN_STATE_COL in config.py, with entries that are either the
     undefined brain state (UNDEFINED_LABEL) or one of the valid
-    "digit" attributes of your BRAIN_STATES. By default, these are 1-3
+    "digit" attributes of your brain states. By default, these are 1-3
     and REM = 1, wake = 2, NREM = 3.
 Calibration data file: required for automatic labeling. See Section 4
     for details.

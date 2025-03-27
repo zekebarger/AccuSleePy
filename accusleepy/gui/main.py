@@ -4,39 +4,41 @@ import datetime
 import os
 import shutil
 import sys
+from functools import partial
 
 import numpy as np
 from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.utils.classification import (
+from accusleepy.classification import (
     create_calibration_file,
     score_recording,
     train_model,
 )
-from accusleepy.utils.constants import (
-    BRAIN_STATE_MAPPER,
-    DEFAULT_MODEL_TYPE,
-    KEY_TO_MODEL_TYPE,
-    UNDEFINED_LABEL,
-    RECORDING_FILE_TYPES,
-    LABEL_FILE_TYPE,
+from accusleepy.config import (
     CALIBRATION_FILE_TYPE,
+    DEFAULT_MODEL_TYPE,
+    LABEL_FILE_TYPE,
     MODEL_FILE_TYPE,
+    RECORDING_FILE_TYPES,
+    UNDEFINED_LABEL,
 )
-from accusleepy.utils.fileio import (
+from accusleepy.fileio import (
     load_calibration_file,
+    load_config,
     load_labels,
     load_model,
     load_recording,
+    save_config,
     save_labels,
     save_model,
 )
-from accusleepy.utils.misc import Recording, enforce_min_bout_length
-from accusleepy.utils.signal_processing import (
+from accusleepy.gui.manual_scoring import ManualScoringWindow
+from accusleepy.misc import BrainState, BrainStateMapper, Recording, StateSettings
+from accusleepy.signal_processing import (
     ANNOTATIONS_FILENAME,
     create_training_images,
+    enforce_min_bout_length,
     resample_and_standardize,
 )
 
@@ -45,6 +47,7 @@ MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to user manual txt file
 USER_MANUAL_FILE = "text/main_manual.txt"
+CONFIG_GUIDE_FILE = "text/config_guide.txt"
 
 
 class AccuSleepWindow(QtWidgets.QMainWindow):
@@ -57,6 +60,11 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui = Ui_PrimaryWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy")
+
+        # fill in settings tab
+        self.brain_state_mapper = load_config()
+        self.settings_widgets = None
+        self.initialize_settings_tab()
 
         # initialize info about the recordings, classification data / settings
         self.epoch_length = 0
@@ -116,6 +124,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.delete_image_box.stateChanged.connect(self.update_image_deletion)
         self.ui.training_folder_button.clicked.connect(self.set_training_folder)
         self.ui.train_model_button.clicked.connect(self.train_model)
+        self.ui.save_config_button.clicked.connect(self.save_brain_state_config)
 
         # user input: drag and drop
         self.ui.recording_file_label.installEventFilter(self)
@@ -164,7 +173,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.ui.calibration_file_label.setText(filename)
         elif obj == self.ui.model_label:
             try:
-                self.model = load_model(filename)
+                self.model = load_model(
+                    filename=filename, n_classes=self.brain_state_mapper.n_classes
+                )
             except Exception:
                 self.show_message(f"ERROR: could not load model from {filename} ")
                 return super().eventFilter(obj, event)
@@ -223,6 +234,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             output_path=self.training_image_dir,
             epoch_length=self.epoch_length,
             epochs_per_img=self.training_epochs_per_img,
+            brain_state_mapper=self.brain_state_mapper,
         )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
@@ -244,6 +256,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             img_dir=self.training_image_dir,
             epochs_per_image=self.training_epochs_per_img,
             model_type=self.model_type,
+            mixture_weights=self.brain_state_mapper.mixture_weights,
+            n_classes=self.brain_state_mapper.n_classes,
         )
 
         # save model
@@ -406,6 +420,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 mixture_sds=mixture_sds,
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
+                brain_state_mapper=self.brain_state_mapper,
             )
 
             # overwrite as needed
@@ -448,7 +463,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.show_message("ERROR: model file does not exist")
                 return
             try:
-                self.model = load_model(filename)
+                self.model = load_model(
+                    filename=filename, n_classes=self.brain_state_mapper.n_classes
+                )
             except Exception:
                 self.show_message(
                     (
@@ -540,6 +557,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
+            brain_state_mapper=self.brain_state_mapper,
         )
         if label_error_message:
             self.ui.calibration_status.setText("invalid label file")
@@ -562,6 +580,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             labels=labels,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
+            brain_state_mapper=self.brain_state_mapper,
         )
 
         self.ui.calibration_status.setText("")
@@ -657,6 +676,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
+            brain_state_mapper=self.brain_state_mapper,
         )
         if label_error:
             # if the label length is only off by one, pad or truncate as needed
@@ -867,12 +887,240 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.popup.setGeometry(QtCore.QRect(100, 100, 600, 600))
         self.popup.show()
 
+    def initialize_settings_tab(self):
+        """Populate settings tab and assign its callbacks"""
+        # show information about the settings tab
+        config_guide_file = open(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_GUIDE_FILE),
+            "r",
+        )
+        config_guide_text = config_guide_file.read()
+        config_guide_file.close()
+        self.ui.settings_text.setText(config_guide_text)
+
+        # store dictionary that maps digits to rows of widgets
+        # in the settings tab
+        self.settings_widgets = {
+            1: StateSettings(
+                digit=1,
+                enabled_widget=self.ui.enable_state_1,
+                name_widget=self.ui.state_name_1,
+                is_scored_widget=self.ui.state_scored_1,
+                frequency_widget=self.ui.state_frequency_1,
+            ),
+            2: StateSettings(
+                digit=2,
+                enabled_widget=self.ui.enable_state_2,
+                name_widget=self.ui.state_name_2,
+                is_scored_widget=self.ui.state_scored_2,
+                frequency_widget=self.ui.state_frequency_2,
+            ),
+            3: StateSettings(
+                digit=3,
+                enabled_widget=self.ui.enable_state_3,
+                name_widget=self.ui.state_name_3,
+                is_scored_widget=self.ui.state_scored_3,
+                frequency_widget=self.ui.state_frequency_3,
+            ),
+            4: StateSettings(
+                digit=4,
+                enabled_widget=self.ui.enable_state_4,
+                name_widget=self.ui.state_name_4,
+                is_scored_widget=self.ui.state_scored_4,
+                frequency_widget=self.ui.state_frequency_4,
+            ),
+            5: StateSettings(
+                digit=5,
+                enabled_widget=self.ui.enable_state_5,
+                name_widget=self.ui.state_name_5,
+                is_scored_widget=self.ui.state_scored_5,
+                frequency_widget=self.ui.state_frequency_5,
+            ),
+            6: StateSettings(
+                digit=6,
+                enabled_widget=self.ui.enable_state_6,
+                name_widget=self.ui.state_name_6,
+                is_scored_widget=self.ui.state_scored_6,
+                frequency_widget=self.ui.state_frequency_6,
+            ),
+            7: StateSettings(
+                digit=7,
+                enabled_widget=self.ui.enable_state_7,
+                name_widget=self.ui.state_name_7,
+                is_scored_widget=self.ui.state_scored_7,
+                frequency_widget=self.ui.state_frequency_7,
+            ),
+            8: StateSettings(
+                digit=8,
+                enabled_widget=self.ui.enable_state_8,
+                name_widget=self.ui.state_name_8,
+                is_scored_widget=self.ui.state_scored_8,
+                frequency_widget=self.ui.state_frequency_8,
+            ),
+            9: StateSettings(
+                digit=9,
+                enabled_widget=self.ui.enable_state_9,
+                name_widget=self.ui.state_name_9,
+                is_scored_widget=self.ui.state_scored_9,
+                frequency_widget=self.ui.state_frequency_9,
+            ),
+            0: StateSettings(
+                digit=0,
+                enabled_widget=self.ui.enable_state_0,
+                name_widget=self.ui.state_name_0,
+                is_scored_widget=self.ui.state_scored_0,
+                frequency_widget=self.ui.state_frequency_0,
+            ),
+        }
+
+        # update widget state to display current config
+        states = {b.digit: b for b in self.brain_state_mapper.brain_states}
+        for digit in range(10):
+            if digit in states.keys():
+                self.settings_widgets[digit].enabled_widget.setChecked(True)
+                self.settings_widgets[digit].name_widget.setText(states[digit].name)
+                self.settings_widgets[digit].is_scored_widget.setChecked(
+                    states[digit].is_scored
+                )
+                self.settings_widgets[digit].frequency_widget.setValue(
+                    states[digit].frequency
+                )
+            else:
+                self.settings_widgets[digit].enabled_widget.setChecked(False)
+                self.settings_widgets[digit].name_widget.setEnabled(False)
+                self.settings_widgets[digit].is_scored_widget.setEnabled(False)
+                self.settings_widgets[digit].frequency_widget.setEnabled(False)
+
+        # set callbacks
+        for digit in range(10):
+            state = self.settings_widgets[digit]
+            state.enabled_widget.stateChanged.connect(
+                partial(self.set_brain_state_enabled, digit)
+            )
+            state.name_widget.editingFinished.connect(self.finished_editing_state_name)
+            state.is_scored_widget.stateChanged.connect(
+                partial(self.is_scored_changed, digit)
+            )
+            state.frequency_widget.valueChanged.connect(self.state_frequency_changed)
+
+    def set_brain_state_enabled(self, digit, e) -> None:
+        """Called when user clicks "enabled" checkbox
+
+        :param digit: brain state digit
+        :param e: unused but mandatory
+        """
+        # get the widgets for this brain state
+        state = self.settings_widgets[digit]
+        # update state of these widgets
+        is_checked = state.enabled_widget.isChecked()
+        for widget in [
+            state.name_widget,
+            state.is_scored_widget,
+        ]:
+            widget.setEnabled(is_checked)
+        state.frequency_widget.setEnabled(
+            is_checked and state.is_scored_widget.isChecked()
+        )
+        if not is_checked:
+            state.name_widget.setText("")
+            state.frequency_widget.setValue(0)
+        # check that configuration is valid
+        _ = self.check_config_validity()
+
+    def finished_editing_state_name(self) -> None:
+        """Called when user finishes editing a brain state's name"""
+        _ = self.check_config_validity()
+
+    def state_frequency_changed(self, new_value) -> None:
+        """Called when user edits a brain state's frequency
+
+        :param new_value: unused
+        """
+        _ = self.check_config_validity()
+
+    def is_scored_changed(self, digit, e) -> None:
+        """Called when user sets whether a state is scored
+
+        :param digit: brain state digit
+        :param e: unused, but mandatory
+        """
+        # get the widgets for this brain state
+        state = self.settings_widgets[digit]
+        # update the state of these widgets
+        is_checked = state.is_scored_widget.isChecked()
+        state.frequency_widget.setEnabled(is_checked)
+        if not is_checked:
+            state.frequency_widget.setValue(0)
+        # check that configuration is valid
+        _ = self.check_config_validity()
+
+    def check_config_validity(self) -> str:
+        """Check if brain state configuration on screen is valid"""
+        # error message, if we get one
+        message = None
+
+        # strip whitespace from brain state names and update display
+        for digit in range(10):
+            state = self.settings_widgets[digit]
+            current_name = state.name_widget.text()
+            formatted_name = current_name.strip()
+            if current_name != formatted_name:
+                state.name_widget.setText(formatted_name)
+
+        # check if names are unique and frequencies add up to 1
+        names = []
+        frequencies = []
+        for digit in range(10):
+            state = self.settings_widgets[digit]
+            if state.enabled_widget.isChecked():
+                names.append(state.name_widget.text())
+                frequencies.append(state.frequency_widget.value())
+        if len(names) != len(set(names)):
+            message = "Error: names must be unique"
+        if sum(frequencies) != 1:
+            message = "Error: sum(frequencies) != 1"
+
+        if message is not None:
+            self.ui.save_config_status.setText(message)
+            self.ui.save_config_button.setEnabled(False)
+            return message
+
+        self.ui.save_config_button.setEnabled(True)
+        self.ui.save_config_status.setText("")
+
+    def save_brain_state_config(self):
+        """Save configuration to file"""
+        # check that configuration is valid
+        error_message = self.check_config_validity()
+        if error_message is not None:
+            return
+
+        # build a BrainStateMapper object from the current configuration
+        brain_states = list()
+        for digit in range(10):
+            state = self.settings_widgets[digit]
+            if state.enabled_widget.isChecked():
+                brain_states.append(
+                    BrainState(
+                        name=state.name_widget.text(),
+                        digit=digit,
+                        is_scored=state.is_scored_widget.isChecked(),
+                        frequency=state.frequency_widget.value(),
+                    )
+                )
+        self.brain_state_mapper = BrainStateMapper(brain_states, UNDEFINED_LABEL)
+
+        # save to file
+        save_config(self.brain_state_mapper)
+        self.ui.save_config_status.setText("configuration saved")
+
 
 def check_label_validity(
     labels: np.array,
     samples_in_recording: int,
     sampling_rate: int | float,
     epoch_length: int | float,
+    brain_state_mapper: BrainStateMapper,
 ) -> str:
     """Check whether a set of brain state labels is valid
 
@@ -883,6 +1131,7 @@ def check_label_validity(
     :param samples_in_recording: number of samples in the recording
     :param sampling_rate: sampling rate, in Hz
     :param epoch_length: epoch length, in seconds
+    :param brain_state_mapper: BrainStateMapper object
     :return: error message
     """
     # check that length is correct
@@ -893,7 +1142,7 @@ def check_label_validity(
 
     # check that entries are valid
     if not set(labels.tolist()).issubset(
-        set([b.digit for b in BRAIN_STATE_MAPPER.brain_states] + [UNDEFINED_LABEL])
+        set([b.digit for b in brain_state_mapper.brain_states] + [UNDEFINED_LABEL])
     ):
         return "label file contains invalid entries"
 
