@@ -11,7 +11,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.widgets import RectangleSelector
 from PySide6.QtWidgets import *
 
-from accusleepy.misc import BrainStateMapper
+from accusleepy.brain_state_set import BrainStateSet
 
 # upper limit of spectrogram y-axis, in Hz
 SPEC_UPPER_F = 30
@@ -68,7 +68,7 @@ class MplWidget(QWidget):
         emg: np.array,
         epochs_to_show: int,
         label_display_options: np.array,
-        brain_state_mapper: BrainStateMapper,
+        brain_state_set: BrainStateSet,
         roi_function: Callable,
     ):
         """Initialize upper FigureCanvas for the manual scoring GUI
@@ -80,7 +80,7 @@ class MplWidget(QWidget):
         :param emg: EMG RMS per epoch
         :param epochs_to_show: number of epochs to show in the lower plot
         :param label_display_options: valid brain state y-axis locations
-        :param brain_state_mapper: set of brain states options
+        :param brain_state_set: set of brain states options
         :param roi_function: callback for ROI selection
         """
         # references to parts of the epoch marker
@@ -108,12 +108,12 @@ class MplWidget(QWidget):
         axes[0].set_yticks(
             label_display_options - np.min(label_display_options),
         )
-        axes[0].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
+        axes[0].set_yticklabels([b.name for b in brain_state_set.brain_states])
         ax2 = axes[0].secondary_yaxis("right")
         ax2.set_yticks(
             label_display_options - np.min(label_display_options),
         )
-        ax2.set_yticklabels([b.digit for b in brain_state_mapper.brain_states])
+        ax2.set_yticklabels([b.digit for b in brain_state_set.brain_states])
         self.label_img_ref = axes[0].imshow(
             label_img, aspect="auto", origin="lower", interpolation="None"
         )
@@ -187,7 +187,7 @@ class MplWidget(QWidget):
         label_img: np.array,
         sampling_rate: int | float,
         epochs_to_show: int,
-        brain_state_mapper: BrainStateMapper,
+        brain_state_set: BrainStateSet,
         label_display_options: np.array,
     ):
         """Initialize lower FigureCanvas for the manual scoring GUI
@@ -195,7 +195,7 @@ class MplWidget(QWidget):
         :param label_img: brain state labels, as an image
         :param sampling_rate: EEG/EMG sampling rate, in Hz
         :param epochs_to_show: number of epochs to show in the lower plot
-        :param brain_state_mapper: set of brain states options
+        :param brain_state_set: set of brain states options
         :param label_display_options: valid brain state y-axis locations
         """
         # number of samples in one epoch
@@ -277,12 +277,12 @@ class MplWidget(QWidget):
         axes[2].set_yticks(
             label_display_options - np.min(label_display_options),
         )
-        axes[2].set_yticklabels([b.name for b in brain_state_mapper.brain_states])
+        axes[2].set_yticklabels([b.name for b in brain_state_set.brain_states])
         ax2 = axes[2].secondary_yaxis("right")
         ax2.set_yticks(
             label_display_options - np.min(label_display_options),
         )
-        ax2.set_yticklabels([b.digit for b in brain_state_mapper.brain_states])
+        ax2.set_yticklabels([b.digit for b in brain_state_set.brain_states])
         axes[2].set_xlim((-0.5, epochs_to_show - 0.5))
         axes[2].set_ylim(
             [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]

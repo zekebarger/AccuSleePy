@@ -1,33 +1,42 @@
 from dataclasses import dataclass
 
 import numpy as np
-from PySide6.QtWidgets import (QCheckBox, QDoubleSpinBox, QLabel,
-                               QListWidgetItem)
 
 BRAIN_STATES_KEY = "brain_states"
-
-# It's convenient to have the brain state labels start at 1 rather than 0.
-# However, they need to be converted to the 0-n range for training and inference.
-# So, we have to have a distinction between "brain states" (as represented in
-# label files, keystrokes) and "classes" (AccuSleep's internal representation).
-# This is confusing and I apologize.
 
 
 @dataclass
 class BrainState:
+    """Convenience class for a brain state and its attributes"""
+
     name: str  # friendly name
     digit: int  # number 0-9 - used as keyboard shortcut
     is_scored: bool  # whether a classification model should score this state
     frequency: int | float  # typical relative frequency, between 0 and 1
 
 
-class BrainStateMapper:
-    def __init__(self, brain_states, undefined_label):
+class BrainStateSet:
+    def __init__(self, brain_states: list[BrainState], undefined_label: int):
+        """Initialize set of brain states
+
+        :param brain_states: list of BrainState objects
+        :param undefined_label: label for undefined epochs
+        """
         self.brain_states = brain_states
 
+        # The user can choose any subset of the digits 0-9 to represent
+        # brain states. However, if there are n brain states, pytorch requires
+        # labels to be in the 0-n range for training and inference.
+        # So, we have to have a distinction between "brain states" (as
+        # represented in label files and keyboard inputs) and "classes"
+        # (AccuSleep's internal representation).
+
+        # map digits to classes, and vice versa
         self.digit_to_class = {undefined_label: None}
         self.class_to_digit = dict()
+        # relative frequencies of each class
         self.mixture_weights = list()
+
         i = 0
         for brain_state in self.brain_states:
             if brain_state.digit == undefined_label:
@@ -50,13 +59,24 @@ class BrainStateMapper:
                 f"Typical frequencies for scored brain states must sum to 1"
             )
 
-    def convert_digit_to_class(self, digits):
+    def convert_digit_to_class(self, digits: np.array) -> np.array:
+        """Convert array of digits to their corresponding classes
+
+        :param digits: array of digits
+        :return: array of classes
+        """
         return np.array([self.digit_to_class[i] for i in digits])
 
-    def convert_class_to_digit(self, classes):
+    def convert_class_to_digit(self, classes: np.array) -> np.array:
+        """Convert array of classes to their corresponding digits
+
+        :param classes: array of classes
+        :return: array of digits
+        """
         return np.array([self.class_to_digit[i] for i in classes])
 
     def output_dict(self) -> dict:
+        """Return dictionary of brain states"""
         return {
             BRAIN_STATES_KEY: [
                 {
@@ -68,22 +88,3 @@ class BrainStateMapper:
                 for b in self.brain_states
             ]
         }
-
-
-@dataclass
-class Recording:
-    name: int = 1  # name to show in the GUI
-    recording_file: str = ""  # path to recording file
-    label_file: str = ""  # path to label file
-    calibration_file: str = ""  # path to calibration file
-    sampling_rate: int | float = 0.0  # sampling rate, in Hz
-    widget: QListWidgetItem = None  # reference to widget shown in the GUI
-
-
-@dataclass
-class StateSettings:
-    digit: int
-    enabled_widget: QCheckBox
-    name_widget: QLabel
-    is_scored_widget: QCheckBox
-    frequency_widget: QDoubleSpinBox

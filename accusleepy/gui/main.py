@@ -1,21 +1,24 @@
 # AccuSleePy main window
+# Icon source: Arkinasi, https://www.flaticon.com/authors/arkinasi
 
 import datetime
 import os
 import shutil
 import sys
+from dataclasses import dataclass
 from functools import partial
 
 import numpy as np
 from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from accusleepy.brain_state_set import BrainState, BrainStateSet
 from accusleepy.classification import (
     create_calibration_file,
     score_recording,
     train_model,
 )
-from accusleepy.config import (
+from accusleepy.constants import (
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
     LABEL_FILE_TYPE,
@@ -24,6 +27,7 @@ from accusleepy.config import (
     UNDEFINED_LABEL,
 )
 from accusleepy.fileio import (
+    Recording,
     load_calibration_file,
     load_config,
     load_labels,
@@ -34,7 +38,6 @@ from accusleepy.fileio import (
     save_model,
 )
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.misc import BrainState, BrainStateMapper, Recording, StateSettings
 from accusleepy.signal_processing import (
     ANNOTATIONS_FILENAME,
     create_training_images,
@@ -46,12 +49,23 @@ from accusleepy.signal_processing import (
 MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to user manual txt file
-USER_MANUAL_FILE = "text/main_manual.txt"
+USER_MANUAL_FILE = "text/main_guide.txt"
 CONFIG_GUIDE_FILE = "text/config_guide.txt"
 
 
+@dataclass
+class StateSettings:
+    """Widgets for config settings for a brain state"""
+
+    digit: int
+    enabled_widget: QtWidgets.QCheckBox
+    name_widget: QtWidgets.QLabel
+    is_scored_widget: QtWidgets.QCheckBox
+    frequency_widget: QtWidgets.QDoubleSpinBox
+
+
 class AccuSleepWindow(QtWidgets.QMainWindow):
-    """AccuSleePy main window"""
+    """AccuSleePy primary window"""
 
     def __init__(self):
         super(AccuSleepWindow, self).__init__()
@@ -62,7 +76,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("AccuSleePy")
 
         # fill in settings tab
-        self.brain_state_mapper = load_config()
+        self.brain_state_set = load_config()
         self.settings_widgets = None
         self.initialize_settings_tab()
 
@@ -174,7 +188,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         elif obj == self.ui.model_label:
             try:
                 self.model = load_model(
-                    filename=filename, n_classes=self.brain_state_mapper.n_classes
+                    filename=filename, n_classes=self.brain_state_set.n_classes
                 )
             except Exception:
                 self.show_message(f"ERROR: could not load model from {filename} ")
@@ -234,7 +248,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             output_path=self.training_image_dir,
             epoch_length=self.epoch_length,
             epochs_per_img=self.training_epochs_per_img,
-            brain_state_mapper=self.brain_state_mapper,
+            brain_state_set=self.brain_state_set,
         )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
@@ -256,8 +270,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             img_dir=self.training_image_dir,
             epochs_per_image=self.training_epochs_per_img,
             model_type=self.model_type,
-            mixture_weights=self.brain_state_mapper.mixture_weights,
-            n_classes=self.brain_state_mapper.n_classes,
+            mixture_weights=self.brain_state_set.mixture_weights,
+            n_classes=self.brain_state_set.n_classes,
         )
 
         # save model
@@ -420,7 +434,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 mixture_sds=mixture_sds,
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
-                brain_state_mapper=self.brain_state_mapper,
+                brain_state_set=self.brain_state_set,
             )
 
             # overwrite as needed
@@ -464,7 +478,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 return
             try:
                 self.model = load_model(
-                    filename=filename, n_classes=self.brain_state_mapper.n_classes
+                    filename=filename, n_classes=self.brain_state_set.n_classes
                 )
             except Exception:
                 self.show_message(
@@ -557,7 +571,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
-            brain_state_mapper=self.brain_state_mapper,
+            brain_state_set=self.brain_state_set,
         )
         if label_error_message:
             self.ui.calibration_status.setText("invalid label file")
@@ -580,7 +594,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             labels=labels,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
-            brain_state_mapper=self.brain_state_mapper,
+            brain_state_set=self.brain_state_set,
         )
 
         self.ui.calibration_status.setText("")
@@ -676,7 +690,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
-            brain_state_mapper=self.brain_state_mapper,
+            brain_state_set=self.brain_state_set,
         )
         if label_error:
             # if the label length is only off by one, pad or truncate as needed
@@ -974,7 +988,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         }
 
         # update widget state to display current config
-        states = {b.digit: b for b in self.brain_state_mapper.brain_states}
+        states = {b.digit: b for b in self.brain_state_set.brain_states}
         for digit in range(10):
             if digit in states.keys():
                 self.settings_widgets[digit].enabled_widget.setChecked(True)
@@ -1108,10 +1122,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                         frequency=state.frequency_widget.value(),
                     )
                 )
-        self.brain_state_mapper = BrainStateMapper(brain_states, UNDEFINED_LABEL)
+        self.brain_state_set = BrainStateSet(brain_states, UNDEFINED_LABEL)
 
         # save to file
-        save_config(self.brain_state_mapper)
+        save_config(self.brain_state_set)
         self.ui.save_config_status.setText("configuration saved")
 
 
@@ -1120,7 +1134,7 @@ def check_label_validity(
     samples_in_recording: int,
     sampling_rate: int | float,
     epoch_length: int | float,
-    brain_state_mapper: BrainStateMapper,
+    brain_state_set: BrainStateSet,
 ) -> str:
     """Check whether a set of brain state labels is valid
 
@@ -1131,7 +1145,7 @@ def check_label_validity(
     :param samples_in_recording: number of samples in the recording
     :param sampling_rate: sampling rate, in Hz
     :param epoch_length: epoch length, in seconds
-    :param brain_state_mapper: BrainStateMapper object
+    :param brain_state_set: BrainStateMapper object
     :return: error message
     """
     # check that length is correct
@@ -1142,7 +1156,7 @@ def check_label_validity(
 
     # check that entries are valid
     if not set(labels.tolist()).issubset(
-        set([b.digit for b in brain_state_mapper.brain_states] + [UNDEFINED_LABEL])
+        set([b.digit for b in brain_state_set.brain_states] + [UNDEFINED_LABEL])
     ):
         return "label file contains invalid entries"
 

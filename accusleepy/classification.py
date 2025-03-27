@@ -8,14 +8,17 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
 
-import accusleepy.config as c
-from accusleepy.fileio import load_config, load_labels, load_recording
-from accusleepy.misc import BrainStateMapper, Recording
+import accusleepy.constants as c
+from accusleepy.brain_state_set import BrainStateSet
+from accusleepy.fileio import Recording, load_config, load_labels, load_recording
 from accusleepy.models import SSANN
-from accusleepy.signal_processing import (create_eeg_emg_image, format_img,
-                                          get_mixture_values,
-                                          mixture_z_score_img,
-                                          resample_and_standardize)
+from accusleepy.signal_processing import (
+    create_eeg_emg_image,
+    format_img,
+    get_mixture_values,
+    mixture_z_score_img,
+    resample_and_standardize,
+)
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
@@ -24,6 +27,8 @@ TRAINING_EPOCHS = 6
 
 
 class AccuSleepImageDataset(Dataset):
+    """Dataset for loading AccuSleep training images"""
+
     def __init__(
         self, annotations_file, img_dir, transform=None, target_transform=None
     ):
@@ -49,6 +54,7 @@ class AccuSleepImageDataset(Dataset):
 
 
 def get_device():
+    """Get accelerator, if one is available"""
     return (
         torch.accelerator.current_accelerator().type
         if torch.accelerator.is_available()
@@ -64,6 +70,16 @@ def train_model(
     mixture_weights: np.array,
     n_classes: int,
 ) -> SSANN:
+    """Train a classification model for sleep scoring
+
+    :param annotations_file: file with information on each training image
+    :param img_dir: training image location
+    :param epochs_per_image: number of epochs per image
+    :param model_type: default or real-time
+    :param mixture_weights: typical relative frequencies of brain states
+    :param n_classes: number of classes the model will learn
+    :return: trained Sleep Scoring Artificial Neural Network model
+    """
     training_data = AccuSleepImageDataset(
         annotations_file=annotations_file,
         img_dir=img_dir,
@@ -72,6 +88,7 @@ def train_model(
 
     device = get_device()
     model = SSANN(n_classes=n_classes)
+    # store useful info in the weights
     model.epochs_per_image = torch.nn.Parameter(
         torch.Tensor([epochs_per_image]), requires_grad=False
     )
@@ -81,7 +98,9 @@ def train_model(
     model.to(device)
     model.train()
 
+    # correct for class imbalance
     weight = torch.tensor((mixture_weights**-1).astype("float32")).to(device)
+
     criterion = nn.CrossEntropyLoss(weight=weight)
     optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
@@ -98,51 +117,6 @@ def train_model(
     return model
 
 
-def test_model(
-    model: SSANN,
-    recordings: list[Recording],
-    epoch_length: int | float,
-) -> None:
-    all_labels = np.empty(0).astype(int)
-    all_predictions = np.empty(0).astype(int)
-
-    brain_state_mapper = load_config()
-
-    for recording in recordings:
-        eeg, emg = load_recording(recording.recording_file)
-        labels = load_labels(recording.label_file)
-
-        eeg, emg, recording.sampling_rate = resample_and_standardize(
-            eeg=eeg,
-            emg=emg,
-            sampling_rate=recording.sampling_rate,
-            epoch_length=epoch_length,
-        )
-        img = create_eeg_emg_image(eeg, emg, recording.sampling_rate, epoch_length)
-        mixture_means, mixture_sds = get_mixture_values(
-            img=img,
-            labels=brain_state_mapper.convert_digit_to_class(labels),
-            brain_state_mapper=brain_state_mapper,
-        )
-        pred = score_recording(
-            model,
-            eeg,
-            emg,
-            mixture_means,
-            mixture_sds,
-            recording.sampling_rate,
-            epoch_length,
-            brain_state_mapper,
-        )
-
-        all_labels = np.concatenate([all_labels, labels])
-        all_predictions = np.concatenate([all_predictions, pred])
-
-    print(
-        f"test accuracy: {np.sum(all_predictions == all_labels) / len(all_labels):.2%}"
-    )
-
-
 def score_recording(
     model: SSANN,
     eeg: np.array,
@@ -151,21 +125,22 @@ def score_recording(
     mixture_sds: np.array,
     sampling_rate: int | float,
     epoch_length: int | float,
-    brain_state_mapper: BrainStateMapper,
+    brain_state_set: BrainStateSet,
 ) -> np.array:
     """Use classification model to get brain state labels for a recording
 
-    Assumes signals have been preprocessed
+    This assumes signals have been preprocessed to contain an integer
+    number of epochs.
 
-    :param model:
-    :param eeg:
-    :param emg:
-    :param mixture_means:
-    :param mixture_sds:
-    :param sampling_rate:
-    :param epoch_length:
-    :param brain_state_mapper:
-    :return:
+    :param model: classification model
+    :param eeg: EEG signal
+    :param emg: EMG signal
+    :param mixture_means: mixture means, for calibration
+    :param mixture_sds: mixture standard deviations, for calibration
+    :param sampling_rate: sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :param brain_state_set: set of brain state options
+    :return: brain state labels
     """
     # prepare model
     device = get_device()
@@ -179,7 +154,7 @@ def score_recording(
         img,
         mixture_means=mixture_means,
         mixture_sds=mixture_sds,
-        brain_state_mapper=brain_state_mapper,
+        brain_state_set=brain_state_set,
     )
     img = format_img(img, epochs_per_img)
 
@@ -196,7 +171,7 @@ def score_recording(
         outputs = model(images)
         _, predicted = torch.max(outputs, 1)
 
-    labels = brain_state_mapper.convert_class_to_digit(predicted.cpu().numpy())
+    labels = brain_state_set.convert_class_to_digit(predicted.cpu().numpy())
     return labels
 
 
@@ -207,30 +182,72 @@ def create_calibration_file(
     labels: np.array,
     sampling_rate: int | float,
     epoch_length: int | float,
-    brain_state_mapper: BrainStateMapper,
+    brain_state_set: BrainStateSet,
 ) -> None:
     """Create file of calibration data for a subject
 
-    Assumes signals have been preprocessed
+    This assumes signals have been preprocessed to contain an integer
+    number of epochs.
 
-    :param filename:
-    :param eeg:
-    :param emg:
-    :param labels:
-    :param sampling_rate:
-    :param epoch_length:
-    :param brain_state_mapper:
-    :return:
+    :param filename: filename for the calibration file
+    :param eeg: EEG signal
+    :param emg: EMG signal
+    :param labels: brain state labels, as digits
+    :param sampling_rate: sampling rate, in Hz
+    :param epoch_length: epoch length, in seconds
+    :param brain_state_set: set of brain state options
     """
-    # labels = DIGITS
-
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
     mixture_means, mixture_sds = get_mixture_values(
         img=img,
-        labels=brain_state_mapper.convert_digit_to_class(labels),
-        brain_state_mapper=brain_state_mapper,
+        labels=brain_state_set.convert_digit_to_class(labels),
+        brain_state_set=brain_state_set,
     )
-    df = pd.DataFrame(
+    pd.DataFrame(
         {c.MIXTURE_MEAN_COL: mixture_means, c.MIXTURE_SD_COL: mixture_sds}
+    ).to_csv(filename, index=False)
+
+
+def test_model(
+    model: SSANN,
+    recordings: list[Recording],
+    epoch_length: int | float,
+) -> None:
+    all_labels = np.empty(0).astype(int)
+    all_predictions = np.empty(0).astype(int)
+
+    brain_state_set = load_config()
+
+    for recording in recordings:
+        eeg, emg = load_recording(recording.recording_file)
+        labels = load_labels(recording.label_file)
+
+        eeg, emg, recording.sampling_rate = resample_and_standardize(
+            eeg=eeg,
+            emg=emg,
+            sampling_rate=recording.sampling_rate,
+            epoch_length=epoch_length,
+        )
+        img = create_eeg_emg_image(eeg, emg, recording.sampling_rate, epoch_length)
+        mixture_means, mixture_sds = get_mixture_values(
+            img=img,
+            labels=brain_state_set.convert_digit_to_class(labels),
+            brain_state_set=brain_state_set,
+        )
+        pred = score_recording(
+            model,
+            eeg,
+            emg,
+            mixture_means,
+            mixture_sds,
+            recording.sampling_rate,
+            epoch_length,
+            brain_state_set,
+        )
+
+        all_labels = np.concatenate([all_labels, labels])
+        all_predictions = np.concatenate([all_predictions, pred])
+
+    print(
+        f"test accuracy: {np.sum(all_predictions == all_labels) / len(all_labels):.2%}"
     )
-    df.to_csv(filename, index=False)
