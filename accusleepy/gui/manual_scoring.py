@@ -16,23 +16,12 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from viewer_window import Ui_ViewerWindow
 
 from accusleepy.config import UNDEFINED_LABEL
-from accusleepy.fileio import (load_config, load_labels, load_recording,
-                               save_labels)
-from accusleepy.signal_processing import (create_spectrogram, process_emg,
-                                          resample_and_standardize)
-
-# NOTES
-# magic spell:
-# /Users/zeke/PycharmProjects/AccuSleePy/.venv/lib/python3.13/site-packages/PySide6/Qt/libexec/uic -g python accusleepy/gui/<something>.ui -o accusleepy/gui/<something>.py
-
-# other magic spell (if the icon set is altered)
-# pyside6-rcc accusleepy/gui/resources.qrc -o accusleepy/gui/resources_rc.py
-
-# https://www.pythonguis.com/tutorials/qresource-system/
-# and if you won't want to mess with qt creator, can add this below customwidgets in the ui file
-# <resources>
-#   <include location="resources.qrc"/>
-#  </resources>
+from accusleepy.fileio import load_config, load_labels, load_recording, save_labels
+from accusleepy.signal_processing import (
+    create_spectrogram,
+    process_emg,
+    resample_and_standardize,
+)
 
 
 # colormap for displaying brain state labels
@@ -44,7 +33,7 @@ LABEL_CMAP = np.concatenate(
 # relative path to user manual txt file
 USER_MANUAL_FILE = "text/manual1.txt"
 
-# variables used by callbacks
+# constants used by callback functions
 # label formats
 DISPLAY_FORMAT = "display"
 DIGIT_FORMAT = "digit"
@@ -72,6 +61,9 @@ DIMMER = "dimmer"
 # next epoch target
 DIFFERENT_STATE = "different"
 UNDEFINED_STATE = "undefined"
+# how far from the edge of the upper plot the marker should be
+# before starting to scroll again - must be in (0, 0.5)
+SCROLL_BOUNDARY = 0.35
 
 
 class ManualScoringWindow(QtWidgets.QDialog):
@@ -86,6 +78,15 @@ class ManualScoringWindow(QtWidgets.QDialog):
         sampling_rate: int | float,
         epoch_length: int | float,
     ):
+        """Initialize the manual scoring window
+
+        :param eeg: EEG signal
+        :param emg: EMG signal
+        :param label_file: filename for labels
+        :param labels: brain state labels
+        :param sampling_rate: sampling rate, in Hz
+        :param epoch_length: epoch length, in seconds
+        """
         super(ManualScoringWindow, self).__init__()
 
         self.label_file = label_file
@@ -102,6 +103,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy manual scoring window")
 
+        # load set of valid brain states
         self.brain_state_set = load_config()
 
         # initial setting for number of epochs to show in the lower plot
@@ -596,7 +598,6 @@ class ManualScoringWindow(QtWidgets.QDialog):
         zoom_in_factor = 0.45
         zoom_out_factor = 1.017
         epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
-        # is int too imprecise?
         if direction == ZOOM_IN:
             self.upper_left_epoch = int(
                 max([self.upper_left_epoch, self.epoch - zoom_in_factor * epochs_shown])
@@ -663,7 +664,8 @@ class ManualScoringWindow(QtWidgets.QDialog):
         # update upper plot if needed
         upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
         if (
-            self.epoch > self.upper_left_epoch + 0.65 * upper_epochs_shown
+            self.epoch
+            > self.upper_left_epoch + (1 - SCROLL_BOUNDARY) * upper_epochs_shown
             and self.upper_right_epoch < (self.n_epochs - 1)
             and direction == DIRECTION_RIGHT
         ):
@@ -671,7 +673,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
             self.upper_right_epoch += 1
             self.adjust_upper_figure_x_limits()
         elif (
-            self.epoch < self.upper_left_epoch + 0.35 * upper_epochs_shown
+            self.epoch < self.upper_left_epoch + SCROLL_BOUNDARY * upper_epochs_shown
             and self.upper_left_epoch > 0
             and direction == DIRECTION_LEFT
         ):
@@ -918,29 +920,3 @@ def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
     eeg = eeg / np.percentile(eeg, 95) / 2.2
     emg = emg / np.percentile(emg, 95) / 2.2
     return eeg, emg
-
-
-if __name__ == "__main__":
-
-    eeg, emg = load_recording(
-        "/Users/zeke/PycharmProjects/AccuSleePy/sample_recording.parquet"
-    )
-    label_file = "/Users/zeke/PycharmProjects/AccuSleePy/sample_labels.csv"
-    labels = load_labels(label_file)
-    sampling_rate = 512
-    epoch_length = 2.5
-
-    eeg, emg, sampling_rate = resample_and_standardize(
-        eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
-    )
-
-    app = QtWidgets.QApplication(sys.argv)
-    window = ManualScoringWindow(
-        eeg=eeg,
-        emg=emg,
-        label_file=label_file,
-        labels=labels,
-        sampling_rate=sampling_rate,
-        epoch_length=epoch_length,
-    )
-    sys.exit(app.exec())
