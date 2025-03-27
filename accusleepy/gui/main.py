@@ -10,21 +10,37 @@ import numpy as np
 from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from accusleepy.classification import (create_calibration_file,
-                                       score_recording, train_model)
-from accusleepy.config import (CALIBRATION_FILE_TYPE, DEFAULT_MODEL_TYPE,
-                               LABEL_FILE_TYPE, MODEL_FILE_TYPE,
-                               RECORDING_FILE_TYPES, UNDEFINED_LABEL)
-from accusleepy.fileio import (load_calibration_file, load_config, load_labels,
-                               load_model, load_recording, save_config,
-                               save_labels, save_model)
+from accusleepy.classification import (
+    create_calibration_file,
+    score_recording,
+    train_model,
+)
+from accusleepy.config import (
+    CALIBRATION_FILE_TYPE,
+    DEFAULT_MODEL_TYPE,
+    LABEL_FILE_TYPE,
+    MODEL_FILE_TYPE,
+    RECORDING_FILE_TYPES,
+    UNDEFINED_LABEL,
+)
+from accusleepy.fileio import (
+    load_calibration_file,
+    load_config,
+    load_labels,
+    load_model,
+    load_recording,
+    save_config,
+    save_labels,
+    save_model,
+)
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.misc import (BrainState, BrainStateMapper, Recording,
-                             StateSettings)
-from accusleepy.signal_processing import (ANNOTATIONS_FILENAME,
-                                          create_training_images,
-                                          enforce_min_bout_length,
-                                          resample_and_standardize)
+from accusleepy.misc import BrainState, BrainStateMapper, Recording, StateSettings
+from accusleepy.signal_processing import (
+    ANNOTATIONS_FILENAME,
+    create_training_images,
+    enforce_min_bout_length,
+    resample_and_standardize,
+)
 
 # max number of messages to display
 MESSAGE_BOX_MAX_DEPTH = 50
@@ -871,6 +887,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.popup.show()
 
     def initialize_settings_tab(self):
+        """Populate settings tab and assign its callbacks"""
+        # store dictionary that maps digits to rows of widgets
+        # in the settings tab
         self.settings_widgets = {
             1: StateSettings(
                 digit=1,
@@ -944,7 +963,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             ),
         }
 
-        # display current config
+        # update widget state to display current config
         states = {b.digit: b for b in self.brain_state_mapper.brain_states}
         for digit in range(10):
             if digit in states.keys():
@@ -962,7 +981,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.settings_widgets[digit].is_scored_widget.setEnabled(False)
                 self.settings_widgets[digit].frequency_widget.setEnabled(False)
 
-        # callbacks
+        # set callbacks
         for digit in range(10):
             state = self.settings_widgets[digit]
             state.enabled_widget.stateChanged.connect(
@@ -974,8 +993,15 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             )
             state.frequency_widget.valueChanged.connect(self.state_frequency_changed)
 
-    def set_brain_state_enabled(self, digit, e):
+    def set_brain_state_enabled(self, digit, e) -> None:
+        """Called when user clicks "enabled" checkbox
+
+        :param digit: brain state digit
+        :param e: unused but mandatory
+        """
+        # get the widgets for this brain state
         state = self.settings_widgets[digit]
+        # update state of these widgets
         is_checked = state.enabled_widget.isChecked()
         for widget in [
             state.name_widget,
@@ -988,25 +1014,42 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         if not is_checked:
             state.name_widget.setText("")
             state.frequency_widget.setValue(0)
-
+        # check that configuration is valid
         _ = self.check_config_validity()
 
-    def finished_editing_state_name(self):
+    def finished_editing_state_name(self) -> None:
+        """Called when user finishes editing a brain state's name"""
         _ = self.check_config_validity()
 
-    def state_frequency_changed(self, new_value):
+    def state_frequency_changed(self, new_value) -> None:
+        """Called when user edits a brain state's frequency
+
+        :param new_value: unused
+        """
         _ = self.check_config_validity()
 
-    def is_scored_changed(self, digit, e):
+    def is_scored_changed(self, digit, e) -> None:
+        """Called when user sets whether a state is scored
+
+        :param digit: brain state digit
+        :param e: unused, but mandatory
+        """
+        # get the widgets for this brain state
         state = self.settings_widgets[digit]
+        # update the state of these widgets
         is_checked = state.is_scored_widget.isChecked()
         state.frequency_widget.setEnabled(is_checked)
         if not is_checked:
             state.frequency_widget.setValue(0)
-
+        # check that configuration is valid
         _ = self.check_config_validity()
 
-    def format_state_names(self) -> None:
+    def check_config_validity(self) -> str:
+        """Check if brain state configuration on screen is valid"""
+        # error message, if we get one
+        message = None
+
+        # strip whitespace from brain state names and update display
         for digit in range(10):
             state = self.settings_widgets[digit]
             current_name = state.name_widget.text()
@@ -1014,12 +1057,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             if current_name != formatted_name:
                 state.name_widget.setText(formatted_name)
 
-    def check_config_validity(self) -> str:
-        message = None
-        # format all state names
-        self.format_state_names()
-        # check if names are unique
-        # and frequencies add up to 1
+        # check if names are unique and frequencies add up to 1
         names = []
         frequencies = []
         for digit in range(10):
@@ -1029,7 +1067,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 frequencies.append(state.frequency_widget.value())
         if len(names) != len(set(names)):
             message = "Error: names must be unique"
-
         if sum(frequencies) != 1:
             message = "Error: sum(frequencies) != 1"
 
@@ -1042,12 +1079,15 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.save_config_status.setText("")
 
     def save_brain_state_config(self):
+        """Save configuration to file"""
+        # check that configuration is valid
         error_message = self.check_config_validity()
         if error_message is not None:
             return
 
+        # build a BrainStateMapper object from the current configuration
         brain_states = list()
-        for digit in self.settings_widgets.keys():
+        for digit in range(10):
             state = self.settings_widgets[digit]
             if state.enabled_widget.isChecked():
                 brain_states.append(
