@@ -398,6 +398,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         user_manual_file.close()
         label_widget = QtWidgets.QLabel()
         label_widget.setText(user_manual_text)
+        label_widget.setStyleSheet("background-color: white;")
 
         self.popup = QtWidgets.QWidget()
         grid = QtWidgets.QGridLayout()
