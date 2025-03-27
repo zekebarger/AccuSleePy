@@ -1,15 +1,8 @@
 from dataclasses import dataclass
 
 import numpy as np
-from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox, QLabel
 
 BRAIN_STATES_KEY = "brain_states"
-
-# It's convenient to have the brain state labels start at 1 rather than 0.
-# However, they need to be converted to the 0-n range for training and inference.
-# So, we have to have a distinction between "brain states" (as represented in
-# label files, keystrokes) and "classes" (AccuSleep's internal representation).
-# This is confusing and I apologize.
 
 
 @dataclass
@@ -24,6 +17,11 @@ class BrainStateMapper:
     def __init__(self, brain_states, undefined_label):
         self.brain_states = brain_states
 
+        # It's convenient to have the brain state labels start at 1 rather than 0.
+        # However, they need to be converted to the 0-n range for training and inference.
+        # So, we have to have a distinction between "brain states" (as represented in
+        # label files, keystrokes) and "classes" (AccuSleep's internal representation).
+        # This is confusing and I apologize.
         self.digit_to_class = {undefined_label: None}
         self.class_to_digit = dict()
         self.mixture_weights = list()
@@ -67,12 +65,3 @@ class BrainStateMapper:
                 for b in self.brain_states
             ]
         }
-
-
-@dataclass
-class StateSettings:
-    digit: int
-    enabled_widget: QCheckBox
-    name_widget: QLabel
-    is_scored_widget: QCheckBox
-    frequency_widget: QDoubleSpinBox

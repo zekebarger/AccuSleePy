@@ -4,6 +4,7 @@ import datetime
 import os
 import shutil
 import sys
+from dataclasses import dataclass
 from functools import partial
 
 import numpy as np
@@ -19,7 +20,7 @@ from accusleepy.fileio import (Recording, load_calibration_file, load_config,
                                load_labels, load_model, load_recording,
                                save_config, save_labels, save_model)
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.misc import BrainState, BrainStateMapper, StateSettings
+from accusleepy.misc import BrainState, BrainStateMapper
 from accusleepy.signal_processing import (ANNOTATIONS_FILENAME,
                                           create_training_images,
                                           enforce_min_bout_length,
@@ -31,6 +32,17 @@ LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to user manual txt file
 USER_MANUAL_FILE = "text/main_manual.txt"
 CONFIG_GUIDE_FILE = "text/config_guide.txt"
+
+
+@dataclass
+class StateSettings:
+    """Widgets for config settings for a brain state"""
+
+    digit: int
+    enabled_widget: QtWidgets.QCheckBox
+    name_widget: QtWidgets.QLabel
+    is_scored_widget: QtWidgets.QCheckBox
+    frequency_widget: QtWidgets.QDoubleSpinBox
 
 
 class AccuSleepWindow(QtWidgets.QMainWindow):
