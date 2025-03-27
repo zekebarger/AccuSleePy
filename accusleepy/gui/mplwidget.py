@@ -96,9 +96,10 @@ class MplWidget(QWidget):
         axes.append(self.canvas.figure.add_subplot(gs1[2]))
         axes.append(self.canvas.figure.add_subplot(gs2[3]))
 
-        # the subplots might have different axes limits one day
-        for i in range(4):
+        # subplots have different axes limits
+        for i in [0, 1, 3]:
             axes[i].set_xlim((-0.5, n_epochs + 0.5))
+        axes[2].set_xlim(0, n_epochs)
 
         # brain state subplot
         axes[0].set_ylim(
@@ -161,6 +162,12 @@ class MplWidget(QWidget):
             aspect="auto",
             origin="lower",
             interpolation="None",
+            extent=(
+                0,
+                n_epochs,
+                -0.5,
+                len(f) + 0.5,
+            ),
         )
 
         # EMG subplot
@@ -304,8 +311,10 @@ class MplWidget(QWidget):
         self.canvas.axes = axes
 
     def time_formatter(self, x, pos):
-        x = (x + 0.5) * self.epoch_length
-        return "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))
+        x = x * self.epoch_length
+        return "{:02d}:{:02d}:{:05.2f}".format(
+            int(x // 3600), int(x // 60) % 60, (x % 60)
+        )
 
 
 def resample_x_ticks(x_ticks: np.array) -> np.array:
