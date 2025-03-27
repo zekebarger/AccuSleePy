@@ -9,7 +9,7 @@ import pandas as pd
 from PIL import Image
 from scipy.signal import butter, filtfilt
 
-import accusleepy.config as c
+import accusleepy.constants as c
 from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.fileio import Recording, load_labels, load_recording
 from accusleepy.multitaper import spectrogram

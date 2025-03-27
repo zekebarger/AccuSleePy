@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from accusleepy.config import (
+from accusleepy.constants import (
     DOWNSAMPLING_START_FREQ,
     EMG_COPIES,
     MIN_WINDOW_LEN,

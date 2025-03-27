@@ -8,7 +8,8 @@ import scipy.io
 import torch
 from PySide6.QtWidgets import QListWidgetItem
 
-from accusleepy.config import (
+from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
+from accusleepy.constants import (
     BRAIN_STATE_COL,
     CONFIG_FILE,
     EEG_COL,
@@ -17,7 +18,6 @@ from accusleepy.config import (
     MIXTURE_SD_COL,
     UNDEFINED_LABEL,
 )
-from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 from accusleepy.models import SSANN
 
 

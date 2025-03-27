@@ -18,7 +18,7 @@ from accusleepy.classification import (
     score_recording,
     train_model,
 )
-from accusleepy.config import (
+from accusleepy.constants import (
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
     LABEL_FILE_TYPE,

@@ -15,14 +15,13 @@ from mplwidget import resample_x_ticks
 from PySide6 import QtCore, QtGui, QtWidgets
 from viewer_window import Ui_ViewerWindow
 
-from accusleepy.config import UNDEFINED_LABEL
+from accusleepy.constants import UNDEFINED_LABEL
 from accusleepy.fileio import load_config, load_labels, load_recording, save_labels
 from accusleepy.signal_processing import (
     create_spectrogram,
     get_emg_power,
     resample_and_standardize,
 )
-
 
 # colormap for displaying brain state labels
 # the first entry represents the "undefined" state

@@ -8,7 +8,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
 
-import accusleepy.config as c
+import accusleepy.constants as c
 from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.fileio import Recording, load_config, load_labels, load_recording
 from accusleepy.models import SSANN
