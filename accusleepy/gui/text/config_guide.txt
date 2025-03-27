@@ -1,0 +1,25 @@
+This is the current brain state configuration.
+
+Each brain state has several attributes:
+
+- Digit: this number is how the brain state is represented
+    in label files. It's also the key on the keyboard that
+    is used during manual scoring to set an epoch to this
+    brain state.
+
+- Enabled: whether a brain state for this digit exists.
+
+- Name: the name of the brain state (e.g., REM). All names
+    must be unique for the configuration to be valid.
+
+- Scored: whether a classification model should try score
+    this brain state. If you have a state that corresponds
+    to missing or corrupted data, for example, you would
+    probably want to uncheck this box.
+
+- Frequency: the approximate relative frequency of this
+    brain state in your data. This does not need to be
+    very accurate, but it can influence classification
+    accuracy a little bit. The frequency values for all
+    scored brain states must add up to 1 for the
+    configuration to be valid.

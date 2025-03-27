@@ -47,6 +47,7 @@ MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to user manual txt file
 USER_MANUAL_FILE = "text/main_manual.txt"
+CONFIG_GUIDE_FILE = "text/config_guide.txt"
 
 
 class AccuSleepWindow(QtWidgets.QMainWindow):
@@ -888,6 +889,15 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def initialize_settings_tab(self):
         """Populate settings tab and assign its callbacks"""
+        # show information about the settings tab
+        config_guide_file = open(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_GUIDE_FILE),
+            "r",
+        )
+        config_guide_text = config_guide_file.read()
+        config_guide_file.close()
+        self.ui.settings_text.setText(config_guide_text)
+
         # store dictionary that maps digits to rows of widgets
         # in the settings tab
         self.settings_widgets = {
