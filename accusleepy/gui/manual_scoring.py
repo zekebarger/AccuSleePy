@@ -583,10 +583,13 @@ class ManualScoringWindow(QtWidgets.QDialog):
 
     def adjust_upper_figure_x_limits(self) -> None:
         """Update the x-axis limits of the upper figure subplots"""
-        for i in range(4):
+        for i in [0, 1, 3]:
             self.ui.upperfigure.canvas.axes[i].set_xlim(
                 (self.upper_left_epoch - 0.5, self.upper_right_epoch + 0.5)
             )
+        self.ui.upperfigure.canvas.axes[2].set_xlim(
+            (self.upper_left_epoch, self.upper_right_epoch + 1)
+        )
         self.ui.upperfigure.canvas.draw()
 
     def zoom_x(self, direction: str) -> None:
@@ -778,7 +781,9 @@ class ManualScoringWindow(QtWidgets.QDialog):
         )
         self.ui.lowerfigure.canvas.axes[1].set_xticklabels(
             [
-                "{:02d}:{:02d}:{:05.2f}".format(int(x // 3600), int(x // 60), (x % 60))
+                "{:02d}:{:02d}:{:05.2f}".format(
+                    int(x // 3600), int(x // 60) % 60, (x % 60)
+                )
                 for x in x_ticks * self.epoch_length
             ]
         )
