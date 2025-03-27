@@ -102,14 +102,14 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy manual scoring window")
 
-        self.brain_state_mapper = load_config()
+        self.brain_state_set = load_config()
 
         # initial setting for number of epochs to show in the lower plot
         self.epochs_to_show = 5
 
         # find the set of y-axis locations of valid brain state labels
         self.label_display_options = convert_labels(
-            np.array([b.digit for b in self.brain_state_mapper.brain_states]),
+            np.array([b.digit for b in self.brain_state_set.brain_states]),
             style=DISPLAY_FORMAT,
         )
         self.smallest_display_label = np.min(self.label_display_options)
@@ -145,14 +145,14 @@ class ManualScoringWindow(QtWidgets.QDialog):
             self.upper_emg,
             self.epochs_to_show,
             self.label_display_options,
-            self.brain_state_mapper,
+            self.brain_state_set,
             self.roi_callback,
         )
         self.ui.lowerfigure.setup_lower_figure(
             self.label_img,
             self.sampling_rate,
             self.epochs_to_show,
-            self.brain_state_mapper,
+            self.brain_state_set,
             self.label_display_options,
         )
 
@@ -199,7 +199,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         keypress_zoom_out_x.activated.connect(partial(self.zoom_x, ZOOM_OUT))
 
         keypress_modify_label = list()
-        for brain_state in self.brain_state_mapper.brain_states:
+        for brain_state in self.brain_state_set.brain_states:
             keypress_modify_label.append(
                 QtGui.QShortcut(
                     QtGui.QKeySequence(QtCore.Qt.Key[f"Key_{brain_state.digit}"]),
@@ -234,7 +234,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         keypress_save.activated.connect(self.save)
 
         keypress_roi = list()
-        for brain_state in self.brain_state_mapper.brain_states:
+        for brain_state in self.brain_state_set.brain_states:
             keypress_roi.append(
                 QtGui.QShortcut(
                     QtGui.QKeySequence(
@@ -541,7 +541,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
             self.label_img,
             self.sampling_rate,
             self.epochs_to_show,
-            self.brain_state_mapper,
+            self.brain_state_set,
             self.label_display_options,
         )
         self.update_figures()

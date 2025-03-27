@@ -13,7 +13,7 @@ class BrainState:
     frequency: int | float  # typical relative frequency, between 0 and 1
 
 
-class BrainStateMapper:
+class BrainStateSet:
     def __init__(self, brain_states, undefined_label):
         self.brain_states = brain_states
 

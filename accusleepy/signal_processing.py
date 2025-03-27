@@ -10,8 +10,8 @@ from PIL import Image
 from scipy.signal import butter, filtfilt
 
 import accusleepy.config as c
+from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.fileio import Recording, load_labels, load_recording
-from accusleepy.misc import BrainStateMapper
 from accusleepy.multitaper import spectrogram
 
 ABS_MAX_Z_SCORE = 3.5  # matlab version is 4.5
@@ -213,15 +213,15 @@ def create_eeg_emg_image(
 
 
 def get_mixture_values(
-    img: np.array, labels: np.array, brain_state_mapper: BrainStateMapper
+    img: np.array, labels: np.array, brain_state_set: BrainStateSet
 ) -> (np.array, np.array):
     # labels = CLASSES
 
     means = list()
     variances = list()
-    mixture_weights = brain_state_mapper.mixture_weights
+    mixture_weights = brain_state_set.mixture_weights
 
-    for i in range(brain_state_mapper.n_classes):
+    for i in range(brain_state_set.n_classes):
         means.append(np.mean(img[:, labels == i], axis=1))
         variances.append(np.var(img[:, labels == i], axis=1))
 
@@ -232,7 +232,7 @@ def get_mixture_values(
     mixture_sds = np.sqrt(
         variances.T @ mixture_weights
         + (
-            (mixture_means - np.tile(mixture_means, (brain_state_mapper.n_classes, 1)))
+            (mixture_means - np.tile(mixture_means, (brain_state_set.n_classes, 1)))
             ** 2
         ).T
         @ mixture_weights
@@ -243,7 +243,7 @@ def get_mixture_values(
 
 def mixture_z_score_img(
     img: np.array,
-    brain_state_mapper: BrainStateMapper,
+    brain_state_set: BrainStateSet,
     labels: np.array = None,
     mixture_means: np.array = None,
     mixture_sds: np.array = None,
@@ -257,7 +257,7 @@ def mixture_z_score_img(
 
     if labels is not None:
         mixture_means, mixture_sds = get_mixture_values(
-            img=img, labels=labels, brain_state_mapper=brain_state_mapper
+            img=img, labels=labels, brain_state_set=brain_state_set
         )
 
     img = ((img.T - mixture_means) / mixture_sds).T
@@ -291,7 +291,7 @@ def create_training_images(
     output_path: str,
     epoch_length: int | float,
     epochs_per_img: int,
-    brain_state_mapper: BrainStateMapper,
+    brain_state_set: BrainStateSet,
 ) -> list[int]:
     """Create training dataset
 
@@ -316,10 +316,10 @@ def create_training_images(
             )
 
             labels = load_labels(recording.label_file)
-            labels = brain_state_mapper.convert_digit_to_class(labels)
+            labels = brain_state_set.convert_digit_to_class(labels)
             img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
             img = mixture_z_score_img(
-                img=img, brain_state_mapper=brain_state_mapper, labels=labels
+                img=img, brain_state_set=brain_state_set, labels=labels
             )
             img = format_img(img, epochs_per_img)
 

@@ -9,7 +9,8 @@ import torch
 from PySide6.QtWidgets import QListWidgetItem
 
 import accusleepy.config as c
-from accusleepy.misc import BRAIN_STATES_KEY, BrainState, BrainStateMapper
+from accusleepy.brain_state_set import (BRAIN_STATES_KEY, BrainState,
+                                        BrainStateSet)
 from accusleepy.models import SSANN
 
 
@@ -85,18 +86,18 @@ def save_labels(labels: np.array, file_path: str) -> None:
     pd.DataFrame({c.BRAIN_STATE_COL: labels}).to_csv(file_path, index=False)
 
 
-def load_config() -> BrainStateMapper:
+def load_config() -> BrainStateSet:
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "r"
     ) as f:
         data = json.load(f)
-    return BrainStateMapper(
+    return BrainStateSet(
         [BrainState(**b) for b in data[BRAIN_STATES_KEY]], c.UNDEFINED_LABEL
     )
 
 
-def save_config(brain_state_mapper: BrainStateMapper) -> None:
+def save_config(brain_state_set: BrainStateSet) -> None:
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "w"
     ) as f:
-        json.dump(brain_state_mapper.output_dict(), f, indent=4)
+        json.dump(brain_state_set.output_dict(), f, indent=4)

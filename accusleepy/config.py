@@ -1,5 +1,5 @@
 # # probably don't change these unless you really need to # #
-UNDEFINED_LABEL = -1  # can't be the same as a digit in BRAIN_STATES, must be an integer
+UNDEFINED_LABEL = -1  # can't be the same as a brain state's digit, must be an integer
 # calibration file columns
 MIXTURE_MEAN_COL = "mixture_mean"
 MIXTURE_SD_COL = "mixture_sd"
