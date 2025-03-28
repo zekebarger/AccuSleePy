@@ -406,6 +406,7 @@ def create_training_images(
             failed_recordings.append(recording.name)
 
     # annotation file containing info on all images
+    all_labels = all_labels[all_labels != np.array(None)]
     pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: all_labels}).to_csv(
         os.path.join(output_path, ANNOTATIONS_FILENAME),
         index=False,

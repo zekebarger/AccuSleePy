@@ -433,7 +433,7 @@ class Ui_PrimaryWindow(object):
         sizePolicy2.setHeightForWidth(self.image_number_input.sizePolicy().hasHeightForWidth())
         self.image_number_input.setSizePolicy(sizePolicy2)
         self.image_number_input.setStyleSheet(u"background-color: white;")
-        self.image_number_input.setMinimum(1)
+        self.image_number_input.setMinimum(9)
         self.image_number_input.setMaximum(999)
         self.image_number_input.setValue(9)
 

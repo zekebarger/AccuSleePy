@@ -263,6 +263,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
 
         # train model
+        self.show_message(f"Training model...")
+        self.ui.message_area.repaint()
+        app.processEvents()
         model = train_model(
             annotations_file=os.path.join(
                 self.training_image_dir, ANNOTATIONS_FILENAME

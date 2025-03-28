@@ -748,7 +748,7 @@
                          <string notr="true">background-color: white;</string>
                         </property>
                         <property name="minimum">
-                         <number>1</number>
+                         <number>9</number>
                         </property>
                         <property name="maximum">
                          <number>999</number>

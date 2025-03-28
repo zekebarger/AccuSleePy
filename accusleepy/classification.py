@@ -105,6 +105,7 @@ def train_model(
     optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
     for epoch in range(TRAINING_EPOCHS):
+        print(f"Starting training epoch {epoch + 1}/{TRAINING_EPOCHS}")
         for data in train_dataloader:
             inputs, labels = data
             (inputs, labels) = (inputs.to(device), labels.to(device))
