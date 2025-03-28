@@ -162,7 +162,7 @@ class MplWidget(QWidget):
             np.linspace(
                 0,
                 len(f),
-                1 + int(SPEC_UPPER_F / SPEC_Y_TICK_INTERVAL),
+                1 + round(SPEC_UPPER_F / SPEC_Y_TICK_INTERVAL),
             ),
         )
         axes[2].set_yticklabels(
@@ -221,9 +221,10 @@ class MplWidget(QWidget):
         :param label_display_options: valid brain state y-axis locations
         """
         # number of samples in one epoch
-        samples_per_epoch = sampling_rate * self.epoch_length
+        # we can expect this to be very close to an integer
+        samples_per_epoch = round(sampling_rate * self.epoch_length)
         # number of EEG/EMG samples to plot
-        samples_shown = samples_per_epoch * epochs_to_show
+        samples_shown = round(samples_per_epoch * epochs_to_show)
 
         # references to parts of the epoch markers
         self.top_marker = list()
@@ -248,7 +249,7 @@ class MplWidget(QWidget):
         axes[0].set_ylim((-1, 1))
         axes[0].set_ylabel("EEG", rotation="horizontal", ha="right")
         self.eeg_line = axes[0].plot(
-            np.zeros(int(samples_shown)),
+            np.zeros(samples_shown),
             "k",
             linewidth=0.5,
         )[0]
@@ -284,7 +285,7 @@ class MplWidget(QWidget):
         axes[1].set_ylim((-1, 1))
         axes[1].set_ylabel("EMG", rotation="horizontal", ha="right")
         self.emg_line = axes[1].plot(
-            np.zeros(int(samples_shown)),
+            np.zeros(samples_shown),
             "k",
             linewidth=0.5,
         )[0]

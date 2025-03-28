@@ -752,10 +752,10 @@ class ManualScoringWindow(QtWidgets.QDialog):
     def update_lower_figure(self) -> None:
         """Update and redraw the lower figure"""
         # get subset of signals to plot
-        first_sample = int(
+        first_sample = round(
             self.lower_left_epoch * self.sampling_rate * self.epoch_length
         )
-        last_sample = int(
+        last_sample = round(
             (self.lower_right_epoch + 1) * self.sampling_rate * self.epoch_length
         )
         eeg = self.eeg[first_sample:last_sample]
