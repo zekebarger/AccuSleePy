@@ -417,7 +417,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         :param target: different or undefined
         """
         # create a simulated click so we can reuse click_to_jump
-        simulated_click = SimpleNamespace(**{"xdata": self.epoch})
+        simulated_click = SimpleNamespace(**{"xdata": self.epoch, "inaxes": None})
         if direction == DIRECTION_RIGHT:
             if target == DIFFERENT_STATE:
                 matches = np.where(
@@ -815,11 +815,13 @@ class ManualScoringWindow(QtWidgets.QDialog):
 
         # get click location
         x = event.xdata
-        # if it's on the spectrogram, we have to adjust it slightly
-        # since that uses a different x-axis range
-        ax_index = self.ui.upperfigure.canvas.axes.index(event.inaxes)
-        if ax_index == 2:
-            x -= 0.5
+        # if it's a real click, and not one we simulated
+        if event.inaxes is not None:
+            # if it's on the spectrogram, we have to adjust it slightly
+            # since that uses a different x-axis range
+            ax_index = self.ui.upperfigure.canvas.axes.index(event.inaxes)
+            if ax_index == 2:
+                x -= 0.5
 
         # get the "zoom level" so we can preserve that
         upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
