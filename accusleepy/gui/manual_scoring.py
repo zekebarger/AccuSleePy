@@ -603,21 +603,29 @@ class ManualScoringWindow(QtWidgets.QDialog):
         zoom_out_factor = 1.017
         epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
         if direction == ZOOM_IN:
-            self.upper_left_epoch = int(
-                max([self.upper_left_epoch, self.epoch - zoom_in_factor * epochs_shown])
+            self.upper_left_epoch = max(
+                [
+                    self.upper_left_epoch,
+                    round(self.epoch - zoom_in_factor * epochs_shown),
+                ]
             )
-            self.upper_right_epoch = int(
-                min(
-                    [self.upper_right_epoch, self.epoch + zoom_in_factor * epochs_shown]
-                )
+
+            self.upper_right_epoch = min(
+                [
+                    self.upper_right_epoch,
+                    round(self.epoch + zoom_in_factor * epochs_shown),
+                ]
             )
+
         elif direction == ZOOM_OUT:
-            self.upper_left_epoch = int(
-                max([0, self.epoch - zoom_out_factor * epochs_shown])
+            self.upper_left_epoch = max(
+                [0, round(self.epoch - zoom_out_factor * epochs_shown)]
             )
-            self.upper_right_epoch = int(
-                min([self.n_epochs - 1, self.epoch + zoom_out_factor * epochs_shown])
+
+            self.upper_right_epoch = min(
+                [self.n_epochs - 1, round(self.epoch + zoom_out_factor * epochs_shown)]
             )
+
         else:  # reset
             self.upper_left_epoch = 0
             self.upper_right_epoch = self.n_epochs - 1
@@ -686,7 +694,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
             self.adjust_upper_figure_x_limits()
 
         # update parts of lower plot
-        old_window_center = int(self.epochs_to_show / 2) + self.lower_left_epoch
+        old_window_center = round(self.epochs_to_show / 2) + self.lower_left_epoch
         # change the window bounds if needed
         if self.epoch < old_window_center and self.lower_left_epoch > 0:
             self.lower_left_epoch -= 1
@@ -702,7 +710,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
 
     def update_upper_marker(self) -> None:
         """Update location of the upper figure's epoch marker"""
-        epoch_padding = int((self.epochs_to_show - 1) / 2)
+        epoch_padding = round((self.epochs_to_show - 1) / 2)
         if self.epoch - epoch_padding < 0:
             left_edge = 0
             right_edge = self.epochs_to_show - 1
@@ -815,7 +823,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
 
         # get the "zoom level" so we can preserve that
         upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
-        upper_epoch_padding = int((upper_epochs_shown - 1) / 2)
+        upper_epoch_padding = round((upper_epochs_shown - 1) / 2)
         # update epoch
         self.epoch = round(np.clip(x, 0, self.n_epochs - 1))
         # update upper figure x-axis limits
@@ -833,7 +841,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.adjust_upper_figure_x_limits()
 
         # update lower figure x-axis range
-        lower_epoch_padding = int((self.epochs_to_show - 1) / 2)
+        lower_epoch_padding = round((self.epochs_to_show - 1) / 2)
         if self.epoch - lower_epoch_padding < 0:
             self.lower_left_epoch = 0
             self.lower_right_epoch = self.epochs_to_show - 1
