@@ -15,11 +15,12 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QGridLayout,
-    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-    QListWidget, QListWidgetItem, QMainWindow, QPushButton,
-    QRadioButton, QSizePolicy, QSpacerItem, QSpinBox,
-    QTabWidget, QTextBrowser, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFrame,
+    QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
+    QPushButton, QRadioButton, QSizePolicy, QSpacerItem,
+    QSpinBox, QTabWidget, QTextBrowser, QVBoxLayout,
+    QWidget)
 import resources_rc
 
 class Ui_PrimaryWindow(object):
@@ -663,6 +664,51 @@ class Ui_PrimaryWindow(object):
 
         self.scoring_tab_layout.addLayout(self.left_col_layout, 0, 0, 1, 1)
 
+        self.verticalLayout_7 = QVBoxLayout()
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.frame = QFrame(self.scoring_tab)
+        self.frame.setObjectName(u"frame")
+        sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
+        self.frame.setSizePolicy(sizePolicy)
+        self.frame.setStyleSheet(u"background-color: transparent;")
+        self.frame.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame.setFrameShadow(QFrame.Shadow.Raised)
+        self.accusleepy2 = QLabel(self.frame)
+        self.accusleepy2.setObjectName(u"accusleepy2")
+        self.accusleepy2.setGeometry(QRect(11, 75, 160, 60))
+        sizePolicy2.setHeightForWidth(self.accusleepy2.sizePolicy().hasHeightForWidth())
+        self.accusleepy2.setSizePolicy(sizePolicy2)
+        font1 = QFont()
+        font1.setPointSize(22)
+        font1.setBold(True)
+        font1.setItalic(True)
+        self.accusleepy2.setFont(font1)
+        self.accusleepy2.setStyleSheet(u"background-color: transparent;\n"
+"color: rgb(130, 169, 68);")
+        self.accusleepy2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.accusleepy3 = QLabel(self.frame)
+        self.accusleepy3.setObjectName(u"accusleepy3")
+        self.accusleepy3.setGeometry(QRect(13, 77, 160, 60))
+        self.accusleepy3.setFont(font1)
+        self.accusleepy3.setStyleSheet(u"background-color: transparent;\n"
+"color: rgb(46, 63, 150);")
+        self.accusleepy3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.accusleepy1 = QLabel(self.frame)
+        self.accusleepy1.setObjectName(u"accusleepy1")
+        self.accusleepy1.setGeometry(QRect(9, 73, 160, 60))
+        self.accusleepy1.setFont(font1)
+        self.accusleepy1.setStyleSheet(u"background-color: transparent;\n"
+"color: rgb(244, 195, 68);")
+        self.accusleepy1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.accusleepy1.raise_()
+        self.accusleepy2.raise_()
+        self.accusleepy3.raise_()
+
+        self.verticalLayout_7.addWidget(self.frame)
+
+
+        self.scoring_tab_layout.addLayout(self.verticalLayout_7, 1, 0, 1, 1)
+
         self.scoring_tab_layout.setRowStretch(0, 2)
         self.scoring_tab_layout.setRowStretch(1, 1)
         self.scoring_tab_layout.setColumnStretch(0, 1)
@@ -758,9 +804,9 @@ class Ui_PrimaryWindow(object):
         self.label_12.setObjectName(u"label_12")
         sizePolicy.setHeightForWidth(self.label_12.sizePolicy().hasHeightForWidth())
         self.label_12.setSizePolicy(sizePolicy)
-        font1 = QFont()
-        font1.setPointSize(16)
-        self.label_12.setFont(font1)
+        font2 = QFont()
+        font2.setPointSize(16)
+        self.label_12.setFont(font2)
         self.label_12.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_19.addWidget(self.label_12)
@@ -854,7 +900,7 @@ class Ui_PrimaryWindow(object):
         self.label_11.setObjectName(u"label_11")
         sizePolicy.setHeightForWidth(self.label_11.sizePolicy().hasHeightForWidth())
         self.label_11.setSizePolicy(sizePolicy)
-        self.label_11.setFont(font1)
+        self.label_11.setFont(font2)
         self.label_11.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_23.addWidget(self.label_11)
@@ -947,7 +993,7 @@ class Ui_PrimaryWindow(object):
         self.label_10.setObjectName(u"label_10")
         sizePolicy.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
         self.label_10.setSizePolicy(sizePolicy)
-        self.label_10.setFont(font1)
+        self.label_10.setFont(font2)
         self.label_10.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_28.addWidget(self.label_10)
@@ -1040,7 +1086,7 @@ class Ui_PrimaryWindow(object):
         self.label_9.setObjectName(u"label_9")
         sizePolicy.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
         self.label_9.setSizePolicy(sizePolicy)
-        self.label_9.setFont(font1)
+        self.label_9.setFont(font2)
         self.label_9.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_31.addWidget(self.label_9)
@@ -1133,7 +1179,7 @@ class Ui_PrimaryWindow(object):
         self.label_8.setObjectName(u"label_8")
         sizePolicy.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
         self.label_8.setSizePolicy(sizePolicy)
-        self.label_8.setFont(font1)
+        self.label_8.setFont(font2)
         self.label_8.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_32.addWidget(self.label_8)
@@ -1226,7 +1272,7 @@ class Ui_PrimaryWindow(object):
         self.label_7.setObjectName(u"label_7")
         sizePolicy.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
         self.label_7.setSizePolicy(sizePolicy)
-        self.label_7.setFont(font1)
+        self.label_7.setFont(font2)
         self.label_7.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_33.addWidget(self.label_7)
@@ -1319,7 +1365,7 @@ class Ui_PrimaryWindow(object):
         self.label_6.setObjectName(u"label_6")
         sizePolicy.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
         self.label_6.setSizePolicy(sizePolicy)
-        self.label_6.setFont(font1)
+        self.label_6.setFont(font2)
         self.label_6.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_34.addWidget(self.label_6)
@@ -1412,7 +1458,7 @@ class Ui_PrimaryWindow(object):
         self.label_5.setObjectName(u"label_5")
         sizePolicy.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
         self.label_5.setSizePolicy(sizePolicy)
-        self.label_5.setFont(font1)
+        self.label_5.setFont(font2)
         self.label_5.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_35.addWidget(self.label_5)
@@ -1505,7 +1551,7 @@ class Ui_PrimaryWindow(object):
         self.label_4.setObjectName(u"label_4")
         sizePolicy.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
         self.label_4.setSizePolicy(sizePolicy)
-        self.label_4.setFont(font1)
+        self.label_4.setFont(font2)
         self.label_4.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_36.addWidget(self.label_4)
@@ -1598,7 +1644,7 @@ class Ui_PrimaryWindow(object):
         self.label_3.setObjectName(u"label_3")
         sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
         self.label_3.setSizePolicy(sizePolicy)
-        self.label_3.setFont(font1)
+        self.label_3.setFont(font2)
         self.label_3.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_37.addWidget(self.label_3)
@@ -1821,6 +1867,9 @@ class Ui_PrimaryWindow(object):
         self.user_manual_button.setToolTip(QCoreApplication.translate("PrimaryWindow", u"User manual", None))
 #endif // QT_CONFIG(tooltip)
         self.user_manual_button.setText("")
+        self.accusleepy2.setText(QCoreApplication.translate("PrimaryWindow", u"AccuSleePy", None))
+        self.accusleepy3.setText(QCoreApplication.translate("PrimaryWindow", u"AccuSleePy", None))
+        self.accusleepy1.setText(QCoreApplication.translate("PrimaryWindow", u"AccuSleePy", None))
         self.upper_tab_widget.setTabText(self.upper_tab_widget.indexOf(self.scoring_tab), QCoreApplication.translate("PrimaryWindow", u"Sleep scoring", None))
         self.settings_text.setText("")
         self.label_15.setText(QCoreApplication.translate("PrimaryWindow", u"Digit", None))
