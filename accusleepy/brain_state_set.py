@@ -10,7 +10,7 @@ class BrainState:
     """Convenience class for a brain state and its attributes"""
 
     name: str  # friendly name
-    digit: int  # number 0-9 - used as keyboard shortcut
+    digit: int  # number 0-9 - used as keyboard shortcut and in label files
     is_scored: bool  # whether a classification model should score this state
     frequency: int | float  # typical relative frequency, between 0 and 1
 

@@ -11,7 +11,7 @@ BRAIN_STATE_COL = "brain_state"
 
 
 # really don't change these
-# location of config file
+# config file location
 CONFIG_FILE = "config.json"
 # number of times to include the EMG power in a training image
 EMG_COPIES = 9

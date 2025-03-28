@@ -1,5 +1,5 @@
 """
-This is entirely written by the Prerau Lab, retrieved from this URL in 2025:
+This is entirely written by the Prerau Lab. Retrieved from this URL in 2025:
 https://github.com/preraulab/multitaper_toolbox/blob/master/python/multitaper_spectrogram_python.py
 Only minor modifications have been made.
 For more information, see their publication:

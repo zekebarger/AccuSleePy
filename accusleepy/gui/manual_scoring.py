@@ -24,7 +24,7 @@ from accusleepy.signal_processing import create_spectrogram, get_emg_power
 LABEL_CMAP = np.concatenate(
     [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
-# relative path to user manual txt file
+# relative path to user manual text file
 USER_MANUAL_FILE = "text/manual_scoring_guide.txt"
 
 # constants used by callback functions

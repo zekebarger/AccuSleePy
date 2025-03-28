@@ -1159,7 +1159,7 @@ def check_label_validity(
     :param brain_state_set: BrainStateMapper object
     :return: error message
     """
-    # check that length is correct
+    # check that number of labels is correct
     samples_per_epoch = round(sampling_rate * epoch_length)
     epochs_in_recording = round(samples_in_recording / samples_per_epoch)
     if epochs_in_recording != labels.size:
