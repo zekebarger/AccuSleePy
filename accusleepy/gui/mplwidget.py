@@ -99,7 +99,7 @@ class MplWidget(QWidget):
 
         # subplots have different axes limits
         for i in [0, 1, 3]:
-            axes[i].set_xlim((-0.5, n_epochs + 0.5))
+            axes[i].set_xlim((-0.5, n_epochs - 0.5))
         axes[2].set_xlim(0, n_epochs)
 
         # brain state subplot
@@ -123,7 +123,7 @@ class MplWidget(QWidget):
         self.editing_patch = axes[0].add_patch(
             Rectangle(
                 xy=(-0.5, -0.5),
-                width=n_epochs + 1,
+                width=n_epochs,
                 height=np.max(label_display_options)
                 - np.min(label_display_options)
                 + 1,

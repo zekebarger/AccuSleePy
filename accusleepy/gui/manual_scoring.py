@@ -5,7 +5,6 @@
 
 import copy
 import os
-import sys
 from functools import partial
 from types import SimpleNamespace
 
@@ -16,11 +15,10 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from viewer_window import Ui_ViewerWindow
 
 from accusleepy.constants import UNDEFINED_LABEL
-from accusleepy.fileio import load_config, load_labels, load_recording, save_labels
+from accusleepy.fileio import load_config, save_labels
 from accusleepy.signal_processing import (
     create_spectrogram,
     get_emg_power,
-    resample_and_standardize,
 )
 
 # colormap for displaying brain state labels
@@ -806,11 +804,20 @@ class ManualScoringWindow(QtWidgets.QDialog):
         # and we are not in label ROI mode
         if event.xdata is None or self.label_roi_mode:
             return
+
+        # get click location
+        x = event.xdata
+        # if it's on the spectrogram, we have to adjust it slightly
+        # since that uses a different x-axis range
+        ax_index = self.ui.upperfigure.canvas.axes.index(event.inaxes)
+        if ax_index == 2:
+            x -= 0.5
+
         # get the "zoom level" so we can preserve that
         upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
         upper_epoch_padding = int((upper_epochs_shown - 1) / 2)
         # update epoch
-        self.epoch = round(np.clip(event.xdata, 0, self.n_epochs - 1))
+        self.epoch = round(np.clip(x, 0, self.n_epochs - 1))
         # update upper figure x-axis limits
         if self.epoch - upper_epoch_padding < 0:
             self.upper_left_epoch = 0

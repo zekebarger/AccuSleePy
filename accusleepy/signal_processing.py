@@ -71,17 +71,20 @@ def standardize_signal_length(
     """
     # since resample() was called, this will be extremely close to an integer
     samples_per_epoch = int(sampling_rate * epoch_length)
-    signal_length = eeg.size
 
     # pad the signal at the end in case we need more samples
     eeg = np.concatenate((eeg, np.ones(samples_per_epoch) * eeg[-1]))
     emg = np.concatenate((emg, np.ones(samples_per_epoch) * emg[-1]))
+    padded_signal_length = eeg.size
 
-    excess_samples = signal_length % samples_per_epoch
+    # count samples that don't fit in any epoch
+    excess_samples = padded_signal_length % samples_per_epoch
+    # we will definitely remove those
+    last_index = padded_signal_length - excess_samples
+    # and if the last epoch of real data had more than half of
+    # its samples missing, delete it
     if excess_samples < samples_per_epoch / 2:
-        last_index = signal_length - excess_samples
-    else:
-        last_index = signal_length + excess_samples
+        last_index -= samples_per_epoch
 
     return eeg[:last_index], emg[:last_index]
 
