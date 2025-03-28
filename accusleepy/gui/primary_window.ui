@@ -748,7 +748,7 @@
                          <string notr="true">background-color: white;</string>
                         </property>
                         <property name="minimum">
-                         <number>1</number>
+                         <number>9</number>
                         </property>
                         <property name="maximum">
                          <number>999</number>
@@ -1153,6 +1153,119 @@
                </widget>
               </item>
              </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QFrame" name="frame">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: transparent;</string>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Shape::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Shadow::Raised</enum>
+              </property>
+              <widget class="QLabel" name="accusleepy2">
+               <property name="geometry">
+                <rect>
+                 <x>11</x>
+                 <y>75</y>
+                 <width>160</width>
+                 <height>60</height>
+                </rect>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>22</pointsize>
+                 <italic>true</italic>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: transparent;
+color: rgb(130, 169, 68);</string>
+               </property>
+               <property name="text">
+                <string>AccuSleePy</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
+              </widget>
+              <widget class="QLabel" name="accusleepy3">
+               <property name="geometry">
+                <rect>
+                 <x>13</x>
+                 <y>77</y>
+                 <width>160</width>
+                 <height>60</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>22</pointsize>
+                 <italic>true</italic>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: transparent;
+color: rgb(46, 63, 150);</string>
+               </property>
+               <property name="text">
+                <string>AccuSleePy</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
+              </widget>
+              <widget class="QLabel" name="accusleepy1">
+               <property name="geometry">
+                <rect>
+                 <x>9</x>
+                 <y>73</y>
+                 <width>160</width>
+                 <height>60</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>22</pointsize>
+                 <italic>true</italic>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: transparent;
+color: rgb(244, 195, 68);</string>
+               </property>
+               <property name="text">
+                <string>AccuSleePy</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
+              </widget>
+              <zorder>accusleepy1</zorder>
+              <zorder>accusleepy2</zorder>
+              <zorder>accusleepy3</zorder>
+             </widget>
             </item>
            </layout>
           </item>

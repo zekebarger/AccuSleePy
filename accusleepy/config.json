@@ -17,6 +17,12 @@
             "digit": 3,
             "is_scored": true,
             "frequency": 0.55
+        },
+        {
+            "name": "Ambiguous",
+            "digit": 4,
+            "is_scored": false,
+            "frequency": 0.0
         }
     ]
 }
