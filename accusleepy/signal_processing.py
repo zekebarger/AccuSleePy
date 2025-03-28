@@ -48,7 +48,7 @@ def resample(
         x_new = np.linspace(
             0,
             arr.size - 1,
-            int(arr.size * np.ceil(samples_per_epoch) / samples_per_epoch),
+            round(arr.size * np.ceil(samples_per_epoch) / samples_per_epoch),
         )
         resampled.append(np.interp(x_new, x, arr))
 
@@ -70,18 +70,21 @@ def standardize_signal_length(
     :return: EEG and EMG signals
     """
     # since resample() was called, this will be extremely close to an integer
-    samples_per_epoch = int(sampling_rate * epoch_length)
-    signal_length = eeg.size
+    samples_per_epoch = round(sampling_rate * epoch_length)
 
     # pad the signal at the end in case we need more samples
     eeg = np.concatenate((eeg, np.ones(samples_per_epoch) * eeg[-1]))
     emg = np.concatenate((emg, np.ones(samples_per_epoch) * emg[-1]))
+    padded_signal_length = eeg.size
 
-    excess_samples = signal_length % samples_per_epoch
+    # count samples that don't fit in any epoch
+    excess_samples = padded_signal_length % samples_per_epoch
+    # we will definitely remove those
+    last_index = padded_signal_length - excess_samples
+    # and if the last epoch of real data had more than half of
+    # its samples missing, delete it
     if excess_samples < samples_per_epoch / 2:
-        last_index = signal_length - excess_samples
-    else:
-        last_index = signal_length + excess_samples
+        last_index -= samples_per_epoch
 
     return eeg[:last_index], emg[:last_index]
 
@@ -130,7 +133,7 @@ def create_spectrogram(
     # pad the EEG signal so that the first spectrogram window is centered
     # on the first epoch
     # it's possible there's some jank here, if this isn't close to an integer
-    pad_length = int((sampling_rate * (window_length_sec - epoch_length) / 2))
+    pad_length = round((sampling_rate * (window_length_sec - epoch_length) / 2))
     padded_eeg = np.concatenate(
         [eeg[:pad_length][::-1], eeg, eeg[(len(eeg) - pad_length) :][::-1]]
     )
@@ -189,10 +192,10 @@ def get_emg_power(
     filtered = filtfilt(b, a, x=emg, padlen=int(np.ceil(sampling_rate)))
 
     # since resample() was called, this will be extremely close to an integer
-    samples_per_epoch = int(sampling_rate * epoch_length)
+    samples_per_epoch = round(sampling_rate * epoch_length)
     reshaped = np.reshape(
         filtered,
-        [int(len(emg) / samples_per_epoch), samples_per_epoch],
+        [round(len(emg) / samples_per_epoch), samples_per_epoch],
     )
     rms = np.sqrt(np.mean(np.power(reshaped, 2), axis=1))
 
@@ -332,7 +335,7 @@ def format_img(img: np.array, epochs_per_img: int) -> np.array:
     :return: formatted EEG + EMG image
     """
     # pad beginning and end
-    pad_width = int((epochs_per_img - 1) / 2)
+    pad_width = round((epochs_per_img - 1) / 2)
     img = np.concatenate(
         [
             np.tile(img[:, 0], (pad_width, 1)).T,
@@ -528,7 +531,7 @@ def enforce_min_bout_length(
             # if there's an even number of adjacent bouts
             if (last_adjacent_bout_index + 1) % 2 == 0:
                 midpoint = sorted_bouts[
-                    int((last_adjacent_bout_index + 1) / 2)
+                    round((last_adjacent_bout_index + 1) / 2)
                 ].start_index
                 labels[sorted_bouts[0].start_index : midpoint] = sorted_bouts[
                     0

@@ -5,7 +5,6 @@
 
 import copy
 import os
-import sys
 from functools import partial
 from types import SimpleNamespace
 
@@ -16,11 +15,10 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from viewer_window import Ui_ViewerWindow
 
 from accusleepy.constants import UNDEFINED_LABEL
-from accusleepy.fileio import load_config, load_labels, load_recording, save_labels
+from accusleepy.fileio import load_config, save_labels
 from accusleepy.signal_processing import (
     create_spectrogram,
     get_emg_power,
-    resample_and_standardize,
 )
 
 # colormap for displaying brain state labels
@@ -419,7 +417,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         :param target: different or undefined
         """
         # create a simulated click so we can reuse click_to_jump
-        simulated_click = SimpleNamespace(**{"xdata": self.epoch})
+        simulated_click = SimpleNamespace(**{"xdata": self.epoch, "inaxes": None})
         if direction == DIRECTION_RIGHT:
             if target == DIFFERENT_STATE:
                 matches = np.where(
@@ -605,21 +603,29 @@ class ManualScoringWindow(QtWidgets.QDialog):
         zoom_out_factor = 1.017
         epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
         if direction == ZOOM_IN:
-            self.upper_left_epoch = int(
-                max([self.upper_left_epoch, self.epoch - zoom_in_factor * epochs_shown])
+            self.upper_left_epoch = max(
+                [
+                    self.upper_left_epoch,
+                    round(self.epoch - zoom_in_factor * epochs_shown),
+                ]
             )
-            self.upper_right_epoch = int(
-                min(
-                    [self.upper_right_epoch, self.epoch + zoom_in_factor * epochs_shown]
-                )
+
+            self.upper_right_epoch = min(
+                [
+                    self.upper_right_epoch,
+                    round(self.epoch + zoom_in_factor * epochs_shown),
+                ]
             )
+
         elif direction == ZOOM_OUT:
-            self.upper_left_epoch = int(
-                max([0, self.epoch - zoom_out_factor * epochs_shown])
+            self.upper_left_epoch = max(
+                [0, round(self.epoch - zoom_out_factor * epochs_shown)]
             )
-            self.upper_right_epoch = int(
-                min([self.n_epochs - 1, self.epoch + zoom_out_factor * epochs_shown])
+
+            self.upper_right_epoch = min(
+                [self.n_epochs - 1, round(self.epoch + zoom_out_factor * epochs_shown)]
             )
+
         else:  # reset
             self.upper_left_epoch = 0
             self.upper_right_epoch = self.n_epochs - 1
@@ -688,7 +694,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
             self.adjust_upper_figure_x_limits()
 
         # update parts of lower plot
-        old_window_center = int(self.epochs_to_show / 2) + self.lower_left_epoch
+        old_window_center = round(self.epochs_to_show / 2) + self.lower_left_epoch
         # change the window bounds if needed
         if self.epoch < old_window_center and self.lower_left_epoch > 0:
             self.lower_left_epoch -= 1
@@ -704,7 +710,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
 
     def update_upper_marker(self) -> None:
         """Update location of the upper figure's epoch marker"""
-        epoch_padding = int((self.epochs_to_show - 1) / 2)
+        epoch_padding = round((self.epochs_to_show - 1) / 2)
         if self.epoch - epoch_padding < 0:
             left_edge = 0
             right_edge = self.epochs_to_show - 1
@@ -754,10 +760,10 @@ class ManualScoringWindow(QtWidgets.QDialog):
     def update_lower_figure(self) -> None:
         """Update and redraw the lower figure"""
         # get subset of signals to plot
-        first_sample = int(
+        first_sample = round(
             self.lower_left_epoch * self.sampling_rate * self.epoch_length
         )
-        last_sample = int(
+        last_sample = round(
             (self.lower_right_epoch + 1) * self.sampling_rate * self.epoch_length
         )
         eeg = self.eeg[first_sample:last_sample]
@@ -806,11 +812,22 @@ class ManualScoringWindow(QtWidgets.QDialog):
         # and we are not in label ROI mode
         if event.xdata is None or self.label_roi_mode:
             return
+
+        # get click location
+        x = event.xdata
+        # if it's a real click, and not one we simulated
+        if event.inaxes is not None:
+            # if it's on the spectrogram, we have to adjust it slightly
+            # since that uses a different x-axis range
+            ax_index = self.ui.upperfigure.canvas.axes.index(event.inaxes)
+            if ax_index == 2:
+                x -= 0.5
+
         # get the "zoom level" so we can preserve that
         upper_epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
-        upper_epoch_padding = int((upper_epochs_shown - 1) / 2)
+        upper_epoch_padding = round((upper_epochs_shown - 1) / 2)
         # update epoch
-        self.epoch = round(np.clip(event.xdata, 0, self.n_epochs - 1))
+        self.epoch = round(np.clip(x, 0, self.n_epochs - 1))
         # update upper figure x-axis limits
         if self.epoch - upper_epoch_padding < 0:
             self.upper_left_epoch = 0
@@ -826,7 +843,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.adjust_upper_figure_x_limits()
 
         # update lower figure x-axis range
-        lower_epoch_padding = int((self.epochs_to_show - 1) / 2)
+        lower_epoch_padding = round((self.epochs_to_show - 1) / 2)
         if self.epoch - lower_epoch_padding < 0:
             self.lower_left_epoch = 0
             self.lower_right_epoch = self.epochs_to_show - 1

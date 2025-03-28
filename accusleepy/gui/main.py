@@ -393,7 +393,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                     continue
                 # only check the length
                 samples_per_epoch = sampling_rate * self.epoch_length
-                epochs_in_recording = int(eeg.size / samples_per_epoch)
+                epochs_in_recording = round(eeg.size / samples_per_epoch)
                 if epochs_in_recording != existing_labels.size:
                     self.show_message(
                         (
@@ -704,8 +704,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             # if the label length is only off by one, pad or truncate as needed
             # and show a warning
             if label_error == LABEL_LENGTH_ERROR:
-                samples_per_epoch = sampling_rate * self.epoch_length
-                epochs_in_recording = int(eeg.size / samples_per_epoch)
+                # should be very close to an integer
+                samples_per_epoch = round(sampling_rate * self.epoch_length)
+                epochs_in_recording = round(eeg.size / samples_per_epoch)
                 if epochs_in_recording - labels.size == 1:
                     labels = np.concatenate((labels, np.array([UNDEFINED_LABEL])))
                     self.show_message(
@@ -1158,8 +1159,8 @@ def check_label_validity(
     :return: error message
     """
     # check that length is correct
-    samples_per_epoch = sampling_rate * epoch_length
-    epochs_in_recording = int(samples_in_recording / samples_per_epoch)
+    samples_per_epoch = round(sampling_rate * epoch_length)
+    epochs_in_recording = round(samples_in_recording / samples_per_epoch)
     if epochs_in_recording != labels.size:
         return LABEL_LENGTH_ERROR
 
