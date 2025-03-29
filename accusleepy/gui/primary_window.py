@@ -10,38 +10,16 @@
 
 from PySide6.QtCore import (
     QCoreApplication,
-    QDate,
-    QDateTime,
-    QLocale,
     QMetaObject,
-    QObject,
-    QPoint,
     QRect,
     QSize,
     Qt,
-    QTime,
-    QUrl,
 )
 from PySide6.QtGui import (
-    QBrush,
-    QColor,
-    QConicalGradient,
-    QCursor,
     QFont,
-    QFontDatabase,
-    QGradient,
     QIcon,
-    QImage,
-    QKeySequence,
-    QLinearGradient,
-    QPainter,
-    QPalette,
-    QPixmap,
-    QRadialGradient,
-    QTransform,
 )
 from PySide6.QtWidgets import (
-    QApplication,
     QCheckBox,
     QDoubleSpinBox,
     QFrame,
@@ -51,8 +29,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QListWidget,
-    QListWidgetItem,
-    QMainWindow,
     QPushButton,
     QRadioButton,
     QSizePolicy,
@@ -64,7 +40,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import accusleepy.gui.resources_rc
+import accusleepy.gui.resources_rc  # noqa F401
 
 
 class Ui_PrimaryWindow(object):
@@ -828,7 +804,7 @@ class Ui_PrimaryWindow(object):
         font1.setItalic(True)
         self.accusleepy2.setFont(font1)
         self.accusleepy2.setStyleSheet(
-            "background-color: transparent;\n" "color: rgb(130, 169, 68);"
+            "background-color: transparent;\ncolor: rgb(130, 169, 68);"
         )
         self.accusleepy2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.accusleepy3 = QLabel(self.frame)
@@ -836,7 +812,7 @@ class Ui_PrimaryWindow(object):
         self.accusleepy3.setGeometry(QRect(13, 77, 160, 60))
         self.accusleepy3.setFont(font1)
         self.accusleepy3.setStyleSheet(
-            "background-color: transparent;\n" "color: rgb(46, 63, 150);"
+            "background-color: transparent;\ncolor: rgb(46, 63, 150);"
         )
         self.accusleepy3.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.accusleepy1 = QLabel(self.frame)
@@ -844,7 +820,7 @@ class Ui_PrimaryWindow(object):
         self.accusleepy1.setGeometry(QRect(9, 73, 160, 60))
         self.accusleepy1.setFont(font1)
         self.accusleepy1.setStyleSheet(
-            "background-color: transparent;\n" "color: rgb(244, 195, 68);"
+            "background-color: transparent;\ncolor: rgb(244, 195, 68);"
         )
         self.accusleepy1.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.accusleepy1.raise_()

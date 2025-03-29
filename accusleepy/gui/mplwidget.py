@@ -9,7 +9,9 @@ from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from matplotlib.patches import Rectangle
 from matplotlib.widgets import RectangleSelector
-from PySide6.QtWidgets import *
+
+# from PySide6.QtWidgets import *
+from PySide6 import QtWidgets
 
 from accusleepy.brain_state_set import BrainStateSet
 
@@ -28,17 +30,17 @@ SUBPLOT_RIGHT_MARGIN = 0.95
 MAX_LOWER_X_TICK_N = 7
 
 
-class MplWidget(QWidget):
+class MplWidget(QtWidgets.QWidget):
     """Widget that displays a matplotlib FigureCanvas"""
 
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         # set up the canvas and store a reference to its axes
         self.canvas = FigureCanvas(Figure())
         self.canvas.axes = None
 
         # set the widget layout and remove the margins
-        vertical_layout = QVBoxLayout()
+        vertical_layout = QtWidgets.QVBoxLayout()
         vertical_layout.addWidget(self.canvas)
         vertical_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(vertical_layout)
@@ -143,7 +145,7 @@ class MplWidget(QWidget):
         self.roi.set_active(False)
         # keep a reference to the ROI patch so we can change its color later
         # index 0 is the "editing_patch" created earlier
-        self.roi_patch = [c for c in axes[0].get_children() if type(c) == Rectangle][1]
+        self.roi_patch = [c for c in axes[0].get_children() if type(c) is Rectangle][1]
 
         # epoch marker subplot
         axes[1].set_ylim((0, 1))

@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from functools import partial
 
 import numpy as np
-import PySide6.QtWidgets
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.brain_state_set import BrainState, BrainStateSet
@@ -236,16 +235,13 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         # create image folder
         if os.path.exists(self.training_image_dir):
             self.show_message(
-                f"Warning: training image folder exists, will be overwritten"
+                "Warning: training image folder exists, will be overwritten"
             )
         os.makedirs(self.training_image_dir, exist_ok=True)
 
         # create training images
         self.show_message(
-            (
-                f"Creating training images in {self.training_image_dir}, "
-                "please wait..."
-            )
+            (f"Creating training images in {self.training_image_dir}, please wait...")
         )
         self.ui.message_area.repaint()
         QtWidgets.QApplication.processEvents()
@@ -258,7 +254,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
-                self.show_message(f"ERROR: no recordings were valid!")
+                self.show_message("ERROR: no recordings were valid!")
             else:
                 self.show_message(
                     (
@@ -269,7 +265,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
 
         # train model
-        self.show_message(f"Training model, please wait...")
+        self.show_message("Training model, please wait...")
         self.ui.message_area.repaint()
         QtWidgets.QApplication.processEvents()
         model = train_model(
@@ -1174,7 +1170,7 @@ def check_label_validity(
 
 def run_primary_window() -> None:
     app = QtWidgets.QApplication(sys.argv)
-    window = AccuSleepWindow()
+    AccuSleepWindow()
     sys.exit(app.exec())
 
 

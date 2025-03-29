@@ -55,9 +55,7 @@ class BrainStateSet:
 
         self.mixture_weights = np.array(self.mixture_weights)
         if np.sum(self.mixture_weights) != 1:
-            raise Exception(
-                f"Typical frequencies for scored brain states must sum to 1"
-            )
+            raise Exception("Typical frequencies for scored brain states must sum to 1")
 
     def convert_digit_to_class(self, digits: np.array) -> np.array:
         """Convert array of digits to their corresponding classes

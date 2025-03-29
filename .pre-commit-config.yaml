@@ -10,21 +10,14 @@ repos:
     hooks:
       - id: poetry-check
       - id: poetry-lock
-  - repo: local
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.11.2
     hooks:
-        - id: black
-          name: black
-          entry: poetry run black
-          language: system
-          types: [python]
-#        - id: ruff
-#          name: ruff
-#          entry: poetry run ruff . --fix
-#          language: system
-#          types: [python]
-  # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
-#  - repo: https://github.com/psf/black-pre-commit-mirror
-#    rev: 25.1.0
-#    hooks:
-#      - id: black
-#        language_version: python3.13
+      # Run the linter.
+      - id: ruff
+        types_or: [ python, pyi ]
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
+        types_or: [ python, pyi ]

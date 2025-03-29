@@ -13,7 +13,6 @@ import math
 import timeit
 import warnings
 
-import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, cpu_count, delayed
 from scipy.signal import detrend

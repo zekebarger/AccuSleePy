@@ -500,7 +500,7 @@ def enforce_min_bout_length(
                     continue
                 # get start and end indices of each bout
                 expression = (
-                    f"(?<={other_state}){state}{{1,{min_epochs-1}}}(?={other_state})"
+                    f"(?<={other_state}){state}{{1,{min_epochs - 1}}}(?={other_state})"
                 )
                 matches = re.finditer(expression, label_string)
                 spans = [match.span() for match in matches]
@@ -541,9 +541,9 @@ def enforce_min_bout_length(
                 )
             else:
                 labels[
-                    sorted_bouts[0]
-                    .start_index : sorted_bouts[last_adjacent_bout_index]
-                    .end_index
+                    sorted_bouts[0].start_index : sorted_bouts[
+                        last_adjacent_bout_index
+                    ].end_index
                 ] = sorted_bouts[0].surrounding_state
 
             # delete the bouts we just fixed

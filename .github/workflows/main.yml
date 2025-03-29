@@ -22,23 +22,15 @@ jobs:
       with:
         python-version: '3.13'
         cache: 'poetry'
-#    - name: Configure poetry
-#      run: |
-#        poetry config virtualenvs.in-project true
-#    - name: Cache the virtualenv
-#      uses: actions/cache@v2
-#      with:
-#        path: ./.venv
-#        key: ${{ runner.os }}-venv-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       run: |
         poetry install
     - name: install that other thing PySide6 needs
       run: |
         sudo apt update && sudo apt install -y libegl1-mesa-dev
-#    - name: Lint with ruff
-#      run: |
-#        poetry run ruff .
+    - name: Lint with ruff
+      run: |
+        poetry run ruff .
     - name: Run tests
       run: |
         poetry run pytest
