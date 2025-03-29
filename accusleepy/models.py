@@ -19,7 +19,7 @@ IMAGE_HEIGHT = (
 
 
 class SSANN(nn.Module):
-    """Simple CNN for classifying images"""
+    """Small CNN for classifying images"""
 
     def __init__(self, n_classes: int):
         super().__init__()

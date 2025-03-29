@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from functools import partial
 
 import numpy as np
-from primary_window import Ui_PrimaryWindow
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from accusleepy.brain_state_set import BrainState, BrainStateSet
@@ -38,6 +37,7 @@ from accusleepy.fileio import (
     save_model,
 )
 from accusleepy.gui.manual_scoring import ManualScoringWindow
+from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.signal_processing import (
     ANNOTATIONS_FILENAME,
     create_training_images,
@@ -235,19 +235,16 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         # create image folder
         if os.path.exists(self.training_image_dir):
             self.show_message(
-                f"Warning: training image folder exists, will be overwritten"
+                "Warning: training image folder exists, will be overwritten"
             )
         os.makedirs(self.training_image_dir, exist_ok=True)
 
         # create training images
         self.show_message(
-            (
-                f"Creating training images in {self.training_image_dir}, "
-                "please wait..."
-            )
+            (f"Creating training images in {self.training_image_dir}, please wait...")
         )
         self.ui.message_area.repaint()
-        app.processEvents()
+        QtWidgets.QApplication.processEvents()
         failed_recordings = create_training_images(
             recordings=self.recordings,
             output_path=self.training_image_dir,
@@ -257,7 +254,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
-                self.show_message(f"ERROR: no recordings were valid!")
+                self.show_message("ERROR: no recordings were valid!")
             else:
                 self.show_message(
                     (
@@ -268,9 +265,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
 
         # train model
-        self.show_message(f"Training model, please wait...")
+        self.show_message("Training model, please wait...")
         self.ui.message_area.repaint()
-        app.processEvents()
+        QtWidgets.QApplication.processEvents()
         model = train_model(
             annotations_file=os.path.join(
                 self.training_image_dir, ANNOTATIONS_FILENAME
@@ -327,7 +324,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.ui.score_all_status.setText("running...")
         self.ui.score_all_status.repaint()
-        app.processEvents()
+        QtWidgets.QApplication.processEvents()
 
         # check some inputs for each recording
         for recording_index in range(len(self.recordings)):
@@ -662,7 +659,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         # immediately display a status message
         self.ui.manual_scoring_status.setText("loading...")
         self.ui.manual_scoring_status.repaint()
-        app.processEvents()
+        QtWidgets.QApplication.processEvents()
 
         # load the recording
         eeg, emg, sampling_rate, success = self.load_single_recording(
@@ -1158,7 +1155,7 @@ def check_label_validity(
     :param brain_state_set: BrainStateMapper object
     :return: error message
     """
-    # check that length is correct
+    # check that number of labels is correct
     samples_per_epoch = round(sampling_rate * epoch_length)
     epochs_in_recording = round(samples_in_recording / samples_per_epoch)
     if epochs_in_recording != labels.size:
@@ -1171,7 +1168,11 @@ def check_label_validity(
         return "label file contains invalid entries"
 
 
-if __name__ == "__main__":
+def run_primary_window() -> None:
     app = QtWidgets.QApplication(sys.argv)
-    window = AccuSleepWindow()
+    AccuSleepWindow()
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    run_primary_window()

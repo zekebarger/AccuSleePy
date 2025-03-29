@@ -88,7 +88,7 @@ def train_model(
 
     device = get_device()
     model = SSANN(n_classes=n_classes)
-    # store useful info in the weights
+    # store useful info about the model in the weights
     model.epochs_per_image = torch.nn.Parameter(
         torch.Tensor([epochs_per_image]), requires_grad=False
     )

@@ -10,7 +10,7 @@ class BrainState:
     """Convenience class for a brain state and its attributes"""
 
     name: str  # friendly name
-    digit: int  # number 0-9 - used as keyboard shortcut
+    digit: int  # number 0-9 - used as keyboard shortcut and in label files
     is_scored: bool  # whether a classification model should score this state
     frequency: int | float  # typical relative frequency, between 0 and 1
 
@@ -55,9 +55,7 @@ class BrainStateSet:
 
         self.mixture_weights = np.array(self.mixture_weights)
         if np.sum(self.mixture_weights) != 1:
-            raise Exception(
-                f"Typical frequencies for scored brain states must sum to 1"
-            )
+            raise Exception("Typical frequencies for scored brain states must sum to 1")
 
     def convert_digit_to_class(self, digits: np.array) -> np.array:
         """Convert array of digits to their corresponding classes

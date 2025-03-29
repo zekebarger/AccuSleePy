@@ -127,7 +127,7 @@ def load_config() -> BrainStateSet:
 
 
 def save_config(brain_state_set: BrainStateSet) -> None:
-    """Save configuration of brain state options to file
+    """Save configuration of brain state options to json file
 
     :param brain_state_set: set of brain state options
     """

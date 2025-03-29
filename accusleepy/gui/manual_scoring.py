@@ -10,16 +10,13 @@ from types import SimpleNamespace
 
 import matplotlib.pyplot as plt
 import numpy as np
-from mplwidget import resample_x_ticks
 from PySide6 import QtCore, QtGui, QtWidgets
-from viewer_window import Ui_ViewerWindow
 
 from accusleepy.constants import UNDEFINED_LABEL
 from accusleepy.fileio import load_config, save_labels
-from accusleepy.signal_processing import (
-    create_spectrogram,
-    get_emg_power,
-)
+from accusleepy.gui.mplwidget import resample_x_ticks
+from accusleepy.gui.viewer_window import Ui_ViewerWindow
+from accusleepy.signal_processing import create_spectrogram, get_emg_power
 
 # colormap for displaying brain state labels
 # the first entry represents the "undefined" state
@@ -27,7 +24,7 @@ from accusleepy.signal_processing import (
 LABEL_CMAP = np.concatenate(
     [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
-# relative path to user manual txt file
+# relative path to user manual text file
 USER_MANUAL_FILE = "text/manual_scoring_guide.txt"
 
 # constants used by callback functions

@@ -1,0 +1,39 @@
+name: Python application
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install poetry
+      run: pipx install poetry
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'poetry'
+    - name: Install dependencies
+      run: |
+        poetry install
+    - name: install that other thing PySide6 needs
+      run: |
+        sudo apt update && sudo apt install -y libegl1-mesa-dev
+    - name: Lint with ruff
+      run: |
+        poetry run ruff check --fix
+    - name: Format with ruff
+      run: |
+        poetry run ruff format
+    - name: Run tests
+      run: |
+        poetry run pytest
