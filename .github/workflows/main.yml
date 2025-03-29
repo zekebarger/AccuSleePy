@@ -30,7 +30,10 @@ jobs:
         sudo apt update && sudo apt install -y libegl1-mesa-dev
     - name: Lint with ruff
       run: |
-        poetry run ruff .
+        poetry run ruff check --fix
+    - name: Format with ruff
+      run: |
+        poetry run ruff format
     - name: Run tests
       run: |
         poetry run pytest
