@@ -16,6 +16,7 @@ from accusleepy.constants import (
     EMG_COL,
     MIXTURE_MEAN_COL,
     MIXTURE_SD_COL,
+    RECORDING_LIST_NAME,
     UNDEFINED_LABEL,
 )
 from accusleepy.models import SSANN
@@ -135,6 +136,41 @@ def save_config(brain_state_set: BrainStateSet) -> None:
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "w"
     ) as f:
         json.dump(brain_state_set.output_dict(), f, indent=4)
+
+
+def load_recording_list(filename: str) -> list[Recording]:
+    """Load list of recordings from file
+
+    :param filename: filename of list of recordings
+    :return: list of recordings
+    """
+    with open(filename, "r") as f:
+        data = json.load(f)
+    recording_list = [Recording(**r) for r in data[RECORDING_LIST_NAME]]
+    for i, r in enumerate(recording_list):
+        r.name = i + 1
+    return recording_list
+
+
+def save_recording_list(filename: str, recordings: list[Recording]) -> None:
+    """Save list of recordings to file
+
+    :param filename: where to save the list
+    :param recordings: list of recordings to export
+    """
+    recording_dict = {
+        RECORDING_LIST_NAME: [
+            {
+                "recording_file": r.recording_file,
+                "label_file": r.label_file,
+                "calibration_file": r.calibration_file,
+                "sampling_rate": r.sampling_rate,
+            }
+            for r in recordings
+        ]
+    }
+    with open(filename, "w") as f:
+        json.dump(recording_dict, f, indent=4)
 
 
 def convert_mat_files(path: str) -> None:

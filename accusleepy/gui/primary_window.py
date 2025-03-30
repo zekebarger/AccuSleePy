@@ -39,7 +39,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
 import accusleepy.gui.resources_rc  # noqa F401
 
 
@@ -673,7 +672,7 @@ class Ui_PrimaryWindow(object):
         self.scoring_tab_layout.addLayout(self.recordingactionsgroupbox, 0, 1, 1, 1)
 
         self.left_col_layout = QVBoxLayout()
-        self.left_col_layout.setSpacing(25)
+        self.left_col_layout.setSpacing(20)
         self.left_col_layout.setObjectName("left_col_layout")
         self.left_col_layout.setContentsMargins(5, 5, 5, 5)
         self.epoch_length_layout = QVBoxLayout()
@@ -754,8 +753,31 @@ class Ui_PrimaryWindow(object):
 
         self.verticalLayout.addWidget(self.recording_list_widget)
 
+        self.horizontalLayout_59 = QHBoxLayout()
+        self.horizontalLayout_59.setObjectName("horizontalLayout_59")
+        self.export_button = QPushButton(self.recordinglistgroupbox)
+        self.export_button.setObjectName("export_button")
+        sizePolicy2.setHeightForWidth(
+            self.export_button.sizePolicy().hasHeightForWidth()
+        )
+        self.export_button.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_59.addWidget(self.export_button)
+
+        self.import_button = QPushButton(self.recordinglistgroupbox)
+        self.import_button.setObjectName("import_button")
+        sizePolicy2.setHeightForWidth(
+            self.import_button.sizePolicy().hasHeightForWidth()
+        )
+        self.import_button.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_59.addWidget(self.import_button)
+
+        self.verticalLayout.addLayout(self.horizontalLayout_59)
+
         self.verticalLayout.setStretch(0, 1)
         self.verticalLayout.setStretch(1, 5)
+        self.verticalLayout.setStretch(2, 1)
 
         self.left_col_layout.addWidget(self.recordinglistgroupbox)
 
@@ -781,6 +803,7 @@ class Ui_PrimaryWindow(object):
 
         self.left_col_layout.setStretch(0, 2)
         self.left_col_layout.setStretch(1, 10)
+        self.left_col_layout.setStretch(2, 1)
 
         self.scoring_tab_layout.addLayout(self.left_col_layout, 0, 0, 1, 1)
 
@@ -2227,6 +2250,12 @@ class Ui_PrimaryWindow(object):
         )
         self.remove_button.setText(
             QCoreApplication.translate("PrimaryWindow", "remove", None)
+        )
+        self.export_button.setText(
+            QCoreApplication.translate("PrimaryWindow", "export", None)
+        )
+        self.import_button.setText(
+            QCoreApplication.translate("PrimaryWindow", "import", None)
         )
         # if QT_CONFIG(tooltip)
         self.user_manual_button.setToolTip(
