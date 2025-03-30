@@ -28,6 +28,11 @@ Note that if you change the configuration, you might be unable to load
 existing labels and calibration data, and you may need to train a new
 classification model.
 
+Use the "import" and "export" buttons to load or save a list of
+recordings. This can be useful if you need to re-score a set of
+recordings with a different model, or if you want to keep a record of
+the recordings that were used when training your model.
+
 -----------------------------------------------------------------------
 Section 2: AccuSleePy file types
 -----------------------------------------------------------------------
