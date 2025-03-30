@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.optim as optim
+from tqdm import trange
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
@@ -104,8 +105,7 @@ def train_model(
     criterion = nn.CrossEntropyLoss(weight=weight)
     optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
-    for epoch in range(TRAINING_EPOCHS):
-        print(f"Starting training epoch {epoch + 1}/{TRAINING_EPOCHS}")
+    for _ in trange(TRAINING_EPOCHS):
         for data in train_dataloader:
             inputs, labels = data
             (inputs, labels) = (inputs.to(device), labels.to(device))

@@ -292,6 +292,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         self.ui.message_area.repaint()
         QtWidgets.QApplication.processEvents()
+        print("Creating training images")
         failed_recordings = create_training_images(
             recordings=self.recordings,
             output_path=self.training_image_dir,
@@ -315,6 +316,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.show_message("Training model, please wait...")
         self.ui.message_area.repaint()
         QtWidgets.QApplication.processEvents()
+        print("Training model")
         model = train_model(
             annotations_file=os.path.join(
                 self.training_image_dir, ANNOTATIONS_FILENAME

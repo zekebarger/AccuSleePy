@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from scipy.signal import butter, filtfilt
+from tqdm import trange
 
 import accusleepy.constants as c
 from accusleepy.brain_state_set import BrainStateSet
@@ -376,7 +377,8 @@ def create_training_images(
     # all valid labels from all valid recordings
     all_labels = np.empty(0).astype(int)
     # try to load each recording and create training images
-    for recording in recordings:
+    for i in trange(len(recordings)):
+        recording = recordings[i]
         try:
             eeg, emg = load_recording(recording.recording_file)
             sampling_rate = recording.sampling_rate
