@@ -812,9 +812,6 @@
                      <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="2,3,3">
                       <item>
                        <widget class="QLabel" name="label_2">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -828,9 +825,6 @@
                       </item>
                       <item>
                        <widget class="QRadioButton" name="default_type_button">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -847,9 +841,6 @@
                       </item>
                       <item>
                        <widget class="QRadioButton" name="real_time_button">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>

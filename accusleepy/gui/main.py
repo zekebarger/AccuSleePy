@@ -25,6 +25,7 @@ from accusleepy.constants import (
     RECORDING_LIST_FILE_TYPE,
     RECORDING_FILE_TYPES,
     UNDEFINED_LABEL,
+    REAL_TIME_MODEL_TYPE,
 )
 from accusleepy.fileio import (
     Recording,
@@ -144,6 +145,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.save_config_button.clicked.connect(self.save_brain_state_config)
         self.ui.export_button.clicked.connect(self.export_recording_list)
         self.ui.import_button.clicked.connect(self.import_recording_list)
+        self.ui.default_type_button.toggled.connect(self.model_type_radio_buttons)
 
         # user input: drag and drop
         self.ui.recording_file_label.installEventFilter(self)
@@ -152,6 +154,16 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.model_label.installEventFilter(self)
 
         self.show()
+
+    def model_type_radio_buttons(self, default_selected: bool) -> None:
+        """Toggle training default or real-time model
+
+        :param default_selected: whether default option is selected
+        """
+        if default_selected:
+            self.model_type = DEFAULT_MODEL_TYPE
+        else:
+            self.model_type = REAL_TIME_MODEL_TYPE
 
     def export_recording_list(self) -> None:
         """Save current list of recordings to file"""

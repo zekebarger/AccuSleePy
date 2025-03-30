@@ -554,7 +554,6 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.label_2 = QLabel(self.model_training_tab)
         self.label_2.setObjectName("label_2")
-        self.label_2.setEnabled(False)
         sizePolicy2.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
         self.label_2.setSizePolicy(sizePolicy2)
 
@@ -562,7 +561,6 @@ class Ui_PrimaryWindow(object):
 
         self.default_type_button = QRadioButton(self.model_training_tab)
         self.default_type_button.setObjectName("default_type_button")
-        self.default_type_button.setEnabled(False)
         sizePolicy2.setHeightForWidth(
             self.default_type_button.sizePolicy().hasHeightForWidth()
         )
@@ -573,7 +571,6 @@ class Ui_PrimaryWindow(object):
 
         self.real_time_button = QRadioButton(self.model_training_tab)
         self.real_time_button.setObjectName("real_time_button")
-        self.real_time_button.setEnabled(False)
         sizePolicy2.setHeightForWidth(
             self.real_time_button.sizePolicy().hasHeightForWidth()
         )
