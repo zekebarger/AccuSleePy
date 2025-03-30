@@ -1,5 +1,3 @@
-User manual
-
 The lower panel shows a zoomed-in subset of the epochs shown in the upper panel.
 The red diamond in the upper panel and the red lines in the lower panel
 mark the currently selected epoch.
@@ -10,13 +8,14 @@ The buttons next to the EEG and EMG plots control the zoom level and y-axis offs
 If "auto-scroll" is enabled, modifying the brain state of the current epoch
 will automatically select the next epoch.
 
-Keyboard shortcuts
+Keyboard shortcuts:
 Ctrl + S: save labels to file
-Ctrl + W: quit
 Right arrow: move one epoch forward in time
 Left arrow: move one epoch backward in time
 Numbers 0-9: set current epoch to this brain state
 Backspace: set current epoch to undefined
+Ctrl + Z: undo last change to brain state labels
+Ctrl + Y: redo last change to brain state labels
 Shift + (number 0-9, or backspace):
     Click and drag on the upper plot of brain state labels to set the selected epochs
     to the desired brain state. Press Esc to cancel.
@@ -26,3 +25,4 @@ Shift + right arrow, or space: jump to the next epoch of a different state
     than the current epoch
 Shift + left arrow: jump to the preceding epoch of a different state than the current epoch
 Ctrl + right/left arrow: jump to the next/preceding undefined epoch
+Ctrl + W: quit

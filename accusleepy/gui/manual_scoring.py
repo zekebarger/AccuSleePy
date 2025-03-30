@@ -3,8 +3,10 @@
 #   Arkinasi, https://www.flaticon.com/authors/arkinasi
 #   kendis lasman, https://www.flaticon.com/packs/ui-79
 
+
 import copy
 import os
+from dataclasses import dataclass
 from functools import partial
 from types import SimpleNamespace
 
@@ -58,6 +60,17 @@ UNDEFINED_STATE = "undefined"
 # how far from the edge of the upper plot the marker should be
 # before starting to scroll again - must be in (0, 0.5)
 SCROLL_BOUNDARY = 0.35
+# max number of sequential undo actions allowed
+UNDO_LIMIT = 100
+
+
+@dataclass
+class StateChange:
+    """Information about an event when brain state labels were changed"""
+
+    previous_labels: np.array  # old brain state labels
+    new_labels: np.array  # new brain state labels
+    epoch: int  # first epoch affected
 
 
 class ManualScoringWindow(QtWidgets.QDialog):
@@ -131,6 +144,12 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.label_img = create_label_img(
             self.display_labels, self.label_display_options
         )
+
+        # history of changes to the brain state labels
+        self.history = list()
+        # index of the change "ahead" of the current state
+        # i.e., which change will be applied by a "redo" action
+        self.history_index = 0
 
         # set up both figures
         self.ui.upperfigure.setup_upper_figure(
@@ -320,6 +339,21 @@ class ManualScoringWindow(QtWidgets.QDialog):
             partial(self.jump_to_next_state, DIRECTION_LEFT, UNDEFINED_STATE)
         )
 
+        keypress_undo = QtGui.QShortcut(
+            QtGui.QKeySequence(
+                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_Z)
+            ),
+            self,
+        )
+        keypress_undo.activated.connect(self.undo)
+        keypress_redo = QtGui.QShortcut(
+            QtGui.QKeySequence(
+                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_Y)
+            ),
+            self,
+        )
+        keypress_redo.activated.connect(self.redo)
+
         # user input: clicks
         self.ui.upperfigure.canvas.mpl_connect("button_press_event", self.click_to_jump)
 
@@ -368,6 +402,88 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.ui.helpbutton.clicked.connect(self.show_user_manual)
 
         self.show()
+
+    def add_to_history(self, state_change: StateChange) -> None:
+        """Add an event to the history of changes to brain state labels
+
+        This allows the user to undo / redo changes to the brain state
+        labels by navigating backwards or forwards through a list of
+        changes that have been made. If one or more changes are undone,
+        and then a new change is performed, it will not be possible to
+        redo the changes that were undone. At most UNDO_LIMIT changes
+        are stored.
+
+        :param state_change: description of the change to the labels
+        """
+        # if history is empty
+        if len(self.history) == 0:
+            self.history.append(state_change)
+            self.history_index = 1
+            return
+        # if we are not at the end of the history
+        if self.history_index < len(self.history):
+            # remove events after the most recent one
+            self.history = self.history[: self.history_index]
+            self.history.append(state_change)
+            self.history_index += 1
+        else:
+            self.history.append(state_change)
+            # if this would make the history list too long
+            if self.history_index == UNDO_LIMIT:
+                # remove the oldest entry
+                self.history = self.history[1:]
+            else:
+                self.history_index += 1
+
+    def force_modify_labels(self, epoch: int, new_labels: np.array) -> None:
+        """Change brain state labels for an undo/redo action"""
+        # make the change
+        self.labels[epoch : epoch + len(new_labels)] = new_labels
+        self.display_labels = convert_labels(
+            self.labels,
+            style=DISPLAY_FORMAT,
+        )
+        self.label_img = create_label_img(
+            self.display_labels, self.label_display_options
+        )
+        # update the plots
+        self.update_figures()
+
+    def redo(self) -> None:
+        """Redo the last change to brain state labels that was undone"""
+        # if there are no events to redo
+        if self.history_index == len(self.history):
+            return
+        # make the change
+        state_change = self.history[self.history_index]
+        self.force_modify_labels(
+            epoch=state_change.epoch, new_labels=state_change.new_labels
+        )
+        # update history index
+        self.history_index += 1
+        # shift the cursor
+        simulated_click = SimpleNamespace(
+            **{"xdata": state_change.epoch, "inaxes": None}
+        )
+        self.click_to_jump(simulated_click)
+
+    def undo(self) -> None:
+        """Undo the last change to the brain state labels"""
+        # if there are no events to undo
+        if self.history_index == 0:
+            return
+        # make the change
+        state_change = self.history[self.history_index - 1]
+        self.force_modify_labels(
+            epoch=state_change.epoch, new_labels=state_change.previous_labels
+        )
+        # update history index
+        self.history_index -= 1
+        # shift the cursor
+        simulated_click = SimpleNamespace(
+            **{"xdata": state_change.epoch, "inaxes": None}
+        )
+        self.click_to_jump(simulated_click)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """Check if there are unsaved changes before closing"""
@@ -442,10 +558,24 @@ class ManualScoringWindow(QtWidgets.QDialog):
         drawing an ROI. It sets a range of epochs to the desired brain state.
         The function signature is required to have this format.
         """
-        # update all three representations of the labels
-        self.labels[int(np.ceil(eclick.xdata)) : int(np.floor(erelease.xdata)) + 1] = (
-            self.roi_brain_state
-        )
+        # get range of epochs affected
+        epoch_start = int(np.ceil(eclick.xdata))
+        epoch_end = int(np.floor(erelease.xdata)) + 1
+
+        previous_labels = copy.deepcopy(self.labels[epoch_start:epoch_end])
+        new_labels = np.ones(epoch_end - epoch_start).astype(int) * self.roi_brain_state
+
+        # if something changed, track the change
+        if not np.array_equal(previous_labels, new_labels):
+            self.add_to_history(
+                StateChange(
+                    previous_labels=previous_labels,
+                    new_labels=new_labels,
+                    epoch=epoch_start,
+                )
+            )
+        # make the change
+        self.labels[epoch_start:epoch_end] = self.roi_brain_state
         self.display_labels = convert_labels(
             self.labels,
             style=DISPLAY_FORMAT,
@@ -633,7 +763,19 @@ class ManualScoringWindow(QtWidgets.QDialog):
 
         :param digit: new brain state label in "digit" format
         """
+        previous_label = self.labels[self.epoch]
         self.labels[self.epoch] = digit
+        # if something changed, track the change
+        if previous_label != digit:
+            self.add_to_history(
+                StateChange(
+                    previous_labels=np.array([previous_label]),
+                    new_labels=np.array([digit]),
+                    epoch=self.epoch,
+                )
+            )
+
+        # make the change
         display_label = convert_labels(
             np.array([digit]),
             style=DISPLAY_FORMAT,
