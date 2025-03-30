@@ -34,3 +34,6 @@ MODEL_FILE_TYPE = ".pth"
 # annotation file columns
 FILENAME_COL = "filename"
 LABEL_COL = "label"
+# recording list file header:
+RECORDING_LIST_NAME = "recording_list"
+RECORDING_LIST_FILE_TYPE = ".json"

@@ -979,9 +979,9 @@
            </layout>
           </item>
           <item row="0" column="0">
-           <layout class="QVBoxLayout" name="left_col_layout" stretch="2,10,0">
+           <layout class="QVBoxLayout" name="left_col_layout" stretch="2,10,1">
             <property name="spacing">
-             <number>25</number>
+             <number>20</number>
             </property>
             <property name="leftMargin">
              <number>5</number>
@@ -1056,7 +1056,7 @@
               <property name="title">
                <string>Recording list</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout" stretch="1,5">
+              <layout class="QVBoxLayout" name="verticalLayout" stretch="1,5,1">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -1117,6 +1117,36 @@
                   <string notr="true">background-color: white;</string>
                  </property>
                 </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_59">
+                 <item>
+                  <widget class="QPushButton" name="export_button">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>export</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="import_button">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>import</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
               </layout>
              </widget>

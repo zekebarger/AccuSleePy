@@ -22,6 +22,7 @@ from accusleepy.constants import (
     DEFAULT_MODEL_TYPE,
     LABEL_FILE_TYPE,
     MODEL_FILE_TYPE,
+    RECORDING_LIST_FILE_TYPE,
     RECORDING_FILE_TYPES,
     UNDEFINED_LABEL,
 )
@@ -32,9 +33,11 @@ from accusleepy.fileio import (
     load_labels,
     load_model,
     load_recording,
+    load_recording_list,
     save_config,
     save_labels,
     save_model,
+    save_recording_list,
 )
 from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
@@ -139,6 +142,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.training_folder_button.clicked.connect(self.set_training_folder)
         self.ui.train_model_button.clicked.connect(self.train_model)
         self.ui.save_config_button.clicked.connect(self.save_brain_state_config)
+        self.ui.export_button.clicked.connect(self.export_recording_list)
+        self.ui.import_button.clicked.connect(self.import_recording_list)
 
         # user input: drag and drop
         self.ui.recording_file_label.installEventFilter(self)
@@ -147,6 +152,48 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.model_label.installEventFilter(self)
 
         self.show()
+
+    def export_recording_list(self) -> None:
+        """Save current list of recordings to file"""
+        # get the name for the recording list file
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self,
+            caption="Save list of recordings as",
+            filter="*" + RECORDING_LIST_FILE_TYPE,
+        )
+        if not filename:
+            return
+        save_recording_list(filename=filename, recordings=self.recordings)
+        self.show_message(f"Saved list of recordings to {filename}")
+
+    def import_recording_list(self):
+        """Load list of recordings from file, overwriting current list"""
+        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog.setWindowTitle("Select list of recordings")
+        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setNameFilter("*" + RECORDING_LIST_FILE_TYPE)
+
+        if file_dialog.exec():
+            selected_files = file_dialog.selectedFiles()
+            filename = selected_files[0]
+        else:
+            return
+
+        # clear widget
+        self.ui.recording_list_widget.clear()
+        # overwrite current list
+        self.recordings = load_recording_list(filename)
+
+        for recording in self.recordings:
+            recording.widget = QtWidgets.QListWidgetItem(
+                f"Recording {recording.name}", self.ui.recording_list_widget
+            )
+            self.ui.recording_list_widget.addItem(self.recordings[-1].widget)
+
+        # display new list
+        self.ui.recording_list_widget.setCurrentRow(0)
+        self.show_message(f"Loaded list of recordings from {filename}")
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
         """Filter mouse events to detect when user drags/drops a file
