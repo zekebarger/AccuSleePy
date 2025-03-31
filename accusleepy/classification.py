@@ -11,14 +11,12 @@ from tqdm import trange
 
 import accusleepy.constants as c
 from accusleepy.brain_state_set import BrainStateSet
-from accusleepy.fileio import Recording, load_config, load_labels, load_recording
 from accusleepy.models import SSANN
 from accusleepy.signal_processing import (
     create_eeg_emg_image,
     format_img,
     get_mixture_values,
     mixture_z_score_img,
-    resample_and_standardize,
 )
 
 BATCH_SIZE = 64
@@ -267,50 +265,3 @@ def create_calibration_file(
     pd.DataFrame(
         {c.MIXTURE_MEAN_COL: mixture_means, c.MIXTURE_SD_COL: mixture_sds}
     ).to_csv(filename, index=False)
-
-
-def test_model(
-    model: SSANN,
-    recordings: list[Recording],
-    epoch_length: int | float,
-    epochs_per_img: int,
-) -> None:
-    all_labels = np.empty(0).astype(int)
-    all_predictions = np.empty(0).astype(int)
-
-    brain_state_set = load_config()
-
-    for recording in recordings:
-        eeg, emg = load_recording(recording.recording_file)
-        labels = load_labels(recording.label_file)
-
-        eeg, emg, recording.sampling_rate = resample_and_standardize(
-            eeg=eeg,
-            emg=emg,
-            sampling_rate=recording.sampling_rate,
-            epoch_length=epoch_length,
-        )
-        img = create_eeg_emg_image(eeg, emg, recording.sampling_rate, epoch_length)
-        mixture_means, mixture_sds = get_mixture_values(
-            img=img,
-            labels=brain_state_set.convert_digit_to_class(labels),
-            brain_state_set=brain_state_set,
-        )
-        pred = score_recording(
-            model,
-            eeg,
-            emg,
-            mixture_means,
-            mixture_sds,
-            recording.sampling_rate,
-            epoch_length,
-            epochs_per_img,
-            brain_state_set,
-        )
-
-        all_labels = np.concatenate([all_labels, labels])
-        all_predictions = np.concatenate([all_predictions, pred])
-
-    print(
-        f"test accuracy: {np.sum(all_predictions == all_labels) / len(all_labels):.2%}"
-    )

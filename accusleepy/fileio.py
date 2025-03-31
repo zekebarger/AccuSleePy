@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
-import scipy.io
 import torch
 from PySide6.QtWidgets import QListWidgetItem
 
@@ -200,20 +199,3 @@ def save_recording_list(filename: str, recordings: list[Recording]) -> None:
     }
     with open(filename, "w") as f:
         json.dump(recording_dict, f, indent=4)
-
-
-def convert_mat_files(path: str) -> None:
-    eeg, emg, labels = load_mat_files(path)
-    pd.DataFrame({EEG_COL: eeg, EMG_COL: emg}).to_parquet(
-        os.path.join(path, "recording.parquet")
-    )
-    pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(
-        os.path.join(path, "labels.csv"), index=False
-    )
-
-
-def load_mat_files(file_path: str) -> (np.array, np.array, np.array):
-    eeg = scipy.io.loadmat(os.path.join(file_path, "EEG.mat"))["EEG"].T[0]
-    emg = scipy.io.loadmat(os.path.join(file_path, "EMG.mat"))["EMG"].T[0]
-    labels = scipy.io.loadmat(os.path.join(file_path, "labels.mat"))["labels"].T[0]
-    return eeg, emg, labels
