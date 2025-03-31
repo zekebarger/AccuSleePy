@@ -46,24 +46,53 @@ def load_calibration_file(filename: str) -> (np.array, np.array):
     return mixture_means, mixture_sds
 
 
-def save_model(model: SSANN, filename: str) -> None:
-    """Save classification model
+def save_model(
+    model: SSANN,
+    filename: str,
+    epoch_length: int | float,
+    epochs_per_img: int,
+    model_type: str,
+    brain_state_set: BrainStateSet,
+) -> None:
+    """Save classification model and its metadata
 
     :param model: classification model
+    :param epoch_length: epoch length used when training the model
+    :param epochs_per_img: number of epochs in each model input
+    :param model_type: default or real-time
+    :param brain_state_set: set of brain state options
     :param filename: filename
     """
-    torch.save(model.state_dict(), filename)
+    state_dict = model.state_dict()
+    state_dict.update({"epoch_length": epoch_length})
+    state_dict.update({"epochs_per_img": epochs_per_img})
+    state_dict.update({"model_type": model_type})
+    state_dict.update(
+        {BRAIN_STATES_KEY: brain_state_set.to_output_dict()[BRAIN_STATES_KEY]}
+    )
+
+    torch.save(state_dict, filename)
 
 
-def load_model(filename: str, n_classes: int) -> SSANN:
-    """Load classification model
+def load_model(filename: str) -> tuple[SSANN, int | float, int, str, dict]:
+    """Load classification model and its metadata
 
     :param filename: filename
-    :param n_classes: number of possible the model outputs
+    :return: model, epoch length used when training the model,
+        number of epochs in each model input, model type
+        (default or real-time), set of brain state options
+        used when training the model
     """
+    state_dict = torch.load(filename, weights_only=True)
+    epoch_length = state_dict.pop("epoch_length")
+    epochs_per_img = state_dict.pop("epochs_per_img")
+    model_type = state_dict.pop("model_type")
+    brain_states = state_dict.pop(BRAIN_STATES_KEY)
+    n_classes = len([b for b in brain_states if b["is_scored"]])
+
     model = SSANN(n_classes=n_classes)
-    model.load_state_dict(torch.load(filename, weights_only=True))
-    return model
+    model.load_state_dict(state_dict)
+    return model, epoch_length, epochs_per_img, model_type, brain_states
 
 
 def load_csv_or_parquet(filename: str) -> pd.DataFrame:
@@ -135,7 +164,7 @@ def save_config(brain_state_set: BrainStateSet) -> None:
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "w"
     ) as f:
-        json.dump(brain_state_set.output_dict(), f, indent=4)
+        json.dump(brain_state_set.to_output_dict(), f, indent=4)
 
 
 def load_recording_list(filename: str) -> list[Recording]:

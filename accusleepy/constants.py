@@ -24,8 +24,6 @@ UPPER_FREQ = 50
 # classification model types
 DEFAULT_MODEL_TYPE = "default"  # current epoch is centered
 REAL_TIME_MODEL_TYPE = "real-time"  # current epoch on the right
-KEY_TO_MODEL_TYPE = {0: DEFAULT_MODEL_TYPE, 1: REAL_TIME_MODEL_TYPE}
-MODEL_TYPE_TO_KEY = {DEFAULT_MODEL_TYPE: 0, REAL_TIME_MODEL_TYPE: 1}
 # valid filetypes
 RECORDING_FILE_TYPES = [".parquet", ".csv"]
 LABEL_FILE_TYPE = ".csv"

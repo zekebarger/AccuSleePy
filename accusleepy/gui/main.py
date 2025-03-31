@@ -11,7 +11,7 @@ from functools import partial
 import numpy as np
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from accusleepy.brain_state_set import BrainState, BrainStateSet
+from accusleepy.brain_state_set import BrainState, BrainStateSet, BRAIN_STATES_KEY
 from accusleepy.classification import (
     create_calibration_file,
     score_recording,
@@ -26,7 +26,6 @@ from accusleepy.constants import (
     RECORDING_FILE_TYPES,
     UNDEFINED_LABEL,
     REAL_TIME_MODEL_TYPE,
-    KEY_TO_MODEL_TYPE,
 )
 from accusleepy.fileio import (
     Recording,
@@ -97,6 +96,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.training_image_dir = ""
         self.model_type = DEFAULT_MODEL_TYPE
 
+        # metadata for the currently loaded classification model
+        self.model_epoch_length = None
+        self.model_epochs_per_img = None
+
         # set up the list of recordings
         first_recording = Recording(
             widget=QtWidgets.QListWidgetItem(
@@ -134,7 +137,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
         self.ui.create_calibration_button.clicked.connect(self.create_calibration_file)
         self.ui.select_calibration_button.clicked.connect(self.select_calibration_file)
-        self.ui.load_model_button.clicked.connect(self.load_model)
+        self.ui.load_model_button.clicked.connect(partial(self.load_model, None))
         self.ui.score_all_button.clicked.connect(self.score_all)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
@@ -246,14 +249,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.recordings[self.recording_index].calibration_file = filename
                 self.ui.calibration_file_label.setText(filename)
         elif obj == self.ui.model_label:
-            try:
-                self.model = load_model(
-                    filename=filename, n_classes=self.brain_state_set.n_classes
-                )
-            except Exception:
-                self.show_message(f"ERROR: could not load model from {filename} ")
-                return super().eventFilter(obj, event)
-            self.ui.model_label.setText(filename)
+            self.load_model(filename=filename)
 
         return super().eventFilter(obj, event)
 
@@ -336,14 +332,19 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.training_image_dir, ANNOTATIONS_FILENAME
             ),
             img_dir=self.training_image_dir,
-            epochs_per_image=self.training_epochs_per_img,
-            model_type=self.model_type,
             mixture_weights=self.brain_state_set.mixture_weights,
             n_classes=self.brain_state_set.n_classes,
         )
 
         # save model
-        save_model(model=model, filename=model_filename)
+        save_model(
+            model=model,
+            filename=model_filename,
+            epoch_length=self.epoch_length,
+            epochs_per_img=self.training_epochs_per_img,
+            model_type=self.model_type,
+            brain_state_set=self.brain_state_set,
+        )
 
         # optionally delete images
         if self.delete_training_images:
@@ -383,6 +384,16 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         if self.min_bout_length < self.epoch_length:
             self.ui.score_all_status.setText("invalid minimum bout length")
             self.show_message("ERROR: minimum bout length must be >= epoch length")
+            return
+        if self.epoch_length != self.model_epoch_length:
+            self.ui.score_all_status.setText("invalid epoch length")
+            self.show_message(
+                (
+                    "ERROR: model was trained with an epoch length of "
+                    f"{self.model_epoch_length} seconds, but the current "
+                    f"epoch length setting is {self.epoch_length} seconds."
+                )
+            )
             return
 
         self.ui.score_all_status.setText("running...")
@@ -502,6 +513,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 mixture_sds=mixture_sds,
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
+                epochs_per_img=self.model_epochs_per_img,
                 brain_state_set=self.brain_state_set,
             )
 
@@ -530,47 +542,133 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.ui.score_all_status.setText("")
 
-    def load_model(self) -> None:
-        """Load trained classification model from file"""
-        file_dialog = QtWidgets.QFileDialog(self)
-        file_dialog.setWindowTitle("Select classification model")
-        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*" + MODEL_FILE_TYPE)
+    def load_model(self, filename=None) -> None:
+        """Load trained classification model from file
 
-        if file_dialog.exec():
-            selected_files = file_dialog.selectedFiles()
-            filename = selected_files[0]
-            if not os.path.isfile(filename):
-                self.show_message("ERROR: model file does not exist")
-                return
-            try:
-                model = load_model(
-                    filename=filename, n_classes=self.brain_state_set.n_classes
-                )
-            except Exception:
-                self.show_message(
-                    (
-                        "ERROR: could not load classification model. Check "
-                        "user manual for instructions on creating this file."
-                    )
-                )
-                return
-            # make sure only "default" model type is loaded
-            model_type = KEY_TO_MODEL_TYPE[int(model.epochs_per_image.item())]
-            if model_type != DEFAULT_MODEL_TYPE:
-                self.show_message(
-                    (
-                        "ERROR: only 'default'-style models can be used. "
-                        "'Real-time' models are not supported. "
-                        "See classification.example_real_time_scoring_function.py "
-                        "for an example of how to classify brain states in real time."
-                    )
-                )
+        :param filename: model filename, if it's known
+        """
+        if filename is None:
+            file_dialog = QtWidgets.QFileDialog(self)
+            file_dialog.setWindowTitle("Select classification model")
+            file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+            file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+            file_dialog.setNameFilter("*" + MODEL_FILE_TYPE)
+
+            if file_dialog.exec():
+                selected_files = file_dialog.selectedFiles()
+                filename = selected_files[0]
+            else:
                 return
 
-            self.model = model
-            self.ui.model_label.setText(filename)
+        if not os.path.isfile(filename):
+            self.show_message("ERROR: model file does not exist")
+            return
+
+        try:
+            model, epoch_length, epochs_per_img, model_type, brain_states = load_model(
+                filename=filename
+            )
+        except Exception:
+            self.show_message(
+                (
+                    "ERROR: could not load classification model. Check "
+                    "user manual for instructions on creating this file."
+                )
+            )
+            return
+
+        # make sure only "default" model type is loaded
+        if model_type != DEFAULT_MODEL_TYPE:
+            self.show_message(
+                (
+                    "ERROR: only 'default'-style models can be used. "
+                    "'Real-time' models are not supported. "
+                    "See classification.example_real_time_scoring_function.py "
+                    "for an example of how to classify brain states in real time."
+                )
+            )
+            return
+
+        self.model = model
+        self.model_epoch_length = epoch_length
+        self.model_epochs_per_img = epochs_per_img
+
+        # warn user if the model's expected epoch length or brain states
+        # don't match the current configuration
+        self.evaluate_model_brain_states(model_brain_states=brain_states)
+        if epoch_length != self.epoch_length:
+            self.show_message(
+                (
+                    "Warning: the epoch length used when training this model "
+                    "does not match the current epoch length setting."
+                )
+            )
+        self.ui.model_label.setText(filename)
+
+    def evaluate_model_brain_states(self, model_brain_states: dict):
+        """Compare current brain state config to the model's config
+
+        This only displays warnings - the user should decide whether to proceed
+
+        :param model_brain_states: brain state config when the model was created
+        """
+        # if any warnings are shown, also display the current config
+        # and the model's config for comparison
+        warning_shown = False
+
+        current_config = self.brain_state_set.to_output_dict()[BRAIN_STATES_KEY]
+        current_scored_states = {
+            f: [b[f] for b in current_config if b["is_scored"]]
+            for f in ["name", "digit"]
+        }
+        model_scored_states = {
+            f: [b[f] for b in model_brain_states if b["is_scored"]]
+            for f in ["name", "digit"]
+        }
+
+        # check if the number of scored states is different
+        len_diff = len(current_scored_states["name"]) - len(model_scored_states["name"])
+
+        if len_diff != 0:
+            self.show_message(
+                (
+                    "WARNING: current brain state configuration has "
+                    f"{'fewer' if len_diff < 0 else 'more'} "
+                    "scored brain states than the model's configuration."
+                )
+            )
+            warning_shown = True
+        else:
+            if current_scored_states["name"] != model_scored_states["name"]:
+                self.show_message(
+                    (
+                        "WARNING: current brain state configuration appears "
+                        "to contain different brain states than "
+                        "the model's configuration."
+                    )
+                )
+                warning_shown = True
+
+        if warning_shown:
+            for config, config_name in zip(
+                [current_scored_states, model_scored_states], ["current", "model's"]
+            ):
+                self.show_message(
+                    (
+                        f"Scored brain states in {config_name} configuration: "
+                        f"""{
+                            ", ".join(
+                                [
+                                    f"{x}: {y}"
+                                    for x, y in zip(
+                                        config["digit"],
+                                        config["name"],
+                                    )
+                                ]
+                            )
+                        }"""
+                    )
+                )
 
     def load_single_recording(
         self, status_widget: QtWidgets.QLabel

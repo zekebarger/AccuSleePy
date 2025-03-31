@@ -24,10 +24,6 @@ class SSANN(nn.Module):
     def __init__(self, n_classes: int):
         super().__init__()
 
-        # useful custom parameters
-        self.epochs_per_image = nn.Parameter(torch.Tensor(1), requires_grad=False)
-        self.model_type = nn.Parameter(torch.Tensor(1), requires_grad=False)
-
         self.pool = nn.MaxPool2d(2, 2)
         self.conv1 = nn.Conv2d(
             in_channels=1, out_channels=8, kernel_size=3, padding="same"
