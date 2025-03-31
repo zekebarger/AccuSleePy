@@ -332,8 +332,6 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.training_image_dir, ANNOTATIONS_FILENAME
             ),
             img_dir=self.training_image_dir,
-            # epochs_per_image=self.training_epochs_per_img,
-            # model_type=self.model_type,
             mixture_weights=self.brain_state_set.mixture_weights,
             n_classes=self.brain_state_set.n_classes,
         )
