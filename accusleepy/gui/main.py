@@ -96,7 +96,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.training_image_dir = ""
         self.model_type = DEFAULT_MODEL_TYPE
 
-        # settings used when training the currently loaded model
+        # metadata for the currently loaded classification model
         self.model_epoch_length = None
         self.model_epochs_per_img = None
 
