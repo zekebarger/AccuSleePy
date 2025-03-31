@@ -10,7 +10,15 @@ from PIL import Image
 from scipy.signal import butter, filtfilt
 from tqdm import trange
 
-import accusleepy.constants as c
+from accusleepy.constants import (
+    FILENAME_COL,
+    LABEL_COL,
+    MIN_WINDOW_LEN,
+    UPPER_FREQ,
+    DEFAULT_MODEL_TYPE,
+    EMG_COPIES,
+    DOWNSAMPLING_START_FREQ,
+)
 from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.fileio import Recording, load_labels, load_recording
 from accusleepy.multitaper import spectrogram
@@ -130,7 +138,7 @@ def create_spectrogram(
     :param n_tapers: number of DPSS tapers to use
     :return: spectrogram and its frequency axis
     """
-    window_length_sec = max(c.MIN_WINDOW_LEN, epoch_length)
+    window_length_sec = max(MIN_WINDOW_LEN, epoch_length)
     # pad the EEG signal so that the first spectrogram window is centered
     # on the first epoch
     # it's possible there's some jank here, if this isn't close to an integer
@@ -155,7 +163,7 @@ def create_spectrogram(
     )
 
     # resample frequencies for consistency
-    target_frequencies = np.arange(0, SPECTROGRAM_UPPER_FREQ, 1 / c.MIN_WINDOW_LEN)
+    target_frequencies = np.arange(0, SPECTROGRAM_UPPER_FREQ, 1 / MIN_WINDOW_LEN)
     freq_idx = list()
     for i in target_frequencies:
         freq_idx.append(np.argmin(np.abs(f - i)))
@@ -222,8 +230,8 @@ def create_eeg_emg_image(
     :return: combined EEG + EMG image for a recording
     """
     spec, f = create_spectrogram(eeg, sampling_rate, epoch_length)
-    f_lower_idx = sum(f < c.DOWNSAMPLING_START_FREQ)
-    f_upper_idx = sum(f < c.UPPER_FREQ)
+    f_lower_idx = sum(f < DOWNSAMPLING_START_FREQ)
+    f_upper_idx = sum(f < UPPER_FREQ)
 
     modified_spectrogram = np.log(
         spec[
@@ -236,7 +244,7 @@ def create_eeg_emg_image(
 
     emg_log_rms = get_emg_power(emg, sampling_rate, epoch_length)
     output = np.concatenate(
-        [modified_spectrogram, np.tile(emg_log_rms, (c.EMG_COPIES, 1))]
+        [modified_spectrogram, np.tile(emg_log_rms, (EMG_COPIES, 1))]
     )
     return output
 
@@ -406,7 +414,7 @@ def create_training_images(
             img = format_img(img=img, epochs_per_img=epochs_per_img, add_padding=True)
 
             # the model type determines which epochs are used in each image
-            if model_type == c.DEFAULT_MODEL_TYPE:
+            if model_type == DEFAULT_MODEL_TYPE:
                 # here, j is the index of the current epoch in 'labels'
                 # and the index of the leftmost epoch in 'img'
                 for j in range(img.shape[1] - (epochs_per_img - 1)):
@@ -436,7 +444,7 @@ def create_training_images(
             failed_recordings.append(recording.name)
 
     # annotation file containing info on all images
-    pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: all_labels}).to_csv(
+    pd.DataFrame({FILENAME_COL: filenames, LABEL_COL: all_labels}).to_csv(
         os.path.join(output_path, ANNOTATIONS_FILENAME),
         index=False,
     )
