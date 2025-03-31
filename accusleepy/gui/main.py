@@ -543,7 +543,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.score_all_status.setText("")
 
     def load_model(self, filename=None) -> None:
-        """Load trained classification model from file"""
+        """Load trained classification model from file
+
+        :param filename: model filename, if it's known
+        """
         if filename is None:
             file_dialog = QtWidgets.QFileDialog(self)
             file_dialog.setWindowTitle("Select classification model")
