@@ -612,6 +612,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         :param model_brain_states: brain state config when the model was created
         """
+        # if any warnings are shown, also display the current config
+        # and the model's config for comparison
         warning_shown = False
 
         current_config = self.brain_state_set.to_output_dict()[BRAIN_STATES_KEY]
@@ -624,6 +626,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             for f in ["name", "digit"]
         }
 
+        # check if the number of scored states is different
         len_diff = len(current_scored_states["name"]) - len(model_scored_states["name"])
 
         if len_diff != 0:
