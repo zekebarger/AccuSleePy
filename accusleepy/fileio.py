@@ -46,24 +46,43 @@ def load_calibration_file(filename: str) -> (np.array, np.array):
     return mixture_means, mixture_sds
 
 
-def save_model(model: SSANN, filename: str) -> None:
+def save_model(
+    model: SSANN,
+    filename: str,
+    epoch_length: int | float,
+    epochs_per_img: int,
+    model_type: str,
+) -> None:
     """Save classification model
 
     :param model: classification model
+    :param epoch_length: epoch length used when training the model
+    :param epochs_per_img: number of epochs in each model input
+    :param model_type: default or real-time
     :param filename: filename
     """
-    torch.save(model.state_dict(), filename)
+    state_dict = model.state_dict()
+    state_dict.update({"epoch_length": epoch_length})
+    state_dict.update({"epochs_per_img": epochs_per_img})
+    state_dict.update({"model_type": model_type})
+
+    torch.save(state_dict, filename)
 
 
-def load_model(filename: str, n_classes: int) -> SSANN:
+def load_model(filename: str, n_classes: int) -> tuple[SSANN, int | float, int, str]:
     """Load classification model
 
     :param filename: filename
     :param n_classes: number of possible the model outputs
     """
+    state_dict = torch.load(filename, weights_only=True)
+    epoch_length = state_dict.pop("epoch_length")
+    epochs_per_img = state_dict.pop("epochs_per_img")
+    model_type = state_dict.pop("model_type")
+
     model = SSANN(n_classes=n_classes)
-    model.load_state_dict(torch.load(filename, weights_only=True))
-    return model
+    model.load_state_dict(state_dict)
+    return model, epoch_length, epochs_per_img, model_type
 
 
 def load_csv_or_parquet(filename: str) -> pd.DataFrame:

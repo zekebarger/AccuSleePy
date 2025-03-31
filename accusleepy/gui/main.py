@@ -26,7 +26,6 @@ from accusleepy.constants import (
     RECORDING_FILE_TYPES,
     UNDEFINED_LABEL,
     REAL_TIME_MODEL_TYPE,
-    KEY_TO_MODEL_TYPE,
 )
 from accusleepy.fileio import (
     Recording,
@@ -97,6 +96,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.training_image_dir = ""
         self.model_type = DEFAULT_MODEL_TYPE
 
+        # settings used when training the currently loaded model
+        self.model_epoch_length = None
+        self.model_epochs_per_img = None
+
         # set up the list of recordings
         first_recording = Recording(
             widget=QtWidgets.QListWidgetItem(
@@ -134,7 +137,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.manual_scoring_button.clicked.connect(self.manual_scoring)
         self.ui.create_calibration_button.clicked.connect(self.create_calibration_file)
         self.ui.select_calibration_button.clicked.connect(self.select_calibration_file)
-        self.ui.load_model_button.clicked.connect(self.load_model)
+        self.ui.load_model_button.clicked.connect(partial(self.load_model, None))
         self.ui.score_all_button.clicked.connect(self.score_all)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
@@ -246,14 +249,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.recordings[self.recording_index].calibration_file = filename
                 self.ui.calibration_file_label.setText(filename)
         elif obj == self.ui.model_label:
-            try:
-                self.model = load_model(
-                    filename=filename, n_classes=self.brain_state_set.n_classes
-                )
-            except Exception:
-                self.show_message(f"ERROR: could not load model from {filename} ")
-                return super().eventFilter(obj, event)
-            self.ui.model_label.setText(filename)
+            self.load_model(filename=filename)
 
         return super().eventFilter(obj, event)
 
@@ -336,14 +332,20 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.training_image_dir, ANNOTATIONS_FILENAME
             ),
             img_dir=self.training_image_dir,
-            epochs_per_image=self.training_epochs_per_img,
-            model_type=self.model_type,
+            # epochs_per_image=self.training_epochs_per_img,
+            # model_type=self.model_type,
             mixture_weights=self.brain_state_set.mixture_weights,
             n_classes=self.brain_state_set.n_classes,
         )
 
         # save model
-        save_model(model=model, filename=model_filename)
+        save_model(
+            model=model,
+            filename=model_filename,
+            epoch_length=self.epoch_length,
+            epochs_per_img=self.training_epochs_per_img,
+            model_type=self.model_type,
+        )
 
         # optionally delete images
         if self.delete_training_images:
@@ -383,6 +385,16 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         if self.min_bout_length < self.epoch_length:
             self.ui.score_all_status.setText("invalid minimum bout length")
             self.show_message("ERROR: minimum bout length must be >= epoch length")
+            return
+        if self.epoch_length != self.model_epoch_length:
+            self.ui.score_all_status.setText("invalid epoch length")
+            self.show_message(
+                (
+                    "ERROR: model was trained with an epoch length of "
+                    f"{self.model_epoch_length} seconds, but the current "
+                    f"epoch length setting is {self.epoch_length} seconds."
+                )
+            )
             return
 
         self.ui.score_all_status.setText("running...")
@@ -502,6 +514,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 mixture_sds=mixture_sds,
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
+                epochs_per_img=self.model_epochs_per_img,
                 brain_state_set=self.brain_state_set,
             )
 
@@ -530,47 +543,59 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.ui.score_all_status.setText("")
 
-    def load_model(self) -> None:
+    def load_model(self, filename=None) -> None:
         """Load trained classification model from file"""
-        file_dialog = QtWidgets.QFileDialog(self)
-        file_dialog.setWindowTitle("Select classification model")
-        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*" + MODEL_FILE_TYPE)
+        if filename is None:
+            file_dialog = QtWidgets.QFileDialog(self)
+            file_dialog.setWindowTitle("Select classification model")
+            file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+            file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+            file_dialog.setNameFilter("*" + MODEL_FILE_TYPE)
 
-        if file_dialog.exec():
-            selected_files = file_dialog.selectedFiles()
-            filename = selected_files[0]
-            if not os.path.isfile(filename):
-                self.show_message("ERROR: model file does not exist")
+            if file_dialog.exec():
+                selected_files = file_dialog.selectedFiles()
+                filename = selected_files[0]
+            else:
                 return
-            try:
-                model = load_model(
-                    filename=filename, n_classes=self.brain_state_set.n_classes
+        if not os.path.isfile(filename):
+            self.show_message("ERROR: model file does not exist")
+            return
+        try:
+            model, epoch_length, epochs_per_img, model_type = load_model(
+                filename=filename, n_classes=self.brain_state_set.n_classes
+            )
+        except Exception:
+            self.show_message(
+                (
+                    "ERROR: could not load classification model. Check "
+                    "user manual for instructions on creating this file."
                 )
-            except Exception:
-                self.show_message(
-                    (
-                        "ERROR: could not load classification model. Check "
-                        "user manual for instructions on creating this file."
-                    )
+            )
+            return
+        # make sure only "default" model type is loaded
+        if model_type != DEFAULT_MODEL_TYPE:
+            self.show_message(
+                (
+                    "ERROR: only 'default'-style models can be used. "
+                    "'Real-time' models are not supported. "
+                    "See classification.example_real_time_scoring_function.py "
+                    "for an example of how to classify brain states in real time."
                 )
-                return
-            # make sure only "default" model type is loaded
-            model_type = KEY_TO_MODEL_TYPE[int(model.epochs_per_image.item())]
-            if model_type != DEFAULT_MODEL_TYPE:
-                self.show_message(
-                    (
-                        "ERROR: only 'default'-style models can be used. "
-                        "'Real-time' models are not supported. "
-                        "See classification.example_real_time_scoring_function.py "
-                        "for an example of how to classify brain states in real time."
-                    )
-                )
-                return
+            )
+            return
 
-            self.model = model
-            self.ui.model_label.setText(filename)
+        self.model = model
+        self.model_epoch_length = epoch_length
+        self.model_epochs_per_img = epochs_per_img
+
+        if epoch_length != self.epoch_length:
+            self.show_message(
+                (
+                    "Warning: the epoch length used when training this model "
+                    "does not match the current epoch length setting."
+                )
+            )
+        self.ui.model_label.setText(filename)
 
     def load_single_recording(
         self, status_widget: QtWidgets.QLabel
