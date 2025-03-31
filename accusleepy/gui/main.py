@@ -11,7 +11,7 @@ from functools import partial
 import numpy as np
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from accusleepy.brain_state_set import BrainState, BrainStateSet, BRAIN_STATES_KEY
+from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 from accusleepy.classification import (
     create_calibration_file,
     score_recording,
@@ -22,10 +22,10 @@ from accusleepy.constants import (
     DEFAULT_MODEL_TYPE,
     LABEL_FILE_TYPE,
     MODEL_FILE_TYPE,
-    RECORDING_LIST_FILE_TYPE,
-    RECORDING_FILE_TYPES,
-    UNDEFINED_LABEL,
     REAL_TIME_MODEL_TYPE,
+    RECORDING_FILE_TYPES,
+    RECORDING_LIST_FILE_TYPE,
+    UNDEFINED_LABEL,
 )
 from accusleepy.fileio import (
     Recording,

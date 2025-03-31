@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.optim as optim
-from tqdm import trange
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.io import read_image
+from tqdm import trange
 
 import accusleepy.constants as c
 from accusleepy.brain_state_set import BrainStateSet

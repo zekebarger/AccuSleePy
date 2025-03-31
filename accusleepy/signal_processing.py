@@ -10,16 +10,16 @@ from PIL import Image
 from scipy.signal import butter, filtfilt
 from tqdm import trange
 
+from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.constants import (
+    DEFAULT_MODEL_TYPE,
+    DOWNSAMPLING_START_FREQ,
+    EMG_COPIES,
     FILENAME_COL,
     LABEL_COL,
     MIN_WINDOW_LEN,
     UPPER_FREQ,
-    DEFAULT_MODEL_TYPE,
-    EMG_COPIES,
-    DOWNSAMPLING_START_FREQ,
 )
-from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.fileio import Recording, load_labels, load_recording
 from accusleepy.multitaper import spectrogram
 

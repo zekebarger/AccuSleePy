@@ -39,6 +39,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
 import accusleepy.gui.resources_rc  # noqa F401
 
 
