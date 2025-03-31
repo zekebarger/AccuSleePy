@@ -595,22 +595,18 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         # warn user if the model's expected epoch length or brain states
         # don't match the current configuration
-        config_warnings = evaluate_model_brain_states(
+        config_warnings = check_config_consistency(
             current_brain_states=self.brain_state_set.to_output_dict()[
                 BRAIN_STATES_KEY
             ],
             model_brain_states=brain_states,
+            current_epoch_length=self.epoch_length,
+            model_epoch_length=epoch_length,
         )
         if len(config_warnings) > 0:
             for w in config_warnings:
                 self.show_message(w)
-        if epoch_length != self.epoch_length:
-            self.show_message(
-                (
-                    "Warning: the epoch length used when training this model "
-                    "does not match the current epoch length setting."
-                )
-            )
+
         self.ui.model_label.setText(filename)
 
     def load_single_recording(
@@ -1285,8 +1281,11 @@ def check_label_validity(
         return "label file contains invalid entries"
 
 
-def evaluate_model_brain_states(
-    current_brain_states: dict, model_brain_states: dict
+def check_config_consistency(
+    current_brain_states: dict,
+    model_brain_states: dict,
+    current_epoch_length: int | float,
+    model_epoch_length: int | float,
 ) -> list[str]:
     """Compare current brain state config to the model's config
 
@@ -1294,6 +1293,8 @@ def evaluate_model_brain_states(
 
     :param current_brain_states: current brain state config
     :param model_brain_states: brain state config when the model was created
+    :param current_epoch_length: current epoch length setting
+    :param model_epoch_length: epoch length used when the model was created
     """
     output = list()
 
@@ -1349,6 +1350,14 @@ def evaluate_model_brain_states(
                 )
             )
             output = output + config_comparisons
+
+    if current_epoch_length != model_epoch_length:
+        output.append(
+            (
+                "Warning: the epoch length used when training this model "
+                "does not match the current epoch length setting."
+            )
+        )
 
     return output
 
