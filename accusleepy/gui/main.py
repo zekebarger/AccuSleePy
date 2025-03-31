@@ -25,6 +25,8 @@ from accusleepy.constants import (
     RECORDING_LIST_FILE_TYPE,
     RECORDING_FILE_TYPES,
     UNDEFINED_LABEL,
+    REAL_TIME_MODEL_TYPE,
+    KEY_TO_MODEL_TYPE,
 )
 from accusleepy.fileio import (
     Recording,
@@ -144,6 +146,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.save_config_button.clicked.connect(self.save_brain_state_config)
         self.ui.export_button.clicked.connect(self.export_recording_list)
         self.ui.import_button.clicked.connect(self.import_recording_list)
+        self.ui.default_type_button.toggled.connect(self.model_type_radio_buttons)
 
         # user input: drag and drop
         self.ui.recording_file_label.installEventFilter(self)
@@ -152,6 +155,16 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.model_label.installEventFilter(self)
 
         self.show()
+
+    def model_type_radio_buttons(self, default_selected: bool) -> None:
+        """Toggle training default or real-time model
+
+        :param default_selected: whether default option is selected
+        """
+        if default_selected:
+            self.model_type = DEFAULT_MODEL_TYPE
+        else:
+            self.model_type = REAL_TIME_MODEL_TYPE
 
     def export_recording_list(self) -> None:
         """Save current list of recordings to file"""
@@ -292,12 +305,14 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         self.ui.message_area.repaint()
         QtWidgets.QApplication.processEvents()
+        print("Creating training images")
         failed_recordings = create_training_images(
             recordings=self.recordings,
             output_path=self.training_image_dir,
             epoch_length=self.epoch_length,
             epochs_per_img=self.training_epochs_per_img,
             brain_state_set=self.brain_state_set,
+            model_type=self.model_type,
         )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
@@ -315,6 +330,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.show_message("Training model, please wait...")
         self.ui.message_area.repaint()
         QtWidgets.QApplication.processEvents()
+        print("Training model")
         model = train_model(
             annotations_file=os.path.join(
                 self.training_image_dir, ANNOTATIONS_FILENAME
@@ -529,7 +545,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 self.show_message("ERROR: model file does not exist")
                 return
             try:
-                self.model = load_model(
+                model = load_model(
                     filename=filename, n_classes=self.brain_state_set.n_classes
                 )
             except Exception:
@@ -540,7 +556,20 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                     )
                 )
                 return
+            # make sure only "default" model type is loaded
+            model_type = KEY_TO_MODEL_TYPE[int(model.epochs_per_image.item())]
+            if model_type != DEFAULT_MODEL_TYPE:
+                self.show_message(
+                    (
+                        "ERROR: only 'default'-style models can be used. "
+                        "'Real-time' models are not supported. "
+                        "See classification.example_real_time_scoring_function.py "
+                        "for an example of how to classify brain states in real time."
+                    )
+                )
+                return
 
+            self.model = model
             self.ui.model_label.setText(filename)
 
     def load_single_recording(
