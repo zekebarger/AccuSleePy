@@ -54,7 +54,7 @@ def save_model(
     model_type: str,
     brain_state_set: BrainStateSet,
 ) -> None:
-    """Save classification model
+    """Save classification model and its metadata
 
     :param model: classification model
     :param epoch_length: epoch length used when training the model
@@ -75,7 +75,7 @@ def save_model(
 
 
 def load_model(filename: str) -> tuple[SSANN, int | float, int, str, dict]:
-    """Load classification model
+    """Load classification model and its metadata
 
     :param filename: filename
     :return: model, epoch length used when training the model,
