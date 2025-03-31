@@ -25,8 +25,9 @@ class BrainStateSet:
         self.brain_states = brain_states
 
         # The user can choose any subset of the digits 0-9 to represent
-        # brain states. However, if there are n brain states, pytorch requires
-        # labels to be in the 0-n range for training and inference.
+        # brain states, but not all of them are necessarily intended to be
+        # scored by a classifier, and pytorch requires that all input
+        # labels are in the 0-n range for training and inference.
         # So, we have to have a distinction between "brain states" (as
         # represented in label files and keyboard inputs) and "classes"
         # (AccuSleep's internal representation).
@@ -73,7 +74,7 @@ class BrainStateSet:
         """
         return np.array([self.class_to_digit[i] for i in classes])
 
-    def output_dict(self) -> dict:
+    def to_output_dict(self) -> dict:
         """Return dictionary of brain states"""
         return {
             BRAIN_STATES_KEY: [

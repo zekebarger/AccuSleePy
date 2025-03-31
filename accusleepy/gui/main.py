@@ -11,7 +11,7 @@ from functools import partial
 import numpy as np
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from accusleepy.brain_state_set import BrainState, BrainStateSet
+from accusleepy.brain_state_set import BrainState, BrainStateSet, BRAIN_STATES_KEY
 from accusleepy.classification import (
     create_calibration_file,
     score_recording,
@@ -345,6 +345,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             epoch_length=self.epoch_length,
             epochs_per_img=self.training_epochs_per_img,
             model_type=self.model_type,
+            brain_state_set=self.brain_state_set,
         )
 
         # optionally delete images
@@ -557,12 +558,14 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 filename = selected_files[0]
             else:
                 return
+
         if not os.path.isfile(filename):
             self.show_message("ERROR: model file does not exist")
             return
+
         try:
-            model, epoch_length, epochs_per_img, model_type = load_model(
-                filename=filename, n_classes=self.brain_state_set.n_classes
+            model, epoch_length, epochs_per_img, model_type, brain_states = load_model(
+                filename=filename
             )
         except Exception:
             self.show_message(
@@ -572,6 +575,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
             )
             return
+
         # make sure only "default" model type is loaded
         if model_type != DEFAULT_MODEL_TYPE:
             self.show_message(
@@ -588,6 +592,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.model_epoch_length = epoch_length
         self.model_epochs_per_img = epochs_per_img
 
+        # warn user if the model's expected epoch length or brain states
+        # don't match the current configuration
+        self.evaluate_model_brain_states(model_brain_states=brain_states)
         if epoch_length != self.epoch_length:
             self.show_message(
                 (
@@ -596,6 +603,68 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
             )
         self.ui.model_label.setText(filename)
+
+    def evaluate_model_brain_states(self, model_brain_states: dict):
+        """Compare current brain state config to the model's config
+
+        This only displays warnings - the user should decide whether to proceed
+
+        :param model_brain_states: brain state config when the model was created
+        """
+        warning_shown = False
+
+        current_config = self.brain_state_set.to_output_dict()[BRAIN_STATES_KEY]
+        current_scored_states = {
+            f: [b[f] for b in current_config if b["is_scored"]]
+            for f in ["name", "digit"]
+        }
+        model_scored_states = {
+            f: [b[f] for b in model_brain_states if b["is_scored"]]
+            for f in ["name", "digit"]
+        }
+
+        len_diff = len(current_scored_states["name"]) - len(model_scored_states["name"])
+
+        if len_diff != 0:
+            self.show_message(
+                (
+                    "WARNING: current brain state configuration has "
+                    f"{'fewer' if len_diff < 0 else 'more'} "
+                    "scored brain states than the model's configuration."
+                )
+            )
+            warning_shown = True
+        else:
+            if current_scored_states["name"] != model_scored_states["name"]:
+                self.show_message(
+                    (
+                        "WARNING: current brain state configuration appears "
+                        "to contain different brain states than "
+                        "the model's configuration."
+                    )
+                )
+                warning_shown = True
+
+        if warning_shown:
+            for config, config_name in zip(
+                [current_scored_states, model_scored_states], ["current", "model's"]
+            ):
+                self.show_message(
+                    (
+                        f"Scored brain states in {config_name} configuration: "
+                        f"""{
+                            ", ".join(
+                                [
+                                    f"{x}: {y}"
+                                    for x, y in zip(
+                                        config["digit"],
+                                        config["name"],
+                                    )
+                                ]
+                            )
+                        }"""
+                    )
+                )
 
     def load_single_recording(
         self, status_widget: QtWidgets.QLabel
