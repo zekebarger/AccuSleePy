@@ -321,30 +321,32 @@ def mixture_z_score_img(
     return img
 
 
-def format_img(img: np.array, epochs_per_img: int) -> np.array:
+def format_img(img: np.array, epochs_per_img: int, add_padding: bool) -> np.array:
     """Adjust the format of an EEG+EMG image
 
     This function converts the values in a combined EEG+EMG image to uint8.
     This is a convenient format both for storing individual images as files,
     and for using the images as input to a classifier.
-    This function also adds new epochs to the beginning/end of the
-    recording's image as needed so that an image can be created for every
-    epoch.
+    This function also optionally adds new epochs to the beginning/end of the
+    recording's image so that an image can be created for every epoch. For
+    real-time scoring, padding should not be used.
 
     :param img: combined EEG + EMG image
     :param epochs_per_img: number of epochs in each individual image
+    :param add_padding: whether to pad each side by (epochs_per_img - 1) / 2
     :return: formatted EEG + EMG image
     """
     # pad beginning and end
-    pad_width = round((epochs_per_img - 1) / 2)
-    img = np.concatenate(
-        [
-            np.tile(img[:, 0], (pad_width, 1)).T,
-            img,
-            np.tile(img[:, -1], (pad_width, 1)).T,
-        ],
-        axis=1,
-    )
+    if add_padding:
+        pad_width = round((epochs_per_img - 1) / 2)
+        img = np.concatenate(
+            [
+                np.tile(img[:, 0], (pad_width, 1)).T,
+                img,
+                np.tile(img[:, -1], (pad_width, 1)).T,
+            ],
+            axis=1,
+        )
 
     # use 8-bit values
     img = np.clip(img * 255, 0, 255)
@@ -359,14 +361,20 @@ def create_training_images(
     epoch_length: int | float,
     epochs_per_img: int,
     brain_state_set: BrainStateSet,
+    model_type: str,
 ) -> list[int]:
     """Create training dataset
+
+    By default, the current epoch is located in the central column
+    of pixels in each image. For real-time scoring applications,
+    the current epoch is at the right edge of each image.
 
     :param recordings: list of recordings in the training set
     :param output_path: where to store training images
     :param epoch_length: epoch length, in seconds
     :param epochs_per_img: # number of epochs shown in each image
     :param brain_state_set: set of brain state options
+    :param model_type: default or real-time
     :return: list of the names of any recordings that could not
             be used to create training images.
     """
@@ -375,7 +383,7 @@ def create_training_images(
     # image filenames for valid epochs
     filenames = list()
     # all valid labels from all valid recordings
-    all_labels = np.empty(0).astype(int)
+    all_labels = list()
     # try to load each recording and create training images
     for i in trange(len(recordings)):
         recording = recordings[i]
@@ -395,23 +403,39 @@ def create_training_images(
             img = mixture_z_score_img(
                 img=img, brain_state_set=brain_state_set, labels=labels
             )
-            img = format_img(img, epochs_per_img)
+            img = format_img(img=img, epochs_per_img=epochs_per_img, add_padding=True)
 
-            for j in range(img.shape[1] - epochs_per_img + 1):
-                if labels[j] is None:
-                    continue
-                im = img[:, j : (j + epochs_per_img)]
-                filename = f"recording_{recording.name}_{j}_{labels[j]}.png"
-                filenames.append(filename)
-                Image.fromarray(im).save(os.path.join(output_path, filename))
+            # the model type determines which epochs are used in each image
+            if model_type == c.DEFAULT_MODEL_TYPE:
+                # here, j is the index of the current epoch in 'labels'
+                # and the index of the leftmost epoch in 'img'
+                for j in range(img.shape[1] - (epochs_per_img - 1)):
+                    if labels[j] is None:
+                        continue
+                    im = img[:, j : (j + epochs_per_img)]
+                    filename = f"recording_{recording.name}_{j}_{labels[j]}.png"
+                    filenames.append(filename)
+                    all_labels.append(labels[j])
+                    Image.fromarray(im).save(os.path.join(output_path, filename))
+            else:
+                # here, j is the index of the current epoch in 'labels'
+                # but we throw away a few epochs at the start since they
+                # would require even more padding on the left side.
+                one_side_padding = round((epochs_per_img - 1) / 2)
+                for j in range(one_side_padding, len(labels)):
+                    if labels[j] is None:
+                        continue
+                    im = img[:, (j - one_side_padding) : j + one_side_padding + 1]
+                    filename = f"recording_{recording.name}_{j}_{labels[j]}.png"
+                    filenames.append(filename)
+                    all_labels.append(labels[j])
+                    Image.fromarray(im).save(os.path.join(output_path, filename))
 
-            all_labels = np.concatenate([all_labels, labels])
         except Exception as e:
             print(e)
             failed_recordings.append(recording.name)
 
     # annotation file containing info on all images
-    all_labels = all_labels[all_labels != np.array(None)]
     pd.DataFrame({c.FILENAME_COL: filenames, c.LABEL_COL: all_labels}).to_csv(
         os.path.join(output_path, ANNOTATIONS_FILENAME),
         index=False,
