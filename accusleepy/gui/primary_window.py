@@ -270,10 +270,10 @@ class Ui_PrimaryWindow(object):
         self.manual_scoring_layout.setObjectName("manual_scoring_layout")
         self.manual_scoring_button = QPushButton(self.selected_recording_groupbox)
         self.manual_scoring_button.setObjectName("manual_scoring_button")
-        sizePolicy2.setHeightForWidth(
+        sizePolicy3.setHeightForWidth(
             self.manual_scoring_button.sizePolicy().hasHeightForWidth()
         )
-        self.manual_scoring_button.setSizePolicy(sizePolicy2)
+        self.manual_scoring_button.setSizePolicy(sizePolicy3)
 
         self.manual_scoring_layout.addWidget(self.manual_scoring_button)
 
@@ -285,10 +285,10 @@ class Ui_PrimaryWindow(object):
 
         self.create_calibration_button = QPushButton(self.selected_recording_groupbox)
         self.create_calibration_button.setObjectName("create_calibration_button")
-        sizePolicy2.setHeightForWidth(
+        sizePolicy3.setHeightForWidth(
             self.create_calibration_button.sizePolicy().hasHeightForWidth()
         )
-        self.create_calibration_button.setSizePolicy(sizePolicy2)
+        self.create_calibration_button.setSizePolicy(sizePolicy3)
 
         self.manual_scoring_layout.addWidget(self.create_calibration_button)
 
@@ -372,10 +372,10 @@ class Ui_PrimaryWindow(object):
         self.score_all_layout.setObjectName("score_all_layout")
         self.score_all_button = QPushButton(self.classification_tab)
         self.score_all_button.setObjectName("score_all_button")
-        sizePolicy2.setHeightForWidth(
+        sizePolicy3.setHeightForWidth(
             self.score_all_button.sizePolicy().hasHeightForWidth()
         )
-        self.score_all_button.setSizePolicy(sizePolicy2)
+        self.score_all_button.setSizePolicy(sizePolicy3)
 
         self.score_all_layout.addWidget(self.score_all_button)
 
@@ -505,7 +505,6 @@ class Ui_PrimaryWindow(object):
             self.image_number_input.sizePolicy().hasHeightForWidth()
         )
         self.image_number_input.setSizePolicy(sizePolicy2)
-        self.image_number_input.setStyleSheet("background-color: white;")
         self.image_number_input.setMinimum(9)
         self.image_number_input.setMaximum(999)
         self.image_number_input.setValue(9)
@@ -595,10 +594,10 @@ class Ui_PrimaryWindow(object):
 
         self.train_model_button = QPushButton(self.model_training_tab)
         self.train_model_button.setObjectName("train_model_button")
-        sizePolicy2.setHeightForWidth(
+        sizePolicy3.setHeightForWidth(
             self.train_model_button.sizePolicy().hasHeightForWidth()
         )
-        self.train_model_button.setSizePolicy(sizePolicy2)
+        self.train_model_button.setSizePolicy(sizePolicy3)
 
         self.bottom_training_layout.addWidget(self.train_model_button)
 
@@ -607,6 +606,10 @@ class Ui_PrimaryWindow(object):
         )
 
         self.bottom_training_layout.addItem(self.horizontalSpacer_8)
+
+        self.bottom_training_layout.setStretch(0, 2)
+        self.bottom_training_layout.setStretch(1, 1)
+        self.bottom_training_layout.setStretch(2, 2)
 
         self.model_training_layout.addLayout(self.bottom_training_layout, 2, 0, 1, 1)
 

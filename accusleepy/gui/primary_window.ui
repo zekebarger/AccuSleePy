@@ -373,7 +373,7 @@
                  <item>
                   <widget class="QPushButton" name="manual_scoring_button">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -399,7 +399,7 @@
                  <item>
                   <widget class="QPushButton" name="create_calibration_button">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -521,7 +521,7 @@
                     <item>
                      <widget class="QPushButton" name="score_all_button">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
@@ -727,9 +727,6 @@
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                        <property name="styleSheet">
-                         <string notr="true">background-color: white;</string>
-                        </property>
                         <property name="minimum">
                          <number>9</number>
                         </property>
@@ -856,7 +853,7 @@
                    </layout>
                   </item>
                   <item row="2" column="0">
-                   <layout class="QHBoxLayout" name="bottom_training_layout">
+                   <layout class="QHBoxLayout" name="bottom_training_layout" stretch="2,1,2">
                     <item>
                      <spacer name="horizontalSpacer_7">
                       <property name="orientation">
@@ -876,7 +873,7 @@
                     <item>
                      <widget class="QPushButton" name="train_model_button">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
