@@ -3,22 +3,13 @@
 ################################################################################
 ## Form generated from reading UI file 'primary_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.3
+## Created by: Qt User Interface Compiler version 6.7.3
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (
-    QCoreApplication,
-    QMetaObject,
-    QRect,
-    QSize,
-    Qt,
-)
-from PySide6.QtGui import (
-    QFont,
-    QIcon,
-)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, QSize, Qt
+from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import (
     QCheckBox,
     QDoubleSpinBox,
@@ -39,7 +30,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
 import accusleepy.gui.resources_rc  # noqa F401
 
 
@@ -55,7 +45,6 @@ class Ui_PrimaryWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(PrimaryWindow.sizePolicy().hasHeightForWidth())
         PrimaryWindow.setSizePolicy(sizePolicy)
-        PrimaryWindow.setStyleSheet("")
         self.centralwidget = QWidget(PrimaryWindow)
         self.centralwidget.setObjectName("centralwidget")
         sizePolicy.setHeightForWidth(
@@ -119,7 +108,6 @@ class Ui_PrimaryWindow(object):
             self.selected_recording_groupbox.sizePolicy().hasHeightForWidth()
         )
         self.selected_recording_groupbox.setSizePolicy(sizePolicy)
-        self.selected_recording_groupbox.setFont(font)
         self.verticalLayout_2 = QVBoxLayout(self.selected_recording_groupbox)
         self.verticalLayout_2.setSpacing(10)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -136,7 +124,6 @@ class Ui_PrimaryWindow(object):
             self.samplingratelabel.sizePolicy().hasHeightForWidth()
         )
         self.samplingratelabel.setSizePolicy(sizePolicy2)
-        self.samplingratelabel.setStyleSheet("background-color: transparent;")
 
         self.samplingratelayout.addWidget(self.samplingratelabel)
 
@@ -146,7 +133,6 @@ class Ui_PrimaryWindow(object):
             self.sampling_rate_input.sizePolicy().hasHeightForWidth()
         )
         self.sampling_rate_input.setSizePolicy(sizePolicy2)
-        self.sampling_rate_input.setStyleSheet("background-color: white;")
         self.sampling_rate_input.setMinimum(0.000000000000000)
         self.sampling_rate_input.setMaximum(100000.000000000000000)
 
@@ -431,7 +417,6 @@ class Ui_PrimaryWindow(object):
             self.bout_length_input.sizePolicy().hasHeightForWidth()
         )
         self.bout_length_input.setSizePolicy(sizePolicy2)
-        self.bout_length_input.setStyleSheet("background-color: white;")
         self.bout_length_input.setDecimals(2)
         self.bout_length_input.setMaximum(1000.000000000000000)
         self.bout_length_input.setValue(5.000000000000000)
@@ -682,7 +667,6 @@ class Ui_PrimaryWindow(object):
             self.epochlengthlabel.sizePolicy().hasHeightForWidth()
         )
         self.epochlengthlabel.setSizePolicy(sizePolicy2)
-        self.epochlengthlabel.setStyleSheet("background-color: transparent;")
 
         self.epoch_length_layout.addWidget(self.epochlengthlabel)
 
@@ -692,7 +676,6 @@ class Ui_PrimaryWindow(object):
             self.epoch_length_input.sizePolicy().hasHeightForWidth()
         )
         self.epoch_length_input.setSizePolicy(sizePolicy2)
-        self.epoch_length_input.setStyleSheet("background-color: white;")
         self.epoch_length_input.setMaximum(100000.000000000000000)
         self.epoch_length_input.setSingleStep(0.500000000000000)
 
@@ -706,7 +689,6 @@ class Ui_PrimaryWindow(object):
             self.recordinglistgroupbox.sizePolicy().hasHeightForWidth()
         )
         self.recordinglistgroupbox.setSizePolicy(sizePolicy)
-        self.recordinglistgroupbox.setFont(font)
         self.recordinglistgroupbox.setStyleSheet("")
         self.verticalLayout = QVBoxLayout(self.recordinglistgroupbox)
         self.verticalLayout.setSpacing(5)

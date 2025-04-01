@@ -19,9 +19,6 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
-  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -148,11 +145,6 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="font">
-               <font>
-                <pointsize>13</pointsize>
-               </font>
-              </property>
               <property name="title">
                <string>Data / actions for Recording 1</string>
               </property>
@@ -185,9 +177,6 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: transparent;</string>
-                   </property>
                    <property name="text">
                     <string>Sampling rate (Hz):</string>
                    </property>
@@ -200,9 +189,6 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: white;</string>
                    </property>
                    <property name="minimum">
                     <double>0.000000000000000</double>
@@ -608,9 +594,6 @@
                             <verstretch>0</verstretch>
                            </sizepolicy>
                           </property>
-                          <property name="styleSheet">
-                           <string notr="true">background-color: white;</string>
-                          </property>
                           <property name="decimals">
                            <number>2</number>
                           </property>
@@ -999,9 +982,6 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: transparent;</string>
-                </property>
                 <property name="text">
                  <string>Epoch length (sec):</string>
                 </property>
@@ -1014,9 +994,6 @@
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: white;</string>
                 </property>
                 <property name="maximum">
                  <double>100000.000000000000000</double>
@@ -1035,11 +1012,6 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>13</pointsize>
-               </font>
               </property>
               <property name="styleSheet">
                <string notr="true"/>
