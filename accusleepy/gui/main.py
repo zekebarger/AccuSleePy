@@ -40,6 +40,7 @@ from accusleepy.fileio import (
     save_model,
     save_recording_list,
 )
+from accusleepy.gui.text.main_guide_text import MAIN_GUIDE_TEXT
 from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.signal_processing import (
@@ -52,8 +53,7 @@ from accusleepy.signal_processing import (
 # max number of messages to display
 MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
-# relative path to user manual txt file
-USER_MANUAL_FILE = "text/main_guide.txt"
+# relative path to config guide txt file
 CONFIG_GUIDE_FILE = "text/config_guide.txt"
 
 
@@ -1005,15 +1005,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
-        user_manual_file = open(
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), USER_MANUAL_FILE),
-            "r",
-        )
-        user_manual_text = user_manual_file.read()
-        user_manual_file.close()
-
         label_widget = QtWidgets.QLabel()
-        label_widget.setText(user_manual_text)
+        label_widget.setText(MAIN_GUIDE_TEXT)
         scroll_area = QtWidgets.QScrollArea()
         scroll_area.setStyleSheet("background-color: white;")
         scroll_area.setWidget(label_widget)
