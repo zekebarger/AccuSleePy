@@ -82,7 +82,9 @@ def load_model(filename: str) -> tuple[SSANN, int | float, int, str, dict]:
         (default or real-time), set of brain state options
         used when training the model
     """
-    state_dict = torch.load(filename, weights_only=True)
+    state_dict = torch.load(
+        filename, weights_only=True, map_location=torch.device("cpu")
+    )
     epoch_length = state_dict.pop("epoch_length")
     epochs_per_img = state_dict.pop("epochs_per_img")
     model_type = state_dict.pop("model_type")
