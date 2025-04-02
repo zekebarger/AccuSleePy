@@ -290,23 +290,28 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         if not model_filename:
             self.show_message("Model training canceled, no filename given")
 
-        # create image folder
-        if os.path.exists(self.training_image_dir):
+        # create (probably temporary) image folder
+        temp_image_dir = os.path.join(
+            self.training_image_dir,
+            "images_" + datetime.datetime.now().strftime("%Y%m%d%H%M"),
+        )
+
+        if os.path.exists(temp_image_dir):  # unlikely
             self.show_message(
                 "Warning: training image folder exists, will be overwritten"
             )
-        os.makedirs(self.training_image_dir, exist_ok=True)
+        os.makedirs(temp_image_dir, exist_ok=True)
 
         # create training images
         self.show_message(
-            (f"Creating training images in {self.training_image_dir}, please wait...")
+            (f"Creating training images in {temp_image_dir}, please wait...")
         )
         self.ui.message_area.repaint()
         QtWidgets.QApplication.processEvents()
         print("Creating training images")
         failed_recordings = create_training_images(
             recordings=self.recordings,
-            output_path=self.training_image_dir,
+            output_path=temp_image_dir,
             epoch_length=self.epoch_length,
             epochs_per_img=self.training_epochs_per_img,
             brain_state_set=self.brain_state_set,
@@ -330,10 +335,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         QtWidgets.QApplication.processEvents()
         print("Training model")
         model = train_model(
-            annotations_file=os.path.join(
-                self.training_image_dir, ANNOTATIONS_FILENAME
-            ),
-            img_dir=self.training_image_dir,
+            annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
+            img_dir=temp_image_dir,
             mixture_weights=self.brain_state_set.mixture_weights,
             n_classes=self.brain_state_set.n_classes,
         )
@@ -350,20 +353,18 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         # optionally delete images
         if self.delete_training_images:
-            shutil.rmtree(self.training_image_dir)
+            shutil.rmtree(temp_image_dir)
 
         self.show_message(f"Training complete, saved model to {model_filename}")
 
-    def set_training_folder(self):
+    def set_training_folder(self) -> None:
+        """Select location in which to create a folder for training images"""
         training_folder_parent = QtWidgets.QFileDialog.getExistingDirectory(
             self, "Select directory for training images"
         )
         if training_folder_parent:
-            self.training_image_dir = os.path.join(
-                training_folder_parent,
-                "images_" + datetime.datetime.now().strftime("%Y%m%d%H%M"),
-            )
-            self.ui.image_folder_label.setText(self.training_image_dir)
+            self.training_image_dir = training_folder_parent
+            self.ui.image_folder_label.setText(training_folder_parent)
 
     def update_image_deletion(self) -> None:
         """Update choice of whether to delete images after training"""
