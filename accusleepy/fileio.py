@@ -11,6 +11,7 @@ from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateS
 from accusleepy.constants import (
     BRAIN_STATE_COL,
     CONFIG_FILE,
+    DEFAULT_EPOCH_LENGTH_KEY,
     EEG_COL,
     EMG_COL,
     MIXTURE_MEAN_COL,
@@ -143,10 +144,10 @@ def save_labels(labels: np.array, filename: str) -> None:
     pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
 
 
-def load_config() -> BrainStateSet:
+def load_config() -> tuple[BrainStateSet, int | float]:
     """Load configuration file with brain state options
 
-    :return: set of brain state options
+    :return: set of brain state options and default epoch length
     """
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "r"
@@ -154,18 +155,23 @@ def load_config() -> BrainStateSet:
         data = json.load(f)
     return BrainStateSet(
         [BrainState(**b) for b in data[BRAIN_STATES_KEY]], UNDEFINED_LABEL
-    )
+    ), data[DEFAULT_EPOCH_LENGTH_KEY]
 
 
-def save_config(brain_state_set: BrainStateSet) -> None:
+def save_config(
+    brain_state_set: BrainStateSet, default_epoch_length: int | float
+) -> None:
     """Save configuration of brain state options to json file
 
     :param brain_state_set: set of brain state options
+    :param default_epoch_length: epoch length to use when the GUI starts
     """
+    output_dict = brain_state_set.to_output_dict()
+    output_dict.update({DEFAULT_EPOCH_LENGTH_KEY: default_epoch_length})
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "w"
     ) as f:
-        json.dump(brain_state_set.to_output_dict(), f, indent=4)
+        json.dump(output_dict, f, indent=4)
 
 
 def load_recording_list(filename: str) -> list[Recording]:

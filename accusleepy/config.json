@@ -18,5 +18,6 @@
             "is_scored": true,
             "frequency": 0.55
         }
-    ]
+    ],
+    "default_epoch_length": 2.5
 }

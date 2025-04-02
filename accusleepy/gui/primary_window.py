@@ -8,8 +8,20 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, QSize, Qt
-from PySide6.QtGui import QBrush, QColor, QFont, QIcon, QPalette
+from PySide6.QtCore import (
+    QCoreApplication,
+    QMetaObject,
+    QRect,
+    QSize,
+    Qt,
+)
+from PySide6.QtGui import (
+    QBrush,
+    QColor,
+    QFont,
+    QIcon,
+    QPalette,
+)
 from PySide6.QtWidgets import (
     QCheckBox,
     QDoubleSpinBox,
@@ -100,6 +112,11 @@ class Ui_PrimaryWindow(object):
             self.epoch_length_input.sizePolicy().hasHeightForWidth()
         )
         self.epoch_length_input.setSizePolicy(sizePolicy1)
+        self.epoch_length_input.setAlignment(
+            Qt.AlignmentFlag.AlignLeading
+            | Qt.AlignmentFlag.AlignLeft
+            | Qt.AlignmentFlag.AlignVCenter
+        )
         self.epoch_length_input.setMaximum(100000.000000000000000)
         self.epoch_length_input.setSingleStep(0.500000000000000)
 
@@ -293,6 +310,11 @@ class Ui_PrimaryWindow(object):
             self.sampling_rate_input.sizePolicy().hasHeightForWidth()
         )
         self.sampling_rate_input.setSizePolicy(sizePolicy1)
+        self.sampling_rate_input.setAlignment(
+            Qt.AlignmentFlag.AlignLeading
+            | Qt.AlignmentFlag.AlignLeft
+            | Qt.AlignmentFlag.AlignVCenter
+        )
         self.sampling_rate_input.setMinimum(0.000000000000000)
         self.sampling_rate_input.setMaximum(100000.000000000000000)
 
@@ -608,6 +630,11 @@ class Ui_PrimaryWindow(object):
             self.bout_length_input.sizePolicy().hasHeightForWidth()
         )
         self.bout_length_input.setSizePolicy(sizePolicy1)
+        self.bout_length_input.setAlignment(
+            Qt.AlignmentFlag.AlignLeading
+            | Qt.AlignmentFlag.AlignLeft
+            | Qt.AlignmentFlag.AlignVCenter
+        )
         self.bout_length_input.setDecimals(2)
         self.bout_length_input.setMaximum(1000.000000000000000)
         self.bout_length_input.setValue(5.000000000000000)
@@ -2044,6 +2071,44 @@ class Ui_PrimaryWindow(object):
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_4)
 
+        self.default_epoch_layout = QHBoxLayout()
+        self.default_epoch_layout.setObjectName("default_epoch_layout")
+        self.horizontalSpacer_71 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.default_epoch_layout.addItem(self.horizontalSpacer_71)
+
+        self.horizontalLayout_60 = QHBoxLayout()
+        self.horizontalLayout_60.setObjectName("horizontalLayout_60")
+        self.label_17 = QLabel(self.settings_tab)
+        self.label_17.setObjectName("label_17")
+        sizePolicy1.setHeightForWidth(self.label_17.sizePolicy().hasHeightForWidth())
+        self.label_17.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_60.addWidget(self.label_17)
+
+        self.default_epoch_input = QDoubleSpinBox(self.settings_tab)
+        self.default_epoch_input.setObjectName("default_epoch_input")
+        sizePolicy1.setHeightForWidth(
+            self.default_epoch_input.sizePolicy().hasHeightForWidth()
+        )
+        self.default_epoch_input.setSizePolicy(sizePolicy1)
+        self.default_epoch_input.setMaximum(100000.000000000000000)
+        self.default_epoch_input.setSingleStep(0.500000000000000)
+
+        self.horizontalLayout_60.addWidget(self.default_epoch_input)
+
+        self.default_epoch_layout.addLayout(self.horizontalLayout_60)
+
+        self.horizontalSpacer_70 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.default_epoch_layout.addItem(self.horizontalSpacer_70)
+
+        self.verticalLayout_6.addLayout(self.default_epoch_layout)
+
         self.horizontalLayout_18 = QHBoxLayout()
         self.horizontalLayout_18.setSpacing(10)
         self.horizontalLayout_18.setObjectName("horizontalLayout_18")
@@ -2079,6 +2144,7 @@ class Ui_PrimaryWindow(object):
         self.verticalLayout_6.addLayout(self.horizontalLayout_18)
 
         self.verticalLayout_6.setStretch(0, 2)
+        self.verticalLayout_6.setStretch(1, 2)
         self.verticalLayout_6.setStretch(2, 2)
         self.verticalLayout_6.setStretch(3, 2)
         self.verticalLayout_6.setStretch(4, 2)
@@ -2088,7 +2154,8 @@ class Ui_PrimaryWindow(object):
         self.verticalLayout_6.setStretch(8, 2)
         self.verticalLayout_6.setStretch(9, 2)
         self.verticalLayout_6.setStretch(10, 2)
-        self.verticalLayout_6.setStretch(11, 3)
+        self.verticalLayout_6.setStretch(11, 2)
+        self.verticalLayout_6.setStretch(12, 3)
 
         self.settings_tab_layout.addLayout(self.verticalLayout_6, 0, 0, 1, 1)
 
@@ -2352,6 +2419,9 @@ class Ui_PrimaryWindow(object):
         self.label_3.setText(QCoreApplication.translate("PrimaryWindow", "0", None))
         self.enable_state_0.setText("")
         self.state_scored_0.setText("")
+        self.label_17.setText(
+            QCoreApplication.translate("PrimaryWindow", "Default epoch length:", None)
+        )
         self.save_config_button.setText(
             QCoreApplication.translate("PrimaryWindow", "Save", None)
         )
