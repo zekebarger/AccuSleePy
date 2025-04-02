@@ -267,7 +267,9 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             )
             return
         if self.training_image_dir == "":
-            self.show_message("ERROR: no folder selected for training images.")
+            self.show_message(
+                ("ERROR: no output location selected for training images.")
+            )
             return
 
         # check some inputs for each recording
