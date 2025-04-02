@@ -164,6 +164,9 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                </property>
                 <property name="maximum">
                  <double>100000.000000000000000</double>
                 </property>
@@ -511,6 +514,9 @@ color: rgb(244, 195, 68);</string>
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                      </property>
                      <property name="minimum">
                       <double>0.000000000000000</double>
@@ -981,6 +987,9 @@ color: rgb(244, 195, 68);</string>
                               <horstretch>0</horstretch>
                               <verstretch>0</verstretch>
                              </sizepolicy>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                             </property>
                             <property name="decimals">
                              <number>2</number>
@@ -1465,7 +1474,7 @@ color: rgb(244, 195, 68);</string>
            </layout>
           </item>
           <item row="0" column="0">
-           <layout class="QVBoxLayout" name="verticalLayout_6" stretch="2,0,2,2,2,2,2,2,2,2,2,3">
+           <layout class="QVBoxLayout" name="verticalLayout_6" stretch="2,2,2,2,2,2,2,2,2,2,2,2,3">
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="3,3,4,3,4">
               <property name="spacing">
@@ -3443,6 +3452,75 @@ color: rgb(244, 195, 68);</string>
                  </spacer>
                 </item>
                </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="default_epoch_layout">
+              <item>
+               <spacer name="horizontalSpacer_71">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Policy::Preferred</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>10</width>
+                  <height>10</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_60">
+                <item>
+                 <widget class="QLabel" name="label_17">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Default epoch length:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="default_epoch_input">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximum">
+                   <double>100000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.500000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_70">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Policy::Preferred</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>10</width>
+                  <height>10</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </item>

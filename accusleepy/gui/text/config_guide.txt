@@ -1,5 +1,6 @@
 This is the current brain state configuration.
-If you change it, click 'Save' to store the changes.
+You can also choose the default epoch length.
+If you make changes, click 'Save' to store them.
 
 Each brain state has several attributes:
 

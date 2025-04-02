@@ -80,12 +80,12 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("AccuSleePy")
 
         # fill in settings tab
-        self.brain_state_set = load_config()
+        self.brain_state_set, self.epoch_length = load_config()
         self.settings_widgets = None
         self.initialize_settings_tab()
 
         # initialize info about the recordings, classification data / settings
-        self.epoch_length = 0
+        self.ui.epoch_length_input.setValue(self.epoch_length)
         self.model = None
         self.only_overwrite_undefined = False
         self.min_bout_length = 5
@@ -1110,6 +1110,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         }
 
         # update widget state to display current config
+        self.ui.default_epoch_input.setValue(self.epoch_length)
         states = {b.digit: b for b in self.brain_state_set.brain_states}
         for digit in range(10):
             if digit in states.keys():
@@ -1247,7 +1248,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.brain_state_set = BrainStateSet(brain_states, UNDEFINED_LABEL)
 
         # save to file
-        save_config(self.brain_state_set)
+        save_config(self.brain_state_set, self.ui.default_epoch_input.value())
         self.ui.save_config_status.setText("configuration saved")
 
 

@@ -35,3 +35,5 @@ LABEL_COL = "label"
 # recording list file header:
 RECORDING_LIST_NAME = "recording_list"
 RECORDING_LIST_FILE_TYPE = ".json"
+# key for default epoch length in config
+DEFAULT_EPOCH_LENGTH_KEY = "default_epoch_length"
