@@ -833,7 +833,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
             self.adjust_upper_figure_x_limits()
 
         # update parts of lower plot
-        old_window_center = round(self.epochs_to_show / 2) + self.lower_left_epoch
+        old_window_center = round((self.epochs_to_show - 1) / 2) + self.lower_left_epoch
         # change the window bounds if needed
         if self.epoch < old_window_center and self.lower_left_epoch > 0:
             self.lower_left_epoch -= 1
