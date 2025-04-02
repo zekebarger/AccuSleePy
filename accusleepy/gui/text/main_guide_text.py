@@ -1,3 +1,6 @@
+from accusleepy.constants import BRAIN_STATE_COL, EEG_COL, EMG_COL, UNDEFINED_LABEL
+
+MAIN_GUIDE_TEXT = f"""
 Section 1: Overview of the GUI
 Section 2: AccuSleePy file types
 Section 3: Manually assigning brain state labels
@@ -41,17 +44,16 @@ To select a file in the primary interface, you can either use the
 associated button, or drag/drop the file into the empty box adjacent
 to the button.
 Recording file: a .csv or .parquet file containing one column of EEG
-    data and one column of EMG data. The column names must match the
-    ones listed in constants.py (EEG_COL, EMG_COL).
-Label file: a .csv file with one column whose title matches
-    BRAIN_STATE_COL in config.py, with entries that are either the
-    undefined brain state (UNDEFINED_LABEL) or one of the valid
-    "digit" attributes of your brain states. By default, these are 1-3
-    and REM = 1, wake = 2, NREM = 3.
+    data and one column of EMG data. The column names must be
+    {EEG_COL} and {EMG_COL}.
+Label file: a .csv file with one column titled {BRAIN_STATE_COL}
+    with entries that are either the undefined brain state, {UNDEFINED_LABEL},
+    or one of the digits in your brain state configuration.
+    By default, these are 1-3 where REM = 1, wake = 2, NREM = 3.
 Calibration data file: required for automatic labeling. See Section 4
-    for details.
+    for details. These have .csv format.
 Trained classification model: required for automatic labeling. See
-    Section 4 for details.
+    Section 4 for details. These have .pth format.
 
 -----------------------------------------------------------------------
 Section 3: Manually assigning brain state labels
@@ -75,6 +77,12 @@ Section 4: Automatically scoring recordings with a classification model
 Automatic brain state scoring requires the inputs described in
 Section 3, as well as calibration data files and a trained classifier.
 If you already have all of these files, proceed to Section 4C.
+Models trained on the AccuSleep dataset are provided at
+https://osf.io/py5eb under /python_format/models/ for epoch lengths of
+2.5, 4, 5, and 10 seconds. These models are the "default" type, in that
+they use several epochs of data before and after any given epoch when
+scoring that epoch. (The other model type, called "real-time", only
+uses data from the current epoch and several preceding epochs.)
 
 --- Section 4A: Creating calibration data files ---
 Each recording must have a calibration file assigned to it.
@@ -97,12 +105,6 @@ To create a calibration data file:
     selected recording.
 
 --- Section 4B: Training your own classification model ---
-Pre-trained classification models are provided with AccuSleePy for
-epoch lengths of 2.5, 4, 5, and 10 seconds. These models are the
-"default" type, in that they use several epochs of data before and
-after any given epoch when scoring that epoch. (The other model type,
-called "real-time", only uses data from the current epoch and several
-preceding epochs.
 To train a new model on your own data:
 1. Add your scored recordings to the recording list. Make sure the
     sampling rate, recording file, and label file are set for each
@@ -113,11 +115,15 @@ To train a new model on your own data:
     type models, this must be an odd number. In general, about 30
     seconds worth of data is enough.
 4. Choose whether the images used to train the model should be
-    deleted once training is complete.
-5. Select a directory where the training images will be saved. A
+    deleted once training is complete. (It's generally best to
+    leave this box checked.)
+5. Choose whether to create a "default" or "real-time"-type model.
+    Note that scoring recordings in the GUI requires a default-type
+    model.
+6. Select a directory where the training images will be saved. A
     new directory with an automatically generated name will be
     created inside the directory you choose.
-6. Click the "Train classification model" button and enter a
+7. Click the "Train classification model" button and enter a
     filename for the trained model. Training can take some time.
 
 --- Section 4C: Automatic labeling ---
@@ -127,8 +133,8 @@ Instructions for automatic labeling using this GUI are below.
     for each recording. See section 4A for instructions on creating
     calibration files.
 3. Click 'Load classification model' to load the trained classification
-    model. The epoch length used when training this network should be
-    the same as the current epoch length.
+    model. It's important that the epoch length used when training this
+    model is the same as the current epoch length.
 4. If you wish to preserve any existing labels in the label file, and
     only overwrite undefined epochs, check the box labeled
     'Only overwrite undefined epochs'.
@@ -140,3 +146,4 @@ Instructions for automatic labeling using this GUI are below.
     recording list. Labels will be saved to the file specified by
     the 'Select or create label file' field of each recording. You can
     click 'Score manually' to visualize the results.
+"""
