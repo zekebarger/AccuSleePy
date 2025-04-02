@@ -14,11 +14,16 @@ Please contact zekebarger (at) gmail (dot) com with any questions or comments ab
 
 ## Installation instructions
 
-WIP
+- (recommended) create a new virtual environment (using
+[venv](https://docs.python.org/3/library/venv.html),
+[conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html),
+etc.) using python >=3.10,<3.13
+- (optional) if you have a CUDA device and want to speed up model training, [install PyTorch](https://pytorch.org/)
+- `pip install accusleepy`
 
-## Tips & Troubleshooting
+## Usage
 
-WIP
+`python -m accusleepy`
 
 ## Acknowledgements
 
