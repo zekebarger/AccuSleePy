@@ -27,7 +27,7 @@ LABEL_CMAP = np.concatenate(
     [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
 # relative path to user manual text file
-USER_MANUAL_FILE = "text/manual_scoring_guide.txt"
+USER_MANUAL_FILE = os.path.normpath(r"text/manual_scoring_guide.txt")
 
 # constants used by callback functions
 # label formats
