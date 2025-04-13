@@ -1,10 +1,30 @@
-from accusleepy.constants import BRAIN_STATE_COL, EEG_COL, EMG_COL, UNDEFINED_LABEL
+from accusleepy.constants import (
+    BRAIN_STATE_COL,
+    CALIBRATION_FILE_TYPE,
+    EEG_COL,
+    EMG_COL,
+    LABEL_FILE_TYPE,
+    MODEL_FILE_TYPE,
+    RECORDING_FILE_TYPES,
+    UNDEFINED_LABEL,
+)
 
 MAIN_GUIDE_TEXT = f"""
+Section 0: Definitions
 Section 1: Overview of the GUI
 Section 2: AccuSleePy file types
 Section 3: Manually assigning brain state labels
 Section 4: Automatically assigning brain state labels
+
+-----------------------------------------------------------------------
+Section 0: Definitions
+-----------------------------------------------------------------------
+Recording: a table containing one channel of EEG data and one channel
+    of EMG data collected at a constant sampling rate.
+Epoch: the temporal resolution of brain state scoring. If, for example,
+    the epoch length is 5 seconds, then a brain state label will be
+    assigned to each 5-second segment of a recording.
+Bout: a contiguous set of epochs with the same brain state.
 
 -----------------------------------------------------------------------
 Section 1: Overview of the primary interface
@@ -43,17 +63,17 @@ There are four types of files associated with AccuSleePy.
 To select a file in the primary interface, you can either use the
 associated button, or drag/drop the file into the empty box adjacent
 to the button.
-Recording file: a .csv or .parquet file containing one column of EEG
-    data and one column of EMG data. The column names must be
-    {EEG_COL} and {EMG_COL}.
-Label file: a .csv file with one column titled {BRAIN_STATE_COL}
-    with entries that are either the undefined brain state, {UNDEFINED_LABEL},
+Recording file: a {" or ".join(RECORDING_FILE_TYPES)} file containing one
+    column of EEG  data and one column of EMG data.
+    The column names must be {EEG_COL} and {EMG_COL}.
+Label file: a {LABEL_FILE_TYPE} file with one column titled {BRAIN_STATE_COL}
+    with entries that are either the undefined brain state ({UNDEFINED_LABEL})
     or one of the digits in your brain state configuration.
     By default, these are 1-3 where REM = 1, wake = 2, NREM = 3.
 Calibration data file: required for automatic labeling. See Section 4
-    for details. These have .csv format.
+    for details. These have {CALIBRATION_FILE_TYPE} format.
 Trained classification model: required for automatic labeling. See
-    Section 4 for details. These have .pth format.
+    Section 4 for details. These have {MODEL_FILE_TYPE} format.
 
 -----------------------------------------------------------------------
 Section 3: Manually assigning brain state labels
@@ -103,6 +123,10 @@ To create a calibration data file:
 4. Enter a filename for the calibration data file.
 5. The calibration file will automatically be assigned to the currently
     selected recording.
+Note that epoch length can affect the calibration process. If you make
+a calibration file for a subject using one epoch length, but want to
+score another recording from the same subject with a different epoch
+length, it's best to create a new calibration file.
 
 --- Section 4B: Training your own classification model ---
 To train a new model on your own data:
