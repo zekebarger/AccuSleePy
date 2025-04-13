@@ -54,7 +54,7 @@ from accusleepy.signal_processing import (
 MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to config guide txt file
-CONFIG_GUIDE_FILE = "text/config_guide.txt"
+CONFIG_GUIDE_FILE = os.path.normpath(r"text/config_guide.txt")
 
 
 @dataclass
@@ -179,6 +179,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         if not filename:
             return
+        filename = os.path.normpath(filename)
         save_recording_list(filename=filename, recordings=self.recordings)
         self.show_message(f"Saved list of recordings to {filename}")
 
@@ -193,6 +194,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
             filename = selected_files[0]
+            filename = os.path.normpath(filename)
         else:
             return
 
@@ -229,7 +231,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             if event.type() == QtCore.QEvent.Drop:
                 urls = event.mimeData().urls()
                 if len(urls) == 1:
-                    filename = urls[0].toLocalFile()
+                    filename = os.path.normpath(urls[0].toLocalFile())
 
         if filename is None:
             return super().eventFilter(obj, event)
@@ -289,6 +291,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         if not model_filename:
             self.show_message("Model training canceled, no filename given")
+            return
+        model_filename = os.path.normpath(model_filename)
 
         # create (probably temporary) image folder
         temp_image_dir = os.path.join(
@@ -363,6 +367,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             self, "Select directory for training images"
         )
         if training_folder_parent:
+            training_folder_parent = os.path.normpath(training_folder_parent)
             self.training_image_dir = training_folder_parent
             self.ui.image_folder_label.setText(training_folder_parent)
 
@@ -560,6 +565,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             if file_dialog.exec():
                 selected_files = file_dialog.selectedFiles()
                 filename = selected_files[0]
+                filename = os.path.normpath(filename)
             else:
                 return
 
@@ -707,6 +713,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         )
         if not filename:
             return
+        filename = os.path.normpath(filename)
 
         create_calibration_file(
             filename=filename,
@@ -871,6 +878,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             filter="*" + LABEL_FILE_TYPE,
         )
         if filename:
+            filename = os.path.normpath(filename)
             self.recordings[self.recording_index].label_file = filename
             self.ui.label_file_label.setText(filename)
 
@@ -885,6 +893,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
             filename = selected_files[0]
+            filename = os.path.normpath(filename)
             self.recordings[self.recording_index].label_file = filename
             self.ui.label_file_label.setText(filename)
 
@@ -899,6 +908,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
             filename = selected_files[0]
+            filename = os.path.normpath(filename)
             self.recordings[self.recording_index].calibration_file = filename
             self.ui.calibration_file_label.setText(filename)
 
@@ -913,6 +923,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         if file_dialog.exec():
             selected_files = file_dialog.selectedFiles()
             filename = selected_files[0]
+            filename = os.path.normpath(filename)
             self.recordings[self.recording_index].recording_file = filename
             self.ui.recording_file_label.setText(filename)
 
@@ -1252,7 +1263,7 @@ def check_label_validity(
     sampling_rate: int | float,
     epoch_length: int | float,
     brain_state_set: BrainStateSet,
-) -> str:
+) -> str | None:
     """Check whether a set of brain state labels is valid
 
     This returns an error message if a problem is found with the
