@@ -8,20 +8,8 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (
-    QCoreApplication,
-    QMetaObject,
-    QRect,
-    QSize,
-    Qt,
-)
-from PySide6.QtGui import (
-    QBrush,
-    QColor,
-    QFont,
-    QIcon,
-    QPalette,
-)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, QSize, Qt
+from PySide6.QtGui import QBrush, QColor, QFont, QIcon, QPalette
 from PySide6.QtWidgets import (
     QCheckBox,
     QDoubleSpinBox,
@@ -2217,9 +2205,23 @@ class Ui_PrimaryWindow(object):
         self.remove_button.setText(
             QCoreApplication.translate("PrimaryWindow", "remove", None)
         )
+        # if QT_CONFIG(tooltip)
+        self.export_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Export recording list to file", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.export_button.setText(
             QCoreApplication.translate("PrimaryWindow", "export", None)
         )
+        # if QT_CONFIG(tooltip)
+        self.import_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Import recording list from file", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.import_button.setText(
             QCoreApplication.translate("PrimaryWindow", "import", None)
         )
@@ -2246,6 +2248,13 @@ class Ui_PrimaryWindow(object):
         self.samplingratelabel.setText(
             QCoreApplication.translate("PrimaryWindow", "Sampling rate (Hz):", None)
         )
+        # if QT_CONFIG(tooltip)
+        self.recording_file_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Select EEG+EMG recording", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.recording_file_button.setText(
             QCoreApplication.translate("PrimaryWindow", "Select recording file", None)
         )
@@ -2288,10 +2297,24 @@ class Ui_PrimaryWindow(object):
             QCoreApplication.translate("PrimaryWindow", "Score manually", None)
         )
         self.manual_scoring_status.setText("")
+        # if QT_CONFIG(tooltip)
+        self.create_calibration_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Create calibration file for this subject", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.create_calibration_button.setText(
             QCoreApplication.translate("PrimaryWindow", "Create calibration file", None)
         )
         self.calibration_status.setText("")
+        # if QT_CONFIG(tooltip)
+        self.select_calibration_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Load calibration file for this recording", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.select_calibration_button.setText(
             QCoreApplication.translate("PrimaryWindow", "Select calibration file", None)
         )
@@ -2319,6 +2342,13 @@ class Ui_PrimaryWindow(object):
                 "PrimaryWindow", "Minimum bout length (sec):", None
             )
         )
+        # if QT_CONFIG(tooltip)
+        self.load_model_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Load a trained sleep scoring classifier", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.load_model_button.setText(
             QCoreApplication.translate(
                 "PrimaryWindow", "Load classification model", None
@@ -2346,6 +2376,13 @@ class Ui_PrimaryWindow(object):
         self.real_time_button.setText(
             QCoreApplication.translate("PrimaryWindow", "Real-time", None)
         )
+        # if QT_CONFIG(tooltip)
+        self.train_model_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Begin training the classification model", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.train_model_button.setText(
             QCoreApplication.translate(
                 "PrimaryWindow", "Train classification model", None
@@ -2422,6 +2459,13 @@ class Ui_PrimaryWindow(object):
         self.label_17.setText(
             QCoreApplication.translate("PrimaryWindow", "Default epoch length:", None)
         )
+        # if QT_CONFIG(tooltip)
+        self.save_config_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Save current configuration", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.save_config_button.setText(
             QCoreApplication.translate("PrimaryWindow", "Save", None)
         )
