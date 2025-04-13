@@ -1,5 +1,4 @@
 This is the current brain state configuration.
-You can also choose the default epoch length.
 If you make changes, click 'Save' to store them.
 
 Each brain state has several attributes:
@@ -26,3 +25,5 @@ Important notes:
 - Changing these settings can invalidate existing label files,
     calibration files, and trained models!
 - Reinstalling AccuSleePy will overwrite this configuration.
+- You can also choose the default epoch length that is shown
+    when the primary interface starts up.
