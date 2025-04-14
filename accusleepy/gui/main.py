@@ -5,6 +5,7 @@ import datetime
 import os
 import shutil
 import sys
+import toml
 from dataclasses import dataclass
 from functools import partial
 
@@ -115,6 +116,20 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         # messages to display
         self.messages = []
+
+        # display current version
+        version = ""
+        toml_file = os.path.join(
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ),
+            "pyproject.toml",
+        )
+        if os.path.isfile(toml_file):
+            toml_data = toml.load(toml_file)
+            if "project" in toml_data and "version" in toml_data["project"]:
+                version = toml_data["project"]["version"]
+        self.ui.version_label.setText(f"v{version}")
 
         # user input: keyboard shortcuts
         keypress_quit = QtGui.QShortcut(
@@ -1363,6 +1378,7 @@ def check_config_consistency(
         output.append(
             (
                 "Warning: the epoch length used when training this model "
+                f"({model_epoch_length} seconds) "
                 "does not match the current epoch length setting."
             )
         )

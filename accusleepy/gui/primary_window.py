@@ -190,6 +190,8 @@ class Ui_PrimaryWindow(object):
 
         self.left_scoring_vlayout.addWidget(self.recordinglistgroupbox)
 
+        self.logo_and_version_layout = QVBoxLayout()
+        self.logo_and_version_layout.setObjectName("logo_and_version_layout")
         self.logo_layout = QVBoxLayout()
         self.logo_layout.setObjectName("logo_layout")
         self.frame = QFrame(self.scoring_tab)
@@ -240,7 +242,24 @@ class Ui_PrimaryWindow(object):
 
         self.logo_layout.addWidget(self.frame)
 
-        self.left_scoring_vlayout.addLayout(self.logo_layout)
+        self.logo_and_version_layout.addLayout(self.logo_layout)
+
+        self.version_label = QLabel(self.scoring_tab)
+        self.version_label.setObjectName("version_label")
+        sizePolicy3 = QSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(
+            self.version_label.sizePolicy().hasHeightForWidth()
+        )
+        self.version_label.setSizePolicy(sizePolicy3)
+        self.version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.logo_and_version_layout.addWidget(self.version_label)
+
+        self.left_scoring_vlayout.addLayout(self.logo_and_version_layout)
 
         self.user_manual_layout = QHBoxLayout()
         self.user_manual_layout.setObjectName("user_manual_layout")
@@ -328,11 +347,6 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.recording_file_button = QPushButton(self.selected_recording_groupbox)
         self.recording_file_button.setObjectName("recording_file_button")
-        sizePolicy3 = QSizePolicy(
-            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
-        )
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(
             self.recording_file_button.sizePolicy().hasHeightForWidth()
         )
@@ -2233,6 +2247,9 @@ class Ui_PrimaryWindow(object):
         )
         self.accusleepy1.setText(
             QCoreApplication.translate("PrimaryWindow", "AccuSleePy", None)
+        )
+        self.version_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "TextLabel", None)
         )
         # if QT_CONFIG(tooltip)
         self.user_manual_button.setToolTip(
