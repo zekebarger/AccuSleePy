@@ -29,6 +29,13 @@ etc.) using python >=3.10,<3.13
 
 `python -m accusleepy` will open the primary interface.
 
+## Screenshots
+Primary interface
+![AccuSleePy primary interface](docs/images/primary_window.png)
+
+Manual scoring interface
+![AccuSleePy manual scoring interface](docs/images/viewer_window.png)
+
 ## Acknowledgements
 
 We would like to thank [Franz Weber](https://www.med.upenn.edu/weberlab/) for creating an
