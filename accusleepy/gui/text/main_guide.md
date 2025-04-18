@@ -1,48 +1,31 @@
-from accusleepy.constants import (
-    BRAIN_STATE_COL,
-    CALIBRATION_FILE_TYPE,
-    EEG_COL,
-    EMG_COL,
-    LABEL_FILE_TYPE,
-    MODEL_FILE_TYPE,
-    RECORDING_FILE_TYPES,
-    UNDEFINED_LABEL,
-)
-
-MAIN_GUIDE_TEXT = f"""
-Section 0: Definitions
-Section 1: Overview of the GUI
-Section 2: AccuSleePy file types
-Section 3: Manually assigning brain state labels
-Section 4: Automatically assigning brain state labels
-
------------------------------------------------------------------------
-Section 0: Definitions
------------------------------------------------------------------------
-Recording: a table containing one channel of EEG data and one channel
-    of EMG data collected at a constant sampling rate.
-Epoch: the temporal resolution of brain state scoring. If, for example,
+# Definitions
+- Recording: a table containing one channel of electroencephalogram (EEG)
+  data and one channel of electromyogram (EMG) data collected at a
+  constant sampling rate.
+- Epoch: the temporal resolution of brain state scoring. If, for example,
     the epoch length is 5 seconds, then a brain state label will be
     assigned to each 5-second segment of a recording.
-Bout: a contiguous set of epochs with the same brain state.
+- Bout: a contiguous set of epochs with the same brain state.
 
------------------------------------------------------------------------
-Section 1: Overview of the primary interface
------------------------------------------------------------------------
-This interface allows a user to assign brain state labels to 1-channel
-electroencephalogram (EEG) and electromyogram (EMG) data.
-The overall workflow looks like this:
-1. Enter the epoch length for all recordings. This determines the time
-    resolution of the brain state labels.
-2. For each of your recordings, add to the recording list, enter its
-    sampling rate, load the EEG/EMG data, and determine where to save
-    the brain state labels (or load the labels if they already exist)
+
+# Section 1: Overview of the primary interface
+
+The workflow for sleep scoring is as follows:
+1. Set the epoch length
+2. For each of your recordings:
+   1. create a new entry in the list of recordings
+   2. enter the sampling rate
+   3. select the recording file containing the EEG and EMG data
+   4. choose a filename for saving the brain state labels,
+       or select an existing label file
+
 At this point, you can score the recordings manually.
+
 3. For each recording, create a calibration file using a small amount
     of labeled data, or choose a calibration file created using
     another recording from the same subject and under the same recording
-    conditions (i.e., equipment)
-4. Choose a trained classification model file with a matching epoch size
+    conditions
+4. Select a trained classification model file with the correct epoch length
 5. Score all recordings automatically using the classifier
 
 By default, there are three brain state options: REM, wake, and NREM.
@@ -53,31 +36,27 @@ classification model.
 
 Use the "import" and "export" buttons to load or save a list of
 recordings. This can be useful if you need to re-score a set of
-recordings with a different model, or if you want to keep a record of
-the recordings that were used when training your model.
+recordings with a new model, or if you want to keep a record of
+the recordings that were used when training a model.
 
------------------------------------------------------------------------
-Section 2: AccuSleePy file types
------------------------------------------------------------------------
+# Section 2: AccuSleePy file types
 There are four types of files associated with AccuSleePy.
 To select a file in the primary interface, you can either use the
 associated button, or drag/drop the file into the empty box adjacent
 to the button.
-Recording file: a {" or ".join(RECORDING_FILE_TYPES)} file containing one
+- Recording file: a .parquet or .csv file containing one
     column of EEG  data and one column of EMG data.
-    The column names must be {EEG_COL} and {EMG_COL}.
-Label file: a {LABEL_FILE_TYPE} file with one column titled {BRAIN_STATE_COL}
-    with entries that are either the undefined brain state ({UNDEFINED_LABEL})
+    The column names must be eeg and emg.
+- Label file: a .csv file with one column titled brain_state
+    with entries that are either the undefined brain state (by default, this is -1)
     or one of the digits in your brain state configuration.
     By default, these are 1-3 where REM = 1, wake = 2, NREM = 3.
-Calibration data file: required for automatic labeling. See Section 4
-    for details. These have {CALIBRATION_FILE_TYPE} format.
-Trained classification model: required for automatic labeling. See
-    Section 4 for details. These have {MODEL_FILE_TYPE} format.
+- Calibration data file: required for automatic labeling. See Section 4
+    for details. These have .csv format.
+- Trained classification model: required for automatic labeling. See
+    Section 4 for details. These have .pth format.
 
------------------------------------------------------------------------
-Section 3: Manually assigning brain state labels
------------------------------------------------------------------------
+# Section 3: Manually assigning brain state labels
 1. Select the recording you wish to modify from the recording list, or
     add a new one.
 2. Click the 'Select recording file' button to set the location of the
@@ -88,12 +67,11 @@ Section 3: Manually assigning brain state labels
     enter the filename for a new label file.
 4. Click 'Score manually' to launch an interactive window for manual
     brain state labeling. Close the window when you are finished.
+
 This interface has many useful keyboard shortcuts, so it's recommended
 to consult its user manual.
 
------------------------------------------------------------------------
-Section 4: Automatically scoring recordings with a classification model
------------------------------------------------------------------------
+# Section 4: Automatically scoring recordings with a classification model
 Automatic brain state scoring requires the inputs described in
 Section 3, as well as calibration data files and a trained classifier.
 If you already have all of these files, proceed to Section 4C.
@@ -104,14 +82,17 @@ they use several epochs of data before and after any given epoch when
 scoring that epoch. (The other model type, called "real-time", only
 uses data from the current epoch and several preceding epochs.)
 
---- Section 4A: Creating calibration data files ---
+## Section 4A: Creating calibration data files
+
 Each recording must have a calibration file assigned to it.
 This file lets AccuSleep transform features of the EEG and EMG data so
 that they are in the same range as the classifier's training data.
 You can use the same calibration file for multiple recordings, as long
 as they come from the same subject and were collected under the same
 recording conditions (i.e., the same recording equipment was used).
+
 To create a calibration data file:
+
 1. Ensure you have a file containing brain state labels. You can create
     this file by following the steps in Section 3, or select an
     existing label file.
@@ -123,13 +104,16 @@ To create a calibration data file:
 4. Enter a filename for the calibration data file.
 5. The calibration file will automatically be assigned to the currently
     selected recording.
+
 Note that epoch length can affect the calibration process. If you make
 a calibration file for a subject using one epoch length, but want to
 score another recording from the same subject with a different epoch
 length, it's best to create a new calibration file.
 
---- Section 4B: Training your own classification model ---
+## Section 4B: Training your own classification model
+
 To train a new model on your own data:
+
 1. Add your scored recordings to the recording list. Make sure the
     sampling rate, recording file, and label file are set for each
     recording.
@@ -150,8 +134,10 @@ To train a new model on your own data:
 7. Click the "Train classification model" button and enter a
     filename for the trained model. Training can take some time.
 
---- Section 4C: Automatic labeling ---
+## Section 4C: Automatic scoring
+
 Instructions for automatic labeling using this GUI are below.
+
 1. Set the epoch length for all recordings.
 2. Select the recording file, label file, and calibration file to use
     for each recording. See section 4A for instructions on creating
@@ -170,4 +156,3 @@ Instructions for automatic labeling using this GUI are below.
     recording list. Labels will be saved to the file specified by
     the 'Select or create label file' field of each recording. You can
     click 'Score manually' to visualize the results.
-"""
