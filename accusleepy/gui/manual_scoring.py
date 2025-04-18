@@ -61,7 +61,7 @@ UNDEFINED_STATE = "undefined"
 # before starting to scroll again - must be in (0, 0.5)
 SCROLL_BOUNDARY = 0.35
 # max number of sequential undo actions allowed
-UNDO_LIMIT = 100
+UNDO_LIMIT = 1000
 
 
 @dataclass
