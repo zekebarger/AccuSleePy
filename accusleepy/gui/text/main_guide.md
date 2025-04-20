@@ -8,7 +8,7 @@
 - Bout: a contiguous set of epochs with the same brain state.
 
 
-# Section 1: Overview of the primary interface
+# 1. Overview of the primary interface
 
 The workflow for sleep scoring is as follows:
 1. Set the epoch length
@@ -39,7 +39,7 @@ recordings. This can be useful if you need to re-score a set of
 recordings with a new model, or if you want to keep a record of
 the recordings that were used when training a model.
 
-# Section 2: AccuSleePy file types
+# 2. AccuSleePy file types
 There are four types of files associated with AccuSleePy.
 To select a file in the primary interface, you can either use the
 associated button, or drag/drop the file into the empty box adjacent
@@ -56,7 +56,7 @@ to the button.
 - Trained classification model: required for automated scoring. See
     Section 4 for details. These have .pth format.
 
-# Section 3: Manually assigning brain state labels
+# 3. Manually assigning brain state labels
 1. Select the recording you wish to modify from the recording list, or
     add a new one.
 2. Click the "Select recording file" button to set the location of the
@@ -72,7 +72,7 @@ to the button.
 The manual scoring interface has many useful keyboard shortcuts,
 so please consult its user manual by clicking the question mark icon.
 
-# Section 4: Automatically scoring recordings with a classification model
+# 4. Automatically scoring recordings with a classification model
 Automatic brain state scoring requires the inputs described in
 Section 3, as well as calibration data files and a trained classification
 model.
@@ -84,7 +84,7 @@ they use several epochs of data before and after any given epoch when
 scoring that epoch. (The other model type, called "real-time", only
 uses data from the current epoch and several preceding epochs.)
 
-## Section 4A: Creating calibration data files
+## 4A. Creating calibration data files
 
 In order to perform automated sleep scoring,
 each recording must have a calibration file assigned to it.
@@ -113,7 +113,7 @@ a calibration file for a subject using one epoch length, but want to
 score another recording from the same subject with a different epoch
 length, it's best to create a new calibration file.
 
-## Section 4B: Training your own classification model
+## 4B. Training your own classification model
 
 To train a new model on your own data:
 
@@ -139,7 +139,7 @@ To train a new model on your own data:
     filename for the trained model. Training can take some time.
     The console will display progress updates.
 
-## Section 4C: Automatic scoring
+## 4C. Automatic scoring
 
 Instructions for automatic scoring using this interface are below.
 
