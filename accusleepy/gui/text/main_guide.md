@@ -51,29 +51,31 @@ to the button.
     with entries that are either the undefined brain state (by default, this is -1)
     or one of the digits in your brain state configuration.
     By default, these are 1-3 where REM = 1, wake = 2, NREM = 3.
-- Calibration data file: required for automatic labeling. See Section 4
+- Calibration data file: required for automated scoring. See Section 4
     for details. These have .csv format.
-- Trained classification model: required for automatic labeling. See
+- Trained classification model: required for automated scoring. See
     Section 4 for details. These have .pth format.
 
 # Section 3: Manually assigning brain state labels
 1. Select the recording you wish to modify from the recording list, or
     add a new one.
-2. Click the 'Select recording file' button to set the location of the
+2. Click the "Select recording file" button to set the location of the
     EEG/EMG data, or drag/drop the recording file into the box next
     to the button.
-3. Click the 'Select' label file button (or drag/drop) to choose an
-    existing label file, or click the 'create' label file button to
+3. Click the "Select" label file button (or drag/drop) to choose an
+    existing label file, or click the "create" label file button to
     enter the filename for a new label file.
-4. Click 'Score manually' to launch an interactive window for manual
-    brain state labeling. Close the window when you are finished.
+4. Click "Score manually" to launch an interactive window for manual
+    brain state scoring. When you are finished, save your changes and
+    close the window.
 
-This interface has many useful keyboard shortcuts, so it's recommended
-to consult its user manual.
+The manual scoring interface has many useful keyboard shortcuts,
+so please consult its user manual by clicking the question mark icon.
 
 # Section 4: Automatically scoring recordings with a classification model
 Automatic brain state scoring requires the inputs described in
-Section 3, as well as calibration data files and a trained classifier.
+Section 3, as well as calibration data files and a trained classification
+model.
 If you already have all of these files, proceed to Section 4C.
 Models trained on the AccuSleep dataset are provided at
 https://osf.io/py5eb under /python_format/models/ for epoch lengths of
@@ -84,7 +86,8 @@ uses data from the current epoch and several preceding epochs.)
 
 ## Section 4A: Creating calibration data files
 
-Each recording must have a calibration file assigned to it.
+In order to perform automated sleep scoring,
+each recording must have a calibration file assigned to it.
 This file lets AccuSleep transform features of the EEG and EMG data so
 that they are in the same range as the classifier's training data.
 You can use the same calibration file for multiple recordings, as long
@@ -100,7 +103,7 @@ To create a calibration data file:
     stage (e.g., REM, wakefulness, and NREM). It is recommended to
     label at least several minutes of each stage, and more labels can
     improve classification accuracy.
-3. Click 'Create calibration file'.
+3. Click "Create calibration file".
 4. Enter a filename for the calibration data file.
 5. The calibration file will automatically be assigned to the currently
     selected recording.
@@ -116,7 +119,7 @@ To train a new model on your own data:
 
 1. Add your scored recordings to the recording list. Make sure the
     sampling rate, recording file, and label file are set for each
-    recording.
+    recording. Calibration files are not required.
 2. Click the "Model training" tab
 3. Choose the number of epochs to consider when scoring each epoch.
     This will be the "width" of the training images. For "default"
@@ -126,33 +129,34 @@ To train a new model on your own data:
     deleted once training is complete. (It's generally best to
     leave this box checked.)
 5. Choose whether to create a "default" or "real-time"-type model.
-    Note that scoring recordings in the GUI requires a default-type
-    model.
-6. Select a directory where the training images will be saved. A
+    Note that scoring recordings in the primary interface requires
+    a default-type model.
+6. Click "Set training image directory" to select the location
+    where the images used to train the model will be saved. A
     new directory with an automatically generated name will be
     created inside the directory you choose.
-7. Click the "Train classification model" button and enter a
+7. Click "Train classification model" and enter a
     filename for the trained model. Training can take some time.
+    The console will display progress updates.
 
 ## Section 4C: Automatic scoring
 
-Instructions for automatic labeling using this GUI are below.
+Instructions for automatic scoring using this interface are below.
 
 1. Set the epoch length for all recordings.
 2. Select the recording file, label file, and calibration file to use
     for each recording. See section 4A for instructions on creating
     calibration files.
-3. Click 'Load classification model' to load the trained classification
+3. Click "Load classification model" to load the trained classification
     model. It's important that the epoch length used when training this
     model is the same as the current epoch length.
 4. If you wish to preserve any existing labels in the label file, and
     only overwrite undefined epochs, check the box labeled
-    'Only overwrite undefined epochs'.
+    "Only overwrite undefined epochs".
 5. Set the minimum bout length, in seconds. A typical value could be 5.
     Following automatic labeling, any brain state bout shorter than this
-    duration will be reassigned to the surrounding stage (if the stages
-    on either side of the bout match).
-6. Click 'Score all automatically' to score all recordings in the
-    recording list. Labels will be saved to the file specified by
-    the 'Select or create label file' field of each recording. You can
-    click 'Score manually' to visualize the results.
+    duration will be reassigned to the surrounding state (if the states
+    on either side of the bout are the same).
+6. Click "Score all automatically" to score all recordings in the
+    recording list. To inspect the results, select a recording
+    in the list and click "Score manually".
