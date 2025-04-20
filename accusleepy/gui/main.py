@@ -41,7 +41,6 @@ from accusleepy.fileio import (
     save_model,
     save_recording_list,
 )
-from accusleepy.gui.text.main_guide_text import MAIN_GUIDE_TEXT
 from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.signal_processing import (
@@ -56,6 +55,7 @@ MESSAGE_BOX_MAX_DEPTH = 50
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to config guide txt file
 CONFIG_GUIDE_FILE = os.path.normpath(r"text/config_guide.txt")
+MAIN_GUIDE_FILE = os.path.normpath(r"text/main_guide.md")
 
 
 @dataclass
@@ -1031,15 +1031,15 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
-        label_widget = QtWidgets.QLabel()
-        label_widget.setText(MAIN_GUIDE_TEXT)
-        scroll_area = QtWidgets.QScrollArea()
-        scroll_area.setStyleSheet("background-color: white;")
-        scroll_area.setWidget(label_widget)
-        grid = QtWidgets.QGridLayout()
-        grid.addWidget(scroll_area)
         self.popup = QtWidgets.QWidget()
-        self.popup.setLayout(grid)
+        self.popup_vlayout = QtWidgets.QVBoxLayout(self.popup)
+        self.guide_textbox = QtWidgets.QTextBrowser(self.popup)
+        self.popup_vlayout.addWidget(self.guide_textbox)
+
+        url = QtCore.QUrl.fromLocalFile(MAIN_GUIDE_FILE)
+        self.guide_textbox.setSource(url)
+        self.guide_textbox.setOpenLinks(False)
+
         self.popup.setGeometry(QtCore.QRect(100, 100, 600, 600))
         self.popup.show()
 

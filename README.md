@@ -29,12 +29,16 @@ etc.) using python >=3.10,<3.13
 
 `python -m accusleepy` will open the primary interface.
 
+[Guide to the primary interface](accusleepy/gui/text/main_guide.md)
+
+[Guide to the manual scoring interface](accusleepy/gui/text/manual_scoring_guide.md)
+
 ## Screenshots
 Primary interface
-![AccuSleePy primary interface](docs/images/primary_window.png)
+![AccuSleePy primary interface](accusleepy/gui/images/primary_window.png)
 
 Manual scoring interface
-![AccuSleePy manual scoring interface](docs/images/viewer_window.png)
+![AccuSleePy manual scoring interface](accusleepy/gui/images/viewer_window.png)
 
 ## Acknowledgements
 
