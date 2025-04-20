@@ -27,7 +27,7 @@ LABEL_CMAP = np.concatenate(
     [np.array([[0, 0, 0, 0]]), plt.colormaps["tab10"](range(10))], axis=0
 )
 # relative path to user manual text file
-USER_MANUAL_FILE = os.path.normpath(r"text/manual_scoring_guide.txt")
+USER_MANUAL_FILE = os.path.normpath(r"text/manual_scoring_guide.md")
 
 # constants used by callback functions
 # label formats
@@ -501,21 +501,18 @@ class ManualScoringWindow(QtWidgets.QDialog):
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
-        user_manual_file = open(
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), USER_MANUAL_FILE),
-            "r",
-        )
-        user_manual_text = user_manual_file.read()
-        user_manual_file.close()
-        label_widget = QtWidgets.QLabel()
-        label_widget.setText(user_manual_text)
-        label_widget.setStyleSheet("background-color: white;")
-
         self.popup = QtWidgets.QWidget()
-        grid = QtWidgets.QGridLayout()
-        grid.addWidget(label_widget)
-        self.popup.setLayout(grid)
-        self.popup.setGeometry(QtCore.QRect(50, 100, 350, 400))
+        self.popup_vlayout = QtWidgets.QVBoxLayout(self.popup)
+        self.guide_textbox = QtWidgets.QTextBrowser(self.popup)
+        self.popup_vlayout.addWidget(self.guide_textbox)
+
+        url = QtCore.QUrl.fromLocalFile(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), USER_MANUAL_FILE)
+        )
+        self.guide_textbox.setSource(url)
+        self.guide_textbox.setOpenLinks(False)
+
+        self.popup.setGeometry(QtCore.QRect(100, 100, 830, 600))
         self.popup.show()
 
     def jump_to_next_state(self, direction: str, target: str) -> None:
