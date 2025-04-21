@@ -446,8 +446,6 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.label_img = create_label_img(
             self.display_labels, self.label_display_options
         )
-        # update the plots
-        self.update_figures()
 
     def redo(self) -> None:
         """Redo the last change to brain state labels that was undone"""
@@ -716,7 +714,6 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.ui.upperfigure.canvas.axes[2].set_xlim(
             (self.upper_left_epoch, self.upper_right_epoch + 1)
         )
-        self.ui.upperfigure.canvas.draw()
 
     def zoom_x(self, direction: str) -> None:
         """Change upper figure x-axis zoom level
@@ -754,6 +751,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
             self.upper_left_epoch = 0
             self.upper_right_epoch = self.n_epochs - 1
         self.adjust_upper_figure_x_limits()
+        self.ui.upperfigure.canvas.draw()
 
     def modify_current_epoch_label(self, digit: int) -> None:
         """Change the current epoch's brain state label
@@ -974,8 +972,6 @@ class ManualScoringWindow(QtWidgets.QDialog):
         else:
             self.upper_left_epoch = self.epoch - upper_epoch_padding
             self.upper_right_epoch = self.epoch + upper_epoch_padding
-        # update upper marker
-        self.update_upper_marker()
         self.adjust_upper_figure_x_limits()
 
         # update lower figure x-axis range
@@ -990,7 +986,7 @@ class ManualScoringWindow(QtWidgets.QDialog):
             self.lower_left_epoch = self.epoch - lower_epoch_padding
             self.lower_right_epoch = self.epoch + lower_epoch_padding
 
-        self.update_lower_figure()
+        self.update_figures()
 
 
 def convert_labels(labels: np.array, style: str) -> np.array:

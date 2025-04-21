@@ -15,6 +15,18 @@ The data and models associated with AccuSleep are available at https://osf.io/py
 
 Please contact zekebarger (at) gmail (dot) com with any questions or comments about the software.
 
+## What's new
+
+AccuSleePy offers the following improvements over the MATLAB version:
+
+- Up to 10 brain states can be configured through the user interface
+- Models can be trained through the user interface
+    - Model files contain useful metadata (brain state configuration,
+      epoch length, number of epochs)
+    - Models optimized for real-time scoring can be trained
+- Lists of recordings can be imported and exported for repeatable batch processing
+- Undo/redo functionality in the manual scoring interface
+
 ## Installation
 
 - (recommended) create a new virtual environment (using
