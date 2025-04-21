@@ -294,7 +294,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             error_message = self.check_single_file_inputs(recording_index)
             if error_message:
                 self.show_message(
-                    f"ERROR ({self.recordings[recording_index].name}): {error_message}"
+                    f"ERROR (recording {self.recordings[recording_index].name}): {error_message}"
                 )
                 return
 
@@ -431,7 +431,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                     f"error on recording {self.recordings[recording_index].name}"
                 )
                 self.show_message(
-                    f"ERROR ({self.recordings[recording_index].name}): {error_message}"
+                    f"ERROR (recording {self.recordings[recording_index].name}): {error_message}"
                 )
                 return
             if self.recordings[recording_index].calibration_file == "":
@@ -440,7 +440,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 )
                 self.show_message(
                     (
-                        f"ERROR ({self.recordings[recording_index].name}): "
+                        f"ERROR (recording {self.recordings[recording_index].name}): "
                         "no calibration file selected"
                     )
                 )
@@ -752,7 +752,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.recordings[self.recording_index].calibration_file = filename
         self.ui.calibration_file_label.setText(filename)
 
-    def check_single_file_inputs(self, recording_index: int) -> str:
+    def check_single_file_inputs(self, recording_index: int) -> str | None:
         """Check that a recording's inputs appear valid
 
         This runs some basic tests for whether it will be possible to
@@ -772,6 +772,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             return "invalid epoch length or sampling rate"
         if self.recordings[self.recording_index].recording_file == "":
             return "no recording selected"
+        if not os.path.isfile(self.recordings[self.recording_index].recording_file):
+            return "recording file does not exist"
         if self.recordings[self.recording_index].label_file == "":
             return "no label file selected"
 
