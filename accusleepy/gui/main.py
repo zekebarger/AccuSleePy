@@ -51,7 +51,7 @@ from accusleepy.signal_processing import (
 )
 
 # max number of messages to display
-MESSAGE_BOX_MAX_DEPTH = 50
+MESSAGE_BOX_MAX_DEPTH = 200
 LABEL_LENGTH_ERROR = "label file length does not match recording length"
 # relative path to config guide txt file
 CONFIG_GUIDE_FILE = os.path.normpath(r"text/config_guide.txt")
