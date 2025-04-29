@@ -5,12 +5,32 @@ import datetime
 import os
 import shutil
 import sys
-import toml
 from dataclasses import dataclass
 from functools import partial
 
 import numpy as np
-from PySide6 import QtCore, QtGui, QtWidgets
+import toml
+from PySide6.QtCore import (
+    QEvent,
+    QKeyCombination,
+    QObject,
+    QRect,
+    Qt,
+    QUrl,
+)
+from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QDoubleSpinBox,
+    QFileDialog,
+    QLabel,
+    QListWidgetItem,
+    QMainWindow,
+    QTextBrowser,
+    QVBoxLayout,
+    QWidget,
+)
 
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 from accusleepy.classification import (
@@ -63,13 +83,13 @@ class StateSettings:
     """Widgets for config settings for a brain state"""
 
     digit: int
-    enabled_widget: QtWidgets.QCheckBox
-    name_widget: QtWidgets.QLabel
-    is_scored_widget: QtWidgets.QCheckBox
-    frequency_widget: QtWidgets.QDoubleSpinBox
+    enabled_widget: QCheckBox
+    name_widget: QLabel
+    is_scored_widget: QCheckBox
+    frequency_widget: QDoubleSpinBox
 
 
-class AccuSleepWindow(QtWidgets.QMainWindow):
+class AccuSleepWindow(QMainWindow):
     """AccuSleePy primary window"""
 
     def __init__(self):
@@ -103,9 +123,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         # set up the list of recordings
         first_recording = Recording(
-            widget=QtWidgets.QListWidgetItem(
-                "Recording 1", self.ui.recording_list_widget
-            ),
+            widget=QListWidgetItem("Recording 1", self.ui.recording_list_widget),
         )
         self.ui.recording_list_widget.addItem(first_recording.widget)
         self.ui.recording_list_widget.setCurrentRow(0)
@@ -132,10 +150,8 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.version_label.setText(f"v{version}")
 
         # user input: keyboard shortcuts
-        keypress_quit = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_W)
-            ),
+        keypress_quit = QShortcut(
+            QKeySequence(QKeyCombination(Qt.Modifier.CTRL, Qt.Key.Key_W)),
             self,
         )
         keypress_quit.activated.connect(self.close)
@@ -187,7 +203,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
     def export_recording_list(self) -> None:
         """Save current list of recordings to file"""
         # get the name for the recording list file
-        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+        filename, _ = QFileDialog.getSaveFileName(
             self,
             caption="Save list of recordings as",
             filter="*" + RECORDING_LIST_FILE_TYPE,
@@ -200,10 +216,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def import_recording_list(self):
         """Load list of recordings from file, overwriting current list"""
-        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog = QFileDialog(self)
         file_dialog.setWindowTitle("Select list of recordings")
-        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
         file_dialog.setNameFilter("*" + RECORDING_LIST_FILE_TYPE)
 
         if file_dialog.exec():
@@ -219,7 +235,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.recordings = load_recording_list(filename)
 
         for recording in self.recordings:
-            recording.widget = QtWidgets.QListWidgetItem(
+            recording.widget = QListWidgetItem(
                 f"Recording {recording.name}", self.ui.recording_list_widget
             )
             self.ui.recording_list_widget.addItem(self.recordings[-1].widget)
@@ -228,7 +244,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.recording_list_widget.setCurrentRow(0)
         self.show_message(f"Loaded list of recordings from {filename}")
 
-    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         """Filter mouse events to detect when user drags/drops a file
 
         :param obj: UI object receiving the event
@@ -243,7 +259,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             self.ui.model_label,
         ]:
             event.accept()
-            if event.type() == QtCore.QEvent.Drop:
+            if event.type() == QEvent.Drop:
                 urls = event.mimeData().urls()
                 if len(urls) == 1:
                     filename = os.path.normpath(urls[0].toLocalFile())
@@ -299,7 +315,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
                 return
 
         # get filename for the new model
-        model_filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+        model_filename, _ = QFileDialog.getSaveFileName(
             self,
             caption="Save classification model file as",
             filter="*" + MODEL_FILE_TYPE,
@@ -326,7 +342,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             (f"Creating training images in {temp_image_dir}, please wait...")
         )
         self.ui.message_area.repaint()
-        QtWidgets.QApplication.processEvents()
+        QApplication.processEvents()
         print("Creating training images")
         failed_recordings = create_training_images(
             recordings=self.recordings,
@@ -351,7 +367,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         # train model
         self.show_message("Training model, please wait...")
         self.ui.message_area.repaint()
-        QtWidgets.QApplication.processEvents()
+        QApplication.processEvents()
         print("Training model")
         model = train_model(
             annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
@@ -378,7 +394,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def set_training_folder(self) -> None:
         """Select location in which to create a folder for training images"""
-        training_folder_parent = QtWidgets.QFileDialog.getExistingDirectory(
+        training_folder_parent = QFileDialog.getExistingDirectory(
             self, "Select directory for training images"
         )
         if training_folder_parent:
@@ -421,7 +437,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
         self.ui.score_all_status.setText("running...")
         self.ui.score_all_status.repaint()
-        QtWidgets.QApplication.processEvents()
+        QApplication.processEvents()
 
         # check some inputs for each recording
         for recording_index in range(len(self.recordings)):
@@ -571,10 +587,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         :param filename: model filename, if it's known
         """
         if filename is None:
-            file_dialog = QtWidgets.QFileDialog(self)
+            file_dialog = QFileDialog(self)
             file_dialog.setWindowTitle("Select classification model")
-            file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
-            file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+            file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+            file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
             file_dialog.setNameFilter("*" + MODEL_FILE_TYPE)
 
             if file_dialog.exec():
@@ -634,7 +650,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         self.ui.model_label.setText(filename)
 
     def load_single_recording(
-        self, status_widget: QtWidgets.QLabel
+        self, status_widget: QLabel
     ) -> (np.array, np.array, int | float, bool):
         """Load and preprocess one recording
 
@@ -721,7 +737,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             return
 
         # get the name for the calibration file
-        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+        filename, _ = QFileDialog.getSaveFileName(
             self,
             caption="Save calibration file as",
             filter="*" + CALIBRATION_FILE_TYPE,
@@ -799,7 +815,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
         # immediately display a status message
         self.ui.manual_scoring_status.setText("loading...")
         self.ui.manual_scoring_status.repaint()
-        QtWidgets.QApplication.processEvents()
+        QApplication.processEvents()
 
         # load the recording
         eeg, emg, sampling_rate, success = self.load_single_recording(
@@ -889,7 +905,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def create_label_file(self) -> None:
         """Set the filename for a new label file"""
-        filename, _ = QtWidgets.QFileDialog.getSaveFileName(
+        filename, _ = QFileDialog.getSaveFileName(
             self,
             caption="Set filename for label file (nothing will be overwritten yet)",
             filter="*" + LABEL_FILE_TYPE,
@@ -901,10 +917,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def select_label_file(self) -> None:
         """User can select an existing label file"""
-        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog = QFileDialog(self)
         file_dialog.setWindowTitle("Select label file")
-        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
         file_dialog.setNameFilter("*" + LABEL_FILE_TYPE)
 
         if file_dialog.exec():
@@ -916,10 +932,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def select_calibration_file(self) -> None:
         """User can select a calibration file"""
-        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog = QFileDialog(self)
         file_dialog.setWindowTitle("Select calibration file")
-        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
         file_dialog.setNameFilter("*" + CALIBRATION_FILE_TYPE)
 
         if file_dialog.exec():
@@ -931,10 +947,10 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def select_recording_file(self) -> None:
         """User can select a recording file"""
-        file_dialog = QtWidgets.QFileDialog(self)
+        file_dialog = QFileDialog(self)
         file_dialog.setWindowTitle("Select recording file")
-        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
         file_dialog.setNameFilter(f"(*{' *'.join(RECORDING_FILE_TYPES)})")
 
         if file_dialog.exec():
@@ -1009,7 +1025,7 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
             Recording(
                 name=new_name,
                 sampling_rate=self.recordings[self.recording_index].sampling_rate,
-                widget=QtWidgets.QListWidgetItem(
+                widget=QListWidgetItem(
                     f"Recording {new_name}", self.ui.recording_list_widget
                 ),
             )
@@ -1033,16 +1049,16 @@ class AccuSleepWindow(QtWidgets.QMainWindow):
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
-        self.popup = QtWidgets.QWidget()
-        self.popup_vlayout = QtWidgets.QVBoxLayout(self.popup)
-        self.guide_textbox = QtWidgets.QTextBrowser(self.popup)
+        self.popup = QWidget()
+        self.popup_vlayout = QVBoxLayout(self.popup)
+        self.guide_textbox = QTextBrowser(self.popup)
         self.popup_vlayout.addWidget(self.guide_textbox)
 
-        url = QtCore.QUrl.fromLocalFile(MAIN_GUIDE_FILE)
+        url = QUrl.fromLocalFile(MAIN_GUIDE_FILE)
         self.guide_textbox.setSource(url)
         self.guide_textbox.setOpenLinks(False)
 
-        self.popup.setGeometry(QtCore.QRect(100, 100, 600, 600))
+        self.popup.setGeometry(QRect(100, 100, 600, 600))
         self.popup.show()
 
     def initialize_settings_tab(self):
@@ -1389,7 +1405,7 @@ def check_config_consistency(
 
 
 def run_primary_window() -> None:
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     AccuSleepWindow()
     sys.exit(app.exec())
 
