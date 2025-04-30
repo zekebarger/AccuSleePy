@@ -15,8 +15,9 @@ import warnings
 
 import numpy as np
 from joblib import Parallel, cpu_count, delayed
-from scipy.signal import detrend
-from scipy.signal.windows import dpss
+
+# from scipy.signal import detrend # unused by AccuSleePy
+# from scipy.signal.windows import dpss # lazily loaded later
 
 
 # MULTITAPER SPECTROGRAM #
@@ -28,14 +29,14 @@ def spectrogram(
     num_tapers=None,
     window_params=None,
     min_nfft=0,
-    detrend_opt="linear",
+    detrend_opt="off",  # this functionality is disabled
     multiprocess=False,
     n_jobs=None,
     weighting="unity",
     plot_on=False,
     return_fig=False,
     clim_scale=True,
-    verbose=True,
+    verbose=False,
     xyflip=False,
     ax=None,
 ):
@@ -121,6 +122,7 @@ def spectrogram(
 
     __________________________________________________________________________________________________________________
     """
+    from scipy.signal.windows import dpss
 
     #  Process user input
     [
@@ -618,9 +620,9 @@ def calc_mts_segment(
         ret.fill(np.nan)
         return ret
 
-    # Option to detrend data to remove low frequency DC component
-    if detrend_opt != "off":
-        data_segment = detrend(data_segment, type=detrend_opt)
+    # # Option to detrend data to remove low frequency DC component
+    # if detrend_opt != "off":
+    #     data_segment = detrend(data_segment, type=detrend_opt)
 
     # Multiply data by dpss tapers (STEP 2)
     tapered_data = np.multiply(np.asmatrix(data_segment).T, np.asmatrix(dpss_tapers.T))

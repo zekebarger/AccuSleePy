@@ -32,13 +32,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from accusleepy.bouts import enforce_min_bout_length
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
-from accusleepy.classification import (
-    create_calibration_file,
-    score_recording,
-    train_model,
-)
 from accusleepy.constants import (
+    ANNOTATIONS_FILENAME,
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
     LABEL_FILE_TYPE,
@@ -53,22 +50,20 @@ from accusleepy.fileio import (
     load_calibration_file,
     load_config,
     load_labels,
-    load_model,
     load_recording,
     load_recording_list,
     save_config,
     save_labels,
-    save_model,
     save_recording_list,
 )
 from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.signal_processing import (
-    ANNOTATIONS_FILENAME,
     create_training_images,
-    enforce_min_bout_length,
     resample_and_standardize,
 )
+
+# note: functions using torch or scipy are lazily imported
 
 # max number of messages to display
 MESSAGE_BOX_MAX_DEPTH = 200
@@ -338,9 +333,8 @@ class AccuSleepWindow(QMainWindow):
         os.makedirs(temp_image_dir, exist_ok=True)
 
         # create training images
-        self.show_message(
-            (f"Creating training images in {temp_image_dir}, please wait...")
-        )
+        self.show_message("Training, please wait. See console for progress updates.")
+        self.show_message((f"Creating training images in {temp_image_dir}"))
         self.ui.message_area.repaint()
         QApplication.processEvents()
         print("Creating training images")
@@ -365,11 +359,14 @@ class AccuSleepWindow(QMainWindow):
                 )
 
         # train model
-        self.show_message("Training model, please wait...")
+        self.show_message("Training model")
         self.ui.message_area.repaint()
         QApplication.processEvents()
         print("Training model")
-        model = train_model(
+        from accusleepy.classification import train_ssann
+        from accusleepy.models import save_model
+
+        model = train_ssann(
             annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
             img_dir=temp_image_dir,
             mixture_weights=self.brain_state_set.mixture_weights,
@@ -390,7 +387,8 @@ class AccuSleepWindow(QMainWindow):
         if self.delete_training_images:
             shutil.rmtree(temp_image_dir)
 
-        self.show_message(f"Training complete, saved model to {model_filename}")
+        self.show_message(f"Training complete. Saved model to {model_filename}")
+        print("Training complete.")
 
     def set_training_folder(self) -> None:
         """Select location in which to create a folder for training images"""
@@ -438,6 +436,8 @@ class AccuSleepWindow(QMainWindow):
         self.ui.score_all_status.setText("running...")
         self.ui.score_all_status.repaint()
         QApplication.processEvents()
+
+        from accusleepy.classification import score_recording
 
         # check some inputs for each recording
         for recording_index in range(len(self.recordings)):
@@ -586,6 +586,8 @@ class AccuSleepWindow(QMainWindow):
 
         :param filename: model filename, if it's known
         """
+        from accusleepy.models import load_model
+
         if filename is None:
             file_dialog = QFileDialog(self)
             file_dialog.setWindowTitle("Select classification model")
@@ -745,6 +747,8 @@ class AccuSleepWindow(QMainWindow):
         if not filename:
             return
         filename = os.path.normpath(filename)
+
+        from accusleepy.classification import create_calibration_file
 
         create_calibration_file(
             filename=filename,

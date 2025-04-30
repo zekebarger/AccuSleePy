@@ -61,13 +61,13 @@ def get_device():
     )
 
 
-def train_model(
+def train_ssann(
     annotations_file: str,
     img_dir: str,
     mixture_weights: np.array,
     n_classes: int,
 ) -> SSANN:
-    """Train a classification model for sleep scoring
+    """Train a SSANN classification model for sleep scoring
 
     :param annotations_file: file with information on each training image
     :param img_dir: training image location
