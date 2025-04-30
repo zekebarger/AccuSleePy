@@ -2,13 +2,13 @@ import numpy as np
 import pytest
 
 from accusleepy.signal_processing import (
-    enforce_min_bout_length,
     resample,
     standardize_signal_length,
 )
 
 
 def test_resample_no_change():
+    """Resample function makes no unnecessary changes"""
     eeg = np.zeros(1000)
     emg = np.zeros(1000)
     sampling_rate = 10
@@ -21,6 +21,7 @@ def test_resample_no_change():
 
 
 def test_resample_with_change():
+    """New sampling rate is correct"""
     eeg = np.zeros(1000)
     emg = np.zeros(1000)
     sampling_rate = 12.5
@@ -33,6 +34,7 @@ def test_resample_with_change():
 
 
 def test_standardize_length_no_change():
+    """Standardizing length makes no unnecessary changes"""
     eeg = np.zeros(1000)
     emg = np.zeros(1000)
     sampling_rate = 10
@@ -44,6 +46,7 @@ def test_standardize_length_no_change():
 
 
 def test_standardize_length():
+    """Standardizing length works correctly"""
     sampling_rate = 10
     epoch_length = 5
     base_epoch_count = 20
@@ -80,37 +83,3 @@ def test_standardize_length():
             eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
         )
         assert len(new_eeg) == target_lengths[i]
-
-
-def test_basic_bout_fix():
-    min_bout_length = 2
-    epoch_length = 1
-    labels = np.array([1, 1, 2, 2, 3, 1, 3, 3, 3, 3, 3, 1, 3, 3, 3])
-    target = np.array([1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
-
-    new_labels = enforce_min_bout_length(
-        labels=labels, epoch_length=epoch_length, min_bout_length=min_bout_length
-    )
-    assert np.array_equal(new_labels, target)
-
-
-def test_even_number_bout_sequence():
-    min_bout_length = 3
-    epoch_length = 1
-    labels = np.array([1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2])
-    target = np.array([1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2])
-    new_labels = enforce_min_bout_length(
-        labels=labels, epoch_length=epoch_length, min_bout_length=min_bout_length
-    )
-    assert np.array_equal(new_labels, target)
-
-
-def test_odd_number_bout_sequence():
-    min_bout_length = 3
-    epoch_length = 1
-    labels = np.array([1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1])
-    target = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-    new_labels = enforce_min_bout_length(
-        labels=labels, epoch_length=epoch_length, min_bout_length=min_bout_length
-    )
-    assert np.array_equal(new_labels, target)

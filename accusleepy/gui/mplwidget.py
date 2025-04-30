@@ -339,18 +339,23 @@ def resample_x_ticks(x_ticks: np.array) -> np.array:
     """Choose a subset of x_ticks to display
 
     The x-axis can get crowded if there are too many timestamps shown.
-    This function resamples the x-axis ticks by a factor of either
-    MAX_LOWER_X_TICK_N or MAX_LOWER_X_TICK_N - 2, whichever is closer
-    to being a factor of the number of ticks.
+    This function finds a subset of evenly spaced x-axis ticks that
+    includes the one at the beginning of the central epoch.
 
     :param x_ticks: full set of x_ticks
     :return: smaller subset of x_ticks
     """
-    # add one since the tick at the rightmost edge isn't shown
-    n_ticks = len(x_ticks) + 1
-    if n_ticks < MAX_LOWER_X_TICK_N:
+    if len(x_ticks) <= MAX_LOWER_X_TICK_N:
         return x_ticks
-    elif n_ticks % MAX_LOWER_X_TICK_N < n_ticks % (MAX_LOWER_X_TICK_N - 2):
-        return x_ticks[:: int(n_ticks / MAX_LOWER_X_TICK_N)]
-    else:
-        return x_ticks[:: int(n_ticks / (MAX_LOWER_X_TICK_N - 2))]
+
+    # number of ticks to the left of the central epoch
+    # this will always be an integer
+    nl = round((len(x_ticks) - 1) / 2)
+
+    # search for even tick spacings that include the central epoch
+    # if necessary, skip the leftmost tick
+    for offset in [0, 1]:
+        if (nl - offset) % 3 == 0:
+            return x_ticks[offset :: round((nl - offset) / 3)]
+        elif (nl - offset) % 2 == 0:
+            return x_ticks[offset :: round((nl - offset) / 2)]

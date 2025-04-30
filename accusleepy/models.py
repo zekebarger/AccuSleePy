@@ -1,8 +1,9 @@
 import numpy as np
-import torch
-import torch.nn.functional as F
-from torch import nn
+from torch import device, flatten, nn
+from torch import load as torch_load
+from torch import save as torch_save
 
+from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainStateSet
 from accusleepy.constants import (
     DOWNSAMPLING_START_FREQ,
     EMG_COPIES,
@@ -41,8 +42,57 @@ class SSANN(nn.Module):
 
     def forward(self, x):
         x = x.float()
-        x = self.pool(F.relu(self.conv1_bn(self.conv1(x))))
-        x = self.pool(F.relu(self.conv2_bn(self.conv2(x))))
-        x = self.pool(F.relu(self.conv3_bn(self.conv3(x))))
-        x = torch.flatten(x, 1)  # flatten all dimensions except batch
+        x = self.pool(nn.functional.relu(self.conv1_bn(self.conv1(x))))
+        x = self.pool(nn.functional.relu(self.conv2_bn(self.conv2(x))))
+        x = self.pool(nn.functional.relu(self.conv3_bn(self.conv3(x))))
+        x = flatten(x, 1)  # flatten all dimensions except batch
         return self.fc1(x)
+
+
+def save_model(
+    model: SSANN,
+    filename: str,
+    epoch_length: int | float,
+    epochs_per_img: int,
+    model_type: str,
+    brain_state_set: BrainStateSet,
+) -> None:
+    """Save classification model and its metadata
+
+    :param model: classification model
+    :param epoch_length: epoch length used when training the model
+    :param epochs_per_img: number of epochs in each model input
+    :param model_type: default or real-time
+    :param brain_state_set: set of brain state options
+    :param filename: filename
+    """
+    state_dict = model.state_dict()
+    state_dict.update({"epoch_length": epoch_length})
+    state_dict.update({"epochs_per_img": epochs_per_img})
+    state_dict.update({"model_type": model_type})
+    state_dict.update(
+        {BRAIN_STATES_KEY: brain_state_set.to_output_dict()[BRAIN_STATES_KEY]}
+    )
+
+    torch_save(state_dict, filename)
+
+
+def load_model(filename: str) -> tuple[SSANN, int | float, int, str, dict]:
+    """Load classification model and its metadata
+
+    :param filename: filename
+    :return: model, epoch length used when training the model,
+        number of epochs in each model input, model type
+        (default or real-time), set of brain state options
+        used when training the model
+    """
+    state_dict = torch_load(filename, weights_only=True, map_location=device("cpu"))
+    epoch_length = state_dict.pop("epoch_length")
+    epochs_per_img = state_dict.pop("epochs_per_img")
+    model_type = state_dict.pop("model_type")
+    brain_states = state_dict.pop(BRAIN_STATES_KEY)
+    n_classes = len([b for b in brain_states if b["is_scored"]])
+
+    model = SSANN(n_classes=n_classes)
+    model.load_state_dict(state_dict)
+    return model, epoch_length, epochs_per_img, model_type, brain_states

@@ -12,7 +12,24 @@ from types import SimpleNamespace
 
 import matplotlib.pyplot as plt
 import numpy as np
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtCore import (
+    QKeyCombination,
+    QRect,
+    Qt,
+    QUrl,
+)
+from PySide6.QtGui import (
+    QCloseEvent,
+    QKeySequence,
+    QShortcut,
+)
+from PySide6.QtWidgets import (
+    QDialog,
+    QMessageBox,
+    QTextBrowser,
+    QVBoxLayout,
+    QWidget,
+)
 
 from accusleepy.constants import UNDEFINED_LABEL
 from accusleepy.fileio import load_config, save_labels
@@ -73,7 +90,7 @@ class StateChange:
     epoch: int  # first epoch affected
 
 
-class ManualScoringWindow(QtWidgets.QDialog):
+class ManualScoringWindow(QDialog):
     """AccuSleePy manual scoring GUI"""
 
     def __init__(
@@ -191,33 +208,25 @@ class ManualScoringWindow(QtWidgets.QDialog):
         self.update_lower_figure()
 
         # user input: keyboard shortcuts
-        keypress_right = QtGui.QShortcut(
-            QtGui.QKeySequence(QtCore.Qt.Key.Key_Right), self
-        )
+        keypress_right = QShortcut(QKeySequence(Qt.Key.Key_Right), self)
         keypress_right.activated.connect(partial(self.shift_epoch, DIRECTION_RIGHT))
 
-        keypress_left = QtGui.QShortcut(
-            QtGui.QKeySequence(QtCore.Qt.Key.Key_Left), self
-        )
+        keypress_left = QShortcut(QKeySequence(Qt.Key.Key_Left), self)
         keypress_left.activated.connect(partial(self.shift_epoch, DIRECTION_LEFT))
 
         keypress_zoom_in_x = list()
-        for zoom_key in [QtCore.Qt.Key.Key_Plus, QtCore.Qt.Key.Key_Equal]:
-            keypress_zoom_in_x.append(
-                QtGui.QShortcut(QtGui.QKeySequence(zoom_key), self)
-            )
+        for zoom_key in [Qt.Key.Key_Plus, Qt.Key.Key_Equal]:
+            keypress_zoom_in_x.append(QShortcut(QKeySequence(zoom_key), self))
             keypress_zoom_in_x[-1].activated.connect(partial(self.zoom_x, ZOOM_IN))
 
-        keypress_zoom_out_x = QtGui.QShortcut(
-            QtGui.QKeySequence(QtCore.Qt.Key.Key_Minus), self
-        )
+        keypress_zoom_out_x = QShortcut(QKeySequence(Qt.Key.Key_Minus), self)
         keypress_zoom_out_x.activated.connect(partial(self.zoom_x, ZOOM_OUT))
 
         keypress_modify_label = list()
         for brain_state in self.brain_state_set.brain_states:
             keypress_modify_label.append(
-                QtGui.QShortcut(
-                    QtGui.QKeySequence(QtCore.Qt.Key[f"Key_{brain_state.digit}"]),
+                QShortcut(
+                    QKeySequence(Qt.Key[f"Key_{brain_state.digit}"]),
                     self,
                 )
             )
@@ -225,25 +234,19 @@ class ManualScoringWindow(QtWidgets.QDialog):
                 partial(self.modify_current_epoch_label, brain_state.digit)
             )
 
-        keypress_delete_label = QtGui.QShortcut(
-            QtGui.QKeySequence(QtCore.Qt.Key.Key_Backspace), self
-        )
+        keypress_delete_label = QShortcut(QKeySequence(Qt.Key.Key_Backspace), self)
         keypress_delete_label.activated.connect(
             partial(self.modify_current_epoch_label, UNDEFINED_LABEL)
         )
 
-        keypress_quit = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_W)
-            ),
+        keypress_quit = QShortcut(
+            QKeySequence(QKeyCombination(Qt.Modifier.CTRL, Qt.Key.Key_W)),
             self,
         )
         keypress_quit.activated.connect(self.close)
 
-        keypress_save = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_S)
-            ),
+        keypress_save = QShortcut(
+            QKeySequence(QKeyCombination(Qt.Modifier.CTRL, Qt.Key.Key_S)),
             self,
         )
         keypress_save.activated.connect(self.save)
@@ -251,11 +254,11 @@ class ManualScoringWindow(QtWidgets.QDialog):
         keypress_roi = list()
         for brain_state in self.brain_state_set.brain_states:
             keypress_roi.append(
-                QtGui.QShortcut(
-                    QtGui.QKeySequence(
-                        QtCore.QKeyCombination(
-                            QtCore.Qt.Modifier.SHIFT,
-                            QtCore.Qt.Key[f"Key_{brain_state.digit}"],
+                QShortcut(
+                    QKeySequence(
+                        QKeyCombination(
+                            Qt.Modifier.SHIFT,
+                            Qt.Key[f"Key_{brain_state.digit}"],
                         )
                     ),
                     self,
@@ -265,11 +268,11 @@ class ManualScoringWindow(QtWidgets.QDialog):
                 partial(self.enter_label_roi_mode, brain_state.digit)
             )
         keypress_roi.append(
-            QtGui.QShortcut(
-                QtGui.QKeySequence(
-                    QtCore.QKeyCombination(
-                        QtCore.Qt.Modifier.SHIFT,
-                        QtCore.Qt.Key.Key_Backspace,
+            QShortcut(
+                QKeySequence(
+                    QKeyCombination(
+                        Qt.Modifier.SHIFT,
+                        Qt.Key.Key_Backspace,
                     )
                 ),
                 self,
@@ -279,22 +282,18 @@ class ManualScoringWindow(QtWidgets.QDialog):
             partial(self.enter_label_roi_mode, UNDEFINED_LABEL)
         )
 
-        keypress_esc = QtGui.QShortcut(
-            QtGui.QKeySequence(QtCore.Qt.Key.Key_Escape), self
-        )
+        keypress_esc = QShortcut(QKeySequence(Qt.Key.Key_Escape), self)
         keypress_esc.activated.connect(self.exit_label_roi_mode)
 
-        keypress_space = QtGui.QShortcut(
-            QtGui.QKeySequence(QtCore.Qt.Key.Key_Space), self
-        )
+        keypress_space = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
         keypress_space.activated.connect(
             partial(self.jump_to_next_state, DIRECTION_RIGHT, DIFFERENT_STATE)
         )
-        keypress_shift_right = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(
-                    QtCore.Qt.Modifier.SHIFT,
-                    QtCore.Qt.Key.Key_Right,
+        keypress_shift_right = QShortcut(
+            QKeySequence(
+                QKeyCombination(
+                    Qt.Modifier.SHIFT,
+                    Qt.Key.Key_Right,
                 )
             ),
             self,
@@ -302,11 +301,11 @@ class ManualScoringWindow(QtWidgets.QDialog):
         keypress_shift_right.activated.connect(
             partial(self.jump_to_next_state, DIRECTION_RIGHT, DIFFERENT_STATE)
         )
-        keypress_shift_left = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(
-                    QtCore.Qt.Modifier.SHIFT,
-                    QtCore.Qt.Key.Key_Left,
+        keypress_shift_left = QShortcut(
+            QKeySequence(
+                QKeyCombination(
+                    Qt.Modifier.SHIFT,
+                    Qt.Key.Key_Left,
                 )
             ),
             self,
@@ -314,11 +313,11 @@ class ManualScoringWindow(QtWidgets.QDialog):
         keypress_shift_left.activated.connect(
             partial(self.jump_to_next_state, DIRECTION_LEFT, DIFFERENT_STATE)
         )
-        keypress_ctrl_right = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(
-                    QtCore.Qt.Modifier.CTRL,
-                    QtCore.Qt.Key.Key_Right,
+        keypress_ctrl_right = QShortcut(
+            QKeySequence(
+                QKeyCombination(
+                    Qt.Modifier.CTRL,
+                    Qt.Key.Key_Right,
                 )
             ),
             self,
@@ -326,11 +325,11 @@ class ManualScoringWindow(QtWidgets.QDialog):
         keypress_ctrl_right.activated.connect(
             partial(self.jump_to_next_state, DIRECTION_RIGHT, UNDEFINED_STATE)
         )
-        keypress_ctrl_left = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(
-                    QtCore.Qt.Modifier.CTRL,
-                    QtCore.Qt.Key.Key_Left,
+        keypress_ctrl_left = QShortcut(
+            QKeySequence(
+                QKeyCombination(
+                    Qt.Modifier.CTRL,
+                    Qt.Key.Key_Left,
                 )
             ),
             self,
@@ -339,17 +338,13 @@ class ManualScoringWindow(QtWidgets.QDialog):
             partial(self.jump_to_next_state, DIRECTION_LEFT, UNDEFINED_STATE)
         )
 
-        keypress_undo = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_Z)
-            ),
+        keypress_undo = QShortcut(
+            QKeySequence(QKeyCombination(Qt.Modifier.CTRL, Qt.Key.Key_Z)),
             self,
         )
         keypress_undo.activated.connect(self.undo)
-        keypress_redo = QtGui.QShortcut(
-            QtGui.QKeySequence(
-                QtCore.QKeyCombination(QtCore.Qt.Modifier.CTRL, QtCore.Qt.Key.Key_Y)
-            ),
+        keypress_redo = QShortcut(
+            QKeySequence(QKeyCombination(Qt.Modifier.CTRL, Qt.Key.Key_Y)),
             self,
         )
         keypress_redo.activated.connect(self.redo)
@@ -483,34 +478,34 @@ class ManualScoringWindow(QtWidgets.QDialog):
         )
         self.click_to_jump(simulated_click)
 
-    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+    def closeEvent(self, event: QCloseEvent) -> None:
         """Check if there are unsaved changes before closing"""
         if not all(self.labels == self.last_saved_labels):
-            result = QtWidgets.QMessageBox.question(
+            result = QMessageBox.question(
                 self,
                 "Unsaved changes",
                 "You have unsaved changes. Really quit?",
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                QMessageBox.Yes | QMessageBox.No,
             )
-            if result == QtWidgets.QMessageBox.Yes:
+            if result == QMessageBox.Yes:
                 event.accept()
             else:
                 event.ignore()
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
-        self.popup = QtWidgets.QWidget()
-        self.popup_vlayout = QtWidgets.QVBoxLayout(self.popup)
-        self.guide_textbox = QtWidgets.QTextBrowser(self.popup)
+        self.popup = QWidget()
+        self.popup_vlayout = QVBoxLayout(self.popup)
+        self.guide_textbox = QTextBrowser(self.popup)
         self.popup_vlayout.addWidget(self.guide_textbox)
 
-        url = QtCore.QUrl.fromLocalFile(
+        url = QUrl.fromLocalFile(
             os.path.join(os.path.dirname(os.path.abspath(__file__)), USER_MANUAL_FILE)
         )
         self.guide_textbox.setSource(url)
         self.guide_textbox.setOpenLinks(False)
 
-        self.popup.setGeometry(QtCore.QRect(100, 100, 830, 600))
+        self.popup.setGeometry(QRect(100, 100, 830, 600))
         self.popup.show()
 
     def jump_to_next_state(self, direction: str, target: str) -> None:

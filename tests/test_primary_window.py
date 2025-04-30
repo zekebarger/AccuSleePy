@@ -2,7 +2,7 @@ import numpy as np
 
 from accusleepy.brain_state_set import BrainState, BrainStateSet
 from accusleepy.constants import UNDEFINED_LABEL
-from accusleepy.gui.main import check_label_validity, LABEL_LENGTH_ERROR
+from accusleepy.gui.main import LABEL_LENGTH_ERROR, check_label_validity
 
 brain_states = [
     BrainState(name="A", digit=0, is_scored=True, frequency=0.5),

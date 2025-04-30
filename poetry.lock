@@ -1548,15 +1548,15 @@ test = ["Cython", "array-api-strict (>=2.0,<2.1.1)", "asv", "gmpy2", "hypothesis
 
 [[package]]
 name = "setuptools"
-version = "79.0.1"
+version = "80.0.1"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 markers = "python_version >= \"3.12\""
 files = [
-    {file = "setuptools-79.0.1-py3-none-any.whl", hash = "sha256:e147c0549f27767ba362f9da434eab9c5dc0045d5304feb602a0af001089fc51"},
-    {file = "setuptools-79.0.1.tar.gz", hash = "sha256:128ce7b8f33c3079fd1b067ecbb4051a66e8526e7b65f6cec075dfc650ddfa88"},
+    {file = "setuptools-80.0.1-py3-none-any.whl", hash = "sha256:f4b49d457765b3aae7cbbeb1c71f6633a61b729408c2d1a837dae064cca82ef2"},
+    {file = "setuptools-80.0.1.tar.gz", hash = "sha256:20fe373a22ef9f3925512650d1db90b1b8de01cdb6df91ab1788263139cbf9a2"},
 ]
 
 [package.extras]
