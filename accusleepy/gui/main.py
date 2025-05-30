@@ -491,7 +491,8 @@ class AccuSleepWindow(QMainWindow):
             label_file = self.recordings[recording_index].label_file
             if os.path.isfile(label_file):
                 try:
-                    existing_labels = load_labels(label_file)
+                    # ignore any existing confidence scores; they will all be overwritten
+                    existing_labels, _ = load_labels(label_file)
                 except Exception:
                     self.show_message(
                         (
@@ -544,7 +545,7 @@ class AccuSleepWindow(QMainWindow):
                 )
                 continue
 
-            labels = score_recording(
+            labels, confidence_scores = score_recording(
                 model=self.model,
                 eeg=eeg,
                 emg=emg,
@@ -570,7 +571,9 @@ class AccuSleepWindow(QMainWindow):
             )
 
             # save results
-            save_labels(labels, label_file)
+            save_labels(
+                labels=labels, filename=label_file, confidence_scores=confidence_scores
+            )
             self.show_message(
                 (
                     "Saved labels for recording "
@@ -716,7 +719,7 @@ class AccuSleepWindow(QMainWindow):
             self.show_message("ERROR: label file does not exist")
             return
         try:
-            labels = load_labels(label_file)
+            labels, _ = load_labels(label_file)
         except Exception:
             self.ui.calibration_status.setText("could not load labels")
             self.show_message(
@@ -728,6 +731,7 @@ class AccuSleepWindow(QMainWindow):
             return
         label_error_message = check_label_validity(
             labels=labels,
+            confidence_scores=None,
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
@@ -833,7 +837,7 @@ class AccuSleepWindow(QMainWindow):
         label_file = self.recordings[self.recording_index].label_file
         if os.path.isfile(label_file):
             try:
-                labels = load_labels(label_file)
+                labels, confidence_scores = load_labels(label_file)
             except Exception:
                 self.ui.manual_scoring_status.setText("could not load labels")
                 self.show_message(
@@ -848,10 +852,14 @@ class AccuSleepWindow(QMainWindow):
                 np.ones(int(eeg.size / (sampling_rate * self.epoch_length)))
                 * UNDEFINED_LABEL
             ).astype(int)
+            # manual scoring will not add a new confidence score column
+            # to a label file that does not have one
+            confidence_scores = None
 
         # check that all labels are valid
         label_error = check_label_validity(
             labels=labels,
+            confidence_scores=confidence_scores,
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
@@ -866,6 +874,10 @@ class AccuSleepWindow(QMainWindow):
                 epochs_in_recording = round(eeg.size / samples_per_epoch)
                 if epochs_in_recording - labels.size == 1:
                     labels = np.concatenate((labels, np.array([UNDEFINED_LABEL])))
+                    if confidence_scores is not None:
+                        confidence_scores = np.concatenate(
+                            (confidence_scores, np.array([0]))
+                        )
                     self.show_message(
                         (
                             "WARNING: an undefined epoch was added to "
@@ -874,6 +886,8 @@ class AccuSleepWindow(QMainWindow):
                     )
                 elif labels.size - epochs_in_recording == 1:
                     labels = labels[:-1]
+                    if confidence_scores is not None:
+                        confidence_scores = confidence_scores[:-1]
                     self.show_message(
                         (
                             "WARNING: the last epoch was removed from "
@@ -900,6 +914,7 @@ class AccuSleepWindow(QMainWindow):
             emg=emg,
             label_file=label_file,
             labels=labels,
+            confidence_scores=confidence_scores,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
         )
@@ -1296,6 +1311,7 @@ class AccuSleepWindow(QMainWindow):
 
 def check_label_validity(
     labels: np.array,
+    confidence_scores: np.array,
     samples_in_recording: int,
     sampling_rate: int | float,
     epoch_length: int | float,
@@ -1307,6 +1323,7 @@ def check_label_validity(
     brain state labels.
 
     :param labels: brain state labels
+    :param confidence_scores: confidence scores
     :param samples_in_recording: number of samples in the recording
     :param sampling_rate: sampling rate, in Hz
     :param epoch_length: epoch length, in seconds
@@ -1324,6 +1341,12 @@ def check_label_validity(
         set([b.digit for b in brain_state_set.brain_states] + [UNDEFINED_LABEL])
     ):
         return "label file contains invalid entries"
+
+    if confidence_scores is not None:
+        if np.min(confidence_scores) < 0 or np.max(confidence_scores) > 1:
+            return "label file contains invalid confidence scores"
+
+    return None
 
 
 def check_config_consistency(

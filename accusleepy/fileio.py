@@ -1,6 +1,7 @@
 import json
 import os
 from dataclasses import dataclass
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -9,6 +10,7 @@ from PySide6.QtWidgets import QListWidgetItem
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 from accusleepy.constants import (
     BRAIN_STATE_COL,
+    CONFIDENCE_SCORE_COL,
     CONFIG_FILE,
     DEFAULT_EPOCH_LENGTH_KEY,
     EEG_COL,
@@ -72,23 +74,34 @@ def load_recording(filename: str) -> (np.array, np.array):
     return eeg, emg
 
 
-def load_labels(filename: str) -> np.array:
+def load_labels(filename: str) -> Tuple[np.array, None] | Tuple[np.array, np.array]:
     """Load file of brain state labels
 
     :param filename: filename
-    :return: array of brain state labels
+    :return: array of brain state labels and, optionally, array of confidence scores
     """
     df = load_csv_or_parquet(filename)
-    return df[BRAIN_STATE_COL].values
+    if CONFIDENCE_SCORE_COL in df.columns:
+        return df[BRAIN_STATE_COL].values, df[CONFIDENCE_SCORE_COL].values
+    else:
+        return df[BRAIN_STATE_COL].values, None
 
 
-def save_labels(labels: np.array, filename: str) -> None:
+def save_labels(
+    labels: np.array, filename: str, confidence_scores: np.array = None
+) -> None:
     """Save brain state labels to file
 
     :param labels: brain state labels
     :param filename: filename
+    :param confidence_scores: optional confidence scores
     """
-    pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
+    if confidence_scores is not None:
+        pd.DataFrame(
+            {BRAIN_STATE_COL: labels, CONFIDENCE_SCORE_COL: confidence_scores}
+        ).to_csv(filename, index=False)
+    else:
+        pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
 
 
 def load_config() -> tuple[BrainStateSet, int | float]:

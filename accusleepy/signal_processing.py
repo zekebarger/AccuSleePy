@@ -404,7 +404,7 @@ def create_training_images(
                 epoch_length=epoch_length,
             )
 
-            labels = load_labels(recording.label_file)
+            labels, _ = load_labels(recording.label_file)
             labels = brain_state_set.convert_digit_to_class(labels)
             img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
             img = mixture_z_score_img(

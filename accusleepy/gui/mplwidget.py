@@ -66,6 +66,8 @@ class MplWidget(QtWidgets.QWidget):
         self,
         n_epochs: int,
         label_img: np.array,
+        confidence_scores: np.array,
+        confidence_img: np.array,
         spec: np.array,
         f: np.array,
         emg: np.array,
@@ -78,6 +80,8 @@ class MplWidget(QtWidgets.QWidget):
 
         :param n_epochs: number of epochs in the recording
         :param label_img: brain state labels, as an image
+        :param confidence_scores: confidence scores
+        :param confidence_img: confidence scores, as an image
         :param spec: EEG spectrogram image
         :param f: EEG spectrogram frequency axis
         :param emg: EMG RMS per epoch
@@ -90,39 +94,60 @@ class MplWidget(QtWidgets.QWidget):
         self.upper_marker = list()
 
         # subplot layout
-        height_ratios = [8, 2, 12, 13]
-        gs1 = GridSpec(4, 1, hspace=0, height_ratios=height_ratios)
-        gs2 = GridSpec(4, 1, hspace=0.4, height_ratios=height_ratios)
+        height_ratios = [2, 8, 2, 12, 13]
+        gs1 = GridSpec(5, 1, hspace=0.02, height_ratios=height_ratios)
+        gs2 = GridSpec(5, 1, hspace=0.4, height_ratios=height_ratios)
         axes = list()
         axes.append(self.canvas.figure.add_subplot(gs1[0]))
         axes.append(self.canvas.figure.add_subplot(gs1[1]))
         axes.append(self.canvas.figure.add_subplot(gs1[2]))
-        axes.append(self.canvas.figure.add_subplot(gs2[3]))
+        axes.append(self.canvas.figure.add_subplot(gs1[3]))
+        axes.append(self.canvas.figure.add_subplot(gs2[4]))
 
         # subplots have different axes limits
-        for i in [0, 1, 3]:
+        for i in [0, 1, 2, 4]:
             axes[i].set_xlim((-0.5, n_epochs - 0.5))
-        axes[2].set_xlim(0, n_epochs)
+        axes[3].set_xlim(0, n_epochs)
+
+        # confidence score subplot
+        if confidence_scores is None:
+            axes[0].set_visible(False)
+        else:
+            axes[0].set_ylim([-0.5, 0.5])
+            axes[0].set_xticks([])
+            axes[0].set_yticks([0])
+            axes[0].set_yticklabels(["Conf."])
+            axes[0].tick_params(axis="y", color="white")
+            axes[0].imshow(
+                confidence_img, aspect="auto", origin="lower", interpolation="None"
+            )
+            confidence_x = (
+                np.repeat(list(range(len(confidence_scores) + 1)), 2)[1:-1] - 0.5
+            )
+            confidence_y = np.repeat(confidence_scores, 2) - 0.5
+            axes[0].plot(confidence_x, confidence_y, "k", linewidth=0.5)
+            for side in ["left", "right", "bottom", "top"]:
+                axes[0].spines[side].set_visible(False)
 
         # brain state subplot
-        axes[0].set_ylim(
+        axes[1].set_ylim(
             [-0.5, np.max(label_display_options) - np.min(label_display_options) + 0.5]
         )
-        axes[0].set_xticks([])
-        axes[0].set_yticks(
+        axes[1].set_xticks([])
+        axes[1].set_yticks(
             label_display_options - np.min(label_display_options),
         )
-        axes[0].set_yticklabels([b.name for b in brain_state_set.brain_states])
-        ax2 = axes[0].secondary_yaxis("right")
+        axes[1].set_yticklabels([b.name for b in brain_state_set.brain_states])
+        ax2 = axes[1].secondary_yaxis("right")
         ax2.set_yticks(
             label_display_options - np.min(label_display_options),
         )
         ax2.set_yticklabels([b.digit for b in brain_state_set.brain_states])
-        self.label_img_ref = axes[0].imshow(
+        self.label_img_ref = axes[1].imshow(
             label_img, aspect="auto", origin="lower", interpolation="None"
         )
         # add patch to dim the display when creating an ROI
-        self.editing_patch = axes[0].add_patch(
+        self.editing_patch = axes[1].add_patch(
             Rectangle(
                 xy=(-0.5, -0.5),
                 width=n_epochs,
@@ -137,7 +162,7 @@ class MplWidget(QtWidgets.QWidget):
         )
         # add the ROI selection widget, but disable it until it's needed
         self.roi = RectangleSelector(
-            ax=axes[0],
+            ax=axes[1],
             onselect=roi_function,
             interactive=False,
             button=MouseButton(1),
@@ -145,34 +170,34 @@ class MplWidget(QtWidgets.QWidget):
         self.roi.set_active(False)
         # keep a reference to the ROI patch so we can change its color later
         # index 0 is the "editing_patch" created earlier
-        self.roi_patch = [c for c in axes[0].get_children() if type(c) is Rectangle][1]
+        self.roi_patch = [c for c in axes[1].get_children() if type(c) is Rectangle][1]
 
         # epoch marker subplot
-        axes[1].set_ylim((0, 1))
-        axes[1].axis("off")
+        axes[2].set_ylim((0, 1))
+        axes[2].axis("off")
         self.upper_marker.append(
-            axes[1].plot([-0.5, epochs_to_show - 0.5], [0.5, 0.5], "r")[0]
+            axes[2].plot([-0.5, epochs_to_show - 0.5], [0.5, 0.5], "r")[0]
         )
-        self.upper_marker.append(axes[1].plot([0], [0.5], "rD")[0])
+        self.upper_marker.append(axes[2].plot([0], [0.5], "rD")[0])
 
         # EEG spectrogram subplot
         # select subset of frequencies to show
         f = f[f <= SPEC_UPPER_F]
         spec = spec[0 : len(f), :]
-        axes[2].set_ylabel("EEG", rotation="horizontal", ha="right")
-        axes[2].set_yticks(
+        axes[3].set_ylabel("EEG", rotation="horizontal", ha="right")
+        axes[3].set_yticks(
             np.linspace(
                 0,
                 len(f),
                 1 + round(SPEC_UPPER_F / SPEC_Y_TICK_INTERVAL),
             ),
         )
-        axes[2].set_yticklabels(
+        axes[3].set_yticklabels(
             np.arange(0, SPEC_UPPER_F + SPEC_Y_TICK_INTERVAL, SPEC_Y_TICK_INTERVAL)
         )
-        axes[2].tick_params(axis="both", which="major", labelsize=8)
-        axes[2].xaxis.set_major_formatter(mticker.FuncFormatter(self.time_formatter))
-        self.spec_ref = axes[2].imshow(
+        axes[3].tick_params(axis="both", which="major", labelsize=8)
+        axes[3].xaxis.set_major_formatter(mticker.FuncFormatter(self.time_formatter))
+        self.spec_ref = axes[3].imshow(
             spec,
             vmin=np.percentile(spec, 2),
             vmax=np.percentile(spec, 98),
@@ -188,10 +213,10 @@ class MplWidget(QtWidgets.QWidget):
         )
 
         # EMG subplot
-        axes[3].set_xticks([])
-        axes[3].set_yticks([])
-        axes[3].set_ylabel("EMG", rotation="horizontal", ha="right")
-        axes[3].plot(
+        axes[4].set_xticks([])
+        axes[4].set_yticks([])
+        axes[4].set_ylabel("EMG", rotation="horizontal", ha="right")
+        axes[4].plot(
             emg,
             "k",
             linewidth=0.5,

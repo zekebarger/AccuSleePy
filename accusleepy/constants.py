@@ -8,6 +8,7 @@ EEG_COL = "eeg"
 EMG_COL = "emg"
 # label file columns
 BRAIN_STATE_COL = "brain_state"
+CONFIDENCE_SCORE_COL = "confidence_score"
 
 
 # really don't change these

@@ -99,6 +99,7 @@ class ManualScoringWindow(QDialog):
         emg: np.array,
         label_file: str,
         labels: np.array,
+        confidence_scores: np.array,  # | None...
         sampling_rate: int | float,
         epoch_length: int | float,
     ):
@@ -108,6 +109,7 @@ class ManualScoringWindow(QDialog):
         :param emg: EMG signal
         :param label_file: filename for labels
         :param labels: brain state labels
+        :param confidence_scores: confidence scores
         :param sampling_rate: sampling rate, in Hz
         :param epoch_length: epoch length, in seconds
         """
@@ -117,6 +119,7 @@ class ManualScoringWindow(QDialog):
         self.eeg = eeg
         self.emg = emg
         self.labels = labels
+        self.confidence_scores = confidence_scores
         self.sampling_rate = sampling_rate
         self.epoch_length = epoch_length
 
@@ -161,6 +164,8 @@ class ManualScoringWindow(QDialog):
         self.label_img = create_label_img(
             self.display_labels, self.label_display_options
         )
+        # same sort of thing for confidence scores
+        self.confidence_img = create_confidence_img(self.confidence_scores)
 
         # history of changes to the brain state labels
         self.history = list()
@@ -172,6 +177,8 @@ class ManualScoringWindow(QDialog):
         self.ui.upperfigure.setup_upper_figure(
             self.n_epochs,
             self.label_img,
+            self.confidence_scores,
+            self.confidence_img,
             spectrogram,
             spectrogram_frequencies,
             self.upper_emg,
@@ -702,11 +709,11 @@ class ManualScoringWindow(QDialog):
 
     def adjust_upper_figure_x_limits(self) -> None:
         """Update the x-axis limits of the upper figure subplots"""
-        for i in [0, 1, 3]:
+        for i in [0, 1, 2, 4]:
             self.ui.upperfigure.canvas.axes[i].set_xlim(
                 (self.upper_left_epoch - 0.5, self.upper_right_epoch + 0.5)
             )
-        self.ui.upperfigure.canvas.axes[2].set_xlim(
+        self.ui.upperfigure.canvas.axes[3].set_xlim(
             (self.upper_left_epoch, self.upper_right_epoch + 1)
         )
 
@@ -949,7 +956,7 @@ class ManualScoringWindow(QDialog):
             # if it's on the spectrogram, we have to adjust it slightly
             # since that uses a different x-axis range
             ax_index = self.ui.upperfigure.canvas.axes.index(event.inaxes)
-            if ax_index == 2:
+            if ax_index == 3:
                 x -= 0.5
 
         # get the "zoom level" so we can preserve that
@@ -1038,6 +1045,21 @@ def create_label_img(labels: np.array, label_display_options: np.array) -> np.ar
             # label is undefined
             label_img[:, i] = np.array([0, 0, 0, 1])
     return label_img
+
+
+def create_confidence_img(confidence_scores: np.array) -> np.array:
+    """Create an image to display confidence scores
+
+    :param confidence_scores: confidence scores
+    :return: confidence score image
+    """
+    if confidence_scores is None:
+        return None
+
+    confidence_img = np.ones([1, len(confidence_scores), 3])
+    for i, c in enumerate(confidence_scores):
+        confidence_img[0, i, 1:] = c
+    return confidence_img
 
 
 def create_upper_emg_signal(

@@ -130,7 +130,7 @@ def score_recording(
     :param epoch_length: epoch length, in seconds
     :param epochs_per_img: number of epochs for the model to consider
     :param brain_state_set: set of brain state options
-    :return: brain state labels
+    :return: brain state labels, confidence scores
     """
     # prepare model
     device = get_device()
@@ -158,10 +158,16 @@ def score_recording(
     # perform classification
     with torch.no_grad():
         outputs = model(images)
-        _, predicted = torch.max(outputs, 1)
+        logits, predicted = torch.max(outputs, 1)
 
     labels = brain_state_set.convert_class_to_digit(predicted.cpu().numpy())
-    return labels
+
+    # TODO: calibrate the model using temperature scaling, or another method
+    # idea 1: https://arxiv.org/html/2411.02988v2
+    # idea 2: https://github.com/gpleiss/temperature_scaling
+    confidence_scores = 1 / (1 + np.e ** (-logits.cpu().numpy()))
+
+    return labels, confidence_scores
 
 
 def example_real_time_scoring_function(
