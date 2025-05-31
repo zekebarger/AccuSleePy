@@ -65,6 +65,9 @@ Manual scoring interface
 ## Acknowledgements
 
 We would like to thank [Franz Weber](https://www.med.upenn.edu/weberlab/) for creating an
-early version of the manual labeling interface.
+early version of the manual labeling interface. The code that
+creates spectrograms comes from the
+[Prerau lab](https://github.com/preraulab/multitaper_toolbox/blob/master/python/multitaper_spectrogram_python.py)
+with only minor modifications.
 Jim Bohnslav's [deepethogram](https://github.com/jbohnslav/deepethogram) served as an
 incredibly useful reference when reimplementing this project in python.
