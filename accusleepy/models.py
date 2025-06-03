@@ -95,7 +95,7 @@ def load_model(filename: str) -> tuple[SSANN, int | float, int, str, dict]:
     epochs_per_img = state_dict.pop("epochs_per_img")
     model_type = state_dict.pop("model_type")
     if "is_calibrated" in state_dict:
-        is_calibrated = state_dict.pop()
+        is_calibrated = state_dict.pop("is_calibrated")
     else:
         is_calibrated = False
     brain_states = state_dict.pop(BRAIN_STATES_KEY)
