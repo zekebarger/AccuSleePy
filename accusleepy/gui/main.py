@@ -96,14 +96,18 @@ class AccuSleepWindow(QMainWindow):
         self.setWindowTitle("AccuSleePy")
 
         # fill in settings tab
-        self.brain_state_set, self.epoch_length = load_config()
+        self.brain_state_set, self.epoch_length, self.save_confidence_setting = (
+            load_config()
+        )
         self.settings_widgets = None
         self.initialize_settings_tab()
 
         # initialize info about the recordings, classification data / settings
         self.ui.epoch_length_input.setValue(self.epoch_length)
+        self.ui.save_confidence_checkbox.setChecked(self.save_confidence_setting)
         self.model = None
         self.only_overwrite_undefined = False
+        self.save_confidence_scores = self.save_confidence_setting
         self.min_bout_length = 5
 
         # initialize model training variables
@@ -166,6 +170,9 @@ class AccuSleepWindow(QMainWindow):
         self.ui.load_model_button.clicked.connect(partial(self.load_model, None))
         self.ui.score_all_button.clicked.connect(self.score_all)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
+        self.ui.save_confidence_checkbox.stateChanged.connect(
+            self.update_confidence_policy
+        )
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
         self.ui.user_manual_button.clicked.connect(self.show_user_manual)
         self.ui.image_number_input.valueChanged.connect(self.update_epochs_per_img)
@@ -570,6 +577,10 @@ class AccuSleepWindow(QMainWindow):
                 min_bout_length=self.min_bout_length,
             )
 
+            # ignore confidence scores if desired
+            if not self.save_confidence_scores:
+                confidence_scores = None
+
             # save results
             save_labels(
                 labels=labels, filename=label_file, confidence_scores=confidence_scores
@@ -823,6 +834,15 @@ class AccuSleepWindow(QMainWindow):
         :param checked: state of the checkbox
         """
         self.only_overwrite_undefined = checked
+
+    def update_confidence_policy(self, checked) -> None:
+        """Toggle policy for saving confidence scores
+
+        If the checkbox is enabled, confidence scores will be saved to the label files.
+
+        :param checked: state of the checkbox
+        """
+        self.save_confidence_scores = checked
 
     def manual_scoring(self) -> None:
         """View the selected recording for manual scoring"""
@@ -1174,6 +1194,7 @@ class AccuSleepWindow(QMainWindow):
 
         # update widget state to display current config
         self.ui.default_epoch_input.setValue(self.epoch_length)
+        self.ui.confidence_setting_checkbox.setChecked(self.save_confidence_setting)
         states = {b.digit: b for b in self.brain_state_set.brain_states}
         for digit in range(10):
             if digit in states.keys():
@@ -1311,7 +1332,11 @@ class AccuSleepWindow(QMainWindow):
         self.brain_state_set = BrainStateSet(brain_states, UNDEFINED_LABEL)
 
         # save to file
-        save_config(self.brain_state_set, self.ui.default_epoch_input.value())
+        save_config(
+            self.brain_state_set,
+            self.ui.default_epoch_input.value(),
+            self.ui.confidence_setting_checkbox.isChecked(),
+        )
         self.ui.save_config_status.setText("configuration saved")
 
 

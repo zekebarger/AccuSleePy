@@ -38,5 +38,7 @@ RECORDING_LIST_NAME = "recording_list"
 RECORDING_LIST_FILE_TYPE = ".json"
 # key for default epoch length in config
 DEFAULT_EPOCH_LENGTH_KEY = "default_epoch_length"
+# key used for default confidence score behavior in config
+DEFAULT_CONFIDENCE_SETTING_KEY = "save_confidence_setting"
 # filename used to store info about training image datasets
 ANNOTATIONS_FILENAME = "annotations.csv"

@@ -12,6 +12,7 @@ from accusleepy.constants import (
     BRAIN_STATE_COL,
     CONFIDENCE_SCORE_COL,
     CONFIG_FILE,
+    DEFAULT_CONFIDENCE_SETTING_KEY,
     DEFAULT_EPOCH_LENGTH_KEY,
     EEG_COL,
     EMG_COL,
@@ -104,30 +105,40 @@ def save_labels(
         pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
 
 
-def load_config() -> tuple[BrainStateSet, int | float]:
+def load_config() -> tuple[BrainStateSet, int | float, bool]:
     """Load configuration file with brain state options
 
-    :return: set of brain state options and default epoch length
+    :return: set of brain state options, other settings
     """
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "r"
     ) as f:
         data = json.load(f)
-    return BrainStateSet(
-        [BrainState(**b) for b in data[BRAIN_STATES_KEY]], UNDEFINED_LABEL
-    ), data[DEFAULT_EPOCH_LENGTH_KEY]
+
+    return (
+        BrainStateSet(
+            [BrainState(**b) for b in data[BRAIN_STATES_KEY]], UNDEFINED_LABEL
+        ),
+        data[DEFAULT_EPOCH_LENGTH_KEY],
+        data.get(DEFAULT_CONFIDENCE_SETTING_KEY, True),
+    )
 
 
 def save_config(
-    brain_state_set: BrainStateSet, default_epoch_length: int | float
+    brain_state_set: BrainStateSet,
+    default_epoch_length: int | float,
+    save_confidence_setting: bool,
 ) -> None:
     """Save configuration of brain state options to json file
 
     :param brain_state_set: set of brain state options
     :param default_epoch_length: epoch length to use when the GUI starts
+    :param save_confidence_setting: whether the option to save confidence
+        scores should be True by default
     """
     output_dict = brain_state_set.to_output_dict()
     output_dict.update({DEFAULT_EPOCH_LENGTH_KEY: default_epoch_length})
+    output_dict.update({DEFAULT_CONFIDENCE_SETTING_KEY: save_confidence_setting})
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "w"
     ) as f:

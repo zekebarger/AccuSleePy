@@ -19,5 +19,6 @@
             "frequency": 0.55
         }
     ],
-    "default_epoch_length": 2.5
+    "default_epoch_length": 2.5,
+    "save_confidence_setting": true
 }

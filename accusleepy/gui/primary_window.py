@@ -591,88 +591,6 @@ class Ui_PrimaryWindow(object):
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.gridLayout_4.setVerticalSpacing(15)
         self.gridLayout_4.setContentsMargins(0, 5, 0, 10)
-        self.score_all_layout = QHBoxLayout()
-        self.score_all_layout.setObjectName("score_all_layout")
-        self.score_all_button = QPushButton(self.classification_tab)
-        self.score_all_button.setObjectName("score_all_button")
-        sizePolicy3.setHeightForWidth(
-            self.score_all_button.sizePolicy().hasHeightForWidth()
-        )
-        self.score_all_button.setSizePolicy(sizePolicy3)
-
-        self.score_all_layout.addWidget(self.score_all_button)
-
-        self.score_all_status = QLabel(self.classification_tab)
-        self.score_all_status.setObjectName("score_all_status")
-        sizePolicy3.setHeightForWidth(
-            self.score_all_status.sizePolicy().hasHeightForWidth()
-        )
-        self.score_all_status.setSizePolicy(sizePolicy3)
-        self.score_all_status.setStyleSheet("background-color: transparent;")
-        self.score_all_status.setMargin(4)
-
-        self.score_all_layout.addWidget(self.score_all_status)
-
-        self.verticalLayout_4 = QVBoxLayout()
-        self.verticalLayout_4.setSpacing(10)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.overwritecheckbox = QCheckBox(self.classification_tab)
-        self.overwritecheckbox.setObjectName("overwritecheckbox")
-        sizePolicy1.setHeightForWidth(
-            self.overwritecheckbox.sizePolicy().hasHeightForWidth()
-        )
-        self.overwritecheckbox.setSizePolicy(sizePolicy1)
-        self.overwritecheckbox.setStyleSheet("background-color: transparent;")
-
-        self.verticalLayout_4.addWidget(self.overwritecheckbox)
-
-        self.boutlengthlayout = QHBoxLayout()
-        self.boutlengthlayout.setSpacing(5)
-        self.boutlengthlayout.setObjectName("boutlengthlayout")
-        self.boutlengthlabel = QLabel(self.classification_tab)
-        self.boutlengthlabel.setObjectName("boutlengthlabel")
-        sizePolicy1.setHeightForWidth(
-            self.boutlengthlabel.sizePolicy().hasHeightForWidth()
-        )
-        self.boutlengthlabel.setSizePolicy(sizePolicy1)
-        self.boutlengthlabel.setStyleSheet("background-color: transparent;")
-
-        self.boutlengthlayout.addWidget(self.boutlengthlabel)
-
-        self.bout_length_input = QDoubleSpinBox(self.classification_tab)
-        self.bout_length_input.setObjectName("bout_length_input")
-        sizePolicy1.setHeightForWidth(
-            self.bout_length_input.sizePolicy().hasHeightForWidth()
-        )
-        self.bout_length_input.setSizePolicy(sizePolicy1)
-        self.bout_length_input.setAlignment(
-            Qt.AlignmentFlag.AlignLeading
-            | Qt.AlignmentFlag.AlignLeft
-            | Qt.AlignmentFlag.AlignVCenter
-        )
-        self.bout_length_input.setDecimals(2)
-        self.bout_length_input.setMaximum(1000.000000000000000)
-        self.bout_length_input.setValue(5.000000000000000)
-
-        self.boutlengthlayout.addWidget(self.bout_length_input)
-
-        self.verticalLayout_4.addLayout(self.boutlengthlayout)
-
-        self.score_all_layout.addLayout(self.verticalLayout_4)
-
-        self.horizontalSpacer_5 = QSpacerItem(
-            10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
-        )
-
-        self.score_all_layout.addItem(self.horizontalSpacer_5)
-
-        self.score_all_layout.setStretch(0, 3)
-        self.score_all_layout.setStretch(1, 3)
-        self.score_all_layout.setStretch(2, 4)
-        self.score_all_layout.setStretch(3, 2)
-
-        self.gridLayout_4.addLayout(self.score_all_layout, 1, 0, 1, 1)
-
         self.load_model_layout = QHBoxLayout()
         self.load_model_layout.setSpacing(10)
         self.load_model_layout.setObjectName("load_model_layout")
@@ -711,6 +629,136 @@ class Ui_PrimaryWindow(object):
         self.load_model_layout.setStretch(1, 12)
 
         self.gridLayout_4.addLayout(self.load_model_layout, 0, 0, 1, 1)
+
+        self.score_all_layout = QHBoxLayout()
+        self.score_all_layout.setObjectName("score_all_layout")
+        self.score_all_button = QPushButton(self.classification_tab)
+        self.score_all_button.setObjectName("score_all_button")
+        sizePolicy3.setHeightForWidth(
+            self.score_all_button.sizePolicy().hasHeightForWidth()
+        )
+        self.score_all_button.setSizePolicy(sizePolicy3)
+
+        self.score_all_layout.addWidget(self.score_all_button)
+
+        self.score_all_status = QLabel(self.classification_tab)
+        self.score_all_status.setObjectName("score_all_status")
+        sizePolicy3.setHeightForWidth(
+            self.score_all_status.sizePolicy().hasHeightForWidth()
+        )
+        self.score_all_status.setSizePolicy(sizePolicy3)
+        self.score_all_status.setStyleSheet("background-color: transparent;")
+        self.score_all_status.setMargin(4)
+
+        self.score_all_layout.addWidget(self.score_all_status)
+
+        self.verticalLayout_4 = QVBoxLayout()
+        self.verticalLayout_4.setSpacing(10)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+
+        self.score_all_layout.addLayout(self.verticalLayout_4)
+
+        self.horizontalSpacer_5 = QSpacerItem(
+            10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.score_all_layout.addItem(self.horizontalSpacer_5)
+
+        self.score_all_layout.setStretch(0, 3)
+        self.score_all_layout.setStretch(1, 3)
+        self.score_all_layout.setStretch(2, 4)
+        self.score_all_layout.setStretch(3, 2)
+
+        self.gridLayout_4.addLayout(self.score_all_layout, 2, 0, 1, 1)
+
+        self.classification_options_layout = QHBoxLayout()
+        self.classification_options_layout.setSpacing(10)
+        self.classification_options_layout.setObjectName(
+            "classification_options_layout"
+        )
+        self.overwritecheckbox = QCheckBox(self.classification_tab)
+        self.overwritecheckbox.setObjectName("overwritecheckbox")
+        sizePolicy1.setHeightForWidth(
+            self.overwritecheckbox.sizePolicy().hasHeightForWidth()
+        )
+        self.overwritecheckbox.setSizePolicy(sizePolicy1)
+        self.overwritecheckbox.setStyleSheet("background-color: transparent;")
+
+        self.classification_options_layout.addWidget(self.overwritecheckbox)
+
+        self.horizontalSpacer_77 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.classification_options_layout.addItem(self.horizontalSpacer_77)
+
+        self.save_confidence_checkbox = QCheckBox(self.classification_tab)
+        self.save_confidence_checkbox.setObjectName("save_confidence_checkbox")
+        sizePolicy1.setHeightForWidth(
+            self.save_confidence_checkbox.sizePolicy().hasHeightForWidth()
+        )
+        self.save_confidence_checkbox.setSizePolicy(sizePolicy1)
+        self.save_confidence_checkbox.setStyleSheet("background-color: transparent;")
+
+        self.classification_options_layout.addWidget(self.save_confidence_checkbox)
+
+        self.horizontalSpacer_76 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.classification_options_layout.addItem(self.horizontalSpacer_76)
+
+        self.boutlengthlayout = QHBoxLayout()
+        self.boutlengthlayout.setSpacing(5)
+        self.boutlengthlayout.setObjectName("boutlengthlayout")
+        self.horizontalSpacer_74 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.boutlengthlayout.addItem(self.horizontalSpacer_74)
+
+        self.boutlengthlabel = QLabel(self.classification_tab)
+        self.boutlengthlabel.setObjectName("boutlengthlabel")
+        sizePolicy1.setHeightForWidth(
+            self.boutlengthlabel.sizePolicy().hasHeightForWidth()
+        )
+        self.boutlengthlabel.setSizePolicy(sizePolicy1)
+        self.boutlengthlabel.setStyleSheet("background-color: transparent;")
+
+        self.boutlengthlayout.addWidget(self.boutlengthlabel)
+
+        self.bout_length_input = QDoubleSpinBox(self.classification_tab)
+        self.bout_length_input.setObjectName("bout_length_input")
+        sizePolicy1.setHeightForWidth(
+            self.bout_length_input.sizePolicy().hasHeightForWidth()
+        )
+        self.bout_length_input.setSizePolicy(sizePolicy1)
+        self.bout_length_input.setAlignment(
+            Qt.AlignmentFlag.AlignLeading
+            | Qt.AlignmentFlag.AlignLeft
+            | Qt.AlignmentFlag.AlignVCenter
+        )
+        self.bout_length_input.setDecimals(2)
+        self.bout_length_input.setMaximum(1000.000000000000000)
+        self.bout_length_input.setValue(5.000000000000000)
+
+        self.boutlengthlayout.addWidget(self.bout_length_input)
+
+        self.horizontalSpacer_75 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.boutlengthlayout.addItem(self.horizontalSpacer_75)
+
+        self.classification_options_layout.addLayout(self.boutlengthlayout)
+
+        self.classification_options_layout.setStretch(0, 5)
+        self.classification_options_layout.setStretch(1, 1)
+        self.classification_options_layout.setStretch(2, 5)
+        self.classification_options_layout.setStretch(3, 1)
+        self.classification_options_layout.setStretch(4, 7)
+
+        self.gridLayout_4.addLayout(self.classification_options_layout, 1, 0, 1, 1)
 
         self.gridLayout.addLayout(self.gridLayout_4, 0, 0, 1, 1)
 
@@ -946,19 +994,19 @@ class Ui_PrimaryWindow(object):
         self.settings_tab_layout.setHorizontalSpacing(20)
         self.settings_tab_layout.setVerticalSpacing(10)
         self.settings_tab_layout.setContentsMargins(20, 20, 20, -1)
-        self.verticalLayout_3 = QVBoxLayout()
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.settings_description_layout = QVBoxLayout()
+        self.settings_description_layout.setObjectName("settings_description_layout")
         self.settings_text = QLabel(self.settings_tab)
         self.settings_text.setObjectName("settings_text")
         self.settings_text.setStyleSheet("background-color: white;")
         self.settings_text.setMargin(16)
 
-        self.verticalLayout_3.addWidget(self.settings_text)
+        self.settings_description_layout.addWidget(self.settings_text)
 
-        self.settings_tab_layout.addLayout(self.verticalLayout_3, 0, 1, 1, 1)
+        self.settings_tab_layout.addLayout(self.settings_description_layout, 0, 1, 1, 1)
 
-        self.verticalLayout_6 = QVBoxLayout()
-        self.verticalLayout_6.setObjectName("verticalLayout_6")
+        self.settings_controls_layout = QVBoxLayout()
+        self.settings_controls_layout.setObjectName("settings_controls_layout")
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setSpacing(10)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -1011,7 +1059,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_3.setStretch(3, 3)
         self.horizontalLayout_3.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_3)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_3)
 
         self.horizontalLayout_17 = QHBoxLayout()
         self.horizontalLayout_17.setSpacing(10)
@@ -1121,7 +1169,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_17.setStretch(3, 3)
         self.horizontalLayout_17.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_17)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_17)
 
         self.horizontalLayout_16 = QHBoxLayout()
         self.horizontalLayout_16.setSpacing(10)
@@ -1228,7 +1276,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_16.setStretch(3, 3)
         self.horizontalLayout_16.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_16)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_16)
 
         self.horizontalLayout_15 = QHBoxLayout()
         self.horizontalLayout_15.setSpacing(10)
@@ -1335,7 +1383,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_15.setStretch(3, 3)
         self.horizontalLayout_15.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_15)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_15)
 
         self.horizontalLayout_14 = QHBoxLayout()
         self.horizontalLayout_14.setSpacing(10)
@@ -1442,7 +1490,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_14.setStretch(3, 3)
         self.horizontalLayout_14.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_14)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_14)
 
         self.horizontalLayout_13 = QHBoxLayout()
         self.horizontalLayout_13.setSpacing(10)
@@ -1549,7 +1597,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_13.setStretch(3, 3)
         self.horizontalLayout_13.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_13)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_13)
 
         self.horizontalLayout_12 = QHBoxLayout()
         self.horizontalLayout_12.setSpacing(10)
@@ -1656,7 +1704,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_12.setStretch(3, 3)
         self.horizontalLayout_12.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_12)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_12)
 
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setSpacing(10)
@@ -1763,7 +1811,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_9.setStretch(3, 3)
         self.horizontalLayout_9.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_9)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_9)
 
         self.horizontalLayout_8 = QHBoxLayout()
         self.horizontalLayout_8.setSpacing(10)
@@ -1870,7 +1918,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_8.setStretch(3, 3)
         self.horizontalLayout_8.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_8)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_8)
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setSpacing(10)
@@ -1977,7 +2025,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_7.setStretch(3, 3)
         self.horizontalLayout_7.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_7)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_7)
 
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setSpacing(10)
@@ -2084,7 +2132,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_4.setStretch(3, 3)
         self.horizontalLayout_4.setStretch(4, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_4)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_4)
 
         self.default_epoch_layout = QHBoxLayout()
         self.default_epoch_layout.setObjectName("default_epoch_layout")
@@ -2122,7 +2170,39 @@ class Ui_PrimaryWindow(object):
 
         self.default_epoch_layout.addItem(self.horizontalSpacer_70)
 
-        self.verticalLayout_6.addLayout(self.default_epoch_layout)
+        self.settings_controls_layout.addLayout(self.default_epoch_layout)
+
+        self.confidence_score_setting_layout = QHBoxLayout()
+        self.confidence_score_setting_layout.setObjectName(
+            "confidence_score_setting_layout"
+        )
+        self.horizontalSpacer_73 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.confidence_score_setting_layout.addItem(self.horizontalSpacer_73)
+
+        self.horizontalLayout_62 = QHBoxLayout()
+        self.horizontalLayout_62.setObjectName("horizontalLayout_62")
+        self.confidence_setting_checkbox = QCheckBox(self.settings_tab)
+        self.confidence_setting_checkbox.setObjectName("confidence_setting_checkbox")
+        sizePolicy1.setHeightForWidth(
+            self.confidence_setting_checkbox.sizePolicy().hasHeightForWidth()
+        )
+        self.confidence_setting_checkbox.setSizePolicy(sizePolicy1)
+        self.confidence_setting_checkbox.setChecked(True)
+
+        self.horizontalLayout_62.addWidget(self.confidence_setting_checkbox)
+
+        self.confidence_score_setting_layout.addLayout(self.horizontalLayout_62)
+
+        self.horizontalSpacer_72 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.confidence_score_setting_layout.addItem(self.horizontalSpacer_72)
+
+        self.settings_controls_layout.addLayout(self.confidence_score_setting_layout)
 
         self.horizontalLayout_18 = QHBoxLayout()
         self.horizontalLayout_18.setSpacing(10)
@@ -2156,23 +2236,23 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_18.setStretch(1, 1)
         self.horizontalLayout_18.setStretch(2, 7)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_18)
+        self.settings_controls_layout.addLayout(self.horizontalLayout_18)
 
-        self.verticalLayout_6.setStretch(0, 2)
-        self.verticalLayout_6.setStretch(1, 2)
-        self.verticalLayout_6.setStretch(2, 2)
-        self.verticalLayout_6.setStretch(3, 2)
-        self.verticalLayout_6.setStretch(4, 2)
-        self.verticalLayout_6.setStretch(5, 2)
-        self.verticalLayout_6.setStretch(6, 2)
-        self.verticalLayout_6.setStretch(7, 2)
-        self.verticalLayout_6.setStretch(8, 2)
-        self.verticalLayout_6.setStretch(9, 2)
-        self.verticalLayout_6.setStretch(10, 2)
-        self.verticalLayout_6.setStretch(11, 2)
-        self.verticalLayout_6.setStretch(12, 3)
+        self.settings_controls_layout.setStretch(0, 2)
+        self.settings_controls_layout.setStretch(1, 2)
+        self.settings_controls_layout.setStretch(2, 2)
+        self.settings_controls_layout.setStretch(3, 2)
+        self.settings_controls_layout.setStretch(4, 2)
+        self.settings_controls_layout.setStretch(5, 2)
+        self.settings_controls_layout.setStretch(6, 2)
+        self.settings_controls_layout.setStretch(7, 2)
+        self.settings_controls_layout.setStretch(8, 2)
+        self.settings_controls_layout.setStretch(9, 2)
+        self.settings_controls_layout.setStretch(10, 2)
+        self.settings_controls_layout.setStretch(11, 2)
+        self.settings_controls_layout.setStretch(13, 3)
 
-        self.settings_tab_layout.addLayout(self.verticalLayout_6, 0, 0, 1, 1)
+        self.settings_tab_layout.addLayout(self.settings_controls_layout, 0, 0, 1, 1)
 
         self.verticalSpacer = QSpacerItem(
             5, 30, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
@@ -2201,9 +2281,7 @@ class Ui_PrimaryWindow(object):
         QWidget.setTabOrder(self.remove_button, self.select_calibration_button)
         QWidget.setTabOrder(self.select_calibration_button, self.load_model_button)
         QWidget.setTabOrder(self.load_model_button, self.score_all_button)
-        QWidget.setTabOrder(self.score_all_button, self.overwritecheckbox)
-        QWidget.setTabOrder(self.overwritecheckbox, self.bout_length_input)
-        QWidget.setTabOrder(self.bout_length_input, self.user_manual_button)
+        QWidget.setTabOrder(self.score_all_button, self.user_manual_button)
         QWidget.setTabOrder(self.user_manual_button, self.recording_list_widget)
         QWidget.setTabOrder(self.recording_list_widget, self.message_area)
 
@@ -2350,6 +2428,19 @@ class Ui_PrimaryWindow(object):
         )
         self.calibration_file_label.setText("")
         # if QT_CONFIG(tooltip)
+        self.load_model_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Load a trained sleep scoring classifier", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.load_model_button.setText(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Load classification model", None
+            )
+        )
+        self.model_label.setText("")
+        # if QT_CONFIG(tooltip)
         self.score_all_button.setToolTip(
             QCoreApplication.translate(
                 "PrimaryWindow",
@@ -2367,24 +2458,15 @@ class Ui_PrimaryWindow(object):
                 "PrimaryWindow", "Only overwrite undefined epochs", None
             )
         )
+        self.save_confidence_checkbox.setText(
+            QCoreApplication.translate("PrimaryWindow", "Save confidence scores", None)
+        )
         self.boutlengthlabel.setText(
             QCoreApplication.translate(
                 "PrimaryWindow", "Minimum bout length (sec):", None
             )
         )
-        # if QT_CONFIG(tooltip)
-        self.load_model_button.setToolTip(
-            QCoreApplication.translate(
-                "PrimaryWindow", "Load a trained sleep scoring classifier", None
-            )
-        )
-        # endif // QT_CONFIG(tooltip)
-        self.load_model_button.setText(
-            QCoreApplication.translate(
-                "PrimaryWindow", "Load classification model", None
-            )
-        )
-        self.model_label.setText("")
+        self.bout_length_input.setPrefix("")
         self.lower_tab_widget.setTabText(
             self.lower_tab_widget.indexOf(self.classification_tab),
             QCoreApplication.translate("PrimaryWindow", "Classification", None),
@@ -2488,6 +2570,11 @@ class Ui_PrimaryWindow(object):
         self.state_scored_0.setText("")
         self.label_17.setText(
             QCoreApplication.translate("PrimaryWindow", "Default epoch length:", None)
+        )
+        self.confidence_setting_checkbox.setText(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Save confidence scores by default", None
+            )
         )
         # if QT_CONFIG(tooltip)
         self.save_config_button.setToolTip(

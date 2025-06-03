@@ -25,5 +25,3 @@ Important notes:
 - Changing these settings can invalidate existing label files,
     calibration files, and trained models!
 - Reinstalling AccuSleePy will overwrite this configuration.
-- You can also choose the default epoch length that is shown
-    when the primary interface starts up.
