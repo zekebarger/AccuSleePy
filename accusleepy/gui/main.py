@@ -589,8 +589,6 @@ class AccuSleepWindow(QMainWindow):
 
         :param filename: model filename, if it's known
         """
-        from accusleepy.models import load_model
-
         if filename is None:
             file_dialog = QFileDialog(self)
             file_dialog.setWindowTitle("Select classification model")
@@ -608,6 +606,12 @@ class AccuSleepWindow(QMainWindow):
         if not os.path.isfile(filename):
             self.show_message("ERROR: model file does not exist")
             return
+
+        self.show_message("Loading classification model")
+        self.ui.message_area.repaint()
+        QApplication.processEvents()
+
+        from accusleepy.models import load_model
 
         try:
             model, epoch_length, epochs_per_img, model_type, brain_states = load_model(
@@ -651,6 +655,8 @@ class AccuSleepWindow(QMainWindow):
         if len(config_warnings) > 0:
             for w in config_warnings:
                 self.show_message(w)
+        else:
+            self.show_message(f"Loaded classification model from {filename}")
 
         self.ui.model_label.setText(filename)
 
