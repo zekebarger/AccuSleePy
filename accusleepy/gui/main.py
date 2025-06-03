@@ -36,6 +36,7 @@ from accusleepy.bouts import enforce_min_bout_length
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 from accusleepy.constants import (
     ANNOTATIONS_FILENAME,
+    CALIBRATION_ANNOTATION_FILENAME,
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
     LABEL_FILE_TYPE,
@@ -115,6 +116,7 @@ class AccuSleepWindow(QMainWindow):
         self.delete_training_images = True
         self.training_image_dir = ""
         self.model_type = DEFAULT_MODEL_TYPE
+        self.calibrate_trained_model = True
 
         # metadata for the currently loaded classification model
         self.model_epoch_length = None
@@ -177,6 +179,9 @@ class AccuSleepWindow(QMainWindow):
         self.ui.user_manual_button.clicked.connect(self.show_user_manual)
         self.ui.image_number_input.valueChanged.connect(self.update_epochs_per_img)
         self.ui.delete_image_box.stateChanged.connect(self.update_image_deletion)
+        self.ui.calibrate_checkbox.stateChanged.connect(
+            self.update_training_calibration
+        )
         self.ui.training_folder_button.clicked.connect(self.set_training_folder)
         self.ui.train_model_button.clicked.connect(self.train_model)
         self.ui.save_config_button.clicked.connect(self.save_brain_state_config)
@@ -307,6 +312,12 @@ class AccuSleepWindow(QMainWindow):
             )
             return
 
+        # determine fraction of training data to use for calibration
+        if self.calibrate_trained_model:
+            calibration_fraction = self.ui.calibration_spinbox.value() / 100
+        else:
+            calibration_fraction = 0
+
         # check some inputs for each recording
         for recording_index in range(len(self.recordings)):
             error_message = self.check_single_file_inputs(recording_index)
@@ -352,10 +363,12 @@ class AccuSleepWindow(QMainWindow):
             epochs_per_img=self.training_epochs_per_img,
             brain_state_set=self.brain_state_set,
             model_type=self.model_type,
+            calibration_fraction=calibration_fraction,
         )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
                 self.show_message("ERROR: no recordings were valid!")
+                return
             else:
                 self.show_message(
                     (
@@ -370,8 +383,9 @@ class AccuSleepWindow(QMainWindow):
         self.ui.message_area.repaint()
         QApplication.processEvents()
         print("Training model")
-        from accusleepy.classification import train_ssann
+        from accusleepy.classification import create_dataloader, train_ssann
         from accusleepy.models import save_model
+        from accusleepy.temperature_scaling import ModelWithTemperature
 
         model = train_ssann(
             annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
@@ -379,6 +393,18 @@ class AccuSleepWindow(QMainWindow):
             mixture_weights=self.brain_state_set.mixture_weights,
             n_classes=self.brain_state_set.n_classes,
         )
+
+        # calibrate the model
+        if self.calibrate_trained_model:
+            calibration_annotation_file = os.path.join(
+                temp_image_dir, CALIBRATION_ANNOTATION_FILENAME
+            )
+            calibration_dataloader = create_dataloader(
+                annotations_file=calibration_annotation_file, img_dir=temp_image_dir
+            )
+            model = ModelWithTemperature(model)
+            print("Calibrating model")
+            model.set_temperature(calibration_dataloader)
 
         # save model
         save_model(
@@ -388,6 +414,7 @@ class AccuSleepWindow(QMainWindow):
             epochs_per_img=self.training_epochs_per_img,
             model_type=self.model_type,
             brain_state_set=self.brain_state_set,
+            is_calibrated=self.calibrate_trained_model,
         )
 
         # optionally delete images
@@ -410,6 +437,11 @@ class AccuSleepWindow(QMainWindow):
     def update_image_deletion(self) -> None:
         """Update choice of whether to delete images after training"""
         self.delete_training_images = self.ui.delete_image_box.isChecked()
+
+    def update_training_calibration(self) -> None:
+        """Update choice of whether to calibrate model after training"""
+        self.calibrate_trained_model = self.ui.calibrate_checkbox.isChecked()
+        self.ui.calibration_spinbox.setEnabled(self.calibrate_trained_model)
 
     def update_epochs_per_img(self, new_value) -> None:
         """Update number of epochs per image

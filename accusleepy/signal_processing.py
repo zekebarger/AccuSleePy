@@ -9,6 +9,7 @@ from tqdm import trange
 from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.constants import (
     ANNOTATIONS_FILENAME,
+    CALIBRATION_ANNOTATION_FILENAME,
     DEFAULT_MODEL_TYPE,
     DOWNSAMPLING_START_FREQ,
     EMG_COPIES,
@@ -369,6 +370,7 @@ def create_training_images(
     epochs_per_img: int,
     brain_state_set: BrainStateSet,
     model_type: str,
+    calibration_fraction: float,
 ) -> list[int]:
     """Create training dataset
 
@@ -382,6 +384,7 @@ def create_training_images(
     :param epochs_per_img: # number of epochs shown in each image
     :param brain_state_set: set of brain state options
     :param model_type: default or real-time
+    :param calibration_fraction: fraction of training data to use for calibration
     :return: list of the names of any recordings that could not
             be used to create training images.
     """
@@ -442,10 +445,25 @@ def create_training_images(
             print(e)
             failed_recordings.append(recording.name)
 
-    # annotation file containing info on all images
-    pd.DataFrame({FILENAME_COL: filenames, LABEL_COL: all_labels}).to_csv(
-        os.path.join(output_path, ANNOTATIONS_FILENAME),
-        index=False,
-    )
+    annotations = pd.DataFrame({FILENAME_COL: filenames, LABEL_COL: all_labels})
+
+    # split into training and calibration sets, if necessary
+    if calibration_fraction > 0:
+        calibration_set = annotations.sample(frac=calibration_fraction)
+        training_set = annotations.drop(calibration_set.index)
+        training_set.to_csv(
+            os.path.join(output_path, ANNOTATIONS_FILENAME),
+            index=False,
+        )
+        calibration_set.to_csv(
+            os.path.join(output_path, CALIBRATION_ANNOTATION_FILENAME),
+            index=False,
+        )
+    else:
+        # annotation file contains info on all training images
+        annotations.to_csv(
+            os.path.join(output_path, ANNOTATIONS_FILENAME),
+            index=False,
+        )
 
     return failed_recordings

@@ -61,6 +61,24 @@ def get_device():
     )
 
 
+def create_dataloader(
+    annotations_file: str, img_dir: str, shuffle: bool = True
+) -> DataLoader:
+    """Create DataLoader for a dataset of training or calibration images
+
+    :param annotations_file: file with information on each training image
+    :param img_dir: training image location
+    :param shuffle: reshuffle data for every epoch
+    :return: DataLoader for the data
+
+    """
+    image_dataset = AccuSleepImageDataset(
+        annotations_file=annotations_file,
+        img_dir=img_dir,
+    )
+    return DataLoader(image_dataset, batch_size=BATCH_SIZE, shuffle=shuffle)
+
+
 def train_ssann(
     annotations_file: str,
     img_dir: str,
@@ -75,11 +93,9 @@ def train_ssann(
     :param n_classes: number of classes the model will learn
     :return: trained Sleep Scoring Artificial Neural Network model
     """
-    training_data = AccuSleepImageDataset(
-        annotations_file=annotations_file,
-        img_dir=img_dir,
+    train_dataloader = create_dataloader(
+        annotations_file=annotations_file, img_dir=img_dir
     )
-    train_dataloader = DataLoader(training_data, batch_size=BATCH_SIZE, shuffle=True)
 
     device = get_device()
     model = SSANN(n_classes=n_classes)

@@ -42,3 +42,5 @@ DEFAULT_EPOCH_LENGTH_KEY = "default_epoch_length"
 DEFAULT_CONFIDENCE_SETTING_KEY = "save_confidence_setting"
 # filename used to store info about training image datasets
 ANNOTATIONS_FILENAME = "annotations.csv"
+# filename for annotation file for the calibration set
+CALIBRATION_ANNOTATION_FILENAME = "calibration_set.csv"

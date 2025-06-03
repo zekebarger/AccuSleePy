@@ -8,20 +8,8 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (
-    QCoreApplication,
-    QMetaObject,
-    QRect,
-    QSize,
-    Qt,
-)
-from PySide6.QtGui import (
-    QBrush,
-    QColor,
-    QFont,
-    QIcon,
-    QPalette,
-)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, QSize, Qt
+from PySide6.QtGui import QBrush, QColor, QFont, QIcon, QPalette
 from PySide6.QtWidgets import (
     QCheckBox,
     QDoubleSpinBox,
@@ -42,7 +30,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
 import accusleepy.gui.resources_rc  # noqa F401
 
 
@@ -873,12 +860,6 @@ class Ui_PrimaryWindow(object):
 
         self.bottom_training_layout = QHBoxLayout()
         self.bottom_training_layout.setObjectName("bottom_training_layout")
-        self.horizontalSpacer_7 = QSpacerItem(
-            10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
-        )
-
-        self.bottom_training_layout.addItem(self.horizontalSpacer_7)
-
         self.train_model_button = QPushButton(self.model_training_tab)
         self.train_model_button.setObjectName("train_model_button")
         sizePolicy3.setHeightForWidth(
@@ -894,9 +875,56 @@ class Ui_PrimaryWindow(object):
 
         self.bottom_training_layout.addItem(self.horizontalSpacer_8)
 
-        self.bottom_training_layout.setStretch(0, 2)
-        self.bottom_training_layout.setStretch(1, 1)
-        self.bottom_training_layout.setStretch(2, 2)
+        self.calibrate_checkbox = QCheckBox(self.model_training_tab)
+        self.calibrate_checkbox.setObjectName("calibrate_checkbox")
+        sizePolicy1.setHeightForWidth(
+            self.calibrate_checkbox.sizePolicy().hasHeightForWidth()
+        )
+        self.calibrate_checkbox.setSizePolicy(sizePolicy1)
+        self.calibrate_checkbox.setChecked(True)
+
+        self.bottom_training_layout.addWidget(self.calibrate_checkbox)
+
+        self.horizontalSpacer_7 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.bottom_training_layout.addItem(self.horizontalSpacer_7)
+
+        self.calibrate_label = QLabel(self.model_training_tab)
+        self.calibrate_label.setObjectName("calibrate_label")
+        sizePolicy1.setHeightForWidth(
+            self.calibrate_label.sizePolicy().hasHeightForWidth()
+        )
+        self.calibrate_label.setSizePolicy(sizePolicy1)
+
+        self.bottom_training_layout.addWidget(self.calibrate_label)
+
+        self.calibration_spinbox = QSpinBox(self.model_training_tab)
+        self.calibration_spinbox.setObjectName("calibration_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.calibration_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.calibration_spinbox.setSizePolicy(sizePolicy1)
+        self.calibration_spinbox.setMinimum(10)
+        self.calibration_spinbox.setMaximum(50)
+        self.calibration_spinbox.setValue(15)
+
+        self.bottom_training_layout.addWidget(self.calibration_spinbox)
+
+        self.horizontalSpacer_78 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.bottom_training_layout.addItem(self.horizontalSpacer_78)
+
+        self.bottom_training_layout.setStretch(0, 6)
+        self.bottom_training_layout.setStretch(1, 5)
+        self.bottom_training_layout.setStretch(2, 3)
+        self.bottom_training_layout.setStretch(3, 1)
+        self.bottom_training_layout.setStretch(4, 3)
+        self.bottom_training_layout.setStretch(5, 1)
+        self.bottom_training_layout.setStretch(6, 1)
 
         self.model_training_layout.addLayout(self.bottom_training_layout, 2, 0, 1, 1)
 
@@ -2499,6 +2527,15 @@ class Ui_PrimaryWindow(object):
             QCoreApplication.translate(
                 "PrimaryWindow", "Train classification model", None
             )
+        )
+        self.calibrate_checkbox.setText(
+            QCoreApplication.translate("PrimaryWindow", "Calibrate model", None)
+        )
+        self.calibrate_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Calibration set size:", None)
+        )
+        self.calibration_spinbox.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", "%", None)
         )
         # if QT_CONFIG(tooltip)
         self.training_folder_button.setToolTip(
