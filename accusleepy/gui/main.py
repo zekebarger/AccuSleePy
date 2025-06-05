@@ -419,6 +419,7 @@ class AccuSleepWindow(QMainWindow):
 
         # optionally delete images
         if self.delete_training_images:
+            print("Cleaning up training image folder")
             shutil.rmtree(temp_image_dir)
 
         self.show_message(f"Training complete. Saved model to {model_filename}")

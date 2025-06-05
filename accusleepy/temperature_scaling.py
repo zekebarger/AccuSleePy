@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch import nn, optim
 from torch.nn import functional as F
@@ -54,14 +55,19 @@ class ModelWithTemperature(nn.Module):
         # First: collect all the logits and labels for the validation set
         logits_list = []
         labels_list = []
+        prediction_list = []
         with torch.no_grad():
             for x, label in valid_loader:
                 x = x.to(device)  # .cuda()
                 logits = self.model(x)
                 logits_list.append(logits)
                 labels_list.append(label)
+
+                _, pred = torch.max(logits, 1)
+                prediction_list.append(pred)
             logits = torch.cat(logits_list).to(device)  # .cuda()
             labels = torch.cat(labels_list).to(device)  # .cuda()
+            predictions = torch.cat(prediction_list).to(device)
 
         # Calculate NLL and ECE before temperature scaling
         before_temperature_nll = nll_criterion(logits, labels).item()
@@ -95,6 +101,11 @@ class ModelWithTemperature(nn.Module):
             "After temperature - NLL: %.3f, ECE: %.3f"
             % (after_temperature_nll, after_temperature_ece)
         )
+
+        val_acc = round(
+            100 * np.mean(labels.cpu().numpy() == predictions.cpu().numpy()), 2
+        )
+        print(f"Validation accuracy: {val_acc}%")
 
         return self
 
