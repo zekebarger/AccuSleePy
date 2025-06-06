@@ -47,6 +47,8 @@ to the [config file](accusleepy/config.json).
 
 ## Changelog
 
+- 0.6.0: Confidence scores can now be displayed and saved. Retraining your models is recommended
+    since the new calibration feature will make the confidence scores more accurate.
 - 0.5.0: Performance improvements
 - 0.4.5: Added support for python 3.13, **removed support for python 3.10.**
 - 0.4.4: Performance improvements
@@ -65,6 +67,11 @@ Manual scoring interface
 ## Acknowledgements
 
 We would like to thank [Franz Weber](https://www.med.upenn.edu/weberlab/) for creating an
-early version of the manual labeling interface.
+early version of the manual labeling interface. The code that
+creates spectrograms comes from the
+[Prerau lab](https://github.com/preraulab/multitaper_toolbox/blob/master/python/multitaper_spectrogram_python.py)
+with only minor modifications.
 Jim Bohnslav's [deepethogram](https://github.com/jbohnslav/deepethogram) served as an
 incredibly useful reference when reimplementing this project in python.
+The model calibration code added in version 0.6.0 comes from Geoff Pleiss'
+[temperature scaling repo](https://github.com/gpleiss/temperature_scaling).

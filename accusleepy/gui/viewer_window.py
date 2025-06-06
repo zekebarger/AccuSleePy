@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'viewer_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.3
+## Created by: Qt User Interface Compiler version 6.7.3
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -90,7 +90,7 @@ class Ui_ViewerWindow(object):
         self.top_plot_buttons = QVBoxLayout()
         self.top_plot_buttons.setObjectName("top_plot_buttons")
         self.topcontroltopspacer = QSpacerItem(
-            5, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed
+            5, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred
         )
 
         self.top_plot_buttons.addItem(self.topcontroltopspacer)
@@ -142,6 +142,12 @@ class Ui_ViewerWindow(object):
 
         self.zoom_and_brightness = QVBoxLayout()
         self.zoom_and_brightness.setObjectName("zoom_and_brightness")
+        self.verticalSpacer_6 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred
+        )
+
+        self.zoom_and_brightness.addItem(self.verticalSpacer_6)
+
         self.brightness_buttons = QHBoxLayout()
         self.brightness_buttons.setObjectName("brightness_buttons")
         self.specbrighter = QPushButton(ViewerWindow)
@@ -227,6 +233,12 @@ class Ui_ViewerWindow(object):
 
         self.zoom_and_brightness.addLayout(self.zoom_buttons)
 
+        self.verticalSpacer_7 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred
+        )
+
+        self.zoom_and_brightness.addItem(self.verticalSpacer_7)
+
         self.top_plot_buttons.addLayout(self.zoom_and_brightness)
 
         self.topcontrolbottomspacer = QSpacerItem(
@@ -235,11 +247,11 @@ class Ui_ViewerWindow(object):
 
         self.top_plot_buttons.addItem(self.topcontrolbottomspacer)
 
-        self.top_plot_buttons.setStretch(0, 1)
-        self.top_plot_buttons.setStretch(1, 10)
-        self.top_plot_buttons.setStretch(2, 3)
-        self.top_plot_buttons.setStretch(3, 10)
-        self.top_plot_buttons.setStretch(4, 10)
+        self.top_plot_buttons.setStretch(0, 2)
+        self.top_plot_buttons.setStretch(1, 5)
+        self.top_plot_buttons.setStretch(2, 5)
+        self.top_plot_buttons.setStretch(3, 12)
+        self.top_plot_buttons.setStretch(4, 12)
 
         self.all_controls.addLayout(self.top_plot_buttons)
 

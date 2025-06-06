@@ -10,6 +10,7 @@ from accusleepy.constants import (
     MIN_WINDOW_LEN,
     UPPER_FREQ,
 )
+from accusleepy.temperature_scaling import ModelWithTemperature
 
 # height in pixels of each training image
 IMAGE_HEIGHT = (
@@ -56,20 +57,23 @@ def save_model(
     epochs_per_img: int,
     model_type: str,
     brain_state_set: BrainStateSet,
+    is_calibrated: bool,
 ) -> None:
     """Save classification model and its metadata
 
     :param model: classification model
+    :param filename: filename
     :param epoch_length: epoch length used when training the model
     :param epochs_per_img: number of epochs in each model input
     :param model_type: default or real-time
     :param brain_state_set: set of brain state options
-    :param filename: filename
+    :param is_calibrated: whether the model has been calibrated
     """
     state_dict = model.state_dict()
     state_dict.update({"epoch_length": epoch_length})
     state_dict.update({"epochs_per_img": epochs_per_img})
     state_dict.update({"model_type": model_type})
+    state_dict.update({"is_calibrated": is_calibrated})
     state_dict.update(
         {BRAIN_STATES_KEY: brain_state_set.to_output_dict()[BRAIN_STATES_KEY]}
     )
@@ -90,9 +94,15 @@ def load_model(filename: str) -> tuple[SSANN, int | float, int, str, dict]:
     epoch_length = state_dict.pop("epoch_length")
     epochs_per_img = state_dict.pop("epochs_per_img")
     model_type = state_dict.pop("model_type")
+    if "is_calibrated" in state_dict:
+        is_calibrated = state_dict.pop("is_calibrated")
+    else:
+        is_calibrated = False
     brain_states = state_dict.pop(BRAIN_STATES_KEY)
     n_classes = len([b for b in brain_states if b["is_scored"]])
 
     model = SSANN(n_classes=n_classes)
+    if is_calibrated:
+        model = ModelWithTemperature(model)
     model.load_state_dict(state_dict)
     return model, epoch_length, epochs_per_img, model_type, brain_states

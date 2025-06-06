@@ -36,6 +36,7 @@ from accusleepy.bouts import enforce_min_bout_length
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 from accusleepy.constants import (
     ANNOTATIONS_FILENAME,
+    CALIBRATION_ANNOTATION_FILENAME,
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
     LABEL_FILE_TYPE,
@@ -96,21 +97,25 @@ class AccuSleepWindow(QMainWindow):
         self.setWindowTitle("AccuSleePy")
 
         # fill in settings tab
-        self.brain_state_set, self.epoch_length = load_config()
+        self.brain_state_set, self.epoch_length, self.save_confidence_setting = (
+            load_config()
+        )
         self.settings_widgets = None
         self.initialize_settings_tab()
 
         # initialize info about the recordings, classification data / settings
         self.ui.epoch_length_input.setValue(self.epoch_length)
+        self.ui.save_confidence_checkbox.setChecked(self.save_confidence_setting)
         self.model = None
         self.only_overwrite_undefined = False
+        self.save_confidence_scores = self.save_confidence_setting
         self.min_bout_length = 5
 
         # initialize model training variables
         self.training_epochs_per_img = 9
         self.delete_training_images = True
-        self.training_image_dir = ""
         self.model_type = DEFAULT_MODEL_TYPE
+        self.calibrate_trained_model = True
 
         # metadata for the currently loaded classification model
         self.model_epoch_length = None
@@ -166,11 +171,16 @@ class AccuSleepWindow(QMainWindow):
         self.ui.load_model_button.clicked.connect(partial(self.load_model, None))
         self.ui.score_all_button.clicked.connect(self.score_all)
         self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
+        self.ui.save_confidence_checkbox.stateChanged.connect(
+            self.update_confidence_policy
+        )
         self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
         self.ui.user_manual_button.clicked.connect(self.show_user_manual)
         self.ui.image_number_input.valueChanged.connect(self.update_epochs_per_img)
         self.ui.delete_image_box.stateChanged.connect(self.update_image_deletion)
-        self.ui.training_folder_button.clicked.connect(self.set_training_folder)
+        self.ui.calibrate_checkbox.stateChanged.connect(
+            self.update_training_calibration
+        )
         self.ui.train_model_button.clicked.connect(self.train_model)
         self.ui.save_config_button.clicked.connect(self.save_brain_state_config)
         self.ui.export_button.clicked.connect(self.export_recording_list)
@@ -294,11 +304,12 @@ class AccuSleepWindow(QMainWindow):
                 )
             )
             return
-        if self.training_image_dir == "":
-            self.show_message(
-                ("ERROR: no output location selected for training images.")
-            )
-            return
+
+        # determine fraction of training data to use for calibration
+        if self.calibrate_trained_model:
+            calibration_fraction = self.ui.calibration_spinbox.value() / 100
+        else:
+            calibration_fraction = 0
 
         # check some inputs for each recording
         for recording_index in range(len(self.recordings)):
@@ -320,9 +331,10 @@ class AccuSleepWindow(QMainWindow):
             return
         model_filename = os.path.normpath(model_filename)
 
-        # create (probably temporary) image folder
+        # create (probably temporary) image folder in
+        # the same folder as the trained model
         temp_image_dir = os.path.join(
-            self.training_image_dir,
+            os.path.dirname(model_filename),
             "images_" + datetime.datetime.now().strftime("%Y%m%d%H%M"),
         )
 
@@ -334,7 +346,12 @@ class AccuSleepWindow(QMainWindow):
 
         # create training images
         self.show_message("Training, please wait. See console for progress updates.")
-        self.show_message((f"Creating training images in {temp_image_dir}"))
+        if not self.delete_training_images:
+            self.show_message((f"Creating training images in {temp_image_dir}"))
+        else:
+            self.show_message(
+                (f"Creating temporary folder of training images: {temp_image_dir}")
+            )
         self.ui.message_area.repaint()
         QApplication.processEvents()
         print("Creating training images")
@@ -345,14 +362,16 @@ class AccuSleepWindow(QMainWindow):
             epochs_per_img=self.training_epochs_per_img,
             brain_state_set=self.brain_state_set,
             model_type=self.model_type,
+            calibration_fraction=calibration_fraction,
         )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
                 self.show_message("ERROR: no recordings were valid!")
+                return
             else:
                 self.show_message(
                     (
-                        "WARNING: the following recordings could not be"
+                        "WARNING: the following recordings could not be "
                         "loaded and will not be used for training: "
                         f"{', '.join([str(r) for r in failed_recordings])}"
                     )
@@ -363,8 +382,9 @@ class AccuSleepWindow(QMainWindow):
         self.ui.message_area.repaint()
         QApplication.processEvents()
         print("Training model")
-        from accusleepy.classification import train_ssann
+        from accusleepy.classification import create_dataloader, train_ssann
         from accusleepy.models import save_model
+        from accusleepy.temperature_scaling import ModelWithTemperature
 
         model = train_ssann(
             annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
@@ -372,6 +392,18 @@ class AccuSleepWindow(QMainWindow):
             mixture_weights=self.brain_state_set.mixture_weights,
             n_classes=self.brain_state_set.n_classes,
         )
+
+        # calibrate the model
+        if self.calibrate_trained_model:
+            calibration_annotation_file = os.path.join(
+                temp_image_dir, CALIBRATION_ANNOTATION_FILENAME
+            )
+            calibration_dataloader = create_dataloader(
+                annotations_file=calibration_annotation_file, img_dir=temp_image_dir
+            )
+            model = ModelWithTemperature(model)
+            print("Calibrating model")
+            model.set_temperature(calibration_dataloader)
 
         # save model
         save_model(
@@ -381,28 +413,25 @@ class AccuSleepWindow(QMainWindow):
             epochs_per_img=self.training_epochs_per_img,
             model_type=self.model_type,
             brain_state_set=self.brain_state_set,
+            is_calibrated=self.calibrate_trained_model,
         )
 
         # optionally delete images
         if self.delete_training_images:
+            print("Cleaning up training image folder")
             shutil.rmtree(temp_image_dir)
 
         self.show_message(f"Training complete. Saved model to {model_filename}")
         print("Training complete.")
 
-    def set_training_folder(self) -> None:
-        """Select location in which to create a folder for training images"""
-        training_folder_parent = QFileDialog.getExistingDirectory(
-            self, "Select directory for training images"
-        )
-        if training_folder_parent:
-            training_folder_parent = os.path.normpath(training_folder_parent)
-            self.training_image_dir = training_folder_parent
-            self.ui.image_folder_label.setText(training_folder_parent)
-
     def update_image_deletion(self) -> None:
         """Update choice of whether to delete images after training"""
         self.delete_training_images = self.ui.delete_image_box.isChecked()
+
+    def update_training_calibration(self) -> None:
+        """Update choice of whether to calibrate model after training"""
+        self.calibrate_trained_model = self.ui.calibrate_checkbox.isChecked()
+        self.ui.calibration_spinbox.setEnabled(self.calibrate_trained_model)
 
     def update_epochs_per_img(self, new_value) -> None:
         """Update number of epochs per image
@@ -491,7 +520,8 @@ class AccuSleepWindow(QMainWindow):
             label_file = self.recordings[recording_index].label_file
             if os.path.isfile(label_file):
                 try:
-                    existing_labels = load_labels(label_file)
+                    # ignore any existing confidence scores; they will all be overwritten
+                    existing_labels, _ = load_labels(label_file)
                 except Exception:
                     self.show_message(
                         (
@@ -544,7 +574,7 @@ class AccuSleepWindow(QMainWindow):
                 )
                 continue
 
-            labels = score_recording(
+            labels, confidence_scores = score_recording(
                 model=self.model,
                 eeg=eeg,
                 emg=emg,
@@ -569,8 +599,14 @@ class AccuSleepWindow(QMainWindow):
                 min_bout_length=self.min_bout_length,
             )
 
+            # ignore confidence scores if desired
+            if not self.save_confidence_scores:
+                confidence_scores = None
+
             # save results
-            save_labels(labels, label_file)
+            save_labels(
+                labels=labels, filename=label_file, confidence_scores=confidence_scores
+            )
             self.show_message(
                 (
                     "Saved labels for recording "
@@ -586,8 +622,6 @@ class AccuSleepWindow(QMainWindow):
 
         :param filename: model filename, if it's known
         """
-        from accusleepy.models import load_model
-
         if filename is None:
             file_dialog = QFileDialog(self)
             file_dialog.setWindowTitle("Select classification model")
@@ -605,6 +639,12 @@ class AccuSleepWindow(QMainWindow):
         if not os.path.isfile(filename):
             self.show_message("ERROR: model file does not exist")
             return
+
+        self.show_message("Loading classification model")
+        self.ui.message_area.repaint()
+        QApplication.processEvents()
+
+        from accusleepy.models import load_model
 
         try:
             model, epoch_length, epochs_per_img, model_type, brain_states = load_model(
@@ -648,6 +688,8 @@ class AccuSleepWindow(QMainWindow):
         if len(config_warnings) > 0:
             for w in config_warnings:
                 self.show_message(w)
+        else:
+            self.show_message(f"Loaded classification model from {filename}")
 
         self.ui.model_label.setText(filename)
 
@@ -716,7 +758,7 @@ class AccuSleepWindow(QMainWindow):
             self.show_message("ERROR: label file does not exist")
             return
         try:
-            labels = load_labels(label_file)
+            labels, _ = load_labels(label_file)
         except Exception:
             self.ui.calibration_status.setText("could not load labels")
             self.show_message(
@@ -728,6 +770,7 @@ class AccuSleepWindow(QMainWindow):
             return
         label_error_message = check_label_validity(
             labels=labels,
+            confidence_scores=None,
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
@@ -814,6 +857,15 @@ class AccuSleepWindow(QMainWindow):
         """
         self.only_overwrite_undefined = checked
 
+    def update_confidence_policy(self, checked) -> None:
+        """Toggle policy for saving confidence scores
+
+        If the checkbox is enabled, confidence scores will be saved to the label files.
+
+        :param checked: state of the checkbox
+        """
+        self.save_confidence_scores = checked
+
     def manual_scoring(self) -> None:
         """View the selected recording for manual scoring"""
         # immediately display a status message
@@ -833,7 +885,7 @@ class AccuSleepWindow(QMainWindow):
         label_file = self.recordings[self.recording_index].label_file
         if os.path.isfile(label_file):
             try:
-                labels = load_labels(label_file)
+                labels, confidence_scores = load_labels(label_file)
             except Exception:
                 self.ui.manual_scoring_status.setText("could not load labels")
                 self.show_message(
@@ -848,10 +900,14 @@ class AccuSleepWindow(QMainWindow):
                 np.ones(int(eeg.size / (sampling_rate * self.epoch_length)))
                 * UNDEFINED_LABEL
             ).astype(int)
+            # manual scoring will not add a new confidence score column
+            # to a label file that does not have one
+            confidence_scores = None
 
         # check that all labels are valid
         label_error = check_label_validity(
             labels=labels,
+            confidence_scores=confidence_scores,
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
@@ -866,6 +922,10 @@ class AccuSleepWindow(QMainWindow):
                 epochs_in_recording = round(eeg.size / samples_per_epoch)
                 if epochs_in_recording - labels.size == 1:
                     labels = np.concatenate((labels, np.array([UNDEFINED_LABEL])))
+                    if confidence_scores is not None:
+                        confidence_scores = np.concatenate(
+                            (confidence_scores, np.array([0]))
+                        )
                     self.show_message(
                         (
                             "WARNING: an undefined epoch was added to "
@@ -874,6 +934,8 @@ class AccuSleepWindow(QMainWindow):
                     )
                 elif labels.size - epochs_in_recording == 1:
                     labels = labels[:-1]
+                    if confidence_scores is not None:
+                        confidence_scores = confidence_scores[:-1]
                     self.show_message(
                         (
                             "WARNING: the last epoch was removed from "
@@ -900,6 +962,7 @@ class AccuSleepWindow(QMainWindow):
             emg=emg,
             label_file=label_file,
             labels=labels,
+            confidence_scores=confidence_scores,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
         )
@@ -1153,6 +1216,7 @@ class AccuSleepWindow(QMainWindow):
 
         # update widget state to display current config
         self.ui.default_epoch_input.setValue(self.epoch_length)
+        self.ui.confidence_setting_checkbox.setChecked(self.save_confidence_setting)
         states = {b.digit: b for b in self.brain_state_set.brain_states}
         for digit in range(10):
             if digit in states.keys():
@@ -1290,12 +1354,17 @@ class AccuSleepWindow(QMainWindow):
         self.brain_state_set = BrainStateSet(brain_states, UNDEFINED_LABEL)
 
         # save to file
-        save_config(self.brain_state_set, self.ui.default_epoch_input.value())
+        save_config(
+            self.brain_state_set,
+            self.ui.default_epoch_input.value(),
+            self.ui.confidence_setting_checkbox.isChecked(),
+        )
         self.ui.save_config_status.setText("configuration saved")
 
 
 def check_label_validity(
     labels: np.array,
+    confidence_scores: np.array,
     samples_in_recording: int,
     sampling_rate: int | float,
     epoch_length: int | float,
@@ -1307,6 +1376,7 @@ def check_label_validity(
     brain state labels.
 
     :param labels: brain state labels
+    :param confidence_scores: confidence scores
     :param samples_in_recording: number of samples in the recording
     :param sampling_rate: sampling rate, in Hz
     :param epoch_length: epoch length, in seconds
@@ -1324,6 +1394,12 @@ def check_label_validity(
         set([b.digit for b in brain_state_set.brain_states] + [UNDEFINED_LABEL])
     ):
         return "label file contains invalid entries"
+
+    if confidence_scores is not None:
+        if np.min(confidence_scores) < 0 or np.max(confidence_scores) > 1:
+            return "label file contains invalid confidence scores"
+
+    return None
 
 
 def check_config_consistency(

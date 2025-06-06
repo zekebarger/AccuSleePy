@@ -9,7 +9,9 @@ from PySide6.QtWidgets import QListWidgetItem
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 from accusleepy.constants import (
     BRAIN_STATE_COL,
+    CONFIDENCE_SCORE_COL,
     CONFIG_FILE,
+    DEFAULT_CONFIDENCE_SETTING_KEY,
     DEFAULT_EPOCH_LENGTH_KEY,
     EEG_COL,
     EMG_COL,
@@ -72,49 +74,70 @@ def load_recording(filename: str) -> (np.array, np.array):
     return eeg, emg
 
 
-def load_labels(filename: str) -> np.array:
-    """Load file of brain state labels
+def load_labels(filename: str) -> (np.array, np.array):
+    """Load file of brain state labels and confidence scores
 
     :param filename: filename
-    :return: array of brain state labels
+    :return: array of brain state labels and, optionally, array of confidence scores
     """
     df = load_csv_or_parquet(filename)
-    return df[BRAIN_STATE_COL].values
+    if CONFIDENCE_SCORE_COL in df.columns:
+        return df[BRAIN_STATE_COL].values, df[CONFIDENCE_SCORE_COL].values
+    else:
+        return df[BRAIN_STATE_COL].values, None
 
 
-def save_labels(labels: np.array, filename: str) -> None:
+def save_labels(
+    labels: np.array, filename: str, confidence_scores: np.array = None
+) -> None:
     """Save brain state labels to file
 
     :param labels: brain state labels
     :param filename: filename
+    :param confidence_scores: optional confidence scores
     """
-    pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
+    if confidence_scores is not None:
+        pd.DataFrame(
+            {BRAIN_STATE_COL: labels, CONFIDENCE_SCORE_COL: confidence_scores}
+        ).to_csv(filename, index=False)
+    else:
+        pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
 
 
-def load_config() -> tuple[BrainStateSet, int | float]:
+def load_config() -> tuple[BrainStateSet, int | float, bool]:
     """Load configuration file with brain state options
 
-    :return: set of brain state options and default epoch length
+    :return: set of brain state options, other settings
     """
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "r"
     ) as f:
         data = json.load(f)
-    return BrainStateSet(
-        [BrainState(**b) for b in data[BRAIN_STATES_KEY]], UNDEFINED_LABEL
-    ), data[DEFAULT_EPOCH_LENGTH_KEY]
+
+    return (
+        BrainStateSet(
+            [BrainState(**b) for b in data[BRAIN_STATES_KEY]], UNDEFINED_LABEL
+        ),
+        data[DEFAULT_EPOCH_LENGTH_KEY],
+        data.get(DEFAULT_CONFIDENCE_SETTING_KEY, True),
+    )
 
 
 def save_config(
-    brain_state_set: BrainStateSet, default_epoch_length: int | float
+    brain_state_set: BrainStateSet,
+    default_epoch_length: int | float,
+    save_confidence_setting: bool,
 ) -> None:
     """Save configuration of brain state options to json file
 
     :param brain_state_set: set of brain state options
     :param default_epoch_length: epoch length to use when the GUI starts
+    :param save_confidence_setting: whether the option to save confidence
+        scores should be True by default
     """
     output_dict = brain_state_set.to_output_dict()
     output_dict.update({DEFAULT_EPOCH_LENGTH_KEY: default_epoch_length})
+    output_dict.update({DEFAULT_CONFIDENCE_SETTING_KEY: save_confidence_setting})
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "w"
     ) as f:

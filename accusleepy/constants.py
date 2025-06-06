@@ -8,6 +8,7 @@ EEG_COL = "eeg"
 EMG_COL = "emg"
 # label file columns
 BRAIN_STATE_COL = "brain_state"
+CONFIDENCE_SCORE_COL = "confidence_score"
 
 
 # really don't change these
@@ -37,5 +38,9 @@ RECORDING_LIST_NAME = "recording_list"
 RECORDING_LIST_FILE_TYPE = ".json"
 # key for default epoch length in config
 DEFAULT_EPOCH_LENGTH_KEY = "default_epoch_length"
+# key used for default confidence score behavior in config
+DEFAULT_CONFIDENCE_SETTING_KEY = "save_confidence_setting"
 # filename used to store info about training image datasets
 ANNOTATIONS_FILENAME = "annotations.csv"
+# filename for annotation file for the calibration set
+CALIBRATION_ANNOTATION_FILENAME = "calibration_set.csv"

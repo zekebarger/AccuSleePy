@@ -45,12 +45,14 @@ To select a file in the primary interface, you can either use the
 associated button, or drag/drop the file into the empty box adjacent
 to the button.
 - Recording file: a .parquet or .csv file containing one
-    column of EEG  data and one column of EMG data.
-    The column names must be eeg and emg.
-- Label file: a .csv file with one column titled brain_state
+    column of EEG data and one column of EMG data.
+    The column names must be **eeg** and **emg**.
+- Label file: a .csv file with one column titled **brain_state**
     with entries that are either the undefined brain state (by default, this is -1)
     or one of the digits in your brain state configuration.
     By default, these are 1-3 where REM = 1, wake = 2, NREM = 3.
+    Optionally, there can be a second column named **confidence_score**
+    containing classification confidence scores between 0 and 1.
 - Calibration data file: required for automated scoring. See Section 4
     for details. These have .csv format.
 - Trained classification model: required for automated scoring. See
@@ -126,15 +128,17 @@ To train a new model on your own data:
     type models, this must be an odd number. In general, about 30
     seconds worth of data is enough.
 4. Choose whether the images used to train the model should be
-    deleted once training is complete. (It's generally best to
-    leave this box checked.)
+    deleted once training is complete. It's generally best to
+    leave this box checked. A (temporary) folder for these files
+    will be created in the same location as the trained model.
 5. Choose whether to create a "default" or "real-time"-type model.
     Note that scoring recordings in the primary interface requires
     a default-type model.
-6. Click "Set training image directory" to select the location
-    where the images used to train the model will be saved. A
-    new directory with an automatically generated name will be
-    created inside the directory you choose.
+6. Choose whether to calibrate the model. This process uses part
+    of the training data to make the model's confidence scores
+    more accurately reflect the probability that the output
+    labels are accurate. If using calibration, choose what percent
+    of the training data to set aside for calibration.
 7. Click "Train classification model" and enter a
     filename for the trained model. Training can take some time.
     The console will display progress updates.
@@ -153,10 +157,11 @@ Instructions for automatic scoring using this interface are below.
 4. If you wish to preserve any existing labels in the label file, and
     only overwrite undefined epochs, check the box labeled
     "Only overwrite undefined epochs".
-5. Set the minimum bout length, in seconds. A typical value could be 5.
+5. Choose whether to save confidence scores to the label files.
+6. Set the minimum bout length, in seconds. A typical value could be 5.
     Following automatic labeling, any brain state bout shorter than this
     duration will be reassigned to the surrounding state (if the states
     on either side of the bout are the same).
-6. Click "Score all automatically" to score all recordings in the
+7. Click "Score all automatically" to score all recordings in the
     recording list. To inspect the results, select a recording
     in the list and click "Score manually".
