@@ -372,7 +372,7 @@ class AccuSleepWindow(QMainWindow):
             else:
                 self.show_message(
                     (
-                        "WARNING: the following recordings could not be"
+                        "WARNING: the following recordings could not be "
                         "loaded and will not be used for training: "
                         f"{', '.join([str(r) for r in failed_recordings])}"
                     )
