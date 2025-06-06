@@ -47,6 +47,8 @@ to the [config file](accusleepy/config.json).
 
 ## Changelog
 
+- 0.6.0: Confidence scores can now be displayed and saved. Retraining your models is recommended
+    since the new calibration feature will make the confidence scores more accurate.
 - 0.5.0: Performance improvements
 - 0.4.5: Added support for python 3.13, **removed support for python 3.10.**
 - 0.4.4: Performance improvements
