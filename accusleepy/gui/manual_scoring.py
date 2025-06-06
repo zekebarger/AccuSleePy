@@ -99,7 +99,7 @@ class ManualScoringWindow(QDialog):
         emg: np.array,
         label_file: str,
         labels: np.array,
-        confidence_scores: np.array,  # | None...
+        confidence_scores: np.array,
         sampling_rate: int | float,
         epoch_length: int | float,
     ):
