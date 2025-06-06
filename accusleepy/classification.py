@@ -177,10 +177,6 @@ def score_recording(
         logits, predicted = torch.max(outputs, 1)
 
     labels = brain_state_set.convert_class_to_digit(predicted.cpu().numpy())
-
-    # TODO: calibrate the model using temperature scaling, or another method
-    # idea 1: https://arxiv.org/html/2411.02988v2
-    # idea 2: https://github.com/gpleiss/temperature_scaling
     confidence_scores = 1 / (1 + np.e ** (-logits.cpu().numpy()))
 
     return labels, confidence_scores
