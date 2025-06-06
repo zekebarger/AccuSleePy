@@ -1,7 +1,6 @@
 import json
 import os
 from dataclasses import dataclass
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -75,8 +74,8 @@ def load_recording(filename: str) -> (np.array, np.array):
     return eeg, emg
 
 
-def load_labels(filename: str) -> Tuple[np.array, None] | Tuple[np.array, np.array]:
-    """Load file of brain state labels
+def load_labels(filename: str) -> (np.array, np.array):
+    """Load file of brain state labels and confidence scores
 
     :param filename: filename
     :return: array of brain state labels and, optionally, array of confidence scores
