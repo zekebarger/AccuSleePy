@@ -114,7 +114,6 @@ class AccuSleepWindow(QMainWindow):
         # initialize model training variables
         self.training_epochs_per_img = 9
         self.delete_training_images = True
-        self.training_image_dir = ""
         self.model_type = DEFAULT_MODEL_TYPE
         self.calibrate_trained_model = True
 
@@ -182,7 +181,6 @@ class AccuSleepWindow(QMainWindow):
         self.ui.calibrate_checkbox.stateChanged.connect(
             self.update_training_calibration
         )
-        self.ui.training_folder_button.clicked.connect(self.set_training_folder)
         self.ui.train_model_button.clicked.connect(self.train_model)
         self.ui.save_config_button.clicked.connect(self.save_brain_state_config)
         self.ui.export_button.clicked.connect(self.export_recording_list)
@@ -306,11 +304,6 @@ class AccuSleepWindow(QMainWindow):
                 )
             )
             return
-        if self.training_image_dir == "":
-            self.show_message(
-                ("ERROR: no output location selected for training images.")
-            )
-            return
 
         # determine fraction of training data to use for calibration
         if self.calibrate_trained_model:
@@ -338,9 +331,10 @@ class AccuSleepWindow(QMainWindow):
             return
         model_filename = os.path.normpath(model_filename)
 
-        # create (probably temporary) image folder
+        # create (probably temporary) image folder in
+        # the same folder as the trained model
         temp_image_dir = os.path.join(
-            self.training_image_dir,
+            os.path.dirname(model_filename),
             "images_" + datetime.datetime.now().strftime("%Y%m%d%H%M"),
         )
 
@@ -352,7 +346,12 @@ class AccuSleepWindow(QMainWindow):
 
         # create training images
         self.show_message("Training, please wait. See console for progress updates.")
-        self.show_message((f"Creating training images in {temp_image_dir}"))
+        if not self.delete_training_images:
+            self.show_message((f"Creating training images in {temp_image_dir}"))
+        else:
+            self.show_message(
+                (f"Creating temporary folder of training images: {temp_image_dir}")
+            )
         self.ui.message_area.repaint()
         QApplication.processEvents()
         print("Creating training images")
@@ -424,16 +423,6 @@ class AccuSleepWindow(QMainWindow):
 
         self.show_message(f"Training complete. Saved model to {model_filename}")
         print("Training complete.")
-
-    def set_training_folder(self) -> None:
-        """Select location in which to create a folder for training images"""
-        training_folder_parent = QFileDialog.getExistingDirectory(
-            self, "Select directory for training images"
-        )
-        if training_folder_parent:
-            training_folder_parent = os.path.normpath(training_folder_parent)
-            self.training_image_dir = training_folder_parent
-            self.ui.image_folder_label.setText(training_folder_parent)
 
     def update_image_deletion(self) -> None:
         """Update choice of whether to delete images after training"""

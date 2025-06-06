@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'primary_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.3
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -47,11 +47,11 @@ class Ui_PrimaryWindow(object):
         PrimaryWindow.setSizePolicy(sizePolicy)
         palette = QPalette()
         brush = QBrush(QColor(223, 226, 226, 255))
-        brush.setStyle(Qt.SolidPattern)
-        palette.setBrush(QPalette.Active, QPalette.Window, brush)
-        palette.setBrush(QPalette.Inactive, QPalette.Window, brush)
-        palette.setBrush(QPalette.Disabled, QPalette.Base, brush)
-        palette.setBrush(QPalette.Disabled, QPalette.Window, brush)
+        brush.setStyle(Qt.BrushStyle.SolidPattern)
+        palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Window, brush)
+        palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, brush)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, brush)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, brush)
         PrimaryWindow.setPalette(palette)
         self.centralwidget = QWidget(PrimaryWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -576,8 +576,8 @@ class Ui_PrimaryWindow(object):
         self.gridLayout.setContentsMargins(5, 5, 5, 5)
         self.gridLayout_4 = QGridLayout()
         self.gridLayout_4.setObjectName("gridLayout_4")
-        self.gridLayout_4.setVerticalSpacing(15)
-        self.gridLayout_4.setContentsMargins(0, 5, 0, 10)
+        self.gridLayout_4.setVerticalSpacing(10)
+        self.gridLayout_4.setContentsMargins(0, 5, 0, 3)
         self.load_model_layout = QHBoxLayout()
         self.load_model_layout.setSpacing(10)
         self.load_model_layout.setObjectName("load_model_layout")
@@ -639,12 +639,6 @@ class Ui_PrimaryWindow(object):
 
         self.score_all_layout.addWidget(self.score_all_status)
 
-        self.verticalLayout_4 = QVBoxLayout()
-        self.verticalLayout_4.setSpacing(10)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-
-        self.score_all_layout.addLayout(self.verticalLayout_4)
-
         self.horizontalSpacer_5 = QSpacerItem(
             10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
         )
@@ -654,7 +648,6 @@ class Ui_PrimaryWindow(object):
         self.score_all_layout.setStretch(0, 3)
         self.score_all_layout.setStretch(1, 3)
         self.score_all_layout.setStretch(2, 4)
-        self.score_all_layout.setStretch(3, 2)
 
         self.gridLayout_4.addLayout(self.score_all_layout, 2, 0, 1, 1)
 
@@ -759,7 +752,7 @@ class Ui_PrimaryWindow(object):
         self.model_training_layout = QGridLayout()
         self.model_training_layout.setObjectName("model_training_layout")
         self.model_training_layout.setVerticalSpacing(10)
-        self.model_training_layout.setContentsMargins(5, 5, 5, 5)
+        self.model_training_layout.setContentsMargins(5, 5, 5, 25)
         self.top_training_layout = QHBoxLayout()
         self.top_training_layout.setSpacing(10)
         self.top_training_layout.setObjectName("top_training_layout")
@@ -926,45 +919,10 @@ class Ui_PrimaryWindow(object):
         self.bottom_training_layout.setStretch(5, 1)
         self.bottom_training_layout.setStretch(6, 1)
 
-        self.model_training_layout.addLayout(self.bottom_training_layout, 2, 0, 1, 1)
-
-        self.middle_training_layout = QHBoxLayout()
-        self.middle_training_layout.setSpacing(10)
-        self.middle_training_layout.setObjectName("middle_training_layout")
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.training_folder_button = QPushButton(self.model_training_tab)
-        self.training_folder_button.setObjectName("training_folder_button")
-        sizePolicy3.setHeightForWidth(
-            self.training_folder_button.sizePolicy().hasHeightForWidth()
-        )
-        self.training_folder_button.setSizePolicy(sizePolicy3)
-
-        self.horizontalLayout_2.addWidget(self.training_folder_button)
-
-        self.middle_training_layout.addLayout(self.horizontalLayout_2)
-
-        self.image_folder_label = QLabel(self.model_training_tab)
-        self.image_folder_label.setObjectName("image_folder_label")
-        sizePolicy4.setHeightForWidth(
-            self.image_folder_label.sizePolicy().hasHeightForWidth()
-        )
-        self.image_folder_label.setSizePolicy(sizePolicy4)
-        self.image_folder_label.setStyleSheet(
-            "background-color: rgb(240, 242, 255); border: 1px solid gray;"
-        )
-        self.image_folder_label.setMargin(4)
-
-        self.middle_training_layout.addWidget(self.image_folder_label)
-
-        self.middle_training_layout.setStretch(0, 5)
-        self.middle_training_layout.setStretch(1, 12)
-
-        self.model_training_layout.addLayout(self.middle_training_layout, 1, 0, 1, 1)
+        self.model_training_layout.addLayout(self.bottom_training_layout, 1, 0, 1, 1)
 
         self.model_training_layout.setRowStretch(0, 1)
         self.model_training_layout.setRowStretch(1, 1)
-        self.model_training_layout.setRowStretch(2, 1)
 
         self.gridLayout_7.addLayout(self.model_training_layout, 0, 0, 1, 1)
 
@@ -2537,19 +2495,6 @@ class Ui_PrimaryWindow(object):
         self.calibration_spinbox.setSuffix(
             QCoreApplication.translate("PrimaryWindow", "%", None)
         )
-        # if QT_CONFIG(tooltip)
-        self.training_folder_button.setToolTip(
-            QCoreApplication.translate(
-                "PrimaryWindow", "A temporary folder will be created here", None
-            )
-        )
-        # endif // QT_CONFIG(tooltip)
-        self.training_folder_button.setText(
-            QCoreApplication.translate(
-                "PrimaryWindow", "Set training image directory", None
-            )
-        )
-        self.image_folder_label.setText("")
         self.lower_tab_widget.setTabText(
             self.lower_tab_widget.indexOf(self.model_training_tab),
             QCoreApplication.translate("PrimaryWindow", "Model training", None),

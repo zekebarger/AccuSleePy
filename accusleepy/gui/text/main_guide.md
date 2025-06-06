@@ -128,21 +128,18 @@ To train a new model on your own data:
     type models, this must be an odd number. In general, about 30
     seconds worth of data is enough.
 4. Choose whether the images used to train the model should be
-    deleted once training is complete. (It's generally best to
-    leave this box checked.)
+    deleted once training is complete. It's generally best to
+    leave this box checked. A (temporary) folder for these files
+    will be created in the same location as the trained model.
 5. Choose whether to create a "default" or "real-time"-type model.
     Note that scoring recordings in the primary interface requires
     a default-type model.
-6. Click "Set training image directory" to select the location
-    where the images used to train the model will be saved. A
-    new directory with an automatically generated name will be
-    created inside the directory you choose.
-7. Choose whether to calibrate the model. This process uses part
+6. Choose whether to calibrate the model. This process uses part
     of the training data to make the model's confidence scores
     more accurately reflect the probability that the output
     labels are accurate. If using calibration, choose what percent
     of the training data to set aside for calibration.
-8. Click "Train classification model" and enter a
+7. Click "Train classification model" and enter a
     filename for the trained model. Training can take some time.
     The console will display progress updates.
 
