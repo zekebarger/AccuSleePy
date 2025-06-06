@@ -73,3 +73,5 @@ creates spectrograms comes from the
 with only minor modifications.
 Jim Bohnslav's [deepethogram](https://github.com/jbohnslav/deepethogram) served as an
 incredibly useful reference when reimplementing this project in python.
+The model calibration code added in version 0.6.0 comes from Geoff Pleiss'
+[temperature scaling repo](https://github.com/gpleiss/temperature_scaling).
