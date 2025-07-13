@@ -19,7 +19,20 @@ from accusleepy.constants import (
     MIXTURE_SD_COL,
     RECORDING_LIST_NAME,
     UNDEFINED_LABEL,
+    DEFAULT_EMG_FILTER_ORDER,
+    DEFAULT_EMG_BP_LOWER,
+    DEFAULT_EMG_BP_UPPER,
+    EMG_FILTER_KEY,
 )
+
+
+@dataclass
+class EMGFilter:
+    """Convenience class for a EMG filter parameters"""
+
+    order: int  # filter order
+    bp_lower: int | float  # lower bandpass frequency
+    bp_upper: int | float  # upper bandpass frequency
 
 
 @dataclass
@@ -104,7 +117,7 @@ def save_labels(
         pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
 
 
-def load_config() -> tuple[BrainStateSet, int | float, bool]:
+def load_config() -> tuple[BrainStateSet, int | float, bool, EMGFilter]:
     """Load configuration file with brain state options
 
     :return: set of brain state options, other settings
@@ -120,6 +133,16 @@ def load_config() -> tuple[BrainStateSet, int | float, bool]:
         ),
         data[DEFAULT_EPOCH_LENGTH_KEY],
         data.get(DEFAULT_CONFIDENCE_SETTING_KEY, True),
+        EMGFilter(
+            **data.get(
+                EMG_FILTER_KEY,
+                {
+                    "order": DEFAULT_EMG_FILTER_ORDER,
+                    "bp_lower": DEFAULT_EMG_BP_LOWER,
+                    "bp_upper": DEFAULT_EMG_BP_UPPER,
+                },
+            )
+        ),
     )
 
 
@@ -127,6 +150,7 @@ def save_config(
     brain_state_set: BrainStateSet,
     default_epoch_length: int | float,
     save_confidence_setting: bool,
+    emg_filter: EMGFilter,
 ) -> None:
     """Save configuration of brain state options to json file
 
@@ -134,10 +158,12 @@ def save_config(
     :param default_epoch_length: epoch length to use when the GUI starts
     :param save_confidence_setting: whether the option to save confidence
         scores should be True by default
+    :param emg_filter: EMG filter parameters
     """
     output_dict = brain_state_set.to_output_dict()
     output_dict.update({DEFAULT_EPOCH_LENGTH_KEY: default_epoch_length})
     output_dict.update({DEFAULT_CONFIDENCE_SETTING_KEY: save_confidence_setting})
+    output_dict.update({EMG_FILTER_KEY: emg_filter.__dict__})
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "w"
     ) as f:

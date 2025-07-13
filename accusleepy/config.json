@@ -20,5 +20,10 @@
         }
     ],
     "default_epoch_length": 2.5,
-    "save_confidence_setting": true
+    "save_confidence_setting": true,
+    "emg_filter": {
+        "order": 8,
+        "bp_lower": 20,
+        "bp_upper": 50
+    }
 }

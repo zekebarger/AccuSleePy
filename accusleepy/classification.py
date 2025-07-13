@@ -11,6 +11,7 @@ from tqdm import trange
 
 import accusleepy.constants as c
 from accusleepy.brain_state_set import BrainStateSet
+from accusleepy.fileio import EMGFilter
 from accusleepy.models import SSANN
 from accusleepy.signal_processing import (
     create_eeg_emg_image,
@@ -131,6 +132,7 @@ def score_recording(
     epoch_length: int | float,
     epochs_per_img: int,
     brain_state_set: BrainStateSet,
+    emg_filter: EMGFilter,
 ) -> np.array:
     """Use classification model to get brain state labels for a recording
 
@@ -146,6 +148,7 @@ def score_recording(
     :param epoch_length: epoch length, in seconds
     :param epochs_per_img: number of epochs for the model to consider
     :param brain_state_set: set of brain state options
+    :param emg_filter: EMG filter parameters
     :return: brain state labels, confidence scores
     """
     # prepare model
@@ -154,7 +157,7 @@ def score_recording(
     model.eval()
 
     # create and scale eeg+emg spectrogram
-    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
     img = mixture_z_score_img(
         img,
         mixture_means=mixture_means,
@@ -192,6 +195,7 @@ def example_real_time_scoring_function(
     epoch_length: int | float,
     epochs_per_img: int,
     brain_state_set: BrainStateSet,
+    emg_filter: EMGFilter,
 ) -> int:
     """Example function that could be used for real-time scoring
 
@@ -220,6 +224,7 @@ def example_real_time_scoring_function(
     :param epoch_length: epoch length, in seconds
     :param epochs_per_img: number of epochs shown to the model at once
     :param brain_state_set: set of brain state options
+    :param emg_filter: EMG filter parameters
     :return: brain state label
     """
     # prepare model
@@ -229,7 +234,7 @@ def example_real_time_scoring_function(
     model.eval()
 
     # create and scale eeg+emg spectrogram
-    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
     img = mixture_z_score_img(
         img,
         mixture_means=mixture_means,
@@ -260,6 +265,7 @@ def create_calibration_file(
     sampling_rate: int | float,
     epoch_length: int | float,
     brain_state_set: BrainStateSet,
+    emg_filter: EMGFilter,
 ) -> None:
     """Create file of calibration data for a subject
 
@@ -273,8 +279,9 @@ def create_calibration_file(
     :param sampling_rate: sampling rate, in Hz
     :param epoch_length: epoch length, in seconds
     :param brain_state_set: set of brain state options
+    :param emg_filter: EMG filter parameters
     """
-    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
     mixture_means, mixture_sds = get_mixture_values(
         img=img,
         labels=brain_state_set.convert_digit_to_class(labels),

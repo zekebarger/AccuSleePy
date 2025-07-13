@@ -97,9 +97,13 @@ class AccuSleepWindow(QMainWindow):
         self.setWindowTitle("AccuSleePy")
 
         # fill in settings tab
-        self.brain_state_set, self.epoch_length, self.save_confidence_setting = (
-            load_config()
-        )
+        (
+            self.brain_state_set,
+            self.epoch_length,
+            self.save_confidence_setting,
+            self.emg_filter,
+        ) = load_config()
+
         self.settings_widgets = None
         self.initialize_settings_tab()
 
@@ -363,6 +367,7 @@ class AccuSleepWindow(QMainWindow):
             brain_state_set=self.brain_state_set,
             model_type=self.model_type,
             calibration_fraction=calibration_fraction,
+            emg_filter=self.emg_filter,
         )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
@@ -584,6 +589,7 @@ class AccuSleepWindow(QMainWindow):
                 epoch_length=self.epoch_length,
                 epochs_per_img=self.model_epochs_per_img,
                 brain_state_set=self.brain_state_set,
+                emg_filter=self.emg_filter,
             )
 
             # overwrite as needed
@@ -801,6 +807,7 @@ class AccuSleepWindow(QMainWindow):
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
             brain_state_set=self.brain_state_set,
+            emg_filter=self.emg_filter,
         )
 
         self.ui.calibration_status.setText("")
@@ -965,6 +972,7 @@ class AccuSleepWindow(QMainWindow):
             confidence_scores=confidence_scores,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
+            emg_filter=self.emg_filter,
         )
         manual_scoring_window.setWindowTitle(f"AccuSleePy viewer: {label_file}")
         manual_scoring_window.exec()
