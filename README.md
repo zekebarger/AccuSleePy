@@ -11,6 +11,7 @@ It offers the following improvements over the MATLAB version (AccuSleep):
     - Model files contain useful metadata (brain state configuration,
       epoch length, number of epochs)
     - Models optimized for real-time scoring can be trained
+- Confidence scores can be saved and visualized
 - Lists of recordings can be imported and exported for repeatable batch processing
 - Undo/redo functionality in the manual scoring interface
 
@@ -47,6 +48,7 @@ to the [config file](accusleepy/config.json).
 
 ## Changelog
 
+- 0.7.0: More settings can be configured in the UI
 - 0.6.0: Confidence scores can now be displayed and saved. Retraining your models is recommended
     since the new calibration feature will make the confidence scores more accurate.
 - 0.5.0: Performance improvements

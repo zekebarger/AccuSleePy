@@ -29,7 +29,8 @@ At this point, you can score the recordings manually.
 5. Score all recordings automatically using the classifier
 
 By default, there are three brain state options: REM, wake, and NREM.
-If you want to change this configuration, click the "Settings" tab.
+If you want to change this configuration, click the "Settings" tab and
+choose "Brain states" from the drop-down menu.
 Note that if you change the configuration, you might be unable to load
 existing labels and calibration data, and you may need to train a new
 classification model.
