@@ -110,7 +110,7 @@ class AccuSleepWindow(QMainWindow):
             self.brain_state_set,
             self.epoch_length,
             self.only_overwrite_undefined,
-            self.save_confidence_setting,
+            self.save_confidence_scores,
             self.min_bout_length,
             self.emg_filter,
             self.hyperparameters,
@@ -121,9 +121,10 @@ class AccuSleepWindow(QMainWindow):
 
         # initialize info about the recordings, classification data / settings
         self.ui.epoch_length_input.setValue(self.epoch_length)
-        self.ui.save_confidence_checkbox.setChecked(self.save_confidence_setting)
+        self.ui.overwritecheckbox.setChecked(self.only_overwrite_undefined)
+        self.ui.save_confidence_checkbox.setChecked(self.save_confidence_scores)
+        self.ui.bout_length_input.setValue(self.min_bout_length)
         self.model = None
-        self.save_confidence_scores = self.save_confidence_setting
 
         # initialize model training variables
         self.training_epochs_per_img = 9
@@ -1234,7 +1235,7 @@ class AccuSleepWindow(QMainWindow):
         # UI defaults
         self.ui.default_epoch_input.setValue(self.epoch_length)
         self.ui.overwrite_default_checkbox.setChecked(self.only_overwrite_undefined)
-        self.ui.confidence_setting_checkbox.setChecked(self.save_confidence_setting)
+        self.ui.confidence_setting_checkbox.setChecked(self.save_confidence_scores)
         self.ui.default_min_bout_length_spinbox.setValue(self.min_bout_length)
         # EMG filter
         self.ui.emg_order_spinbox.setValue(self.emg_filter.order)
