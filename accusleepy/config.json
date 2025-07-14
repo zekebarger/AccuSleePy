@@ -20,5 +20,18 @@
         }
     ],
     "default_epoch_length": 2.5,
-    "save_confidence_setting": true
+    "default_overwrite_setting": false,
+    "save_confidence_setting": true,
+    "default_min_bout_length": 5.0,
+    "emg_filter": {
+        "order": 8,
+        "bp_lower": 20.0,
+        "bp_upper": 50.0
+    },
+    "hyperparameters": {
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "training_epochs": 6
+    }
 }

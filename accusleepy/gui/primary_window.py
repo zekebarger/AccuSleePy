@@ -12,6 +12,7 @@ from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, QSize, Qt
 from PySide6.QtGui import QBrush, QColor, QFont, QIcon, QPalette
 from PySide6.QtWidgets import (
     QCheckBox,
+    QComboBox,
     QDoubleSpinBox,
     QFrame,
     QGridLayout,
@@ -25,6 +26,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSpacerItem,
     QSpinBox,
+    QStackedWidget,
     QTabWidget,
     QTextBrowser,
     QVBoxLayout,
@@ -980,23 +982,92 @@ class Ui_PrimaryWindow(object):
         self.settings_tab_layout.setHorizontalSpacing(20)
         self.settings_tab_layout.setVerticalSpacing(10)
         self.settings_tab_layout.setContentsMargins(20, 20, 20, -1)
-        self.settings_description_layout = QVBoxLayout()
-        self.settings_description_layout.setObjectName("settings_description_layout")
-        self.settings_text = QLabel(self.settings_tab)
-        self.settings_text.setObjectName("settings_text")
-        self.settings_text.setStyleSheet("background-color: white;")
-        self.settings_text.setMargin(16)
+        self.verticalLayout_3 = QVBoxLayout()
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.saveconfig_layout = QHBoxLayout()
+        self.saveconfig_layout.setObjectName("saveconfig_layout")
+        self.horizontalSpacer_79 = QSpacerItem(
+            40, 20, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
 
-        self.settings_description_layout.addWidget(self.settings_text)
+        self.saveconfig_layout.addItem(self.horizontalSpacer_79)
 
-        self.settings_tab_layout.addLayout(self.settings_description_layout, 0, 1, 1, 1)
+        self.save_config_button = QPushButton(self.settings_tab)
+        self.save_config_button.setObjectName("save_config_button")
+        sizePolicy1.setHeightForWidth(
+            self.save_config_button.sizePolicy().hasHeightForWidth()
+        )
+        self.save_config_button.setSizePolicy(sizePolicy1)
 
+        self.saveconfig_layout.addWidget(self.save_config_button)
+
+        self.save_config_status = QLabel(self.settings_tab)
+        self.save_config_status.setObjectName("save_config_status")
+        sizePolicy3.setHeightForWidth(
+            self.save_config_status.sizePolicy().hasHeightForWidth()
+        )
+        self.save_config_status.setSizePolicy(sizePolicy3)
+        self.save_config_status.setStyleSheet("background-color: transparent;")
+
+        self.saveconfig_layout.addWidget(self.save_config_status)
+
+        self.saveconfig_layout.setStretch(0, 10)
+        self.saveconfig_layout.setStretch(1, 2)
+        self.saveconfig_layout.setStretch(2, 10)
+
+        self.verticalLayout_3.addLayout(self.saveconfig_layout)
+
+        self.verticalSpacer_2 = QSpacerItem(
+            20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+        )
+
+        self.verticalLayout_3.addItem(self.verticalSpacer_2)
+
+        self.settings_tab_layout.addLayout(self.verticalLayout_3, 2, 0, 1, 1)
+
+        self.settings_layout = QVBoxLayout()
+        self.settings_layout.setObjectName("settings_layout")
+        self.settings_combo_layout = QHBoxLayout()
+        self.settings_combo_layout.setSpacing(20)
+        self.settings_combo_layout.setObjectName("settings_combo_layout")
+        self.settings_combobox = QComboBox(self.settings_tab)
+        self.settings_combobox.addItem("")
+        self.settings_combobox.addItem("")
+        self.settings_combobox.addItem("")
+        self.settings_combobox.addItem("")
+        self.settings_combobox.setObjectName("settings_combobox")
+        sizePolicy3.setHeightForWidth(
+            self.settings_combobox.sizePolicy().hasHeightForWidth()
+        )
+        self.settings_combobox.setSizePolicy(sizePolicy3)
+
+        self.settings_combo_layout.addWidget(self.settings_combobox)
+
+        self.horizontalSpacer_89 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.settings_combo_layout.addItem(self.horizontalSpacer_89)
+
+        self.settings_combo_layout.setStretch(0, 1)
+        self.settings_combo_layout.setStretch(1, 3)
+
+        self.settings_layout.addLayout(self.settings_combo_layout)
+
+        self.settings_stack = QStackedWidget(self.settings_tab)
+        self.settings_stack.setObjectName("settings_stack")
+        self.brain_state_page = QWidget()
+        self.brain_state_page.setObjectName("brain_state_page")
+        self.horizontalLayout_80 = QHBoxLayout(self.brain_state_page)
+        self.horizontalLayout_80.setSpacing(20)
+        self.horizontalLayout_80.setObjectName("horizontalLayout_80")
         self.settings_controls_layout = QVBoxLayout()
+        self.settings_controls_layout.setSpacing(10)
         self.settings_controls_layout.setObjectName("settings_controls_layout")
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setSpacing(10)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.label_15 = QLabel(self.settings_tab)
+        self.label_15 = QLabel(self.brain_state_page)
         self.label_15.setObjectName("label_15")
         sizePolicy3.setHeightForWidth(self.label_15.sizePolicy().hasHeightForWidth())
         self.label_15.setSizePolicy(sizePolicy3)
@@ -1004,7 +1075,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_3.addWidget(self.label_15)
 
-        self.label_14 = QLabel(self.settings_tab)
+        self.label_14 = QLabel(self.brain_state_page)
         self.label_14.setObjectName("label_14")
         sizePolicy3.setHeightForWidth(self.label_14.sizePolicy().hasHeightForWidth())
         self.label_14.setSizePolicy(sizePolicy3)
@@ -1012,7 +1083,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_3.addWidget(self.label_14)
 
-        self.label_16 = QLabel(self.settings_tab)
+        self.label_16 = QLabel(self.brain_state_page)
         self.label_16.setObjectName("label_16")
         sizePolicy3.setHeightForWidth(self.label_16.sizePolicy().hasHeightForWidth())
         self.label_16.setSizePolicy(sizePolicy3)
@@ -1020,7 +1091,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_3.addWidget(self.label_16)
 
-        self.label_13 = QLabel(self.settings_tab)
+        self.label_13 = QLabel(self.brain_state_page)
         self.label_13.setObjectName("label_13")
         sizePolicy3.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
         self.label_13.setSizePolicy(sizePolicy3)
@@ -1028,7 +1099,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_3.addWidget(self.label_13)
 
-        self.label_18 = QLabel(self.settings_tab)
+        self.label_18 = QLabel(self.brain_state_page)
         self.label_18.setObjectName("label_18")
         sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         sizePolicy6.setHorizontalStretch(0)
@@ -1052,7 +1123,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_17.setObjectName("horizontalLayout_17")
         self.horizontalLayout_19 = QHBoxLayout()
         self.horizontalLayout_19.setObjectName("horizontalLayout_19")
-        self.label_12 = QLabel(self.settings_tab)
+        self.label_12 = QLabel(self.brain_state_page)
         self.label_12.setObjectName("label_12")
         sizePolicy.setHeightForWidth(self.label_12.sizePolicy().hasHeightForWidth())
         self.label_12.setSizePolicy(sizePolicy)
@@ -1073,7 +1144,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_20.addItem(self.horizontalSpacer_12)
 
-        self.enable_state_1 = QCheckBox(self.settings_tab)
+        self.enable_state_1 = QCheckBox(self.brain_state_page)
         self.enable_state_1.setObjectName("enable_state_1")
         sizePolicy1.setHeightForWidth(
             self.enable_state_1.sizePolicy().hasHeightForWidth()
@@ -1090,7 +1161,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_17.addLayout(self.horizontalLayout_20)
 
-        self.state_name_1 = QLineEdit(self.settings_tab)
+        self.state_name_1 = QLineEdit(self.brain_state_page)
         self.state_name_1.setObjectName("state_name_1")
         sizePolicy3.setHeightForWidth(
             self.state_name_1.sizePolicy().hasHeightForWidth()
@@ -1108,7 +1179,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_21.addItem(self.horizontalSpacer_14)
 
-        self.state_scored_1 = QCheckBox(self.settings_tab)
+        self.state_scored_1 = QCheckBox(self.brain_state_page)
         self.state_scored_1.setObjectName("state_scored_1")
         sizePolicy1.setHeightForWidth(
             self.state_scored_1.sizePolicy().hasHeightForWidth()
@@ -1134,7 +1205,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_22.addItem(self.horizontalSpacer_10)
 
-        self.state_frequency_1 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_1 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_1.setObjectName("state_frequency_1")
         self.state_frequency_1.setMaximum(1.000000000000000)
         self.state_frequency_1.setSingleStep(0.010000000000000)
@@ -1162,7 +1233,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_16.setObjectName("horizontalLayout_16")
         self.horizontalLayout_23 = QHBoxLayout()
         self.horizontalLayout_23.setObjectName("horizontalLayout_23")
-        self.label_11 = QLabel(self.settings_tab)
+        self.label_11 = QLabel(self.brain_state_page)
         self.label_11.setObjectName("label_11")
         sizePolicy.setHeightForWidth(self.label_11.sizePolicy().hasHeightForWidth())
         self.label_11.setSizePolicy(sizePolicy)
@@ -1181,7 +1252,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_24.addItem(self.horizontalSpacer_16)
 
-        self.enable_state_2 = QCheckBox(self.settings_tab)
+        self.enable_state_2 = QCheckBox(self.brain_state_page)
         self.enable_state_2.setObjectName("enable_state_2")
         sizePolicy1.setHeightForWidth(
             self.enable_state_2.sizePolicy().hasHeightForWidth()
@@ -1198,7 +1269,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_16.addLayout(self.horizontalLayout_24)
 
-        self.state_name_2 = QLineEdit(self.settings_tab)
+        self.state_name_2 = QLineEdit(self.brain_state_page)
         self.state_name_2.setObjectName("state_name_2")
         sizePolicy3.setHeightForWidth(
             self.state_name_2.sizePolicy().hasHeightForWidth()
@@ -1215,7 +1286,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_26.addItem(self.horizontalSpacer_18)
 
-        self.state_scored_2 = QCheckBox(self.settings_tab)
+        self.state_scored_2 = QCheckBox(self.brain_state_page)
         self.state_scored_2.setObjectName("state_scored_2")
         sizePolicy1.setHeightForWidth(
             self.state_scored_2.sizePolicy().hasHeightForWidth()
@@ -1241,7 +1312,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_25.addItem(self.horizontalSpacer_52)
 
-        self.state_frequency_2 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_2 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_2.setObjectName("state_frequency_2")
         self.state_frequency_2.setMaximum(1.000000000000000)
         self.state_frequency_2.setSingleStep(0.010000000000000)
@@ -1269,7 +1340,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_15.setObjectName("horizontalLayout_15")
         self.horizontalLayout_28 = QHBoxLayout()
         self.horizontalLayout_28.setObjectName("horizontalLayout_28")
-        self.label_10 = QLabel(self.settings_tab)
+        self.label_10 = QLabel(self.brain_state_page)
         self.label_10.setObjectName("label_10")
         sizePolicy.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
         self.label_10.setSizePolicy(sizePolicy)
@@ -1288,7 +1359,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_29.addItem(self.horizontalSpacer_20)
 
-        self.enable_state_3 = QCheckBox(self.settings_tab)
+        self.enable_state_3 = QCheckBox(self.brain_state_page)
         self.enable_state_3.setObjectName("enable_state_3")
         sizePolicy1.setHeightForWidth(
             self.enable_state_3.sizePolicy().hasHeightForWidth()
@@ -1305,7 +1376,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_15.addLayout(self.horizontalLayout_29)
 
-        self.state_name_3 = QLineEdit(self.settings_tab)
+        self.state_name_3 = QLineEdit(self.brain_state_page)
         self.state_name_3.setObjectName("state_name_3")
         sizePolicy3.setHeightForWidth(
             self.state_name_3.sizePolicy().hasHeightForWidth()
@@ -1322,7 +1393,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_30.addItem(self.horizontalSpacer_22)
 
-        self.state_scored_3 = QCheckBox(self.settings_tab)
+        self.state_scored_3 = QCheckBox(self.brain_state_page)
         self.state_scored_3.setObjectName("state_scored_3")
         sizePolicy1.setHeightForWidth(
             self.state_scored_3.sizePolicy().hasHeightForWidth()
@@ -1348,7 +1419,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_27.addItem(self.horizontalSpacer_55)
 
-        self.state_frequency_3 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_3 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_3.setObjectName("state_frequency_3")
         self.state_frequency_3.setMaximum(1.000000000000000)
         self.state_frequency_3.setSingleStep(0.010000000000000)
@@ -1376,7 +1447,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_14.setObjectName("horizontalLayout_14")
         self.horizontalLayout_31 = QHBoxLayout()
         self.horizontalLayout_31.setObjectName("horizontalLayout_31")
-        self.label_9 = QLabel(self.settings_tab)
+        self.label_9 = QLabel(self.brain_state_page)
         self.label_9.setObjectName("label_9")
         sizePolicy.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
         self.label_9.setSizePolicy(sizePolicy)
@@ -1395,7 +1466,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_45.addItem(self.horizontalSpacer_24)
 
-        self.enable_state_4 = QCheckBox(self.settings_tab)
+        self.enable_state_4 = QCheckBox(self.brain_state_page)
         self.enable_state_4.setObjectName("enable_state_4")
         sizePolicy1.setHeightForWidth(
             self.enable_state_4.sizePolicy().hasHeightForWidth()
@@ -1412,7 +1483,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_14.addLayout(self.horizontalLayout_45)
 
-        self.state_name_4 = QLineEdit(self.settings_tab)
+        self.state_name_4 = QLineEdit(self.brain_state_page)
         self.state_name_4.setObjectName("state_name_4")
         sizePolicy3.setHeightForWidth(
             self.state_name_4.sizePolicy().hasHeightForWidth()
@@ -1429,7 +1500,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_52.addItem(self.horizontalSpacer_26)
 
-        self.state_scored_4 = QCheckBox(self.settings_tab)
+        self.state_scored_4 = QCheckBox(self.brain_state_page)
         self.state_scored_4.setObjectName("state_scored_4")
         sizePolicy1.setHeightForWidth(
             self.state_scored_4.sizePolicy().hasHeightForWidth()
@@ -1455,7 +1526,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_38.addItem(self.horizontalSpacer_57)
 
-        self.state_frequency_4 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_4 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_4.setObjectName("state_frequency_4")
         self.state_frequency_4.setMaximum(1.000000000000000)
         self.state_frequency_4.setSingleStep(0.010000000000000)
@@ -1483,7 +1554,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_13.setObjectName("horizontalLayout_13")
         self.horizontalLayout_32 = QHBoxLayout()
         self.horizontalLayout_32.setObjectName("horizontalLayout_32")
-        self.label_8 = QLabel(self.settings_tab)
+        self.label_8 = QLabel(self.brain_state_page)
         self.label_8.setObjectName("label_8")
         sizePolicy.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
         self.label_8.setSizePolicy(sizePolicy)
@@ -1502,7 +1573,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_46.addItem(self.horizontalSpacer_29)
 
-        self.enable_state_5 = QCheckBox(self.settings_tab)
+        self.enable_state_5 = QCheckBox(self.brain_state_page)
         self.enable_state_5.setObjectName("enable_state_5")
         sizePolicy1.setHeightForWidth(
             self.enable_state_5.sizePolicy().hasHeightForWidth()
@@ -1519,7 +1590,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_13.addLayout(self.horizontalLayout_46)
 
-        self.state_name_5 = QLineEdit(self.settings_tab)
+        self.state_name_5 = QLineEdit(self.brain_state_page)
         self.state_name_5.setObjectName("state_name_5")
         sizePolicy3.setHeightForWidth(
             self.state_name_5.sizePolicy().hasHeightForWidth()
@@ -1536,7 +1607,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_53.addItem(self.horizontalSpacer_27)
 
-        self.state_scored_5 = QCheckBox(self.settings_tab)
+        self.state_scored_5 = QCheckBox(self.brain_state_page)
         self.state_scored_5.setObjectName("state_scored_5")
         sizePolicy1.setHeightForWidth(
             self.state_scored_5.sizePolicy().hasHeightForWidth()
@@ -1562,7 +1633,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_39.addItem(self.horizontalSpacer_59)
 
-        self.state_frequency_5 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_5 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_5.setObjectName("state_frequency_5")
         self.state_frequency_5.setMaximum(1.000000000000000)
         self.state_frequency_5.setSingleStep(0.010000000000000)
@@ -1590,7 +1661,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_12.setObjectName("horizontalLayout_12")
         self.horizontalLayout_33 = QHBoxLayout()
         self.horizontalLayout_33.setObjectName("horizontalLayout_33")
-        self.label_7 = QLabel(self.settings_tab)
+        self.label_7 = QLabel(self.brain_state_page)
         self.label_7.setObjectName("label_7")
         sizePolicy.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
         self.label_7.setSizePolicy(sizePolicy)
@@ -1609,7 +1680,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_47.addItem(self.horizontalSpacer_32)
 
-        self.enable_state_6 = QCheckBox(self.settings_tab)
+        self.enable_state_6 = QCheckBox(self.brain_state_page)
         self.enable_state_6.setObjectName("enable_state_6")
         sizePolicy1.setHeightForWidth(
             self.enable_state_6.sizePolicy().hasHeightForWidth()
@@ -1626,7 +1697,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_12.addLayout(self.horizontalLayout_47)
 
-        self.state_name_6 = QLineEdit(self.settings_tab)
+        self.state_name_6 = QLineEdit(self.brain_state_page)
         self.state_name_6.setObjectName("state_name_6")
         sizePolicy3.setHeightForWidth(
             self.state_name_6.sizePolicy().hasHeightForWidth()
@@ -1643,7 +1714,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_54.addItem(self.horizontalSpacer_34)
 
-        self.state_scored_6 = QCheckBox(self.settings_tab)
+        self.state_scored_6 = QCheckBox(self.brain_state_page)
         self.state_scored_6.setObjectName("state_scored_6")
         sizePolicy1.setHeightForWidth(
             self.state_scored_6.sizePolicy().hasHeightForWidth()
@@ -1669,7 +1740,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_40.addItem(self.horizontalSpacer_61)
 
-        self.state_frequency_6 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_6 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_6.setObjectName("state_frequency_6")
         self.state_frequency_6.setMaximum(1.000000000000000)
         self.state_frequency_6.setSingleStep(0.010000000000000)
@@ -1697,7 +1768,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_9.setObjectName("horizontalLayout_9")
         self.horizontalLayout_34 = QHBoxLayout()
         self.horizontalLayout_34.setObjectName("horizontalLayout_34")
-        self.label_6 = QLabel(self.settings_tab)
+        self.label_6 = QLabel(self.brain_state_page)
         self.label_6.setObjectName("label_6")
         sizePolicy.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
         self.label_6.setSizePolicy(sizePolicy)
@@ -1716,7 +1787,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_48.addItem(self.horizontalSpacer_36)
 
-        self.enable_state_7 = QCheckBox(self.settings_tab)
+        self.enable_state_7 = QCheckBox(self.brain_state_page)
         self.enable_state_7.setObjectName("enable_state_7")
         sizePolicy1.setHeightForWidth(
             self.enable_state_7.sizePolicy().hasHeightForWidth()
@@ -1733,7 +1804,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_9.addLayout(self.horizontalLayout_48)
 
-        self.state_name_7 = QLineEdit(self.settings_tab)
+        self.state_name_7 = QLineEdit(self.brain_state_page)
         self.state_name_7.setObjectName("state_name_7")
         sizePolicy3.setHeightForWidth(
             self.state_name_7.sizePolicy().hasHeightForWidth()
@@ -1750,7 +1821,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_55.addItem(self.horizontalSpacer_38)
 
-        self.state_scored_7 = QCheckBox(self.settings_tab)
+        self.state_scored_7 = QCheckBox(self.brain_state_page)
         self.state_scored_7.setObjectName("state_scored_7")
         sizePolicy1.setHeightForWidth(
             self.state_scored_7.sizePolicy().hasHeightForWidth()
@@ -1776,7 +1847,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_41.addItem(self.horizontalSpacer_63)
 
-        self.state_frequency_7 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_7 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_7.setObjectName("state_frequency_7")
         self.state_frequency_7.setMaximum(1.000000000000000)
         self.state_frequency_7.setSingleStep(0.010000000000000)
@@ -1804,7 +1875,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         self.horizontalLayout_35 = QHBoxLayout()
         self.horizontalLayout_35.setObjectName("horizontalLayout_35")
-        self.label_5 = QLabel(self.settings_tab)
+        self.label_5 = QLabel(self.brain_state_page)
         self.label_5.setObjectName("label_5")
         sizePolicy.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
         self.label_5.setSizePolicy(sizePolicy)
@@ -1823,7 +1894,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_49.addItem(self.horizontalSpacer_40)
 
-        self.enable_state_8 = QCheckBox(self.settings_tab)
+        self.enable_state_8 = QCheckBox(self.brain_state_page)
         self.enable_state_8.setObjectName("enable_state_8")
         sizePolicy1.setHeightForWidth(
             self.enable_state_8.sizePolicy().hasHeightForWidth()
@@ -1840,7 +1911,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_8.addLayout(self.horizontalLayout_49)
 
-        self.state_name_8 = QLineEdit(self.settings_tab)
+        self.state_name_8 = QLineEdit(self.brain_state_page)
         self.state_name_8.setObjectName("state_name_8")
         sizePolicy3.setHeightForWidth(
             self.state_name_8.sizePolicy().hasHeightForWidth()
@@ -1857,7 +1928,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_56.addItem(self.horizontalSpacer_42)
 
-        self.state_scored_8 = QCheckBox(self.settings_tab)
+        self.state_scored_8 = QCheckBox(self.brain_state_page)
         self.state_scored_8.setObjectName("state_scored_8")
         sizePolicy1.setHeightForWidth(
             self.state_scored_8.sizePolicy().hasHeightForWidth()
@@ -1883,7 +1954,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_42.addItem(self.horizontalSpacer_65)
 
-        self.state_frequency_8 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_8 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_8.setObjectName("state_frequency_8")
         self.state_frequency_8.setMaximum(1.000000000000000)
         self.state_frequency_8.setSingleStep(0.010000000000000)
@@ -1911,7 +1982,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.horizontalLayout_36 = QHBoxLayout()
         self.horizontalLayout_36.setObjectName("horizontalLayout_36")
-        self.label_4 = QLabel(self.settings_tab)
+        self.label_4 = QLabel(self.brain_state_page)
         self.label_4.setObjectName("label_4")
         sizePolicy.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
         self.label_4.setSizePolicy(sizePolicy)
@@ -1930,7 +2001,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_50.addItem(self.horizontalSpacer_44)
 
-        self.enable_state_9 = QCheckBox(self.settings_tab)
+        self.enable_state_9 = QCheckBox(self.brain_state_page)
         self.enable_state_9.setObjectName("enable_state_9")
         sizePolicy1.setHeightForWidth(
             self.enable_state_9.sizePolicy().hasHeightForWidth()
@@ -1947,7 +2018,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_7.addLayout(self.horizontalLayout_50)
 
-        self.state_name_9 = QLineEdit(self.settings_tab)
+        self.state_name_9 = QLineEdit(self.brain_state_page)
         self.state_name_9.setObjectName("state_name_9")
         sizePolicy3.setHeightForWidth(
             self.state_name_9.sizePolicy().hasHeightForWidth()
@@ -1964,7 +2035,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_57.addItem(self.horizontalSpacer_46)
 
-        self.state_scored_9 = QCheckBox(self.settings_tab)
+        self.state_scored_9 = QCheckBox(self.brain_state_page)
         self.state_scored_9.setObjectName("state_scored_9")
         sizePolicy1.setHeightForWidth(
             self.state_scored_9.sizePolicy().hasHeightForWidth()
@@ -1990,7 +2061,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_43.addItem(self.horizontalSpacer_67)
 
-        self.state_frequency_9 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_9 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_9.setObjectName("state_frequency_9")
         self.state_frequency_9.setMaximum(1.000000000000000)
         self.state_frequency_9.setSingleStep(0.010000000000000)
@@ -2018,7 +2089,7 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.horizontalLayout_37 = QHBoxLayout()
         self.horizontalLayout_37.setObjectName("horizontalLayout_37")
-        self.label_3 = QLabel(self.settings_tab)
+        self.label_3 = QLabel(self.brain_state_page)
         self.label_3.setObjectName("label_3")
         sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
         self.label_3.setSizePolicy(sizePolicy)
@@ -2037,7 +2108,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_51.addItem(self.horizontalSpacer_48)
 
-        self.enable_state_0 = QCheckBox(self.settings_tab)
+        self.enable_state_0 = QCheckBox(self.brain_state_page)
         self.enable_state_0.setObjectName("enable_state_0")
         sizePolicy1.setHeightForWidth(
             self.enable_state_0.sizePolicy().hasHeightForWidth()
@@ -2054,7 +2125,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_4.addLayout(self.horizontalLayout_51)
 
-        self.state_name_0 = QLineEdit(self.settings_tab)
+        self.state_name_0 = QLineEdit(self.brain_state_page)
         self.state_name_0.setObjectName("state_name_0")
         sizePolicy3.setHeightForWidth(
             self.state_name_0.sizePolicy().hasHeightForWidth()
@@ -2071,7 +2142,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_58.addItem(self.horizontalSpacer_49)
 
-        self.state_scored_0 = QCheckBox(self.settings_tab)
+        self.state_scored_0 = QCheckBox(self.brain_state_page)
         self.state_scored_0.setObjectName("state_scored_0")
         sizePolicy1.setHeightForWidth(
             self.state_scored_0.sizePolicy().hasHeightForWidth()
@@ -2097,7 +2168,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_44.addItem(self.horizontalSpacer_69)
 
-        self.state_frequency_0 = QDoubleSpinBox(self.settings_tab)
+        self.state_frequency_0 = QDoubleSpinBox(self.brain_state_page)
         self.state_frequency_0.setObjectName("state_frequency_0")
         self.state_frequency_0.setMaximum(1.000000000000000)
         self.state_frequency_0.setSingleStep(0.010000000000000)
@@ -2120,24 +2191,55 @@ class Ui_PrimaryWindow(object):
 
         self.settings_controls_layout.addLayout(self.horizontalLayout_4)
 
-        self.default_epoch_layout = QHBoxLayout()
-        self.default_epoch_layout.setObjectName("default_epoch_layout")
-        self.horizontalSpacer_71 = QSpacerItem(
-            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        self.verticalSpacer_3 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
         )
 
-        self.default_epoch_layout.addItem(self.horizontalSpacer_71)
+        self.settings_controls_layout.addItem(self.verticalSpacer_3)
 
+        self.horizontalLayout_80.addLayout(self.settings_controls_layout)
+
+        self.settings_description_layout = QVBoxLayout()
+        self.settings_description_layout.setObjectName("settings_description_layout")
+        self.settings_text = QLabel(self.brain_state_page)
+        self.settings_text.setObjectName("settings_text")
+        self.settings_text.setStyleSheet("background-color: white;")
+        self.settings_text.setTextFormat(Qt.TextFormat.MarkdownText)
+        self.settings_text.setAlignment(
+            Qt.AlignmentFlag.AlignLeading
+            | Qt.AlignmentFlag.AlignLeft
+            | Qt.AlignmentFlag.AlignTop
+        )
+        self.settings_text.setWordWrap(True)
+        self.settings_text.setMargin(12)
+
+        self.settings_description_layout.addWidget(self.settings_text)
+
+        self.horizontalLayout_80.addLayout(self.settings_description_layout)
+
+        self.horizontalLayout_80.setStretch(0, 1)
+        self.horizontalLayout_80.setStretch(1, 1)
+        self.settings_stack.addWidget(self.brain_state_page)
+        self.ui_default_page = QWidget()
+        self.ui_default_page.setObjectName("ui_default_page")
+        self.horizontalLayout_81 = QHBoxLayout(self.ui_default_page)
+        self.horizontalLayout_81.setSpacing(20)
+        self.horizontalLayout_81.setObjectName("horizontalLayout_81")
+        self.verticalLayout_6 = QVBoxLayout()
+        self.verticalLayout_6.setSpacing(10)
+        self.verticalLayout_6.setObjectName("verticalLayout_6")
+        self.default_epoch_layout = QHBoxLayout()
+        self.default_epoch_layout.setObjectName("default_epoch_layout")
         self.horizontalLayout_60 = QHBoxLayout()
         self.horizontalLayout_60.setObjectName("horizontalLayout_60")
-        self.label_17 = QLabel(self.settings_tab)
+        self.label_17 = QLabel(self.ui_default_page)
         self.label_17.setObjectName("label_17")
         sizePolicy1.setHeightForWidth(self.label_17.sizePolicy().hasHeightForWidth())
         self.label_17.setSizePolicy(sizePolicy1)
 
         self.horizontalLayout_60.addWidget(self.label_17)
 
-        self.default_epoch_input = QDoubleSpinBox(self.settings_tab)
+        self.default_epoch_input = QDoubleSpinBox(self.ui_default_page)
         self.default_epoch_input.setObjectName("default_epoch_input")
         sizePolicy1.setHeightForWidth(
             self.default_epoch_input.sizePolicy().hasHeightForWidth()
@@ -2151,26 +2253,39 @@ class Ui_PrimaryWindow(object):
         self.default_epoch_layout.addLayout(self.horizontalLayout_60)
 
         self.horizontalSpacer_70 = QSpacerItem(
-            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+            10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
         )
 
         self.default_epoch_layout.addItem(self.horizontalSpacer_70)
 
-        self.settings_controls_layout.addLayout(self.default_epoch_layout)
+        self.verticalLayout_6.addLayout(self.default_epoch_layout)
+
+        self.horizontalLayout_75 = QHBoxLayout()
+        self.horizontalLayout_75.setObjectName("horizontalLayout_75")
+        self.horizontalLayout_76 = QHBoxLayout()
+        self.horizontalLayout_76.setObjectName("horizontalLayout_76")
+        self.overwrite_default_checkbox = QCheckBox(self.ui_default_page)
+        self.overwrite_default_checkbox.setObjectName("overwrite_default_checkbox")
+
+        self.horizontalLayout_76.addWidget(self.overwrite_default_checkbox)
+
+        self.horizontalLayout_75.addLayout(self.horizontalLayout_76)
+
+        self.horizontalSpacer_88 = QSpacerItem(
+            40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_75.addItem(self.horizontalSpacer_88)
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_75)
 
         self.confidence_score_setting_layout = QHBoxLayout()
         self.confidence_score_setting_layout.setObjectName(
             "confidence_score_setting_layout"
         )
-        self.horizontalSpacer_73 = QSpacerItem(
-            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
-        )
-
-        self.confidence_score_setting_layout.addItem(self.horizontalSpacer_73)
-
         self.horizontalLayout_62 = QHBoxLayout()
         self.horizontalLayout_62.setObjectName("horizontalLayout_62")
-        self.confidence_setting_checkbox = QCheckBox(self.settings_tab)
+        self.confidence_setting_checkbox = QCheckBox(self.ui_default_page)
         self.confidence_setting_checkbox.setObjectName("confidence_setting_checkbox")
         sizePolicy1.setHeightForWidth(
             self.confidence_setting_checkbox.sizePolicy().hasHeightForWidth()
@@ -2183,71 +2298,451 @@ class Ui_PrimaryWindow(object):
         self.confidence_score_setting_layout.addLayout(self.horizontalLayout_62)
 
         self.horizontalSpacer_72 = QSpacerItem(
-            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+            10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
         )
 
         self.confidence_score_setting_layout.addItem(self.horizontalSpacer_72)
 
-        self.settings_controls_layout.addLayout(self.confidence_score_setting_layout)
+        self.verticalLayout_6.addLayout(self.confidence_score_setting_layout)
 
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.horizontalLayout_18 = QHBoxLayout()
-        self.horizontalLayout_18.setSpacing(10)
         self.horizontalLayout_18.setObjectName("horizontalLayout_18")
-        self.horizontalSpacer_9 = QSpacerItem(
-            10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        self.label_19 = QLabel(self.ui_default_page)
+        self.label_19.setObjectName("label_19")
+        sizePolicy1.setHeightForWidth(self.label_19.sizePolicy().hasHeightForWidth())
+        self.label_19.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_18.addWidget(self.label_19)
+
+        self.default_min_bout_length_spinbox = QDoubleSpinBox(self.ui_default_page)
+        self.default_min_bout_length_spinbox.setObjectName(
+            "default_min_bout_length_spinbox"
         )
-
-        self.horizontalLayout_18.addItem(self.horizontalSpacer_9)
-
-        self.save_config_button = QPushButton(self.settings_tab)
-        self.save_config_button.setObjectName("save_config_button")
         sizePolicy1.setHeightForWidth(
-            self.save_config_button.sizePolicy().hasHeightForWidth()
+            self.default_min_bout_length_spinbox.sizePolicy().hasHeightForWidth()
         )
-        self.save_config_button.setSizePolicy(sizePolicy1)
+        self.default_min_bout_length_spinbox.setSizePolicy(sizePolicy1)
+        self.default_min_bout_length_spinbox.setMaximum(1000.000000000000000)
+        self.default_min_bout_length_spinbox.setValue(5.000000000000000)
 
-        self.horizontalLayout_18.addWidget(self.save_config_button)
+        self.horizontalLayout_18.addWidget(self.default_min_bout_length_spinbox)
 
-        self.save_config_status = QLabel(self.settings_tab)
-        self.save_config_status.setObjectName("save_config_status")
-        sizePolicy3.setHeightForWidth(
-            self.save_config_status.sizePolicy().hasHeightForWidth()
+        self.horizontalLayout_2.addLayout(self.horizontalLayout_18)
+
+        self.horizontalSpacer_90 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
         )
-        self.save_config_status.setSizePolicy(sizePolicy3)
-        self.save_config_status.setStyleSheet("background-color: transparent;")
 
-        self.horizontalLayout_18.addWidget(self.save_config_status)
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_90)
 
-        self.horizontalLayout_18.setStretch(0, 6)
-        self.horizontalLayout_18.setStretch(1, 1)
-        self.horizontalLayout_18.setStretch(2, 7)
+        self.verticalLayout_6.addLayout(self.horizontalLayout_2)
 
-        self.settings_controls_layout.addLayout(self.horizontalLayout_18)
+        self.verticalSpacer_5 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+        )
 
-        self.settings_controls_layout.setStretch(0, 2)
-        self.settings_controls_layout.setStretch(1, 2)
-        self.settings_controls_layout.setStretch(2, 2)
-        self.settings_controls_layout.setStretch(3, 2)
-        self.settings_controls_layout.setStretch(4, 2)
-        self.settings_controls_layout.setStretch(5, 2)
-        self.settings_controls_layout.setStretch(6, 2)
-        self.settings_controls_layout.setStretch(7, 2)
-        self.settings_controls_layout.setStretch(8, 2)
-        self.settings_controls_layout.setStretch(9, 2)
-        self.settings_controls_layout.setStretch(10, 2)
-        self.settings_controls_layout.setStretch(11, 2)
-        self.settings_controls_layout.setStretch(13, 3)
+        self.verticalLayout_6.addItem(self.verticalSpacer_5)
 
-        self.settings_tab_layout.addLayout(self.settings_controls_layout, 0, 0, 1, 1)
+        self.horizontalLayout_81.addLayout(self.verticalLayout_6)
+
+        self.ui_default_description_layout = QVBoxLayout()
+        self.ui_default_description_layout.setObjectName(
+            "ui_default_description_layout"
+        )
+        self.ui_default_description_label = QLabel(self.ui_default_page)
+        self.ui_default_description_label.setObjectName("ui_default_description_label")
+        self.ui_default_description_label.setStyleSheet("background-color: white;")
+        self.ui_default_description_label.setTextFormat(Qt.TextFormat.MarkdownText)
+        self.ui_default_description_label.setAlignment(
+            Qt.AlignmentFlag.AlignLeading
+            | Qt.AlignmentFlag.AlignLeft
+            | Qt.AlignmentFlag.AlignTop
+        )
+        self.ui_default_description_label.setWordWrap(True)
+        self.ui_default_description_label.setMargin(12)
+
+        self.ui_default_description_layout.addWidget(self.ui_default_description_label)
+
+        self.horizontalLayout_81.addLayout(self.ui_default_description_layout)
+
+        self.horizontalLayout_81.setStretch(0, 1)
+        self.horizontalLayout_81.setStretch(1, 1)
+        self.settings_stack.addWidget(self.ui_default_page)
+        self.emg_filter_page = QWidget()
+        self.emg_filter_page.setObjectName("emg_filter_page")
+        self.horizontalLayout_82 = QHBoxLayout(self.emg_filter_page)
+        self.horizontalLayout_82.setSpacing(20)
+        self.horizontalLayout_82.setObjectName("horizontalLayout_82")
+        self.verticalLayout_13 = QVBoxLayout()
+        self.verticalLayout_13.setSpacing(10)
+        self.verticalLayout_13.setObjectName("verticalLayout_13")
+        self.filter_order_layout = QHBoxLayout()
+        self.filter_order_layout.setObjectName("filter_order_layout")
+        self.horizontalLayout_63 = QHBoxLayout()
+        self.horizontalLayout_63.setObjectName("horizontalLayout_63")
+        self.filter_order_label = QLabel(self.emg_filter_page)
+        self.filter_order_label.setObjectName("filter_order_label")
+        sizePolicy1.setHeightForWidth(
+            self.filter_order_label.sizePolicy().hasHeightForWidth()
+        )
+        self.filter_order_label.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_63.addWidget(self.filter_order_label)
+
+        self.emg_order_spinbox = QSpinBox(self.emg_filter_page)
+        self.emg_order_spinbox.setObjectName("emg_order_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.emg_order_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.emg_order_spinbox.setSizePolicy(sizePolicy1)
+        self.emg_order_spinbox.setMinimum(1)
+        self.emg_order_spinbox.setMaximum(10)
+        self.emg_order_spinbox.setValue(8)
+
+        self.horizontalLayout_63.addWidget(self.emg_order_spinbox)
+
+        self.filter_order_layout.addLayout(self.horizontalLayout_63)
+
+        self.horizontalSpacer_9 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+
+        self.filter_order_layout.addItem(self.horizontalSpacer_9)
+
+        self.filter_order_layout.setStretch(0, 1)
+        self.filter_order_layout.setStretch(1, 3)
+
+        self.verticalLayout_13.addLayout(self.filter_order_layout)
+
+        self.bp_lower_layout = QHBoxLayout()
+        self.bp_lower_layout.setObjectName("bp_lower_layout")
+        self.horizontalLayout_65 = QHBoxLayout()
+        self.horizontalLayout_65.setObjectName("horizontalLayout_65")
+        self.bp_lower_label = QLabel(self.emg_filter_page)
+        self.bp_lower_label.setObjectName("bp_lower_label")
+        sizePolicy1.setHeightForWidth(
+            self.bp_lower_label.sizePolicy().hasHeightForWidth()
+        )
+        self.bp_lower_label.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_65.addWidget(self.bp_lower_label)
+
+        self.bp_lower_spinbox = QDoubleSpinBox(self.emg_filter_page)
+        self.bp_lower_spinbox.setObjectName("bp_lower_spinbox")
+        self.bp_lower_spinbox.setMaximum(999.990000000000009)
+        self.bp_lower_spinbox.setValue(20.000000000000000)
+
+        self.horizontalLayout_65.addWidget(self.bp_lower_spinbox)
+
+        self.bp_lower_layout.addLayout(self.horizontalLayout_65)
+
+        self.horizontalSpacer_73 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.bp_lower_layout.addItem(self.horizontalSpacer_73)
+
+        self.verticalLayout_13.addLayout(self.bp_lower_layout)
+
+        self.bp_upper_layout = QHBoxLayout()
+        self.bp_upper_layout.setObjectName("bp_upper_layout")
+        self.horizontalLayout_61 = QHBoxLayout()
+        self.horizontalLayout_61.setObjectName("horizontalLayout_61")
+        self.bp_upper_label = QLabel(self.emg_filter_page)
+        self.bp_upper_label.setObjectName("bp_upper_label")
+        sizePolicy1.setHeightForWidth(
+            self.bp_upper_label.sizePolicy().hasHeightForWidth()
+        )
+        self.bp_upper_label.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_61.addWidget(self.bp_upper_label)
+
+        self.bp_upper_spinbox = QDoubleSpinBox(self.emg_filter_page)
+        self.bp_upper_spinbox.setObjectName("bp_upper_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.bp_upper_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.bp_upper_spinbox.setSizePolicy(sizePolicy1)
+        self.bp_upper_spinbox.setMaximum(999.990000000000009)
+        self.bp_upper_spinbox.setValue(50.000000000000000)
+
+        self.horizontalLayout_61.addWidget(self.bp_upper_spinbox)
+
+        self.bp_upper_layout.addLayout(self.horizontalLayout_61)
+
+        self.horizontalSpacer_71 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.bp_upper_layout.addItem(self.horizontalSpacer_71)
+
+        self.verticalLayout_13.addLayout(self.bp_upper_layout)
+
+        self.horizontalLayout_73 = QHBoxLayout()
+        self.horizontalLayout_73.setObjectName("horizontalLayout_73")
+        self.horizontalSpacer_85 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_73.addItem(self.horizontalSpacer_85)
+
+        self.reset_emg_params_button = QPushButton(self.emg_filter_page)
+        self.reset_emg_params_button.setObjectName("reset_emg_params_button")
+        sizePolicy1.setHeightForWidth(
+            self.reset_emg_params_button.sizePolicy().hasHeightForWidth()
+        )
+        self.reset_emg_params_button.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_73.addWidget(self.reset_emg_params_button)
+
+        self.horizontalSpacer_84 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_73.addItem(self.horizontalSpacer_84)
+
+        self.verticalLayout_13.addLayout(self.horizontalLayout_73)
+
+        self.verticalSpacer_6 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+        )
+
+        self.verticalLayout_13.addItem(self.verticalSpacer_6)
+
+        self.horizontalLayout_82.addLayout(self.verticalLayout_13)
+
+        self.verticalLayout_12 = QVBoxLayout()
+        self.verticalLayout_12.setObjectName("verticalLayout_12")
+        self.emg_filter_description_label = QLabel(self.emg_filter_page)
+        self.emg_filter_description_label.setObjectName("emg_filter_description_label")
+        self.emg_filter_description_label.setStyleSheet("background-color: white;")
+        self.emg_filter_description_label.setAlignment(
+            Qt.AlignmentFlag.AlignLeading
+            | Qt.AlignmentFlag.AlignLeft
+            | Qt.AlignmentFlag.AlignTop
+        )
+        self.emg_filter_description_label.setWordWrap(True)
+        self.emg_filter_description_label.setMargin(12)
+
+        self.verticalLayout_12.addWidget(self.emg_filter_description_label)
+
+        self.horizontalLayout_82.addLayout(self.verticalLayout_12)
+
+        self.horizontalLayout_82.setStretch(0, 1)
+        self.horizontalLayout_82.setStretch(1, 1)
+        self.settings_stack.addWidget(self.emg_filter_page)
+        self.hyperparameter_page = QWidget()
+        self.hyperparameter_page.setObjectName("hyperparameter_page")
+        self.horizontalLayout_83 = QHBoxLayout(self.hyperparameter_page)
+        self.horizontalLayout_83.setSpacing(20)
+        self.horizontalLayout_83.setObjectName("horizontalLayout_83")
+        self.verticalLayout_14 = QVBoxLayout()
+        self.verticalLayout_14.setSpacing(10)
+        self.verticalLayout_14.setObjectName("verticalLayout_14")
+        self.horizontalLayout_64 = QHBoxLayout()
+        self.horizontalLayout_64.setObjectName("horizontalLayout_64")
+        self.horizontalLayout_66 = QHBoxLayout()
+        self.horizontalLayout_66.setObjectName("horizontalLayout_66")
+        self.batch_size_label = QLabel(self.hyperparameter_page)
+        self.batch_size_label.setObjectName("batch_size_label")
+        sizePolicy1.setHeightForWidth(
+            self.batch_size_label.sizePolicy().hasHeightForWidth()
+        )
+        self.batch_size_label.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_66.addWidget(self.batch_size_label)
+
+        self.batch_size_spinbox = QSpinBox(self.hyperparameter_page)
+        self.batch_size_spinbox.setObjectName("batch_size_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.batch_size_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.batch_size_spinbox.setSizePolicy(sizePolicy1)
+        self.batch_size_spinbox.setMinimum(1)
+        self.batch_size_spinbox.setMaximum(9999)
+        self.batch_size_spinbox.setValue(64)
+
+        self.horizontalLayout_66.addWidget(self.batch_size_spinbox)
+
+        self.horizontalLayout_64.addLayout(self.horizontalLayout_66)
+
+        self.horizontalSpacer_80 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_64.addItem(self.horizontalSpacer_80)
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_64)
+
+        self.horizontalLayout_67 = QHBoxLayout()
+        self.horizontalLayout_67.setObjectName("horizontalLayout_67")
+        self.horizontalLayout_68 = QHBoxLayout()
+        self.horizontalLayout_68.setObjectName("horizontalLayout_68")
+        self.learning_rate_label = QLabel(self.hyperparameter_page)
+        self.learning_rate_label.setObjectName("learning_rate_label")
+        sizePolicy1.setHeightForWidth(
+            self.learning_rate_label.sizePolicy().hasHeightForWidth()
+        )
+        self.learning_rate_label.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_68.addWidget(self.learning_rate_label)
+
+        self.learning_rate_spinbox = QDoubleSpinBox(self.hyperparameter_page)
+        self.learning_rate_spinbox.setObjectName("learning_rate_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.learning_rate_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.learning_rate_spinbox.setSizePolicy(sizePolicy1)
+        self.learning_rate_spinbox.setDecimals(5)
+        self.learning_rate_spinbox.setMinimum(0.000010000000000)
+        self.learning_rate_spinbox.setSingleStep(0.000100000000000)
+        self.learning_rate_spinbox.setValue(0.001000000000000)
+
+        self.horizontalLayout_68.addWidget(self.learning_rate_spinbox)
+
+        self.horizontalLayout_67.addLayout(self.horizontalLayout_68)
+
+        self.horizontalSpacer_81 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_67.addItem(self.horizontalSpacer_81)
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_67)
+
+        self.horizontalLayout_69 = QHBoxLayout()
+        self.horizontalLayout_69.setObjectName("horizontalLayout_69")
+        self.horizontalLayout_70 = QHBoxLayout()
+        self.horizontalLayout_70.setObjectName("horizontalLayout_70")
+        self.momentum_label = QLabel(self.hyperparameter_page)
+        self.momentum_label.setObjectName("momentum_label")
+        sizePolicy1.setHeightForWidth(
+            self.momentum_label.sizePolicy().hasHeightForWidth()
+        )
+        self.momentum_label.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_70.addWidget(self.momentum_label)
+
+        self.momentum_spinbox = QDoubleSpinBox(self.hyperparameter_page)
+        self.momentum_spinbox.setObjectName("momentum_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.momentum_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.momentum_spinbox.setSizePolicy(sizePolicy1)
+        self.momentum_spinbox.setDecimals(3)
+        self.momentum_spinbox.setMinimum(0.010000000000000)
+        self.momentum_spinbox.setMaximum(0.999000000000000)
+        self.momentum_spinbox.setSingleStep(0.010000000000000)
+        self.momentum_spinbox.setValue(0.900000000000000)
+
+        self.horizontalLayout_70.addWidget(self.momentum_spinbox)
+
+        self.horizontalLayout_69.addLayout(self.horizontalLayout_70)
+
+        self.horizontalSpacer_82 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_69.addItem(self.horizontalSpacer_82)
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_69)
+
+        self.horizontalLayout_71 = QHBoxLayout()
+        self.horizontalLayout_71.setObjectName("horizontalLayout_71")
+        self.horizontalLayout_72 = QHBoxLayout()
+        self.horizontalLayout_72.setObjectName("horizontalLayout_72")
+        self.training_epochs_label = QLabel(self.hyperparameter_page)
+        self.training_epochs_label.setObjectName("training_epochs_label")
+        sizePolicy1.setHeightForWidth(
+            self.training_epochs_label.sizePolicy().hasHeightForWidth()
+        )
+        self.training_epochs_label.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_72.addWidget(self.training_epochs_label)
+
+        self.training_epochs_spinbox = QSpinBox(self.hyperparameter_page)
+        self.training_epochs_spinbox.setObjectName("training_epochs_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.training_epochs_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.training_epochs_spinbox.setSizePolicy(sizePolicy1)
+        self.training_epochs_spinbox.setMinimum(1)
+        self.training_epochs_spinbox.setValue(6)
+
+        self.horizontalLayout_72.addWidget(self.training_epochs_spinbox)
+
+        self.horizontalLayout_71.addLayout(self.horizontalLayout_72)
+
+        self.horizontalSpacer_83 = QSpacerItem(
+            40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_71.addItem(self.horizontalSpacer_83)
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_71)
+
+        self.horizontalLayout_74 = QHBoxLayout()
+        self.horizontalLayout_74.setObjectName("horizontalLayout_74")
+        self.horizontalSpacer_86 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_74.addItem(self.horizontalSpacer_86)
+
+        self.reset_hyperparams_button = QPushButton(self.hyperparameter_page)
+        self.reset_hyperparams_button.setObjectName("reset_hyperparams_button")
+        sizePolicy1.setHeightForWidth(
+            self.reset_hyperparams_button.sizePolicy().hasHeightForWidth()
+        )
+        self.reset_hyperparams_button.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_74.addWidget(self.reset_hyperparams_button)
+
+        self.horizontalSpacer_87 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_74.addItem(self.horizontalSpacer_87)
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_74)
 
         self.verticalSpacer = QSpacerItem(
-            5, 30, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+            5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
         )
 
-        self.settings_tab_layout.addItem(self.verticalSpacer, 1, 1, 1, 1)
+        self.verticalLayout_14.addItem(self.verticalSpacer)
 
-        self.settings_tab_layout.setColumnStretch(0, 1)
-        self.settings_tab_layout.setColumnStretch(1, 1)
+        self.horizontalLayout_83.addLayout(self.verticalLayout_14)
+
+        self.verticalLayout_15 = QVBoxLayout()
+        self.verticalLayout_15.setObjectName("verticalLayout_15")
+        self.hyperparameter_description_label = QLabel(self.hyperparameter_page)
+        self.hyperparameter_description_label.setObjectName(
+            "hyperparameter_description_label"
+        )
+        self.hyperparameter_description_label.setStyleSheet("background-color: white;")
+        self.hyperparameter_description_label.setTextFormat(Qt.TextFormat.MarkdownText)
+        self.hyperparameter_description_label.setAlignment(
+            Qt.AlignmentFlag.AlignLeading
+            | Qt.AlignmentFlag.AlignLeft
+            | Qt.AlignmentFlag.AlignTop
+        )
+        self.hyperparameter_description_label.setWordWrap(True)
+        self.hyperparameter_description_label.setMargin(12)
+
+        self.verticalLayout_15.addWidget(self.hyperparameter_description_label)
+
+        self.horizontalLayout_83.addLayout(self.verticalLayout_15)
+
+        self.horizontalLayout_83.setStretch(0, 1)
+        self.horizontalLayout_83.setStretch(1, 1)
+        self.settings_stack.addWidget(self.hyperparameter_page)
+
+        self.settings_layout.addWidget(self.settings_stack)
+
+        self.settings_tab_layout.addLayout(self.settings_layout, 1, 0, 1, 1)
 
         self.gridLayout_5.addLayout(self.settings_tab_layout, 0, 0, 1, 1)
 
@@ -2272,9 +2767,14 @@ class Ui_PrimaryWindow(object):
         QWidget.setTabOrder(self.recording_list_widget, self.message_area)
 
         self.retranslateUi(PrimaryWindow)
+        self.settings_combobox.currentIndexChanged.connect(
+            self.settings_stack.setCurrentIndex
+        )
 
         self.upper_tab_widget.setCurrentIndex(0)
         self.lower_tab_widget.setCurrentIndex(0)
+        self.settings_combobox.setCurrentIndex(0)
+        self.settings_stack.setCurrentIndex(0)
 
         QMetaObject.connectSlotsByName(PrimaryWindow)
 
@@ -2506,7 +3006,33 @@ class Ui_PrimaryWindow(object):
             self.upper_tab_widget.indexOf(self.scoring_tab),
             QCoreApplication.translate("PrimaryWindow", "Sleep scoring", None),
         )
-        self.settings_text.setText("")
+        # if QT_CONFIG(tooltip)
+        self.save_config_button.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Save current configuration", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.save_config_button.setText(
+            QCoreApplication.translate("PrimaryWindow", "Save settings", None)
+        )
+        self.save_config_status.setText("")
+        self.settings_combobox.setItemText(
+            0, QCoreApplication.translate("PrimaryWindow", "Brain states", None)
+        )
+        self.settings_combobox.setItemText(
+            1, QCoreApplication.translate("PrimaryWindow", "UI defaults", None)
+        )
+        self.settings_combobox.setItemText(
+            2, QCoreApplication.translate("PrimaryWindow", "EMG filter", None)
+        )
+        self.settings_combobox.setItemText(
+            3,
+            QCoreApplication.translate(
+                "PrimaryWindow", "Training hyperparameters", None
+            ),
+        )
+
         self.label_15.setText(
             QCoreApplication.translate("PrimaryWindow", "Digit", None)
         )
@@ -2550,25 +3076,101 @@ class Ui_PrimaryWindow(object):
         self.label_3.setText(QCoreApplication.translate("PrimaryWindow", "0", None))
         self.enable_state_0.setText("")
         self.state_scored_0.setText("")
+        self.settings_text.setText(
+            QCoreApplication.translate(
+                "PrimaryWindow",
+                "This is the current set of brain states. Important notes:\n"
+                "- You must click 'Save settings' to store any changes.\n"
+                "- Changing these settings can prevent existing label files, calibration files, and trained models from working properly.\n"
+                "- Reinstalling AccuSleePy will overwrite this configuration.\n"
+                "\n"
+                "Each brain state has several attributes:\n"
+                "- Digit: how the brain state is represented in label files, and keyboard shortcut for this state in manual scoring.\n"
+                "- Enabled: whether a brain state for this digit exists.\n"
+                "- Name: unique name of the brain state (e.g., REM).\n"
+                "- Scored: whether a classification model should output this brain state. If a state  corresponds to missing/corrupted data, you probably want to uncheck this box.\n"
+                "- Frequency: approximate relative frequency of this brain state. Does not need to be very accurate. Frequencies for all scored states must sum to 1.",
+                None,
+            )
+        )
         self.label_17.setText(
-            QCoreApplication.translate("PrimaryWindow", "Default epoch length:", None)
+            QCoreApplication.translate("PrimaryWindow", "Epoch length:", None)
+        )
+        self.overwrite_default_checkbox.setText(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Only overwrite undefined epochs", None
+            )
         )
         self.confidence_setting_checkbox.setText(
+            QCoreApplication.translate("PrimaryWindow", "Save confidence scores", None)
+        )
+        self.label_19.setText(
             QCoreApplication.translate(
-                "PrimaryWindow", "Save confidence scores by default", None
+                "PrimaryWindow", "Minimum bout length (sec):", None
             )
         )
-        # if QT_CONFIG(tooltip)
-        self.save_config_button.setToolTip(
+        self.ui_default_description_label.setText(
             QCoreApplication.translate(
-                "PrimaryWindow", "Save current configuration", None
+                "PrimaryWindow",
+                "These are the default values/settings that are shown in the primary UI window when it starts up.\n"
+                "\n"
+                'Changes here will not affect the **current** state of the controls in the "Sleep scoring" tab.',
+                None,
             )
         )
-        # endif // QT_CONFIG(tooltip)
-        self.save_config_button.setText(
-            QCoreApplication.translate("PrimaryWindow", "Save", None)
+        self.filter_order_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Filter order:", None)
         )
-        self.save_config_status.setText("")
+        self.bp_lower_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Lower cutoff:", None)
+        )
+        self.bp_lower_spinbox.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", " Hz", None)
+        )
+        self.bp_upper_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Upper cutoff:", None)
+        )
+        self.bp_upper_spinbox.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", " Hz", None)
+        )
+        self.reset_emg_params_button.setText(
+            QCoreApplication.translate("PrimaryWindow", "reset to defaults", None)
+        )
+        self.emg_filter_description_label.setText(
+            QCoreApplication.translate(
+                "PrimaryWindow",
+                "EMG power is calculated as the root-mean-square of the EMG signal in each epoch after a bandpass filter is applied. You can change the proprties of that filter here. If the manual scoring window displays the EMG signal but not the EMG power, you can try lowering the filter order to 4.\n"
+                "\n"
+                "Changing these settings can prevent existing classification models and calibration files from working as expected. You will probably want to recreate them using your new settings.",
+                None,
+            )
+        )
+        self.batch_size_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Batch size:", None)
+        )
+        self.learning_rate_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Learning rate:", None)
+        )
+        self.momentum_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Momentum:", None)
+        )
+        self.training_epochs_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Epochs:", None)
+        )
+        self.reset_hyperparams_button.setText(
+            QCoreApplication.translate("PrimaryWindow", "reset to defaults", None)
+        )
+        self.hyperparameter_description_label.setText(
+            QCoreApplication.translate(
+                "PrimaryWindow",
+                "These are the hyperparameters used for training new classification models.\n"
+                "- Batch size: number of examples in each training iteration\n"
+                "- Learning rate: step size for adjusting model weights\n"
+                "- Momentum: amount of past gradients to use in the current update. Typically between 0.6 and 0.99\n"
+                "- Epochs: number of passes over the training data",
+                None,
+            )
+        )
         self.upper_tab_widget.setTabText(
             self.upper_tab_widget.indexOf(self.settings_tab),
             QCoreApplication.translate("PrimaryWindow", "Settings", None),

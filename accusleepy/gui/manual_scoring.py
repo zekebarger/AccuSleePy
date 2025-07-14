@@ -32,7 +32,7 @@ from PySide6.QtWidgets import (
 )
 
 from accusleepy.constants import UNDEFINED_LABEL
-from accusleepy.fileio import load_config, save_labels
+from accusleepy.fileio import load_config, save_labels, EMGFilter
 from accusleepy.gui.mplwidget import resample_x_ticks
 from accusleepy.gui.viewer_window import Ui_ViewerWindow
 from accusleepy.signal_processing import create_spectrogram, get_emg_power
@@ -102,6 +102,7 @@ class ManualScoringWindow(QDialog):
         confidence_scores: np.array,
         sampling_rate: int | float,
         epoch_length: int | float,
+        emg_filter: EMGFilter,
     ):
         """Initialize the manual scoring window
 
@@ -112,6 +113,7 @@ class ManualScoringWindow(QDialog):
         :param confidence_scores: confidence scores
         :param sampling_rate: sampling rate, in Hz
         :param epoch_length: epoch length, in seconds
+        :param emg_filter: EMG filter parameters
         """
         super(ManualScoringWindow, self).__init__()
 
@@ -122,6 +124,7 @@ class ManualScoringWindow(QDialog):
         self.confidence_scores = confidence_scores
         self.sampling_rate = sampling_rate
         self.epoch_length = epoch_length
+        self.emg_filter = emg_filter
 
         self.n_epochs = len(self.labels)
 
@@ -131,7 +134,7 @@ class ManualScoringWindow(QDialog):
         self.setWindowTitle("AccuSleePy manual scoring window")
 
         # load set of valid brain states
-        self.brain_state_set, _, _ = load_config()
+        self.brain_state_set, _, _, _, _, _, _ = load_config()
 
         # initial setting for number of epochs to show in the lower plot
         self.epochs_to_show = 5
@@ -153,7 +156,7 @@ class ManualScoringWindow(QDialog):
 
         # calculate RMS of EMG for each epoch and apply a ceiling
         self.upper_emg = create_upper_emg_signal(
-            self.emg, self.sampling_rate, self.epoch_length
+            self.emg, self.sampling_rate, self.epoch_length, self.emg_filter
         )
 
         # center and scale the EEG and EMG signals to fit the display
@@ -1063,21 +1066,26 @@ def create_confidence_img(confidence_scores: np.array) -> np.array:
 
 
 def create_upper_emg_signal(
-    emg: np.array, sampling_rate: int | float, epoch_length: int | float
+    emg: np.array,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+    emg_filter: EMGFilter,
 ) -> np.array:
     """Calculate RMS of EMG for each epoch and apply a ceiling
 
     :param emg: EMG signal
     :param sampling_rate: sampling rate, in Hz
     :param epoch_length: epoch length, in seconds
+    :param emg_filter: EMG filter parameters
     :return: processed EMG signal
     """
     emg_rms = get_emg_power(
         emg,
         sampling_rate,
         epoch_length,
+        emg_filter,
     )
-    return np.clip(emg_rms, 0, np.mean(emg_rms) + np.std(emg_rms) * 2.5)
+    return np.clip(emg_rms, np.min(emg_rms), np.mean(emg_rms) + np.std(emg_rms) * 2.5)
 
 
 def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):

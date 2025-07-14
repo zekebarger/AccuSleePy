@@ -18,7 +18,7 @@ from accusleepy.constants import (
     MIN_WINDOW_LEN,
     UPPER_FREQ,
 )
-from accusleepy.fileio import Recording, load_labels, load_recording
+from accusleepy.fileio import Recording, load_labels, load_recording, EMGFilter
 from accusleepy.multitaper import spectrogram
 
 # note: scipy is lazily imported
@@ -172,7 +172,10 @@ def create_spectrogram(
 
 
 def get_emg_power(
-    emg: np.array, sampling_rate: int | float, epoch_length: int | float
+    emg: np.array,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+    emg_filter: EMGFilter,
 ) -> np.array:
     """Calculate EMG power for each epoch
 
@@ -182,18 +185,14 @@ def get_emg_power(
     :param emg: EMG signal
     :param sampling_rate: sampling rate, in Hz
     :param epoch_length: epoch length, in seconds
+    :param emg_filter: EMG filter parameters
     :return: EMG "power" for each epoch
     """
     from scipy.signal import butter, filtfilt
 
-    # filter parameters
-    order = 8
-    bp_lower = 20
-    bp_upper = 50
-
     b, a = butter(
-        N=order,
-        Wn=[bp_lower, bp_upper],
+        N=emg_filter.order,
+        Wn=[emg_filter.bp_lower, emg_filter.bp_upper],
         btype="bandpass",
         output="ba",
         fs=sampling_rate,
@@ -216,6 +215,7 @@ def create_eeg_emg_image(
     emg: np.array,
     sampling_rate: int | float,
     epoch_length: int | float,
+    emg_filter: EMGFilter,
 ) -> np.array:
     """Stack EEG spectrogram and EMG power into an image
 
@@ -227,6 +227,7 @@ def create_eeg_emg_image(
     :param emg: EMG signal
     :param sampling_rate: sampling rate, in Hz
     :param epoch_length: epoch length, in seconds
+    :param emg_filter: EMG filter parameters
     :return: combined EEG + EMG image for a recording
     """
     spec, f = create_spectrogram(eeg, sampling_rate, epoch_length)
@@ -242,7 +243,7 @@ def create_eeg_emg_image(
         ]
     )
 
-    emg_log_rms = get_emg_power(emg, sampling_rate, epoch_length)
+    emg_log_rms = get_emg_power(emg, sampling_rate, epoch_length, emg_filter)
     output = np.concatenate(
         [modified_spectrogram, np.tile(emg_log_rms, (EMG_COPIES, 1))]
     )
@@ -371,6 +372,7 @@ def create_training_images(
     brain_state_set: BrainStateSet,
     model_type: str,
     calibration_fraction: float,
+    emg_filter: EMGFilter,
 ) -> list[int]:
     """Create training dataset
 
@@ -385,6 +387,7 @@ def create_training_images(
     :param brain_state_set: set of brain state options
     :param model_type: default or real-time
     :param calibration_fraction: fraction of training data to use for calibration
+    :param emg_filter: EMG filter parameters
     :return: list of the names of any recordings that could not
             be used to create training images.
     """
@@ -409,7 +412,9 @@ def create_training_images(
 
             labels, _ = load_labels(recording.label_file)
             labels = brain_state_set.convert_digit_to_class(labels)
-            img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length)
+            img = create_eeg_emg_image(
+                eeg, emg, sampling_rate, epoch_length, emg_filter
+            )
             img = mixture_z_score_img(
                 img=img, brain_state_set=brain_state_set, labels=labels
             )
