@@ -134,7 +134,7 @@ class ManualScoringWindow(QDialog):
         self.setWindowTitle("AccuSleePy manual scoring window")
 
         # load set of valid brain states
-        self.brain_state_set, _, _, _ = load_config()
+        self.brain_state_set, _, _, _, _, _, _ = load_config()
 
         # initial setting for number of epochs to show in the lower plot
         self.epochs_to_show = 5
