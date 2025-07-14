@@ -4350,6 +4350,9 @@ Changing these settings can prevent existing classification models and calibrati
                         <property name="minimum">
                          <double>0.000010000000000</double>
                         </property>
+                        <property name="singleStep">
+                         <double>0.000100000000000</double>
+                        </property>
                         <property name="value">
                          <double>0.001000000000000</double>
                         </property>
@@ -4405,6 +4408,9 @@ Changing these settings can prevent existing classification models and calibrati
                         </property>
                         <property name="maximum">
                          <double>0.999000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
                         </property>
                         <property name="value">
                          <double>0.900000000000000</double>

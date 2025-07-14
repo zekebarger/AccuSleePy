@@ -2597,6 +2597,7 @@ class Ui_PrimaryWindow(object):
         self.learning_rate_spinbox.setSizePolicy(sizePolicy1)
         self.learning_rate_spinbox.setDecimals(5)
         self.learning_rate_spinbox.setMinimum(0.000010000000000)
+        self.learning_rate_spinbox.setSingleStep(0.000100000000000)
         self.learning_rate_spinbox.setValue(0.001000000000000)
 
         self.horizontalLayout_68.addWidget(self.learning_rate_spinbox)
@@ -2633,6 +2634,7 @@ class Ui_PrimaryWindow(object):
         self.momentum_spinbox.setDecimals(3)
         self.momentum_spinbox.setMinimum(0.010000000000000)
         self.momentum_spinbox.setMaximum(0.999000000000000)
+        self.momentum_spinbox.setSingleStep(0.010000000000000)
         self.momentum_spinbox.setValue(0.900000000000000)
 
         self.horizontalLayout_70.addWidget(self.momentum_spinbox)
