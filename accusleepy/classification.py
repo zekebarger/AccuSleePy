@@ -11,7 +11,7 @@ from tqdm import trange
 
 import accusleepy.constants as c
 from accusleepy.brain_state_set import BrainStateSet
-from accusleepy.fileio import EMGFilter
+from accusleepy.fileio import EMGFilter, Hyperparameters
 from accusleepy.models import SSANN
 from accusleepy.signal_processing import (
     create_eeg_emg_image,
@@ -19,11 +19,6 @@ from accusleepy.signal_processing import (
     get_mixture_values,
     mixture_z_score_img,
 )
-
-BATCH_SIZE = 64
-LEARNING_RATE = 1e-3
-MOMENTUM = 0.9
-TRAINING_EPOCHS = 6
 
 
 class AccuSleepImageDataset(Dataset):
@@ -63,12 +58,16 @@ def get_device():
 
 
 def create_dataloader(
-    annotations_file: str, img_dir: str, shuffle: bool = True
+    annotations_file: str,
+    img_dir: str,
+    hyperparameters: Hyperparameters,
+    shuffle: bool = True,
 ) -> DataLoader:
     """Create DataLoader for a dataset of training or calibration images
 
     :param annotations_file: file with information on each training image
     :param img_dir: training image location
+    :param hyperparameters: model training hyperparameters
     :param shuffle: reshuffle data for every epoch
     :return: DataLoader for the data
 
@@ -77,7 +76,9 @@ def create_dataloader(
         annotations_file=annotations_file,
         img_dir=img_dir,
     )
-    return DataLoader(image_dataset, batch_size=BATCH_SIZE, shuffle=shuffle)
+    return DataLoader(
+        image_dataset, batch_size=hyperparameters.batch_size, shuffle=shuffle
+    )
 
 
 def train_ssann(
@@ -85,6 +86,7 @@ def train_ssann(
     img_dir: str,
     mixture_weights: np.array,
     n_classes: int,
+    hyperparameters: Hyperparameters,
 ) -> SSANN:
     """Train a SSANN classification model for sleep scoring
 
@@ -92,10 +94,13 @@ def train_ssann(
     :param img_dir: training image location
     :param mixture_weights: typical relative frequencies of brain states
     :param n_classes: number of classes the model will learn
+    :param hyperparameters: model training hyperparameters
     :return: trained Sleep Scoring Artificial Neural Network model
     """
     train_dataloader = create_dataloader(
-        annotations_file=annotations_file, img_dir=img_dir
+        annotations_file=annotations_file,
+        img_dir=img_dir,
+        hyperparameters=hyperparameters,
     )
 
     device = get_device()
@@ -107,9 +112,13 @@ def train_ssann(
     weight = torch.tensor((mixture_weights**-1).astype("float32")).to(device)
 
     criterion = nn.CrossEntropyLoss(weight=weight)
-    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
+    optimizer = optim.SGD(
+        model.parameters(),
+        lr=hyperparameters.learning_rate,
+        momentum=hyperparameters.momentum,
+    )
 
-    for _ in trange(TRAINING_EPOCHS):
+    for _ in trange(hyperparameters.training_epochs):
         for data in train_dataloader:
             inputs, labels = data
             (inputs, labels) = (inputs.to(device), labels.to(device))

@@ -7,23 +7,7 @@ import pandas as pd
 from PySide6.QtWidgets import QListWidgetItem
 
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
-from accusleepy.constants import (
-    BRAIN_STATE_COL,
-    CONFIDENCE_SCORE_COL,
-    CONFIG_FILE,
-    DEFAULT_CONFIDENCE_SETTING_KEY,
-    DEFAULT_EPOCH_LENGTH_KEY,
-    EEG_COL,
-    EMG_COL,
-    MIXTURE_MEAN_COL,
-    MIXTURE_SD_COL,
-    RECORDING_LIST_NAME,
-    UNDEFINED_LABEL,
-    DEFAULT_EMG_FILTER_ORDER,
-    DEFAULT_EMG_BP_LOWER,
-    DEFAULT_EMG_BP_UPPER,
-    EMG_FILTER_KEY,
-)
+import accusleepy.constants as c
 
 
 @dataclass
@@ -33,6 +17,16 @@ class EMGFilter:
     order: int  # filter order
     bp_lower: int | float  # lower bandpass frequency
     bp_upper: int | float  # upper bandpass frequency
+
+
+@dataclass
+class Hyperparameters:
+    """Convenience class for model training hyperparameters"""
+
+    batch_size: int
+    learning_rate: float
+    momentum: float
+    training_epochs: int
 
 
 @dataclass
@@ -54,8 +48,8 @@ def load_calibration_file(filename: str) -> (np.array, np.array):
     :return: mixture means and SDs
     """
     df = pd.read_csv(filename)
-    mixture_means = df[MIXTURE_MEAN_COL].values
-    mixture_sds = df[MIXTURE_SD_COL].values
+    mixture_means = df[c.MIXTURE_MEAN_COL].values
+    mixture_sds = df[c.MIXTURE_SD_COL].values
     return mixture_means, mixture_sds
 
 
@@ -82,8 +76,8 @@ def load_recording(filename: str) -> (np.array, np.array):
     :return: arrays of EEG and EMG data
     """
     df = load_csv_or_parquet(filename)
-    eeg = df[EEG_COL].values
-    emg = df[EMG_COL].values
+    eeg = df[c.EEG_COL].values
+    emg = df[c.EMG_COL].values
     return eeg, emg
 
 
@@ -94,10 +88,10 @@ def load_labels(filename: str) -> (np.array, np.array):
     :return: array of brain state labels and, optionally, array of confidence scores
     """
     df = load_csv_or_parquet(filename)
-    if CONFIDENCE_SCORE_COL in df.columns:
-        return df[BRAIN_STATE_COL].values, df[CONFIDENCE_SCORE_COL].values
+    if c.CONFIDENCE_SCORE_COL in df.columns:
+        return df[c.BRAIN_STATE_COL].values, df[c.CONFIDENCE_SCORE_COL].values
     else:
-        return df[BRAIN_STATE_COL].values, None
+        return df[c.BRAIN_STATE_COL].values, None
 
 
 def save_labels(
@@ -111,35 +105,56 @@ def save_labels(
     """
     if confidence_scores is not None:
         pd.DataFrame(
-            {BRAIN_STATE_COL: labels, CONFIDENCE_SCORE_COL: confidence_scores}
+            {c.BRAIN_STATE_COL: labels, c.CONFIDENCE_SCORE_COL: confidence_scores}
         ).to_csv(filename, index=False)
     else:
-        pd.DataFrame({BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
+        pd.DataFrame({c.BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
 
 
-def load_config() -> tuple[BrainStateSet, int | float, bool, EMGFilter]:
+def load_config() -> tuple[
+    BrainStateSet, int | float, bool, bool, int | float, EMGFilter, Hyperparameters
+]:
     """Load configuration file with brain state options
 
-    :return: set of brain state options, other settings
+    :return: set of brain state options,
+        default epoch length,
+        default overwrite setting,
+        default confidence score output setting,
+        default minimum bout length,
+        EMG filter parameters,
+        model training hyperparameters
     """
     with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "r"
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "r"
     ) as f:
         data = json.load(f)
 
     return (
         BrainStateSet(
-            [BrainState(**b) for b in data[BRAIN_STATES_KEY]], UNDEFINED_LABEL
+            [BrainState(**b) for b in data[BRAIN_STATES_KEY]], c.UNDEFINED_LABEL
         ),
-        data[DEFAULT_EPOCH_LENGTH_KEY],
-        data.get(DEFAULT_CONFIDENCE_SETTING_KEY, True),
+        data[c.DEFAULT_EPOCH_LENGTH_KEY],
+        data.get(c.DEFAULT_OVERWRITE_KEY, c.DEFAULT_OVERWRITE_SETTING),
+        data.get(c.DEFAULT_CONFIDENCE_SETTING_KEY, c.DEFAULT_CONFIDENCE_SETTING),
+        data.get(c.DEFAULT_MIN_BOUT_LENGTH_KEY, c.DEFAULT_MIN_BOUT_LENGTH),
         EMGFilter(
             **data.get(
-                EMG_FILTER_KEY,
+                c.EMG_FILTER_KEY,
                 {
-                    "order": DEFAULT_EMG_FILTER_ORDER,
-                    "bp_lower": DEFAULT_EMG_BP_LOWER,
-                    "bp_upper": DEFAULT_EMG_BP_UPPER,
+                    "order": c.DEFAULT_EMG_FILTER_ORDER,
+                    "bp_lower": c.DEFAULT_EMG_BP_LOWER,
+                    "bp_upper": c.DEFAULT_EMG_BP_UPPER,
+                },
+            )
+        ),
+        Hyperparameters(
+            **data.get(
+                c.HYPERPARAMETERS_KEY,
+                {
+                    "batch_size": c.DEFAULT_BATCH_SIZE,
+                    "learning_rate": c.DEFAULT_LEARNING_RATE,
+                    "momentum": c.DEFAULT_MOMENTUM,
+                    "training_epochs": c.DEFAULT_TRAINING_EPOCHS,
                 },
             )
         ),
@@ -149,23 +164,33 @@ def load_config() -> tuple[BrainStateSet, int | float, bool, EMGFilter]:
 def save_config(
     brain_state_set: BrainStateSet,
     default_epoch_length: int | float,
+    overwrite_setting: bool,
     save_confidence_setting: bool,
+    min_bout_length: int | float,
     emg_filter: EMGFilter,
+    hyperparameters: Hyperparameters,
 ) -> None:
     """Save configuration of brain state options to json file
 
     :param brain_state_set: set of brain state options
-    :param default_epoch_length: epoch length to use when the GUI starts
-    :param save_confidence_setting: whether the option to save confidence
-        scores should be True by default
+    :param default_epoch_length: default epoch length
+    :param save_confidence_setting: default setting for
+        saving confidence scores
     :param emg_filter: EMG filter parameters
+    :param min_bout_length: default minimum bout length
+    :param overwrite_setting: default setting for overwriting
+        existing labels
+    :param hyperparameters: model training hyperparameters
     """
     output_dict = brain_state_set.to_output_dict()
-    output_dict.update({DEFAULT_EPOCH_LENGTH_KEY: default_epoch_length})
-    output_dict.update({DEFAULT_CONFIDENCE_SETTING_KEY: save_confidence_setting})
-    output_dict.update({EMG_FILTER_KEY: emg_filter.__dict__})
+    output_dict.update({c.DEFAULT_EPOCH_LENGTH_KEY: default_epoch_length})
+    output_dict.update({c.DEFAULT_OVERWRITE_KEY: overwrite_setting})
+    output_dict.update({c.DEFAULT_CONFIDENCE_SETTING_KEY: save_confidence_setting})
+    output_dict.update({c.DEFAULT_MIN_BOUT_LENGTH_KEY: min_bout_length})
+    output_dict.update({c.EMG_FILTER_KEY: emg_filter.__dict__})
+    output_dict.update({c.HYPERPARAMETERS_KEY: hyperparameters.__dict__})
     with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_FILE), "w"
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "w"
     ) as f:
         json.dump(output_dict, f, indent=4)
 
@@ -178,7 +203,7 @@ def load_recording_list(filename: str) -> list[Recording]:
     """
     with open(filename, "r") as f:
         data = json.load(f)
-    recording_list = [Recording(**r) for r in data[RECORDING_LIST_NAME]]
+    recording_list = [Recording(**r) for r in data[c.RECORDING_LIST_NAME]]
     for i, r in enumerate(recording_list):
         r.name = i + 1
     return recording_list
@@ -191,7 +216,7 @@ def save_recording_list(filename: str, recordings: list[Recording]) -> None:
     :param recordings: list of recordings to export
     """
     recording_dict = {
-        RECORDING_LIST_NAME: [
+        c.RECORDING_LIST_NAME: [
             {
                 "recording_file": r.recording_file,
                 "label_file": r.label_file,

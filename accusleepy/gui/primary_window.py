@@ -2316,16 +2316,18 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_18.addWidget(self.label_19)
 
-        self.doubleSpinBox_2 = QDoubleSpinBox(self.ui_default_page)
-        self.doubleSpinBox_2.setObjectName("doubleSpinBox_2")
-        sizePolicy1.setHeightForWidth(
-            self.doubleSpinBox_2.sizePolicy().hasHeightForWidth()
+        self.default_min_bout_length_spinbox = QDoubleSpinBox(self.ui_default_page)
+        self.default_min_bout_length_spinbox.setObjectName(
+            "default_min_bout_length_spinbox"
         )
-        self.doubleSpinBox_2.setSizePolicy(sizePolicy1)
-        self.doubleSpinBox_2.setMaximum(1000.000000000000000)
-        self.doubleSpinBox_2.setValue(5.000000000000000)
+        sizePolicy1.setHeightForWidth(
+            self.default_min_bout_length_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.default_min_bout_length_spinbox.setSizePolicy(sizePolicy1)
+        self.default_min_bout_length_spinbox.setMaximum(1000.000000000000000)
+        self.default_min_bout_length_spinbox.setValue(5.000000000000000)
 
-        self.horizontalLayout_18.addWidget(self.doubleSpinBox_2)
+        self.horizontalLayout_18.addWidget(self.default_min_bout_length_spinbox)
 
         self.horizontalLayout_2.addLayout(self.horizontalLayout_18)
 
@@ -2389,15 +2391,17 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_63.addWidget(self.filter_order_label)
 
-        self.spinBox = QSpinBox(self.emg_filter_page)
-        self.spinBox.setObjectName("spinBox")
-        sizePolicy1.setHeightForWidth(self.spinBox.sizePolicy().hasHeightForWidth())
-        self.spinBox.setSizePolicy(sizePolicy1)
-        self.spinBox.setMinimum(1)
-        self.spinBox.setMaximum(10)
-        self.spinBox.setValue(8)
+        self.emg_order_spinbox = QSpinBox(self.emg_filter_page)
+        self.emg_order_spinbox.setObjectName("emg_order_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.emg_order_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.emg_order_spinbox.setSizePolicy(sizePolicy1)
+        self.emg_order_spinbox.setMinimum(1)
+        self.emg_order_spinbox.setMaximum(10)
+        self.emg_order_spinbox.setValue(8)
 
-        self.horizontalLayout_63.addWidget(self.spinBox)
+        self.horizontalLayout_63.addWidget(self.emg_order_spinbox)
 
         self.filter_order_layout.addLayout(self.horizontalLayout_63)
 
@@ -2425,12 +2429,12 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_65.addWidget(self.bp_lower_label)
 
-        self.doubleSpinBox = QDoubleSpinBox(self.emg_filter_page)
-        self.doubleSpinBox.setObjectName("doubleSpinBox")
-        self.doubleSpinBox.setMaximum(999.990000000000009)
-        self.doubleSpinBox.setValue(20.000000000000000)
+        self.bp_lower_spinbox = QDoubleSpinBox(self.emg_filter_page)
+        self.bp_lower_spinbox.setObjectName("bp_lower_spinbox")
+        self.bp_lower_spinbox.setMaximum(999.990000000000009)
+        self.bp_lower_spinbox.setValue(20.000000000000000)
 
-        self.horizontalLayout_65.addWidget(self.doubleSpinBox)
+        self.horizontalLayout_65.addWidget(self.bp_lower_spinbox)
 
         self.bp_lower_layout.addLayout(self.horizontalLayout_65)
 
@@ -3106,7 +3110,9 @@ class Ui_PrimaryWindow(object):
         self.ui_default_description_label.setText(
             QCoreApplication.translate(
                 "PrimaryWindow",
-                "These are the default values/settings that are shown in the primary UI window when it starts up.",
+                "These are the default values/settings that are shown in the primary UI window when it starts up.\n"
+                "\n"
+                'Changes here will not affect the **current** state of the controls in the "Sleep scoring" tab.',
                 None,
             )
         )
@@ -3116,7 +3122,7 @@ class Ui_PrimaryWindow(object):
         self.bp_lower_label.setText(
             QCoreApplication.translate("PrimaryWindow", "Lower cutoff:", None)
         )
-        self.doubleSpinBox.setSuffix(
+        self.bp_lower_spinbox.setSuffix(
             QCoreApplication.translate("PrimaryWindow", " Hz", None)
         )
         self.bp_upper_label.setText(

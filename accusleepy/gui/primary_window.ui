@@ -3925,7 +3925,7 @@ Each brain state has several attributes:
                        </widget>
                       </item>
                       <item>
-                       <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+                       <widget class="QDoubleSpinBox" name="default_min_bout_length_spinbox">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -3980,7 +3980,9 @@ Each brain state has several attributes:
                      <string notr="true">background-color: white;</string>
                     </property>
                     <property name="text">
-                     <string>These are the default values/settings that are shown in the primary UI window when it starts up.</string>
+                     <string>These are the default values/settings that are shown in the primary UI window when it starts up.
+
+Changes here will not affect the **current** state of the controls in the &quot;Sleep scoring&quot; tab.</string>
                     </property>
                     <property name="textFormat">
                      <enum>Qt::TextFormat::MarkdownText</enum>
@@ -4028,7 +4030,7 @@ Each brain state has several attributes:
                        </widget>
                       </item>
                       <item>
-                       <widget class="QSpinBox" name="spinBox">
+                       <widget class="QSpinBox" name="emg_order_spinbox">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -4084,7 +4086,7 @@ Each brain state has several attributes:
                        </widget>
                       </item>
                       <item>
-                       <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                       <widget class="QDoubleSpinBox" name="bp_lower_spinbox">
                         <property name="suffix">
                          <string> Hz</string>
                         </property>
