@@ -8,6 +8,7 @@ from tqdm import trange
 
 from accusleepy.brain_state_set import BrainStateSet
 from accusleepy.constants import (
+    ABS_MAX_Z_SCORE,
     ANNOTATIONS_FILENAME,
     CALIBRATION_ANNOTATION_FILENAME,
     DEFAULT_MODEL_TYPE,
@@ -17,17 +18,12 @@ from accusleepy.constants import (
     LABEL_COL,
     MIN_WINDOW_LEN,
     UPPER_FREQ,
+    SPECTROGRAM_UPPER_FREQ,
 )
 from accusleepy.fileio import Recording, load_labels, load_recording, EMGFilter
 from accusleepy.multitaper import spectrogram
 
 # note: scipy is lazily imported
-
-# clip mixture z-scores above and below this level
-# in the matlab implementation, I used 4.5
-ABS_MAX_Z_SCORE = 3.5
-# upper frequency limit when generating EEG spectrograms
-SPECTROGRAM_UPPER_FREQ = 64
 
 
 def resample(
