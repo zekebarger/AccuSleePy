@@ -9,6 +9,8 @@ EMG_COL = "emg"
 # label file columns
 BRAIN_STATE_COL = "brain_state"
 CONFIDENCE_SCORE_COL = "confidence_score"
+# max number of messages to store in main window message box
+MESSAGE_BOX_MAX_DEPTH = 200
 
 
 # really don't change these
