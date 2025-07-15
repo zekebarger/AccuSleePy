@@ -1085,7 +1085,9 @@ def create_upper_emg_signal(
         epoch_length,
         emg_filter,
     )
-    return np.clip(emg_rms, np.min(emg_rms), np.mean(emg_rms) + np.std(emg_rms) * 2.5)
+    return np.clip(
+        emg_rms, np.percentile(emg_rms, 0.1), np.mean(emg_rms) + np.std(emg_rms) * 2.5
+    )
 
 
 def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
