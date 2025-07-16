@@ -1,23 +1,12 @@
-import numpy as np
 from torch import device, flatten, nn
 from torch import load as torch_load
 from torch import save as torch_save
 
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainStateSet
 from accusleepy.constants import (
-    DOWNSAMPLING_START_FREQ,
-    EMG_COPIES,
-    MIN_WINDOW_LEN,
-    UPPER_FREQ,
+    IMAGE_HEIGHT,
 )
 from accusleepy.temperature_scaling import ModelWithTemperature
-
-# height in pixels of each training image
-IMAGE_HEIGHT = (
-    len(np.arange(0, DOWNSAMPLING_START_FREQ, 1 / MIN_WINDOW_LEN))
-    + len(np.arange(DOWNSAMPLING_START_FREQ, UPPER_FREQ, 2 / MIN_WINDOW_LEN))
-    + EMG_COPIES
-)
 
 
 class SSANN(nn.Module):

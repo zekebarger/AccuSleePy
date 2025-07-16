@@ -8,8 +8,20 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, QSize, Qt
-from PySide6.QtGui import QBrush, QColor, QFont, QIcon, QPalette
+from PySide6.QtCore import (
+    QCoreApplication,
+    QMetaObject,
+    QRect,
+    QSize,
+    Qt,
+)
+from PySide6.QtGui import (
+    QBrush,
+    QColor,
+    QFont,
+    QIcon,
+    QPalette,
+)
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -2785,7 +2797,10 @@ class Ui_PrimaryWindow(object):
             QCoreApplication.translate("PrimaryWindow", "MainWindow", None)
         )
         self.epochlengthlabel.setText(
-            QCoreApplication.translate("PrimaryWindow", "Epoch length (sec):", None)
+            QCoreApplication.translate("PrimaryWindow", "Epoch length:", None)
+        )
+        self.epoch_length_input.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", " sec", None)
         )
         self.recordinglistgroupbox.setTitle(
             QCoreApplication.translate("PrimaryWindow", "Recording list", None)
@@ -2840,7 +2855,10 @@ class Ui_PrimaryWindow(object):
             )
         )
         self.samplingratelabel.setText(
-            QCoreApplication.translate("PrimaryWindow", "Sampling rate (Hz):", None)
+            QCoreApplication.translate("PrimaryWindow", "Sampling rate:", None)
+        )
+        self.sampling_rate_input.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", " Hz", None)
         )
         # if QT_CONFIG(tooltip)
         self.recording_file_button.setToolTip(
@@ -2948,11 +2966,12 @@ class Ui_PrimaryWindow(object):
             QCoreApplication.translate("PrimaryWindow", "Save confidence scores", None)
         )
         self.boutlengthlabel.setText(
-            QCoreApplication.translate(
-                "PrimaryWindow", "Minimum bout length (sec):", None
-            )
+            QCoreApplication.translate("PrimaryWindow", "Minimum bout length:", None)
         )
         self.bout_length_input.setPrefix("")
+        self.bout_length_input.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", " sec", None)
+        )
         self.lower_tab_widget.setTabText(
             self.lower_tab_widget.indexOf(self.classification_tab),
             QCoreApplication.translate("PrimaryWindow", "Classification", None),
@@ -3096,6 +3115,9 @@ class Ui_PrimaryWindow(object):
         self.label_17.setText(
             QCoreApplication.translate("PrimaryWindow", "Epoch length:", None)
         )
+        self.default_epoch_input.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", " sec", None)
+        )
         self.overwrite_default_checkbox.setText(
             QCoreApplication.translate(
                 "PrimaryWindow", "Only overwrite undefined epochs", None
@@ -3105,9 +3127,10 @@ class Ui_PrimaryWindow(object):
             QCoreApplication.translate("PrimaryWindow", "Save confidence scores", None)
         )
         self.label_19.setText(
-            QCoreApplication.translate(
-                "PrimaryWindow", "Minimum bout length (sec):", None
-            )
+            QCoreApplication.translate("PrimaryWindow", "Minimum bout length:", None)
+        )
+        self.default_min_bout_length_spinbox.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", " sec", None)
         )
         self.ui_default_description_label.setText(
             QCoreApplication.translate(

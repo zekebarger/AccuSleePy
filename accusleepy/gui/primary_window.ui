@@ -152,7 +152,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Epoch length (sec):</string>
+                 <string>Epoch length:</string>
                 </property>
                </widget>
               </item>
@@ -166,6 +166,9 @@
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                </property>
+                <property name="suffix">
+                 <string> sec</string>
                 </property>
                 <property name="maximum">
                  <double>100000.000000000000000</double>
@@ -529,7 +532,7 @@ color: rgb(244, 195, 68);</string>
                       </sizepolicy>
                      </property>
                      <property name="text">
-                      <string>Sampling rate (Hz):</string>
+                      <string>Sampling rate:</string>
                      </property>
                     </widget>
                    </item>
@@ -543,6 +546,9 @@ color: rgb(244, 195, 68);</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                     </property>
+                     <property name="suffix">
+                      <string> Hz</string>
                      </property>
                      <property name="minimum">
                       <double>0.000000000000000</double>
@@ -1148,7 +1154,7 @@ color: rgb(244, 195, 68);</string>
                            <string notr="true">background-color: transparent;</string>
                           </property>
                           <property name="text">
-                           <string>Minimum bout length (sec):</string>
+                           <string>Minimum bout length:</string>
                           </property>
                          </widget>
                         </item>
@@ -1165,6 +1171,9 @@ color: rgb(244, 195, 68);</string>
                           </property>
                           <property name="prefix">
                            <string/>
+                          </property>
+                          <property name="suffix">
+                           <string> sec</string>
                           </property>
                           <property name="decimals">
                            <number>2</number>
@@ -3811,6 +3820,9 @@ Each brain state has several attributes:
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
+                        <property name="suffix">
+                         <string> sec</string>
+                        </property>
                         <property name="maximum">
                          <double>100000.000000000000000</double>
                         </property>
@@ -3920,7 +3932,7 @@ Each brain state has several attributes:
                          </sizepolicy>
                         </property>
                         <property name="text">
-                         <string>Minimum bout length (sec):</string>
+                         <string>Minimum bout length:</string>
                         </property>
                        </widget>
                       </item>
@@ -3931,6 +3943,9 @@ Each brain state has several attributes:
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
+                        </property>
+                        <property name="suffix">
+                         <string> sec</string>
                         </property>
                         <property name="maximum">
                          <double>1000.000000000000000</double>

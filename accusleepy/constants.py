@@ -1,3 +1,5 @@
+import numpy as np
+
 # probably don't change these unless you really need to
 UNDEFINED_LABEL = -1  # can't be the same as a brain state's digit, must be an integer
 # calibration file columns
@@ -9,9 +11,16 @@ EMG_COL = "emg"
 # label file columns
 BRAIN_STATE_COL = "brain_state"
 CONFIDENCE_SCORE_COL = "confidence_score"
+# max number of messages to store in main window message box
+MESSAGE_BOX_MAX_DEPTH = 200
+# clip mixture z-scores above and below this level
+# in the matlab implementation, 4.5 was used
+ABS_MAX_Z_SCORE = 3.5
+# upper frequency limit when generating EEG spectrograms
+SPECTROGRAM_UPPER_FREQ = 64
 
 
-# really don't change these
+# very unlikely you will want to change values from here onwards
 # config file location
 CONFIG_FILE = "config.json"
 # number of times to include the EMG power in a training image
@@ -20,8 +29,15 @@ EMG_COPIES = 9
 MIN_WINDOW_LEN = 5
 # frequency above which to downsample EEG spectrograms
 DOWNSAMPLING_START_FREQ = 20
-# upper frequency cutoff for EEG spectrograms
+# highest EEG frequency used as model input
 UPPER_FREQ = 50
+# height in pixels of each training image
+IMAGE_HEIGHT = (
+    len(np.arange(0, DOWNSAMPLING_START_FREQ, 1 / MIN_WINDOW_LEN))
+    + len(np.arange(DOWNSAMPLING_START_FREQ, UPPER_FREQ, 2 / MIN_WINDOW_LEN))
+    + EMG_COPIES
+)
+
 # classification model types
 DEFAULT_MODEL_TYPE = "default"  # current epoch is centered
 REAL_TIME_MODEL_TYPE = "real-time"  # current epoch on the right

@@ -79,6 +79,12 @@ UNDEFINED_STATE = "undefined"
 SCROLL_BOUNDARY = 0.35
 # max number of sequential undo actions allowed
 UNDO_LIMIT = 1000
+# brightness scaling factors for the spectrogram
+BRIGHTER_SCALE_FACTOR = 0.96
+DIMMER_SCALE_FACTOR = 1.07
+# zoom factor for upper plots
+ZOOM_IN_FACTOR = 0.45
+ZOOM_OUT_FACTOR = 1.017
 
 
 @dataclass
@@ -232,23 +238,6 @@ class ManualScoringWindow(QDialog):
         keypress_zoom_out_x = QShortcut(QKeySequence(Qt.Key.Key_Minus), self)
         keypress_zoom_out_x.activated.connect(partial(self.zoom_x, ZOOM_OUT))
 
-        keypress_modify_label = list()
-        for brain_state in self.brain_state_set.brain_states:
-            keypress_modify_label.append(
-                QShortcut(
-                    QKeySequence(Qt.Key[f"Key_{brain_state.digit}"]),
-                    self,
-                )
-            )
-            keypress_modify_label[-1].activated.connect(
-                partial(self.modify_current_epoch_label, brain_state.digit)
-            )
-
-        keypress_delete_label = QShortcut(QKeySequence(Qt.Key.Key_Backspace), self)
-        keypress_delete_label.activated.connect(
-            partial(self.modify_current_epoch_label, UNDEFINED_LABEL)
-        )
-
         keypress_quit = QShortcut(
             QKeySequence(QKeyCombination(Qt.Modifier.CTRL, Qt.Key.Key_W)),
             self,
@@ -261,36 +250,37 @@ class ManualScoringWindow(QDialog):
         )
         keypress_save.activated.connect(self.save)
 
+        keypress_modify_label = list()
         keypress_roi = list()
-        for brain_state in self.brain_state_set.brain_states:
+        digit_key_label_pairs = [
+            (Qt.Key[f"Key_{brain_state.digit}"], brain_state.digit)
+            for brain_state in self.brain_state_set.brain_states
+        ] + [(Qt.Key.Key_Backspace, UNDEFINED_LABEL)]
+
+        for digit_key, digit_label in digit_key_label_pairs:
+            keypress_modify_label.append(
+                QShortcut(
+                    QKeySequence(digit_key),
+                    self,
+                )
+            )
+            keypress_modify_label[-1].activated.connect(
+                partial(self.modify_current_epoch_label, digit_label)
+            )
             keypress_roi.append(
                 QShortcut(
                     QKeySequence(
                         QKeyCombination(
                             Qt.Modifier.SHIFT,
-                            Qt.Key[f"Key_{brain_state.digit}"],
+                            digit_key,
                         )
                     ),
                     self,
                 )
             )
             keypress_roi[-1].activated.connect(
-                partial(self.enter_label_roi_mode, brain_state.digit)
+                partial(self.enter_label_roi_mode, digit_label)
             )
-        keypress_roi.append(
-            QShortcut(
-                QKeySequence(
-                    QKeyCombination(
-                        Qt.Modifier.SHIFT,
-                        Qt.Key.Key_Backspace,
-                    )
-                ),
-                self,
-            )
-        )
-        keypress_roi[-1].activated.connect(
-            partial(self.enter_label_roi_mode, UNDEFINED_LABEL)
-        )
 
         keypress_esc = QShortcut(QKeySequence(Qt.Key.Key_Escape), self)
         keypress_esc.activated.connect(self.exit_label_roi_mode)
@@ -626,9 +616,9 @@ class ManualScoringWindow(QDialog):
         """
         vmin, vmax = self.ui.upperfigure.spec_ref.get_clim()
         if direction == BRIGHTER:
-            self.ui.upperfigure.spec_ref.set(clim=(vmin, vmax * 0.96))
+            self.ui.upperfigure.spec_ref.set(clim=(vmin, vmax * BRIGHTER_SCALE_FACTOR))
         else:
-            self.ui.upperfigure.spec_ref.set(clim=(vmin, vmax * 1.07))
+            self.ui.upperfigure.spec_ref.set(clim=(vmin, vmax * DIMMER_SCALE_FACTOR))
         self.ui.upperfigure.canvas.draw()
 
     def update_epochs_shown(self, direction: str) -> None:
@@ -725,31 +715,29 @@ class ManualScoringWindow(QDialog):
 
         :param direction: in, out, or reset
         """
-        zoom_in_factor = 0.45
-        zoom_out_factor = 1.017
         epochs_shown = self.upper_right_epoch - self.upper_left_epoch + 1
         if direction == ZOOM_IN:
             self.upper_left_epoch = max(
                 [
                     self.upper_left_epoch,
-                    round(self.epoch - zoom_in_factor * epochs_shown),
+                    round(self.epoch - ZOOM_IN_FACTOR * epochs_shown),
                 ]
             )
 
             self.upper_right_epoch = min(
                 [
                     self.upper_right_epoch,
-                    round(self.epoch + zoom_in_factor * epochs_shown),
+                    round(self.epoch + ZOOM_IN_FACTOR * epochs_shown),
                 ]
             )
 
         elif direction == ZOOM_OUT:
             self.upper_left_epoch = max(
-                [0, round(self.epoch - zoom_out_factor * epochs_shown)]
+                [0, round(self.epoch - ZOOM_OUT_FACTOR * epochs_shown)]
             )
 
             self.upper_right_epoch = min(
-                [self.n_epochs - 1, round(self.epoch + zoom_out_factor * epochs_shown)]
+                [self.n_epochs - 1, round(self.epoch + ZOOM_OUT_FACTOR * epochs_shown)]
             )
 
         else:  # reset
@@ -1085,7 +1073,9 @@ def create_upper_emg_signal(
         epoch_length,
         emg_filter,
     )
-    return np.clip(emg_rms, np.min(emg_rms), np.mean(emg_rms) + np.std(emg_rms) * 2.5)
+    return np.clip(
+        emg_rms, np.percentile(emg_rms, 0.1), np.mean(emg_rms) + np.std(emg_rms) * 2.5
+    )
 
 
 def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
