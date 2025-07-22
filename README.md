@@ -3,7 +3,7 @@
 ## Description
 
 AccuSleePy is set of graphical user  interfaces for scoring rodent sleep
-using EEG and EMG recordings.
+using EEG and EMG recordings..
 It offers the following improvements over the MATLAB version (AccuSleep):
 
 - Up to 10 brain states can be configured through the user interface
