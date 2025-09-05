@@ -1,6 +1,6 @@
 [project]
 name = "accusleepy"
-version = "0.7.1"
+version = "0.7.2"
 description = "Python implementation of AccuSleep"
 authors = [
     {name = "Zeke Barger",email = "zekebarger@gmail.com"}
@@ -11,8 +11,8 @@ requires-python = ">=3.11,<3.14"
 dependencies = [
     "numpy (>=2.2.4,<3.0.0)",
     "pandas (>=2.2.3,<3.0.0)",
-    "torch (>=2.6.0,<3.0.0)",
-    "torchvision (>=0.21.0,<0.22.0)",
+    "torch (>=2.8.0,<3.0.0)",
+    "torchvision (>=0.23.0,<1.0.0)",
     "scipy (>=1.15.2,<2.0.0)",
     "matplotlib (>=3.10.1,<4.0.0)",
     "joblib (>=1.4.2,<2.0.0)",
@@ -21,7 +21,7 @@ dependencies = [
     "pre-commit (>=4.2.0,<5.0.0)",
     "tqdm (>=4.67.1,<5.0.0)",
     "toml (>=0.10.2,<0.11.0)",
-    "pyside6 (>=6.9.0,<7.0.0)",
+    "pyside6 (==6.9.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
