@@ -21,21 +21,29 @@ and the manual scoring interface.
 Once you have made edits in Qt Creator and saved your changes,
 you need to update the python representation of the UI by running
 
-```pyside6-uic filename.ui -o filename.py```
+```
+pyside6-uic filename.ui -o filename.py
+```
 
 where `filename` is either "primary_window" or "viewer_window".
 >If for some reason that doesn't work, on Windows you can
 >locate `uic.exe` in your PySide6 installation and run
->```<path_to_your_uic.exe> -g python filename.ui -o filename.py```
+>```
+><path_to_your_uic.exe> -g python filename.ui -o filename.py
+>```
 
 You then need to open the modified `.py` file and change the last
 import statement from
 
-```import resources_rc```
+```
+import resources_rc
+```
 
 to
 
-```import accusleepy.gui.resources_rc  # noqa F401```
+```
+import accusleepy.gui.resources_rc  # noqa F401
+```
 
 ### Updating the resources file
 If you want to modify the resources available to the GUI
@@ -43,4 +51,6 @@ If you want to modify the resources available to the GUI
 file using Qt Creator. You then need to update the python
 representation by running
 
-```pyside6-rcc resources.qrc -o resources_rc.py```
+```
+pyside6-rcc resources.qrc -o resources_rc.py
+```
