@@ -26,11 +26,13 @@ pyside6-uic filename.ui -o filename.py
 ```
 
 where `filename` is either "primary_window" or "viewer_window".
->If for some reason that doesn't work, on Windows you can
->locate `uic.exe` in your PySide6 installation and run
->```
-><path_to_your_uic.exe> -g python filename.ui -o filename.py
->```
+
+> [!NOTE]
+> If for some reason that doesn't work, on Windows you can
+> locate `uic.exe` in your PySide6 installation and run
+> ```
+> <path_to_your_uic.exe> -g python filename.ui -o filename.py
+> ```
 
 You then need to open the modified `.py` file and change the last
 import statement from
