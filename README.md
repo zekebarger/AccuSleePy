@@ -46,6 +46,10 @@ to the [config file](accusleepy/config.json).
 
 [Guide to the manual scoring interface](accusleepy/gui/text/manual_scoring_guide.md)
 
+## Developer guide
+If you want to contribute to the project or modify the code for your own use,
+please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
+
 ## Changelog
 
 - 0.7.2: Address issues with certain dependencies
