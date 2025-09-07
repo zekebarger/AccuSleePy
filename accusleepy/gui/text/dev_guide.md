@@ -18,20 +18,20 @@ interactively modify the `.ui` files for the primary interface
 and the manual scoring interface.
 
 ### Exporting your changes
-Once you have made edits in Qt Creator and saved your changes,
-you need to update the python representation of the UI.
-1. Update the `.py` file by running
+Once you have made edits to a `.ui` file in Qt Creator and saved
+your changes, you need to update the python representation of the UI.
+1. Update the corresponding `.py` file by running
     ```
     pyside6-uic filename.ui -o filename.py
     ```
     where `filename` is either "primary_window" or "viewer_window".
 
-    > [!NOTE]
-    > If for some reason that doesn't work, on Windows you can
-    > locate `uic.exe` in your PySide6 installation and run
-    > ```
-    > <path_to_your_uic.exe> -g python filename.ui -o filename.py
-    > ```
+> [!NOTE]
+> If for some reason that doesn't work, on Windows you can
+> locate `uic.exe` in your PySide6 installation and run
+> ```
+> <path_to_your_uic.exe> -g python filename.ui -o filename.py
+> ```
 2. Open the modified `.py` file and change the last
     import statement from
     ```
