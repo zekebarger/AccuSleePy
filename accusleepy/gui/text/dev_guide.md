@@ -22,15 +22,15 @@ Once you have made edits to a `.ui` file in Qt Creator and saved
 your changes, you need to update the python representation of the UI.
 1. Update the corresponding `.py` file by running
     ```
-    pyside6-uic filename.ui -o filename.py
+    pyside6-uic accusleepy/gui/<filename>.ui -o accusleepy/gui/<filename>.py
     ```
-    where `filename` is either "primary_window" or "viewer_window".
+    where `<filename>` is either `primary_window` or `viewer_window`.
 
 > [!NOTE]
 > If for some reason that doesn't work, on Windows you can
 > locate `uic.exe` in your PySide6 installation and run
 > ```
-> <path_to_your_uic.exe> -g python filename.ui -o filename.py
+> <path_to_your_uic>.exe -g python accusleepy\gui\<filename>.ui -o accusleepy\gui\<filename>.py
 > ```
 2. Open the modified `.py` file and change the last
     import statement from
@@ -49,5 +49,5 @@ file using Qt Creator. You then need to update the python
 representation by running
 
 ```
-pyside6-rcc resources.qrc -o resources_rc.py
+pyside6-rcc accusleepy/gui/resources.qrc -o accusleepy/gui/resources_rc.py
 ```
