@@ -44,6 +44,7 @@ your changes, you need to update the python representation of the UI.
    ```
    from accusleepy.gui.mplwidget import MplWidget
    ```
+   (replacing `from mplwidget import MplWidget` if necessary)
 
 ### Updating the resources file
 If you want to modify the resources available to the GUI
