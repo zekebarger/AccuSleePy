@@ -1,6 +1,6 @@
 [project]
 name = "accusleepy"
-version = "0.7.2"
+version = "0.7.3"
 description = "Python implementation of AccuSleep"
 authors = [
     {name = "Zeke Barger",email = "zekebarger@gmail.com"}
@@ -21,7 +21,7 @@ dependencies = [
     "pre-commit (>=4.2.0,<5.0.0)",
     "tqdm (>=4.67.1,<5.0.0)",
     "toml (>=0.10.2,<0.11.0)",
-    "pyside6 (==6.9.0)",
+    "pyside6 (>=6.9.0, <6.9.3)",
 ]
 
 [tool.poetry.group.dev.dependencies]

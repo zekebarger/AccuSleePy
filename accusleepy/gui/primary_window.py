@@ -3,25 +3,13 @@
 ################################################################################
 ## Form generated from reading UI file 'primary_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.1
+## Created by: Qt User Interface Compiler version 6.9.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (
-    QCoreApplication,
-    QMetaObject,
-    QRect,
-    QSize,
-    Qt,
-)
-from PySide6.QtGui import (
-    QBrush,
-    QColor,
-    QFont,
-    QIcon,
-    QPalette,
-)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, QSize, Qt
+from PySide6.QtGui import QBrush, QColor, QFont, QIcon, QPalette
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -676,7 +664,6 @@ class Ui_PrimaryWindow(object):
             self.overwritecheckbox.sizePolicy().hasHeightForWidth()
         )
         self.overwritecheckbox.setSizePolicy(sizePolicy1)
-        self.overwritecheckbox.setStyleSheet("background-color: transparent;")
 
         self.classification_options_layout.addWidget(self.overwritecheckbox)
 
@@ -692,7 +679,6 @@ class Ui_PrimaryWindow(object):
             self.save_confidence_checkbox.sizePolicy().hasHeightForWidth()
         )
         self.save_confidence_checkbox.setSizePolicy(sizePolicy1)
-        self.save_confidence_checkbox.setStyleSheet("background-color: transparent;")
 
         self.classification_options_layout.addWidget(self.save_confidence_checkbox)
 
