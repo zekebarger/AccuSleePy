@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from mplwidget import MplWidget
+from accusleepy.gui.mplwidget import MplWidget
 import accusleepy.gui.resources_rc  # noqa F401
 
 
