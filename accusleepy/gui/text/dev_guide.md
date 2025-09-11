@@ -32,15 +32,12 @@ your changes, you need to update the python representation of the UI.
 > ```
 > <path_to_your_uic>.exe -g python accusleepy\gui\<filename>.ui -o accusleepy\gui\<filename>.py
 > ```
-2. Open the modified `.py` file and change the last
-    import statement from
-    ```
-    import resources_rc
-    ```
-    to
+2. Open the modified `.py` file and add the following import statement:
     ```
     import accusleepy.gui.resources_rc  # noqa F401
     ```
+   If the file already contains the line `import resources_rc`,
+   replace it with the one above.
 
 ### Updating the resources file
 If you want to modify the resources available to the GUI

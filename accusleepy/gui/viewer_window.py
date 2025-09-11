@@ -3,20 +3,13 @@
 ################################################################################
 ## Form generated from reading UI file 'viewer_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.3
+## Created by: Qt User Interface Compiler version 6.9.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (
-    QCoreApplication,
-    QMetaObject,
-    QSize,
-    Qt,
-)
-from PySide6.QtGui import (
-    QIcon,
-)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QSize, Qt
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
@@ -30,8 +23,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from mplwidget import MplWidget
 import accusleepy.gui.resources_rc  # noqa F401
-from accusleepy.gui.mplwidget import MplWidget
 
 
 class Ui_ViewerWindow(object):
@@ -405,6 +398,7 @@ class Ui_ViewerWindow(object):
         self.autoscroll.setObjectName("autoscroll")
         sizePolicy1.setHeightForWidth(self.autoscroll.sizePolicy().hasHeightForWidth())
         self.autoscroll.setSizePolicy(sizePolicy1)
+        self.autoscroll.setStyleSheet("background-color: none;")
 
         self.autoscroll_layout.addWidget(self.autoscroll)
 

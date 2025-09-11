@@ -769,6 +769,9 @@
            <property name="toolTip">
             <string>Step forward when setting brain state</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: none;</string>
+           </property>
            <property name="text">
             <string>Auto scroll</string>
            </property>
