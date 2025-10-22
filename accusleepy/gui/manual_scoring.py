@@ -140,10 +140,17 @@ class ManualScoringWindow(QDialog):
         self.setWindowTitle("AccuSleePy manual scoring window")
 
         # load set of valid brain states
-        self.brain_state_set, _, _, _, _, _, _ = load_config()
-
-        # initial setting for number of epochs to show in the lower plot
-        self.epochs_to_show = 5
+        (
+            self.brain_state_set,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            self.epochs_to_show,
+            self.autoscroll_state,
+        ) = load_config()
 
         # find the set of y-axis locations of valid brain state labels
         self.label_display_options = convert_labels(
@@ -216,7 +223,11 @@ class ManualScoringWindow(QDialog):
         self.emg_signal_offset = 0
         self.roi_brain_state = 0
         self.label_roi_mode = False
-        self.autoscroll_state = False
+
+        # set autoscroll state and epochs to show, based on defaults
+        self.ui.autoscroll.setChecked(self.autoscroll_state)
+        self.ui.shownepochslabel.setText(str(self.epochs_to_show))
+
         # keep track of save state to warn user when they quit
         self.last_saved_labels = copy.deepcopy(self.labels)
 

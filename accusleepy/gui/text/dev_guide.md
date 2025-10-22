@@ -40,7 +40,7 @@ your changes, you need to update the python representation of the UI.
    ```
    If the file already contains the line `import resources_rc`,
    replace it with the one above.
-   If you updated `primary_window.py`, you also need to add:
+   If you updated `viewer_window.py`, you also need to add:
    ```
    from accusleepy.gui.mplwidget import MplWidget
    ```

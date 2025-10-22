@@ -67,6 +67,8 @@ DEFAULT_OVERWRITE_KEY = "default_overwrite_setting"
 EMG_FILTER_KEY = "emg_filter"
 # model training hyperparameters key
 HYPERPARAMETERS_KEY = "hyperparameters"
+EPOCHS_TO_SHOW_KEY = "epochs_to_show"
+AUTOSCROLL_KEY = "autoscroll_state"
 
 # default values
 # default UI settings
@@ -82,3 +84,6 @@ DEFAULT_BATCH_SIZE = 64
 DEFAULT_LEARNING_RATE = 1e-3
 DEFAULT_MOMENTUM = 0.9
 DEFAULT_TRAINING_EPOCHS = 6
+# default manual scoring settings
+DEFAULT_EPOCHS_TO_SHOW = 5
+DEFAULT_AUTOSCROLL_STATE = False

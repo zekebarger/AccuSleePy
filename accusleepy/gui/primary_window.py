@@ -2224,20 +2224,25 @@ class Ui_PrimaryWindow(object):
         self.horizontalLayout_81.setSpacing(20)
         self.horizontalLayout_81.setObjectName("horizontalLayout_81")
         self.verticalLayout_6 = QVBoxLayout()
-        self.verticalLayout_6.setSpacing(10)
+        self.verticalLayout_6.setSpacing(20)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
+        self.primary_defaults_groupbox = QGroupBox(self.ui_default_page)
+        self.primary_defaults_groupbox.setObjectName("primary_defaults_groupbox")
+        self.verticalLayout_4 = QVBoxLayout(self.primary_defaults_groupbox)
+        self.verticalLayout_4.setSpacing(10)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.default_epoch_layout = QHBoxLayout()
         self.default_epoch_layout.setObjectName("default_epoch_layout")
         self.horizontalLayout_60 = QHBoxLayout()
         self.horizontalLayout_60.setObjectName("horizontalLayout_60")
-        self.label_17 = QLabel(self.ui_default_page)
+        self.label_17 = QLabel(self.primary_defaults_groupbox)
         self.label_17.setObjectName("label_17")
         sizePolicy1.setHeightForWidth(self.label_17.sizePolicy().hasHeightForWidth())
         self.label_17.setSizePolicy(sizePolicy1)
 
         self.horizontalLayout_60.addWidget(self.label_17)
 
-        self.default_epoch_input = QDoubleSpinBox(self.ui_default_page)
+        self.default_epoch_input = QDoubleSpinBox(self.primary_defaults_groupbox)
         self.default_epoch_input.setObjectName("default_epoch_input")
         sizePolicy1.setHeightForWidth(
             self.default_epoch_input.sizePolicy().hasHeightForWidth()
@@ -2256,13 +2261,13 @@ class Ui_PrimaryWindow(object):
 
         self.default_epoch_layout.addItem(self.horizontalSpacer_70)
 
-        self.verticalLayout_6.addLayout(self.default_epoch_layout)
+        self.verticalLayout_4.addLayout(self.default_epoch_layout)
 
         self.horizontalLayout_75 = QHBoxLayout()
         self.horizontalLayout_75.setObjectName("horizontalLayout_75")
         self.horizontalLayout_76 = QHBoxLayout()
         self.horizontalLayout_76.setObjectName("horizontalLayout_76")
-        self.overwrite_default_checkbox = QCheckBox(self.ui_default_page)
+        self.overwrite_default_checkbox = QCheckBox(self.primary_defaults_groupbox)
         self.overwrite_default_checkbox.setObjectName("overwrite_default_checkbox")
 
         self.horizontalLayout_76.addWidget(self.overwrite_default_checkbox)
@@ -2275,7 +2280,7 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_75.addItem(self.horizontalSpacer_88)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_75)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_75)
 
         self.confidence_score_setting_layout = QHBoxLayout()
         self.confidence_score_setting_layout.setObjectName(
@@ -2283,7 +2288,7 @@ class Ui_PrimaryWindow(object):
         )
         self.horizontalLayout_62 = QHBoxLayout()
         self.horizontalLayout_62.setObjectName("horizontalLayout_62")
-        self.confidence_setting_checkbox = QCheckBox(self.ui_default_page)
+        self.confidence_setting_checkbox = QCheckBox(self.primary_defaults_groupbox)
         self.confidence_setting_checkbox.setObjectName("confidence_setting_checkbox")
         sizePolicy1.setHeightForWidth(
             self.confidence_setting_checkbox.sizePolicy().hasHeightForWidth()
@@ -2301,20 +2306,22 @@ class Ui_PrimaryWindow(object):
 
         self.confidence_score_setting_layout.addItem(self.horizontalSpacer_72)
 
-        self.verticalLayout_6.addLayout(self.confidence_score_setting_layout)
+        self.verticalLayout_4.addLayout(self.confidence_score_setting_layout)
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.horizontalLayout_18 = QHBoxLayout()
         self.horizontalLayout_18.setObjectName("horizontalLayout_18")
-        self.label_19 = QLabel(self.ui_default_page)
+        self.label_19 = QLabel(self.primary_defaults_groupbox)
         self.label_19.setObjectName("label_19")
         sizePolicy1.setHeightForWidth(self.label_19.sizePolicy().hasHeightForWidth())
         self.label_19.setSizePolicy(sizePolicy1)
 
         self.horizontalLayout_18.addWidget(self.label_19)
 
-        self.default_min_bout_length_spinbox = QDoubleSpinBox(self.ui_default_page)
+        self.default_min_bout_length_spinbox = QDoubleSpinBox(
+            self.primary_defaults_groupbox
+        )
         self.default_min_bout_length_spinbox.setObjectName(
             "default_min_bout_length_spinbox"
         )
@@ -2335,7 +2342,68 @@ class Ui_PrimaryWindow(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer_90)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_2)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_2)
+
+        self.verticalLayout_6.addWidget(self.primary_defaults_groupbox)
+
+        self.manual_defaults_groupbox = QGroupBox(self.ui_default_page)
+        self.manual_defaults_groupbox.setObjectName("manual_defaults_groupbox")
+        self.verticalLayout_7 = QVBoxLayout(self.manual_defaults_groupbox)
+        self.verticalLayout_7.setSpacing(10)
+        self.verticalLayout_7.setObjectName("verticalLayout_7")
+        self.epochs_to_show_layout = QHBoxLayout()
+        self.epochs_to_show_layout.setObjectName("epochs_to_show_layout")
+        self.horizontalLayout_78 = QHBoxLayout()
+        self.horizontalLayout_78.setObjectName("horizontalLayout_78")
+        self.label_20 = QLabel(self.manual_defaults_groupbox)
+        self.label_20.setObjectName("label_20")
+        sizePolicy1.setHeightForWidth(self.label_20.sizePolicy().hasHeightForWidth())
+        self.label_20.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_78.addWidget(self.label_20)
+
+        self.epochs_to_show_spinbox = QSpinBox(self.manual_defaults_groupbox)
+        self.epochs_to_show_spinbox.setObjectName("epochs_to_show_spinbox")
+        self.epochs_to_show_spinbox.setMinimum(3)
+        self.epochs_to_show_spinbox.setSingleStep(2)
+        self.epochs_to_show_spinbox.setValue(5)
+
+        self.horizontalLayout_78.addWidget(self.epochs_to_show_spinbox)
+
+        self.epochs_to_show_layout.addLayout(self.horizontalLayout_78)
+
+        self.horizontalSpacer_92 = QSpacerItem(
+            40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.epochs_to_show_layout.addItem(self.horizontalSpacer_92)
+
+        self.verticalLayout_7.addLayout(self.epochs_to_show_layout)
+
+        self.autoscroll_layout = QHBoxLayout()
+        self.autoscroll_layout.setObjectName("autoscroll_layout")
+        self.horizontalLayout_77 = QHBoxLayout()
+        self.horizontalLayout_77.setObjectName("horizontalLayout_77")
+        self.autoscroll_checkbox = QCheckBox(self.manual_defaults_groupbox)
+        self.autoscroll_checkbox.setObjectName("autoscroll_checkbox")
+        sizePolicy1.setHeightForWidth(
+            self.autoscroll_checkbox.sizePolicy().hasHeightForWidth()
+        )
+        self.autoscroll_checkbox.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_77.addWidget(self.autoscroll_checkbox)
+
+        self.autoscroll_layout.addLayout(self.horizontalLayout_77)
+
+        self.horizontalSpacer_91 = QSpacerItem(
+            10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.autoscroll_layout.addItem(self.horizontalSpacer_91)
+
+        self.verticalLayout_7.addLayout(self.autoscroll_layout)
+
+        self.verticalLayout_6.addWidget(self.manual_defaults_groupbox)
 
         self.verticalSpacer_5 = QSpacerItem(
             5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
@@ -3098,32 +3166,96 @@ class Ui_PrimaryWindow(object):
                 None,
             )
         )
+        self.primary_defaults_groupbox.setTitle(
+            QCoreApplication.translate("PrimaryWindow", "Primary window settings", None)
+        )
         self.label_17.setText(
             QCoreApplication.translate("PrimaryWindow", "Epoch length:", None)
         )
+        # if QT_CONFIG(tooltip)
+        self.default_epoch_input.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow",
+                "This sets the temporal resolution for sleep scoring",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.default_epoch_input.setSuffix(
             QCoreApplication.translate("PrimaryWindow", " sec", None)
         )
+        # if QT_CONFIG(tooltip)
+        self.overwrite_default_checkbox.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow",
+                "During automated scoring, only overwrite epochs with the undefined brain state",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.overwrite_default_checkbox.setText(
             QCoreApplication.translate(
                 "PrimaryWindow", "Only overwrite undefined epochs", None
             )
         )
+        # if QT_CONFIG(tooltip)
+        self.confidence_setting_checkbox.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow",
+                "Save the model's confidence scores in label files",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.confidence_setting_checkbox.setText(
             QCoreApplication.translate("PrimaryWindow", "Save confidence scores", None)
         )
         self.label_19.setText(
             QCoreApplication.translate("PrimaryWindow", "Minimum bout length:", None)
         )
+        # if QT_CONFIG(tooltip)
+        self.default_min_bout_length_spinbox.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow",
+                "Minimum allowed duration for a bout of any brain state",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.default_min_bout_length_spinbox.setSuffix(
             QCoreApplication.translate("PrimaryWindow", " sec", None)
+        )
+        self.manual_defaults_groupbox.setTitle(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Manual scoring window settings", None
+            )
+        )
+        self.label_20.setText(
+            QCoreApplication.translate("PrimaryWindow", "Epochs to show", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.epochs_to_show_spinbox.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Number of epochs to display in the lower plots", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        # if QT_CONFIG(tooltip)
+        self.autoscroll_checkbox.setToolTip(
+            QCoreApplication.translate(
+                "PrimaryWindow",
+                "After scoring each epoch, automatically advance to the next one",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.autoscroll_checkbox.setText(
+            QCoreApplication.translate("PrimaryWindow", "Auto scroll", None)
         )
         self.ui_default_description_label.setText(
             QCoreApplication.translate(
                 "PrimaryWindow",
-                "These are the default values/settings that are shown in the primary UI window when it starts up.\n"
-                "\n"
-                'Changes here will not affect the **current** state of the controls in the "Sleep scoring" tab.',
+                "<html><head/><body><p>These are the default values/settings that are shown in the primary window and manual scoring window when they start up.</p><p>Changes here will not affect the **current** state of the controls in the &quot;Sleep scoring&quot; tab.</p></body></html>",
                 None,
             )
         )

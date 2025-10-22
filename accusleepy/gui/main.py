@@ -82,7 +82,7 @@ from accusleepy.validation import (
 # note: functions using torch or scipy are lazily imported
 
 # on Windows, prevent dark mode from changing the visual style
-sys.argv += ["-platform", "windows:darkmode=1"]
+sys.argv += ["-platform", "windows:darkmode=0"]
 
 
 # relative path to user manual
@@ -120,6 +120,8 @@ class AccuSleepWindow(QMainWindow):
             self.min_bout_length,
             self.emg_filter,
             self.hyperparameters,
+            self.default_epochs_to_show,
+            self.default_autoscroll_state,
         ) = load_config()
 
         self.settings_widgets = None
@@ -1443,6 +1445,8 @@ class AccuSleepWindow(QMainWindow):
                 momentum=self.hyperparameters.momentum,
                 training_epochs=self.hyperparameters.training_epochs,
             ),
+            epochs_to_show=self.default_epochs_to_show,
+            autoscroll_state=self.default_autoscroll_state,
         )
         self.ui.save_config_status.setText("configuration saved")
 
