@@ -168,7 +168,7 @@ def load_config() -> tuple[
                 },
             )
         ),
-        data.get(c.DEFAULT_EPOCHS_TO_SHOW, c.DEFAULT_EPOCHS_TO_SHOW),
+        data.get(c.EPOCHS_TO_SHOW_KEY, c.DEFAULT_EPOCHS_TO_SHOW),
         data.get(c.AUTOSCROLL_KEY, c.DEFAULT_AUTOSCROLL_STATE),
     )
 
