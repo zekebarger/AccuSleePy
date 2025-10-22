@@ -81,6 +81,10 @@ from accusleepy.validation import (
 
 # note: functions using torch or scipy are lazily imported
 
+# on Windows, prevent dark mode from changing the visual style
+sys.argv += ["-platform", "windows:darkmode=1"]
+
+
 # relative path to user manual
 MAIN_GUIDE_FILE = os.path.normpath(r"text/main_guide.md")
 
