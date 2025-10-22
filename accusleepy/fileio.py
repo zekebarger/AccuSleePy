@@ -112,7 +112,15 @@ def save_labels(
 
 
 def load_config() -> tuple[
-    BrainStateSet, int | float, bool, bool, int | float, EMGFilter, Hyperparameters
+    BrainStateSet,
+    int | float,
+    bool,
+    bool,
+    int | float,
+    EMGFilter,
+    Hyperparameters,
+    int,
+    bool,
 ]:
     """Load configuration file with brain state options
 
@@ -122,7 +130,9 @@ def load_config() -> tuple[
         default confidence score output setting,
         default minimum bout length,
         EMG filter parameters,
-        model training hyperparameters
+        model training hyperparameters,
+        default epochs to show for manual scoring,
+        default autoscroll state for manual scoring
     """
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "r"
@@ -158,6 +168,8 @@ def load_config() -> tuple[
                 },
             )
         ),
+        data.get(c.EPOCHS_TO_SHOW_KEY, c.DEFAULT_EPOCHS_TO_SHOW),
+        data.get(c.AUTOSCROLL_KEY, c.DEFAULT_AUTOSCROLL_STATE),
     )
 
 
@@ -169,6 +181,8 @@ def save_config(
     min_bout_length: int | float,
     emg_filter: EMGFilter,
     hyperparameters: Hyperparameters,
+    epochs_to_show: int,
+    autoscroll_state: bool,
 ) -> None:
     """Save configuration of brain state options to json file
 
@@ -181,6 +195,8 @@ def save_config(
     :param overwrite_setting: default setting for overwriting
         existing labels
     :param hyperparameters: model training hyperparameters
+    :param epochs_to_show: default epochs to show for manual scoring,
+    :param autoscroll_state: default autoscroll state for manual scoring
     """
     output_dict = brain_state_set.to_output_dict()
     output_dict.update({c.DEFAULT_EPOCH_LENGTH_KEY: default_epoch_length})
@@ -189,6 +205,8 @@ def save_config(
     output_dict.update({c.DEFAULT_MIN_BOUT_LENGTH_KEY: min_bout_length})
     output_dict.update({c.EMG_FILTER_KEY: emg_filter.__dict__})
     output_dict.update({c.HYPERPARAMETERS_KEY: hyperparameters.__dict__})
+    output_dict.update({c.EPOCHS_TO_SHOW_KEY: epochs_to_show})
+    output_dict.update({c.AUTOSCROLL_KEY: autoscroll_state})
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "w"
     ) as f:

@@ -52,6 +52,7 @@ please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
 
 ## Changelog
 
+- 0.8.0: More configurable settings, visual improvements
 - 0.7.1-0.7.3: Bugfixes, code cleanup
 - 0.7.0: More settings can be configured in the UI
 - 0.6.0: Confidence scores can now be displayed and saved. Retraining your models is recommended

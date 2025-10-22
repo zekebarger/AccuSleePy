@@ -33,5 +33,7 @@
         "learning_rate": 0.001,
         "momentum": 0.9,
         "training_epochs": 6
-    }
+    },
+    "epochs_to_show": 5,
+    "autoscroll_state": false
 }

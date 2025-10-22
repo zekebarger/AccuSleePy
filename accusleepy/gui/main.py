@@ -81,6 +81,11 @@ from accusleepy.validation import (
 
 # note: functions using torch or scipy are lazily imported
 
+# on Windows, prevent dark mode from changing the visual style
+if os.name == "nt":
+    sys.argv += ["-platform", "windows:darkmode=0"]
+
+
 # relative path to user manual
 MAIN_GUIDE_FILE = os.path.normpath(r"text/main_guide.md")
 
@@ -116,6 +121,8 @@ class AccuSleepWindow(QMainWindow):
             self.min_bout_length,
             self.emg_filter,
             self.hyperparameters,
+            self.default_epochs_to_show,
+            self.default_autoscroll_state,
         ) = load_config()
 
         self.settings_widgets = None
@@ -1238,6 +1245,8 @@ class AccuSleepWindow(QMainWindow):
         self.ui.overwrite_default_checkbox.setChecked(self.only_overwrite_undefined)
         self.ui.confidence_setting_checkbox.setChecked(self.save_confidence_scores)
         self.ui.default_min_bout_length_spinbox.setValue(self.min_bout_length)
+        self.ui.epochs_to_show_spinbox.setValue(self.default_epochs_to_show)
+        self.ui.autoscroll_checkbox.setChecked(self.default_autoscroll_state)
         # EMG filter
         self.ui.emg_order_spinbox.setValue(self.emg_filter.order)
         self.ui.bp_lower_spinbox.setValue(self.emg_filter.bp_lower)
@@ -1439,6 +1448,8 @@ class AccuSleepWindow(QMainWindow):
                 momentum=self.hyperparameters.momentum,
                 training_epochs=self.hyperparameters.training_epochs,
             ),
+            epochs_to_show=self.ui.epochs_to_show_spinbox.value(),
+            autoscroll_state=self.ui.autoscroll_checkbox.isChecked(),
         )
         self.ui.save_config_status.setText("configuration saved")
 
