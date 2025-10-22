@@ -82,7 +82,8 @@ from accusleepy.validation import (
 # note: functions using torch or scipy are lazily imported
 
 # on Windows, prevent dark mode from changing the visual style
-sys.argv += ["-platform", "windows:darkmode=0"]
+if os.name == "nt":
+    sys.argv += ["-platform", "windows:darkmode=0"]
 
 
 # relative path to user manual
