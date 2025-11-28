@@ -1,10 +1,31 @@
 import numpy as np
 import pytest
 
+from accusleepy.constants import (
+    MIN_WINDOW_LEN,
+    SPECTROGRAM_UPPER_FREQ,
+)
 from accusleepy.signal_processing import (
+    create_spectrogram,
     resample,
     standardize_signal_length,
 )
+
+
+def test_create_spectrogram():
+    """Spectrogram is created with correct shape and type"""
+    sampling_rate = 512
+    n_samples = sampling_rate * 60
+    eeg = np.sin(10 * np.arange(n_samples) / sampling_rate)
+    epoch_length = 5
+    spectrogram, f = create_spectrogram(
+        eeg=eeg, sampling_rate=sampling_rate, epoch_length=epoch_length
+    )
+    assert type(spectrogram) is np.ndarray
+    assert spectrogram.shape == (
+        len(np.arange(0, SPECTROGRAM_UPPER_FREQ, 1 / MIN_WINDOW_LEN)),
+        n_samples / (sampling_rate * epoch_length),
+    )
 
 
 def test_resample_no_change():
