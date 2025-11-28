@@ -30,6 +30,21 @@ class Hyperparameters:
 
 
 @dataclass
+class AccuSleePyConfig:
+    """AccuSleePy configuration settings"""
+
+    brain_state_set: BrainStateSet
+    default_epoch_length: int | float
+    overwrite_setting: bool
+    save_confidence_setting: bool
+    min_bout_length: int | float
+    emg_filter: EMGFilter
+    hyperparameters: Hyperparameters
+    epochs_to_show: int
+    autoscroll_state: bool
+
+
+@dataclass
 class Recording:
     """Store information about a recording"""
 
@@ -111,20 +126,11 @@ def save_labels(
         pd.DataFrame({c.BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
 
 
-def load_config() -> tuple[
-    BrainStateSet,
-    int | float,
-    bool,
-    bool,
-    int | float,
-    EMGFilter,
-    Hyperparameters,
-    int,
-    bool,
-]:
+def load_config() -> AccuSleePyConfig:
     """Load configuration file with brain state options
 
-    :return: set of brain state options,
+    :return: AccuSleePyConfig containing the following:
+        set of brain state options,
         default epoch length,
         default overwrite setting,
         default confidence score output setting,
@@ -139,15 +145,21 @@ def load_config() -> tuple[
     ) as f:
         data = json.load(f)
 
-    return (
-        BrainStateSet(
+    return AccuSleePyConfig(
+        brain_state_set=BrainStateSet(
             [BrainState(**b) for b in data[BRAIN_STATES_KEY]], c.UNDEFINED_LABEL
         ),
-        data[c.DEFAULT_EPOCH_LENGTH_KEY],
-        data.get(c.DEFAULT_OVERWRITE_KEY, c.DEFAULT_OVERWRITE_SETTING),
-        data.get(c.DEFAULT_CONFIDENCE_SETTING_KEY, c.DEFAULT_CONFIDENCE_SETTING),
-        data.get(c.DEFAULT_MIN_BOUT_LENGTH_KEY, c.DEFAULT_MIN_BOUT_LENGTH),
-        EMGFilter(
+        default_epoch_length=data[c.DEFAULT_EPOCH_LENGTH_KEY],
+        overwrite_setting=data.get(
+            c.DEFAULT_OVERWRITE_KEY, c.DEFAULT_OVERWRITE_SETTING
+        ),
+        save_confidence_setting=data.get(
+            c.DEFAULT_CONFIDENCE_SETTING_KEY, c.DEFAULT_CONFIDENCE_SETTING
+        ),
+        min_bout_length=data.get(
+            c.DEFAULT_MIN_BOUT_LENGTH_KEY, c.DEFAULT_MIN_BOUT_LENGTH
+        ),
+        emg_filter=EMGFilter(
             **data.get(
                 c.EMG_FILTER_KEY,
                 {
@@ -157,7 +169,7 @@ def load_config() -> tuple[
                 },
             )
         ),
-        Hyperparameters(
+        hyperparameters=Hyperparameters(
             **data.get(
                 c.HYPERPARAMETERS_KEY,
                 {
@@ -168,8 +180,8 @@ def load_config() -> tuple[
                 },
             )
         ),
-        data.get(c.EPOCHS_TO_SHOW_KEY, c.DEFAULT_EPOCHS_TO_SHOW),
-        data.get(c.AUTOSCROLL_KEY, c.DEFAULT_AUTOSCROLL_STATE),
+        epochs_to_show=data.get(c.EPOCHS_TO_SHOW_KEY, c.DEFAULT_EPOCHS_TO_SHOW),
+        autoscroll_state=data.get(c.AUTOSCROLL_KEY, c.DEFAULT_AUTOSCROLL_STATE),
     )
 
 

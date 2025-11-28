@@ -113,17 +113,16 @@ class AccuSleepWindow(QMainWindow):
         self.setWindowTitle("AccuSleePy")
 
         # fill in settings tab
-        (
-            self.brain_state_set,
-            self.epoch_length,
-            self.only_overwrite_undefined,
-            self.save_confidence_scores,
-            self.min_bout_length,
-            self.emg_filter,
-            self.hyperparameters,
-            self.default_epochs_to_show,
-            self.default_autoscroll_state,
-        ) = load_config()
+        config = load_config()
+        self.brain_state_set = config.brain_state_set
+        self.epoch_length = config.default_epoch_length
+        self.only_overwrite_undefined = config.overwrite_setting
+        self.save_confidence_scores = config.save_confidence_setting
+        self.min_bout_length = config.min_bout_length
+        self.emg_filter = config.emg_filter
+        self.hyperparameters = config.hyperparameters
+        self.default_epochs_to_show = config.epochs_to_show
+        self.default_autoscroll_state = config.autoscroll_state
 
         self.settings_widgets = None
         self.initialize_settings_tab()
