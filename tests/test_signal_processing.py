@@ -5,7 +5,9 @@ from accusleepy.constants import (
     MIN_WINDOW_LEN,
     SPECTROGRAM_UPPER_FREQ,
 )
+from accusleepy.fileio import EMGFilter
 from accusleepy.signal_processing import (
+    create_eeg_emg_image,
     create_spectrogram,
     resample,
     standardize_signal_length,
@@ -104,3 +106,33 @@ def test_standardize_length():
             eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
         )
         assert len(new_eeg) == target_lengths[i]
+
+
+def test_create_eeg_emg_image():
+    """Test that this function produces some output"""
+
+    sampling_rate = 128
+    epoch_length = 4
+    n_epochs = 100
+    n_samples = sampling_rate * epoch_length * n_epochs
+
+    rng = np.random.default_rng(42)
+    eeg = rng.normal(0, 1, n_samples)
+    emg = rng.normal(0, 1, n_samples)
+
+    emg_filter = EMGFilter(
+        order=8,
+        bp_lower=20,
+        bp_upper=50,
+    )
+
+    img = create_eeg_emg_image(
+        eeg=eeg,
+        emg=emg,
+        sampling_rate=sampling_rate,
+        epoch_length=epoch_length,
+        emg_filter=emg_filter,
+    )
+
+    assert type(img) is np.ndarray
+    assert img.ndim == 2
