@@ -14,3 +14,11 @@ def test_display_to_digit():
     labels = np.array([10, 1, 2, 3, 0])
     target = np.array([0, 1, 2, 3, UNDEFINED_LABEL])
     assert np.array_equal(convert_labels(labels, DIGIT_FORMAT), target)
+
+
+def test_convert_labels():
+    digit_labels = np.array([0, 1, 2, 3, UNDEFINED_LABEL, 2, 1, 0])
+    display_labels = np.array([10, 1, 2, 3, 0, 2, 1, 10])
+
+    assert np.array_equal(convert_labels(digit_labels, DISPLAY_FORMAT), display_labels)
+    assert np.array_equal(convert_labels(display_labels, DIGIT_FORMAT), digit_labels)

@@ -139,18 +139,10 @@ class ManualScoringWindow(QDialog):
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy manual scoring window")
 
-        # load set of valid brain states
-        (
-            self.brain_state_set,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            self.epochs_to_show,
-            self.autoscroll_state,
-        ) = load_config()
+        config = load_config()
+        self.brain_state_set = config.brain_state_set
+        self.epochs_to_show = config.epochs_to_show
+        self.autoscroll_state = config.autoscroll_state
 
         # find the set of y-axis locations of valid brain state labels
         self.label_display_options = convert_labels(
