@@ -11,35 +11,49 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         python-version: [ "3.11", "3.12", "3.13" ]
 
     steps:
-    - name: Clean Docker
+    - name: Free disk space
       run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
         docker system prune -af || true
+        sudo rm -rf /var/lib/apt/lists/*
+
     - uses: actions/checkout@v6
+
     - name: Install poetry
       run: pipx install poetry
+
     - uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'poetry'
+        cache: "poetry"
+
+    - name: Configure poetry to not create venvs inside project
+      run: poetry config virtualenvs.in-project false
+
+    - name: Install system deps for PySide6
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libegl1-mesa-dev
+        sudo apt-get clean
+        sudo rm -rf /var/lib/apt/lists/*
+
     - name: Install dependencies
-      run: |
-        poetry install
-    - name: install that other thing PySide6 needs
-      run: |
-        sudo apt update && sudo apt install -y libegl1-mesa-dev
+      run: poetry install --no-interaction --no-root
+
     - name: Lint with ruff
-      run: |
-        poetry run ruff check --fix
+      run: poetry run ruff check --fix
+
     - name: Format with ruff
-      run: |
-        poetry run ruff format
+      run: poetry run ruff format
+
     - name: Run tests
-      run: |
-        poetry run pytest
+      run: poetry run pytest
