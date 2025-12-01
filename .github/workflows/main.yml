@@ -18,6 +18,9 @@ jobs:
         python-version: [ "3.11", "3.12", "3.13" ]
 
     steps:
+    - name: Clean Docker
+    - run: |
+        docker system prune -af || true
     - uses: actions/checkout@v6
     - name: Install poetry
       run: pipx install poetry
