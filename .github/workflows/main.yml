@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - name: Clean Docker
-    - run: |
+      run: |
         docker system prune -af || true
     - uses: actions/checkout@v6
     - name: Install poetry
