@@ -47,7 +47,7 @@ jobs:
         sudo rm -rf /var/lib/apt/lists/*
 
     - name: Install dependencies
-      run: poetry install --no-interaction --no-root
+      run: poetry install --no-interaction
 
     - name: Lint with ruff
       run: poetry run ruff check --fix
