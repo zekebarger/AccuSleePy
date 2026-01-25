@@ -541,7 +541,8 @@ class AccuSleepWindow(QMainWindow):
                 )
             except Exception:
                 logger.exception(
-                    f"Failed to load {self.recordings[recording_index].recording_file}"
+                    "Failed to load %s",
+                    {self.recordings[recording_index].recording_file},
                 )
                 self.show_message(
                     (
@@ -559,7 +560,7 @@ class AccuSleepWindow(QMainWindow):
                     # ignore any existing confidence scores; they will all be overwritten
                     existing_labels, _ = load_labels(label_file)
                 except Exception:
-                    logger.exception(f"Failed to load {label_file}")
+                    logger.exception("Failed to load %s", label_file)
                     self.show_message(
                         (
                             "ERROR: could not load existing labels for recording "
@@ -603,7 +604,8 @@ class AccuSleepWindow(QMainWindow):
                 )
             except Exception:
                 logger.exception(
-                    f"Failed to load {self.recordings[recording_index].calibration_file}"
+                    "Failed to load %s",
+                    {self.recordings[recording_index].calibration_file},
                 )
                 self.show_message(
                     (
@@ -692,7 +694,7 @@ class AccuSleepWindow(QMainWindow):
                 filename=filename
             )
         except Exception:
-            logger.exception(f"Failed to load {filename}")
+            logger.exception("Failed to load %s", filename)
             self.show_message(
                 (
                     "ERROR: could not load classification model. Check "
@@ -759,7 +761,8 @@ class AccuSleepWindow(QMainWindow):
             )
         except Exception:
             logger.exception(
-                f"Failed to load {self.recordings[self.recording_index].recording_file}"
+                "Failed to load %s",
+                {self.recordings[self.recording_index].recording_file},
             )
             status_widget.setText("could not load recording")
             self.show_message(
@@ -805,7 +808,7 @@ class AccuSleepWindow(QMainWindow):
         try:
             labels, _ = load_labels(label_file)
         except Exception:
-            logger.exception(f"Failed to load {label_file}")
+            logger.exception("Failed to load %s", label_file)
             self.ui.calibration_status.setText("could not load labels")
             self.show_message(
                 (
@@ -934,7 +937,7 @@ class AccuSleepWindow(QMainWindow):
             try:
                 labels, confidence_scores = load_labels(label_file)
             except Exception:
-                logger.exception(f"Failed to load {label_file}")
+                logger.exception("Failed to load %s", label_file)
                 self.ui.manual_scoring_status.setText("could not load labels")
                 self.show_message(
                     (
