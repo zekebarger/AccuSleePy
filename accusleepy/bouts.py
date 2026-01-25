@@ -42,7 +42,7 @@ def find_last_adjacent_bout(sorted_bouts: list[Bout], bout_index: int) -> int:
 
 
 def find_short_bouts(
-    labels: np.array, min_epochs: int, brain_states: set[int]
+    labels: np.ndarray, min_epochs: int, brain_states: set[int]
 ) -> list[Bout]:
     """Locate all brain state bouts below a minimum length
 
@@ -80,8 +80,8 @@ def find_short_bouts(
 
 
 def enforce_min_bout_length(
-    labels: np.array, epoch_length: int | float, min_bout_length: int | float
-) -> np.array:
+    labels: np.ndarray, epoch_length: int | float, min_bout_length: int | float
+) -> np.ndarray:
     """Ensure brain state bouts meet the min length requirement
 
     As a post-processing step for sleep scoring, we can require that any

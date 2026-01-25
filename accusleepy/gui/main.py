@@ -2,6 +2,7 @@
 # Icon source: Arkinasi, https://www.flaticon.com/authors/arkinasi
 
 import datetime
+import logging
 import os
 import shutil
 import sys
@@ -80,6 +81,8 @@ from accusleepy.validation import (
 )
 
 # note: functions using torch or scipy are lazily imported
+
+logger = logging.getLogger(__name__)
 
 # on Windows, prevent dark mode from changing the visual style
 if os.name == "nt":
@@ -380,7 +383,7 @@ class AccuSleepWindow(QMainWindow):
             )
         self.ui.message_area.repaint()
         QApplication.processEvents()
-        print("Creating training images")
+        logger.info("Creating training images")
         failed_recordings = create_training_images(
             recordings=self.recordings,
             output_path=temp_image_dir,
@@ -408,7 +411,7 @@ class AccuSleepWindow(QMainWindow):
         self.show_message("Training model")
         self.ui.message_area.repaint()
         QApplication.processEvents()
-        print("Training model")
+        logger.info("Training model")
         from accusleepy.classification import create_dataloader, train_ssann
         from accusleepy.models import save_model
         from accusleepy.temperature_scaling import ModelWithTemperature
@@ -432,7 +435,7 @@ class AccuSleepWindow(QMainWindow):
                 hyperparameters=self.hyperparameters,
             )
             model = ModelWithTemperature(model)
-            print("Calibrating model")
+            logger.info("Calibrating model")
             model.set_temperature(calibration_dataloader)
 
         # save model
@@ -448,11 +451,11 @@ class AccuSleepWindow(QMainWindow):
 
         # optionally delete images
         if self.delete_training_images:
-            print("Cleaning up training image folder")
+            logger.info("Cleaning up training image folder")
             shutil.rmtree(temp_image_dir)
 
         self.show_message(f"Training complete. Saved model to {model_filename}")
-        print("Training complete.")
+        logger.info("Training complete")
 
     def update_image_deletion(self) -> None:
         """Update choice of whether to delete images after training"""
@@ -537,6 +540,10 @@ class AccuSleepWindow(QMainWindow):
                     epoch_length=self.epoch_length,
                 )
             except Exception:
+                logger.exception(
+                    "Failed to load %s",
+                    self.recordings[recording_index].recording_file,
+                )
                 self.show_message(
                     (
                         "ERROR: could not load recording "
@@ -553,6 +560,7 @@ class AccuSleepWindow(QMainWindow):
                     # ignore any existing confidence scores; they will all be overwritten
                     existing_labels, _ = load_labels(label_file)
                 except Exception:
+                    logger.exception("Failed to load %s", label_file)
                     self.show_message(
                         (
                             "ERROR: could not load existing labels for recording "
@@ -595,6 +603,10 @@ class AccuSleepWindow(QMainWindow):
                     self.recordings[recording_index].calibration_file
                 )
             except Exception:
+                logger.exception(
+                    "Failed to load %s",
+                    self.recordings[recording_index].calibration_file,
+                )
                 self.show_message(
                     (
                         "ERROR: could not load calibration file for recording "
@@ -682,6 +694,7 @@ class AccuSleepWindow(QMainWindow):
                 filename=filename
             )
         except Exception:
+            logger.exception("Failed to load %s", filename)
             self.show_message(
                 (
                     "ERROR: could not load classification model. Check "
@@ -747,6 +760,10 @@ class AccuSleepWindow(QMainWindow):
                 self.recordings[self.recording_index].recording_file
             )
         except Exception:
+            logger.exception(
+                "Failed to load %s",
+                self.recordings[self.recording_index].recording_file,
+            )
             status_widget.setText("could not load recording")
             self.show_message(
                 (
@@ -791,6 +808,7 @@ class AccuSleepWindow(QMainWindow):
         try:
             labels, _ = load_labels(label_file)
         except Exception:
+            logger.exception("Failed to load %s", label_file)
             self.ui.calibration_status.setText("could not load labels")
             self.show_message(
                 (
@@ -919,6 +937,7 @@ class AccuSleepWindow(QMainWindow):
             try:
                 labels, confidence_scores = load_labels(label_file)
             except Exception:
+                logger.exception("Failed to load %s", label_file)
                 self.ui.manual_scoring_status.setText("could not load labels")
                 self.show_message(
                     (
@@ -1465,6 +1484,10 @@ class AccuSleepWindow(QMainWindow):
 
 
 def run_primary_window() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s - %(name)s - %(message)s",
+    )
     app = QApplication(sys.argv)
     AccuSleepWindow()
     sys.exit(app.exec())
