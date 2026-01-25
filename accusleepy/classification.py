@@ -278,8 +278,9 @@ def create_calibration_file(
 ) -> None:
     """Create file of calibration data for a subject
 
-    This assumes signals have been preprocessed to contain an integer
-    number of epochs.
+    This assumes that EEG and EMG signals have been preprocessed to
+    contain an integer number of epochs and that there are a
+    sufficient number of labeled epochs for each scored brain state.
 
     :param filename: filename for the calibration file
     :param eeg: EEG signal
