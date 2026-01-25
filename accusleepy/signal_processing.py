@@ -1,3 +1,4 @@
+import logging
 import os
 import warnings
 
@@ -24,6 +25,8 @@ from accusleepy.fileio import Recording, load_labels, load_recording, EMGFilter
 from accusleepy.multitaper import spectrogram
 
 # note: scipy is lazily imported
+
+logger = logging.getLogger(__name__)
 
 
 def resample(
@@ -319,7 +322,7 @@ def mixture_z_score_img(
     :return:
     """
     if labels is None and (mixture_means is None or mixture_sds is None):
-        raise Exception("must provide either labels or mixture means+SDs")
+        raise ValueError("must provide either labels or mixture means+SDs")
     if labels is not None and ((mixture_means is not None) ^ (mixture_sds is not None)):
         warnings.warn("labels were given, mixture means / SDs will be ignored")
 
@@ -451,8 +454,10 @@ def create_training_images(
                     all_labels.append(labels[j])
                     Image.fromarray(im).save(os.path.join(output_path, filename))
 
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception(
+                f"Failed to create training images for recording {recording.name}"
+            )
             failed_recordings.append(recording.name)
 
     annotations = pd.DataFrame({FILENAME_COL: filenames, LABEL_COL: all_labels})

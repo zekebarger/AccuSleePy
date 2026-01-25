@@ -80,7 +80,7 @@ def load_csv_or_parquet(filename: str) -> pd.DataFrame:
     elif extension == ".parquet":
         df = pd.read_parquet(filename)
     else:
-        raise Exception("file must be csv or parquet")
+        raise ValueError("file must be csv or parquet")
     return df
 
 

@@ -2,6 +2,7 @@
 # Icon source: Arkinasi, https://www.flaticon.com/authors/arkinasi
 
 import datetime
+import logging
 import os
 import shutil
 import sys
@@ -80,6 +81,8 @@ from accusleepy.validation import (
 )
 
 # note: functions using torch or scipy are lazily imported
+
+logger = logging.getLogger(__name__)
 
 # on Windows, prevent dark mode from changing the visual style
 if os.name == "nt":
@@ -537,6 +540,9 @@ class AccuSleepWindow(QMainWindow):
                     epoch_length=self.epoch_length,
                 )
             except Exception:
+                logger.exception(
+                    f"Failed to load {self.recordings[recording_index].recording_file}"
+                )
                 self.show_message(
                     (
                         "ERROR: could not load recording "
@@ -553,6 +559,7 @@ class AccuSleepWindow(QMainWindow):
                     # ignore any existing confidence scores; they will all be overwritten
                     existing_labels, _ = load_labels(label_file)
                 except Exception:
+                    logger.exception(f"Failed to load {label_file}")
                     self.show_message(
                         (
                             "ERROR: could not load existing labels for recording "
@@ -595,6 +602,9 @@ class AccuSleepWindow(QMainWindow):
                     self.recordings[recording_index].calibration_file
                 )
             except Exception:
+                logger.exception(
+                    f"Failed to load {self.recordings[recording_index].calibration_file}"
+                )
                 self.show_message(
                     (
                         "ERROR: could not load calibration file for recording "
@@ -682,6 +692,7 @@ class AccuSleepWindow(QMainWindow):
                 filename=filename
             )
         except Exception:
+            logger.exception(f"Failed to load {filename}")
             self.show_message(
                 (
                     "ERROR: could not load classification model. Check "
@@ -747,6 +758,9 @@ class AccuSleepWindow(QMainWindow):
                 self.recordings[self.recording_index].recording_file
             )
         except Exception:
+            logger.exception(
+                f"Failed to load {self.recordings[self.recording_index].recording_file}"
+            )
             status_widget.setText("could not load recording")
             self.show_message(
                 (
@@ -791,6 +805,7 @@ class AccuSleepWindow(QMainWindow):
         try:
             labels, _ = load_labels(label_file)
         except Exception:
+            logger.exception(f"Failed to load {label_file}")
             self.ui.calibration_status.setText("could not load labels")
             self.show_message(
                 (
@@ -919,6 +934,7 @@ class AccuSleepWindow(QMainWindow):
             try:
                 labels, confidence_scores = load_labels(label_file)
             except Exception:
+                logger.exception(f"Failed to load {label_file}")
                 self.ui.manual_scoring_status.setText("could not load labels")
                 self.show_message(
                     (

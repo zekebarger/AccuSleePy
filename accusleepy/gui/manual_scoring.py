@@ -1010,7 +1010,7 @@ def convert_labels(labels: np.array, style: str) -> np.array:
         labels = [i if i != 0 else UNDEFINED_LABEL for i in labels]
         return np.array([i if i != 10 else 0 for i in labels])
     else:
-        raise Exception(f"style must be '{DISPLAY_FORMAT}' or '{DIGIT_FORMAT}'")
+        raise ValueError(f"style must be '{DISPLAY_FORMAT}' or '{DIGIT_FORMAT}'")
 
 
 def create_label_img(labels: np.array, label_display_options: np.array) -> np.array:
