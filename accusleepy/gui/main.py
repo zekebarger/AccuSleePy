@@ -1179,6 +1179,13 @@ class AccuSleepWindow(QMainWindow):
             )
             del self.recordings[current_list_index]
             self.recording_index = self.ui.recording_list_widget.currentRow()
+        else:
+            # there's only one recording in the list, so reset it to defaults
+            recording_name = self.recordings[0].name
+            self.recordings[0] = Recording(widget=self.recordings[0].widget)
+            self.recordings[0].widget.setText("Recording 1")
+            self.show_recording_info()
+            self.show_message(f"cleared Recording {recording_name}")
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
