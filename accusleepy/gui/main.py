@@ -542,7 +542,7 @@ class AccuSleepWindow(QMainWindow):
             except Exception:
                 logger.exception(
                     "Failed to load %s",
-                    {self.recordings[recording_index].recording_file},
+                    self.recordings[recording_index].recording_file,
                 )
                 self.show_message(
                     (
@@ -605,7 +605,7 @@ class AccuSleepWindow(QMainWindow):
             except Exception:
                 logger.exception(
                     "Failed to load %s",
-                    {self.recordings[recording_index].calibration_file},
+                    self.recordings[recording_index].calibration_file,
                 )
                 self.show_message(
                     (
@@ -762,7 +762,7 @@ class AccuSleepWindow(QMainWindow):
         except Exception:
             logger.exception(
                 "Failed to load %s",
-                {self.recordings[self.recording_index].recording_file},
+                self.recordings[self.recording_index].recording_file,
             )
             status_widget.setText("could not load recording")
             self.show_message(

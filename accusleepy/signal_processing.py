@@ -456,7 +456,7 @@ def create_training_images(
 
         except Exception:
             logger.exception(
-                "Failed to create training images for recording %s", {recording.name}
+                "Failed to create training images for recording %s", recording.name
             )
             failed_recordings.append(recording.name)
 
