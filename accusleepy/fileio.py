@@ -56,7 +56,7 @@ class Recording:
     widget: QListWidgetItem = None  # list item widget shown in the GUI
 
 
-def load_calibration_file(filename: str) -> (np.array, np.array):
+def load_calibration_file(filename: str) -> tuple[np.ndarray, np.ndarray]:
     """Load a calibration file
 
     :param filename: filename
@@ -84,7 +84,7 @@ def load_csv_or_parquet(filename: str) -> pd.DataFrame:
     return df
 
 
-def load_recording(filename: str) -> (np.array, np.array):
+def load_recording(filename: str) -> tuple[np.ndarray, np.ndarray]:
     """Load recording of EEG and EMG time series data
 
     :param filename: filename
@@ -96,7 +96,7 @@ def load_recording(filename: str) -> (np.array, np.array):
     return eeg, emg
 
 
-def load_labels(filename: str) -> (np.array, np.array):
+def load_labels(filename: str) -> tuple[np.ndarray, np.ndarray | None]:
     """Load file of brain state labels and confidence scores
 
     :param filename: filename
@@ -110,7 +110,7 @@ def load_labels(filename: str) -> (np.array, np.array):
 
 
 def save_labels(
-    labels: np.array, filename: str, confidence_scores: np.array = None
+    labels: np.ndarray, filename: str, confidence_scores: np.ndarray | None = None
 ) -> None:
     """Save brain state labels to file
 

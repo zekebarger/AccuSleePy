@@ -27,8 +27,11 @@ from accusleepy.multitaper import spectrogram
 
 
 def resample(
-    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
-) -> (np.array, np.array, float):
+    eeg: np.ndarray,
+    emg: np.ndarray,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+) -> tuple[np.ndarray, np.ndarray, float]:
     """Resample recording so that epochs contain equal numbers of samples
 
     If the number of samples per epoch is not an integer, epoch-level calculations
@@ -62,8 +65,11 @@ def resample(
 
 
 def standardize_signal_length(
-    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
-) -> (np.array, np.array):
+    eeg: np.ndarray,
+    emg: np.ndarray,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+) -> tuple[np.ndarray, np.ndarray]:
     """Truncate or pad EEG/EMG signals to have an integer number of epochs
 
     :param eeg: EEG signal
@@ -93,8 +99,11 @@ def standardize_signal_length(
 
 
 def resample_and_standardize(
-    eeg: np.array, emg: np.array, sampling_rate: int | float, epoch_length: int | float
-) -> (np.array, np.array, float):
+    eeg: np.ndarray,
+    emg: np.ndarray,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+) -> tuple[np.ndarray, np.ndarray, float]:
     """Preprocess EEG and EMG signals
 
     Adjust the length and sampling rate of the EEG and EMG signals so that
@@ -117,12 +126,12 @@ def resample_and_standardize(
 
 
 def create_spectrogram(
-    eeg: np.array,
+    eeg: np.ndarray,
     sampling_rate: int | float,
     epoch_length: int | float,
-    time_bandwidth=2,
-    n_tapers=3,
-) -> (np.array, np.array):
+    time_bandwidth: int = 2,
+    n_tapers: int = 3,
+) -> tuple[np.ndarray, np.ndarray]:
     """Create an EEG spectrogram image
 
     :param eeg: EEG signal
@@ -168,11 +177,11 @@ def create_spectrogram(
 
 
 def get_emg_power(
-    emg: np.array,
+    emg: np.ndarray,
     sampling_rate: int | float,
     epoch_length: int | float,
     emg_filter: EMGFilter,
-) -> np.array:
+) -> np.ndarray:
     """Calculate EMG power for each epoch
 
     This applies a 20-50 Hz bandpass filter to the EMG,  calculates the RMS
@@ -207,12 +216,12 @@ def get_emg_power(
 
 
 def create_eeg_emg_image(
-    eeg: np.array,
-    emg: np.array,
+    eeg: np.ndarray,
+    emg: np.ndarray,
     sampling_rate: int | float,
     epoch_length: int | float,
     emg_filter: EMGFilter,
-) -> np.array:
+) -> np.ndarray:
     """Stack EEG spectrogram and EMG power into an image
 
     This assumes that each epoch contains an integer number of samples and
@@ -247,8 +256,8 @@ def create_eeg_emg_image(
 
 
 def get_mixture_values(
-    img: np.array, labels: np.array, brain_state_set: BrainStateSet
-) -> (np.array, np.array):
+    img: np.ndarray, labels: np.ndarray, brain_state_set: BrainStateSet
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute weighted feature means and SDs for mixture z-scoring
 
     The outputs of this function can be used to standardize features
@@ -289,12 +298,12 @@ def get_mixture_values(
 
 
 def mixture_z_score_img(
-    img: np.array,
+    img: np.ndarray,
     brain_state_set: BrainStateSet,
-    labels: np.array = None,
-    mixture_means: np.array = None,
-    mixture_sds: np.array = None,
-) -> np.array:
+    labels: np.ndarray | None = None,
+    mixture_means: np.ndarray | None = None,
+    mixture_sds: np.ndarray | None = None,
+) -> np.ndarray:
     """Perform mixture z-scoring on a combined EEG+EMG image
 
     If brain state labels are provided, they will be used to calculate
@@ -326,7 +335,7 @@ def mixture_z_score_img(
     return img
 
 
-def format_img(img: np.array, epochs_per_img: int, add_padding: bool) -> np.array:
+def format_img(img: np.ndarray, epochs_per_img: int, add_padding: bool) -> np.ndarray:
     """Adjust the format of an EEG+EMG image
 
     This function converts the values in a combined EEG+EMG image to uint8.

@@ -7,8 +7,8 @@ LABEL_LENGTH_ERROR = "label file length does not match recording length"
 
 
 def check_label_validity(
-    labels: np.array,
-    confidence_scores: np.array,
+    labels: np.ndarray,
+    confidence_scores: np.ndarray | None,
     samples_in_recording: int,
     sampling_rate: int | float,
     epoch_length: int | float,

@@ -84,7 +84,7 @@ def create_dataloader(
 def train_ssann(
     annotations_file: str,
     img_dir: str,
-    mixture_weights: np.array,
+    mixture_weights: np.ndarray,
     n_classes: int,
     hyperparameters: Hyperparameters,
 ) -> SSANN:
@@ -133,16 +133,16 @@ def train_ssann(
 
 def score_recording(
     model: SSANN,
-    eeg: np.array,
-    emg: np.array,
-    mixture_means: np.array,
-    mixture_sds: np.array,
+    eeg: np.ndarray,
+    emg: np.ndarray,
+    mixture_means: np.ndarray,
+    mixture_sds: np.ndarray,
     sampling_rate: int | float,
     epoch_length: int | float,
     epochs_per_img: int,
     brain_state_set: BrainStateSet,
     emg_filter: EMGFilter,
-) -> np.array:
+) -> tuple[np.ndarray, np.ndarray]:
     """Use classification model to get brain state labels for a recording
 
     This assumes signals have been preprocessed to contain an integer
@@ -196,10 +196,10 @@ def score_recording(
 
 def example_real_time_scoring_function(
     model: SSANN,
-    eeg: np.array,
-    emg: np.array,
-    mixture_means: np.array,
-    mixture_sds: np.array,
+    eeg: np.ndarray,
+    emg: np.ndarray,
+    mixture_means: np.ndarray,
+    mixture_sds: np.ndarray,
     sampling_rate: int | float,
     epoch_length: int | float,
     epochs_per_img: int,
@@ -268,9 +268,9 @@ def example_real_time_scoring_function(
 
 def create_calibration_file(
     filename: str,
-    eeg: np.array,
-    emg: np.array,
-    labels: np.array,
+    eeg: np.ndarray,
+    emg: np.ndarray,
+    labels: np.ndarray,
     sampling_rate: int | float,
     epoch_length: int | float,
     brain_state_set: BrainStateSet,

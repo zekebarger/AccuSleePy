@@ -58,7 +58,7 @@ class BrainStateSet:
         if np.sum(self.mixture_weights) != 1:
             raise Exception("Typical frequencies for scored brain states must sum to 1")
 
-    def convert_digit_to_class(self, digits: np.array) -> np.array:
+    def convert_digit_to_class(self, digits: np.ndarray) -> np.ndarray:
         """Convert array of digits to their corresponding classes
 
         :param digits: array of digits
@@ -66,7 +66,7 @@ class BrainStateSet:
         """
         return np.array([self.digit_to_class[i] for i in digits])
 
-    def convert_class_to_digit(self, classes: np.array) -> np.array:
+    def convert_class_to_digit(self, classes: np.ndarray) -> np.ndarray:
         """Convert array of classes to their corresponding digits
 
         :param classes: array of classes
