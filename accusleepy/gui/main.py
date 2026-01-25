@@ -1481,6 +1481,10 @@ class AccuSleepWindow(QMainWindow):
 
 
 def run_primary_window() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s - %(name)s - %(message)s",
+    )
     app = QApplication(sys.argv)
     AccuSleepWindow()
     sys.exit(app.exec())
