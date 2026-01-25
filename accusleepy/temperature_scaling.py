@@ -1,7 +1,11 @@
+import logging
+
 import numpy as np
 import torch
 from torch import nn, optim
 from torch.nn import functional as F
+
+logger = logging.getLogger(__name__)
 
 
 class ModelWithTemperature(nn.Module):
@@ -72,9 +76,10 @@ class ModelWithTemperature(nn.Module):
         # Calculate NLL and ECE before temperature scaling
         before_temperature_nll = nll_criterion(logits, labels).item()
         before_temperature_ece = ece_criterion(logits, labels).item()
-        print(
-            "Before temperature - NLL: %.3f, ECE: %.3f"
-            % (before_temperature_nll, before_temperature_ece)
+        logger.info(
+            "Before temperature - NLL: %.3f, ECE: %.3f",
+            before_temperature_nll,
+            before_temperature_ece,
         )
 
         # Next: optimize the temperature w.r.t. NLL
@@ -96,16 +101,17 @@ class ModelWithTemperature(nn.Module):
         after_temperature_ece = ece_criterion(
             self.temperature_scale(logits), labels
         ).item()
-        print("Optimal temperature: %.3f" % self.temperature.item())
-        print(
-            "After temperature - NLL: %.3f, ECE: %.3f"
-            % (after_temperature_nll, after_temperature_ece)
+        logger.info("Optimal temperature: %.3f", self.temperature.item())
+        logger.info(
+            "After temperature - NLL: %.3f, ECE: %.3f",
+            after_temperature_nll,
+            after_temperature_ece,
         )
 
         val_acc = round(
             100 * np.mean(labels.cpu().numpy() == predictions.cpu().numpy()), 2
         )
-        print(f"Validation accuracy: {val_acc}%")
+        logger.info("Validation accuracy: %s%%", val_acc)
 
         return self
 

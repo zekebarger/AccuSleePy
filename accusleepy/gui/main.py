@@ -383,7 +383,7 @@ class AccuSleepWindow(QMainWindow):
             )
         self.ui.message_area.repaint()
         QApplication.processEvents()
-        print("Creating training images")
+        logger.info("Creating training images")
         failed_recordings = create_training_images(
             recordings=self.recordings,
             output_path=temp_image_dir,
@@ -411,7 +411,7 @@ class AccuSleepWindow(QMainWindow):
         self.show_message("Training model")
         self.ui.message_area.repaint()
         QApplication.processEvents()
-        print("Training model")
+        logger.info("Training model")
         from accusleepy.classification import create_dataloader, train_ssann
         from accusleepy.models import save_model
         from accusleepy.temperature_scaling import ModelWithTemperature
@@ -435,7 +435,7 @@ class AccuSleepWindow(QMainWindow):
                 hyperparameters=self.hyperparameters,
             )
             model = ModelWithTemperature(model)
-            print("Calibrating model")
+            logger.info("Calibrating model")
             model.set_temperature(calibration_dataloader)
 
         # save model
@@ -451,11 +451,11 @@ class AccuSleepWindow(QMainWindow):
 
         # optionally delete images
         if self.delete_training_images:
-            print("Cleaning up training image folder")
+            logger.info("Cleaning up training image folder")
             shutil.rmtree(temp_image_dir)
 
         self.show_message(f"Training complete. Saved model to {model_filename}")
-        print("Training complete.")
+        logger.info("Training complete")
 
     def update_image_deletion(self) -> None:
         """Update choice of whether to delete images after training"""
