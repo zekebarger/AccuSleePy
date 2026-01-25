@@ -49,6 +49,7 @@ from accusleepy.constants import (
     DEFAULT_TRAINING_EPOCHS,
     LABEL_FILE_TYPE,
     MESSAGE_BOX_MAX_DEPTH,
+    MIN_EPOCHS_PER_STATE,
     MODEL_FILE_TYPE,
     REAL_TIME_MODEL_TYPE,
     RECORDING_FILE_TYPES,
@@ -829,6 +830,19 @@ class AccuSleepWindow(QMainWindow):
             self.ui.calibration_status.setText("invalid label file")
             self.show_message(f"ERROR: {label_error_message}")
             return
+
+        # check that each scored brain state has sufficient observations
+        for brain_state in self.brain_state_set.brain_states:
+            if brain_state.is_scored:
+                count = np.sum(labels == brain_state.digit)
+                if count < MIN_EPOCHS_PER_STATE:
+                    self.ui.calibration_status.setText("insufficient labels")
+                    self.show_message(
+                        f"ERROR: at least {MIN_EPOCHS_PER_STATE} labeled epochs "
+                        f"per brain state are required for calibration. Only "
+                        f"{count} '{brain_state.name}' epoch(s) found."
+                    )
+                    return
 
         # get the name for the calibration file
         filename, _ = QFileDialog.getSaveFileName(
