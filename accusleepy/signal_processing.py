@@ -510,5 +510,6 @@ def create_training_images(
     # compute class balance from training set
     class_counts = np.bincount(training_labels, minlength=brain_state_set.n_classes)
     training_class_balance = class_counts / class_counts.sum()
+    logger.info("Training set class balance: %s", training_class_balance)
 
     return failed_recordings, training_class_balance
