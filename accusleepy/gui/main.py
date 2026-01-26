@@ -414,7 +414,8 @@ class AccuSleepWindow(QMainWindow):
                     (
                         "WARNING: the following recordings could not be "
                         "loaded and will not be used for training: "
-                        f"{', '.join([str(r) for r in failed_recordings])}"
+                        f"{', '.join([str(r) for r in failed_recordings])}. "
+                        "More information might be available in the terminal."
                     )
                 )
 

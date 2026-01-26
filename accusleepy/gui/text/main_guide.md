@@ -142,7 +142,7 @@ To train a new model on your own data:
     of the training data to set aside for calibration.
 7. Click "Train classification model" and enter a
     filename for the trained model. Training can take some time.
-    The console will display progress updates.
+    The terminal will display progress updates.
 
 ## 4C. Automatic scoring
 
