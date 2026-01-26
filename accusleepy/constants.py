@@ -19,7 +19,7 @@ ABS_MAX_Z_SCORE = 3.5
 # upper frequency limit when generating EEG spectrograms
 SPECTROGRAM_UPPER_FREQ = 64
 # minimum number of epochs per brain state needed to create
-# a calibration file
+# a calibration file or use a recording for model training
 MIN_EPOCHS_PER_STATE = 3
 
 
