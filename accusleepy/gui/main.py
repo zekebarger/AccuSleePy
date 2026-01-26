@@ -385,16 +385,26 @@ class AccuSleepWindow(QMainWindow):
         self.ui.message_area.repaint()
         QApplication.processEvents()
         logger.info("Creating training images")
-        failed_recordings, training_class_balance = create_training_images(
-            recordings=self.recordings,
-            output_path=temp_image_dir,
-            epoch_length=self.epoch_length,
-            epochs_per_img=self.training_epochs_per_img,
-            brain_state_set=self.brain_state_set,
-            model_type=self.model_type,
-            calibration_fraction=calibration_fraction,
-            emg_filter=self.emg_filter,
+        failed_recordings, training_class_balance, had_zero_variance = (
+            create_training_images(
+                recordings=self.recordings,
+                output_path=temp_image_dir,
+                epoch_length=self.epoch_length,
+                epochs_per_img=self.training_epochs_per_img,
+                brain_state_set=self.brain_state_set,
+                model_type=self.model_type,
+                calibration_fraction=calibration_fraction,
+                emg_filter=self.emg_filter,
+            )
         )
+        if had_zero_variance:
+            self.show_message(
+                (
+                    "WARNING: some recordings contain features with zero variance. "
+                    "The EEG or EMG signal might be empty. If this is unexpected, "
+                    "please make sure the recording files are correctly formatted."
+                )
+            )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
                 self.show_message("ERROR: no recordings were valid!")
@@ -501,6 +511,9 @@ class AccuSleepWindow(QMainWindow):
         QApplication.processEvents()
 
         from accusleepy.classification import score_recording
+
+        # check if any calibration file has any feature with 0 variance
+        any_zero_variance = False
 
         # check some inputs for each recording
         for recording_index in range(len(self.recordings)):
@@ -617,6 +630,10 @@ class AccuSleepWindow(QMainWindow):
                 )
                 continue
 
+            # check if calibration data contains any 0-variance features
+            if np.any(mixture_sds == 0):
+                any_zero_variance = True
+
             labels, confidence_scores = score_recording(
                 model=self.model,
                 eeg=eeg,
@@ -656,6 +673,15 @@ class AccuSleepWindow(QMainWindow):
                     "Saved labels for recording "
                     f"{self.recordings[recording_index].name} "
                     f"to {label_file}"
+                )
+            )
+
+        if any_zero_variance:
+            self.show_message(
+                (
+                    "WARNING: one or more calibration files has 0 variance "
+                    "for some features. This could indicate that the EEG or "
+                    "EMG signal is empty in the recording used for calibration."
                 )
             )
 
@@ -856,7 +882,7 @@ class AccuSleepWindow(QMainWindow):
 
         from accusleepy.classification import create_calibration_file
 
-        create_calibration_file(
+        had_zero_variance = create_calibration_file(
             filename=filename,
             eeg=eeg,
             emg=emg,
@@ -875,6 +901,14 @@ class AccuSleepWindow(QMainWindow):
                 f"at {filename}"
             )
         )
+        if had_zero_variance:
+            self.show_message(
+                (
+                    "WARNING: one or more features derived from the data have "
+                    "zero variance. This could indicate that the EEG or "
+                    "EMG signal is empty."
+                )
+            )
 
         self.recordings[self.recording_index].calibration_file = filename
         self.ui.calibration_file_label.setText(filename)

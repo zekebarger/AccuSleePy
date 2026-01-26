@@ -244,7 +244,7 @@ def example_real_time_scoring_function(
 
     # create and scale eeg+emg spectrogram
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
-    img = mixture_z_score_img(
+    img, _ = mixture_z_score_img(
         img,
         mixture_means=mixture_means,
         mixture_sds=mixture_sds,
@@ -275,8 +275,11 @@ def create_calibration_file(
     epoch_length: int | float,
     brain_state_set: BrainStateSet,
     emg_filter: EMGFilter,
-) -> None:
+) -> bool:
     """Create file of calibration data for a subject
+
+    Returns True if any features derived from the recording
+    have 0 variance.
 
     This assumes that EEG and EMG signals have been preprocessed to
     contain an integer number of epochs and that there are a
@@ -290,6 +293,7 @@ def create_calibration_file(
     :param epoch_length: epoch length, in seconds
     :param brain_state_set: set of brain state options
     :param emg_filter: EMG filter parameters
+    :return: whether zero-variance features were detected
     """
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
     mixture_means, mixture_sds = get_mixture_values(
@@ -297,6 +301,8 @@ def create_calibration_file(
         labels=brain_state_set.convert_digit_to_class(labels),
         brain_state_set=brain_state_set,
     )
+    had_zero_variance = np.any(mixture_sds == 0)
     pd.DataFrame(
         {c.MIXTURE_MEAN_COL: mixture_means, c.MIXTURE_SD_COL: mixture_sds}
     ).to_csv(filename, index=False)
+    return had_zero_variance
