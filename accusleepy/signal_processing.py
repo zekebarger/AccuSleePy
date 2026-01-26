@@ -382,8 +382,8 @@ def create_training_images(
     model_type: str,
     calibration_fraction: float,
     emg_filter: EMGFilter,
-) -> list[int]:
-    """Create training dataset
+) -> tuple[list[int], np.ndarray]:
+    """Create training dataset and calculate class balance
 
     By default, the current epoch is located in the central column
     of pixels in each image. For real-time scoring applications,
@@ -397,8 +397,7 @@ def create_training_images(
     :param model_type: default or real-time
     :param calibration_fraction: fraction of training data to use for calibration
     :param emg_filter: EMG filter parameters
-    :return: list of the names of any recordings that could not
-            be used to create training images.
+    :return: tuple of (list of failed recording names, training set class balance)
     """
     # recordings that had to be skipped
     failed_recordings = list()
@@ -499,11 +498,17 @@ def create_training_images(
             os.path.join(output_path, CALIBRATION_ANNOTATION_FILENAME),
             index=False,
         )
+        training_labels = training_set[LABEL_COL].values
     else:
         # annotation file contains info on all training images
         annotations.to_csv(
             os.path.join(output_path, ANNOTATIONS_FILENAME),
             index=False,
         )
+        training_labels = np.array(all_labels)
 
-    return failed_recordings
+    # compute class balance from training set
+    class_counts = np.bincount(training_labels, minlength=brain_state_set.n_classes)
+    training_class_balance = class_counts / class_counts.sum()
+
+    return failed_recordings, training_class_balance

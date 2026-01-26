@@ -385,7 +385,7 @@ class AccuSleepWindow(QMainWindow):
         self.ui.message_area.repaint()
         QApplication.processEvents()
         logger.info("Creating training images")
-        failed_recordings = create_training_images(
+        failed_recordings, training_class_balance = create_training_images(
             recordings=self.recordings,
             output_path=temp_image_dir,
             epoch_length=self.epoch_length,
@@ -420,7 +420,7 @@ class AccuSleepWindow(QMainWindow):
         model = train_ssann(
             annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
             img_dir=temp_image_dir,
-            mixture_weights=self.brain_state_set.mixture_weights,
+            training_class_balance=training_class_balance,
             n_classes=self.brain_state_set.n_classes,
             hyperparameters=self.hyperparameters,
         )

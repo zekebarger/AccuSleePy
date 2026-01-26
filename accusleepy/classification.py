@@ -84,7 +84,7 @@ def create_dataloader(
 def train_ssann(
     annotations_file: str,
     img_dir: str,
-    training_set_class_balance: np.ndarray,
+    training_class_balance: np.ndarray,
     n_classes: int,
     hyperparameters: Hyperparameters,
 ) -> SSANN:
@@ -92,7 +92,7 @@ def train_ssann(
 
     :param annotations_file: file with information on each training image
     :param img_dir: training image location
-    :param training_set_class_balance: proportion of each class in the training set
+    :param training_class_balance: proportion of each class in the training set
     :param n_classes: number of classes the model will learn
     :param hyperparameters: model training hyperparameters
     :return: trained Sleep Scoring Artificial Neural Network model
@@ -109,7 +109,7 @@ def train_ssann(
     model.train()
 
     # correct for class imbalance
-    weight = torch.tensor((training_set_class_balance**-1).astype("float32")).to(device)
+    weight = torch.tensor((training_class_balance**-1).astype("float32")).to(device)
 
     criterion = nn.CrossEntropyLoss(weight=weight)
     optimizer = optim.SGD(
