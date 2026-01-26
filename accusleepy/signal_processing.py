@@ -17,6 +17,7 @@ from accusleepy.constants import (
     EMG_COPIES,
     FILENAME_COL,
     LABEL_COL,
+    MIN_EPOCHS_PER_STATE,
     MIN_WINDOW_LEN,
     UPPER_FREQ,
     SPECTROGRAM_UPPER_FREQ,
@@ -409,6 +410,31 @@ def create_training_images(
     for i in trange(len(recordings)):
         recording = recordings[i]
         try:
+            labels, _ = load_labels(recording.label_file)
+        except Exception:
+            logger.exception("Could not load labels for recording %s", recording.name)
+            failed_recordings.append(recording.name)
+            continue
+
+        # Check that each scored brain state has sufficient observations
+        # Ideally, we could use mixture means/SDs from another recording...
+        insufficient_labels = False
+        for brain_state in brain_state_set.brain_states:
+            if brain_state.is_scored:
+                count = np.sum(labels == brain_state.digit)
+                if count < MIN_EPOCHS_PER_STATE:
+                    logger.warning(
+                        "Recording %s can't be used: insufficient labels for class '%s'",
+                        recording.name,
+                        brain_state.name,
+                    )
+                    failed_recordings.append(recording.name)
+                    insufficient_labels = True
+                    break
+        if insufficient_labels:
+            continue
+
+        try:
             eeg, emg = load_recording(recording.recording_file)
             sampling_rate = recording.sampling_rate
             eeg, emg, sampling_rate = resample_and_standardize(
@@ -418,7 +444,6 @@ def create_training_images(
                 epoch_length=epoch_length,
             )
 
-            labels, _ = load_labels(recording.label_file)
             labels = brain_state_set.convert_digit_to_class(labels)
             img = create_eeg_emg_image(
                 eeg, emg, sampling_rate, epoch_length, emg_filter
