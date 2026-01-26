@@ -167,7 +167,7 @@ def score_recording(
 
     # create and scale eeg+emg spectrogram
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
-    img = mixture_z_score_img(
+    img, _ = mixture_z_score_img(
         img,
         mixture_means=mixture_means,
         mixture_sds=mixture_sds,

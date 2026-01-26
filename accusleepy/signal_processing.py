@@ -215,8 +215,9 @@ def get_emg_power(
         [round(len(emg) / samples_per_epoch), samples_per_epoch],
     )
     rms = np.sqrt(np.mean(np.power(reshaped, 2), axis=1))
-
-    return np.log(rms)
+    log_rms = np.log(rms)
+    log_rms[np.isinf(log_rms)] = 0
+    return log_rms
 
 
 def create_eeg_emg_image(
