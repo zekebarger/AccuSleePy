@@ -49,6 +49,7 @@ from accusleepy.constants import (
     DEFAULT_TRAINING_EPOCHS,
     LABEL_FILE_TYPE,
     MESSAGE_BOX_MAX_DEPTH,
+    MIN_EPOCHS_PER_STATE,
     MODEL_FILE_TYPE,
     REAL_TIME_MODEL_TYPE,
     RECORDING_FILE_TYPES,
@@ -384,16 +385,26 @@ class AccuSleepWindow(QMainWindow):
         self.ui.message_area.repaint()
         QApplication.processEvents()
         logger.info("Creating training images")
-        failed_recordings = create_training_images(
-            recordings=self.recordings,
-            output_path=temp_image_dir,
-            epoch_length=self.epoch_length,
-            epochs_per_img=self.training_epochs_per_img,
-            brain_state_set=self.brain_state_set,
-            model_type=self.model_type,
-            calibration_fraction=calibration_fraction,
-            emg_filter=self.emg_filter,
+        failed_recordings, training_class_balance, had_zero_variance = (
+            create_training_images(
+                recordings=self.recordings,
+                output_path=temp_image_dir,
+                epoch_length=self.epoch_length,
+                epochs_per_img=self.training_epochs_per_img,
+                brain_state_set=self.brain_state_set,
+                model_type=self.model_type,
+                calibration_fraction=calibration_fraction,
+                emg_filter=self.emg_filter,
+            )
         )
+        if had_zero_variance:
+            self.show_message(
+                (
+                    "WARNING: some recordings contain features with zero variance. "
+                    "The EEG or EMG signal might be empty. If this is unexpected, "
+                    "please make sure the recording files are correctly formatted."
+                )
+            )
         if len(failed_recordings) > 0:
             if len(failed_recordings) == len(self.recordings):
                 self.show_message("ERROR: no recordings were valid!")
@@ -403,7 +414,8 @@ class AccuSleepWindow(QMainWindow):
                     (
                         "WARNING: the following recordings could not be "
                         "loaded and will not be used for training: "
-                        f"{', '.join([str(r) for r in failed_recordings])}"
+                        f"{', '.join([str(r) for r in failed_recordings])}. "
+                        "More information might be available in the terminal."
                     )
                 )
 
@@ -419,7 +431,7 @@ class AccuSleepWindow(QMainWindow):
         model = train_ssann(
             annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
             img_dir=temp_image_dir,
-            mixture_weights=self.brain_state_set.mixture_weights,
+            training_class_balance=training_class_balance,
             n_classes=self.brain_state_set.n_classes,
             hyperparameters=self.hyperparameters,
         )
@@ -500,6 +512,9 @@ class AccuSleepWindow(QMainWindow):
         QApplication.processEvents()
 
         from accusleepy.classification import score_recording
+
+        # check if any calibration file has any feature with 0 variance
+        any_zero_variance = False
 
         # check some inputs for each recording
         for recording_index in range(len(self.recordings)):
@@ -616,6 +631,10 @@ class AccuSleepWindow(QMainWindow):
                 )
                 continue
 
+            # check if calibration data contains any 0-variance features
+            if np.any(mixture_sds == 0):
+                any_zero_variance = True
+
             labels, confidence_scores = score_recording(
                 model=self.model,
                 eeg=eeg,
@@ -655,6 +674,15 @@ class AccuSleepWindow(QMainWindow):
                     "Saved labels for recording "
                     f"{self.recordings[recording_index].name} "
                     f"to {label_file}"
+                )
+            )
+
+        if any_zero_variance:
+            self.show_message(
+                (
+                    "WARNING: one or more calibration files has 0 variance "
+                    "for some features. This could indicate that the EEG or "
+                    "EMG signal is empty in the recording used for calibration."
                 )
             )
 
@@ -830,6 +858,19 @@ class AccuSleepWindow(QMainWindow):
             self.show_message(f"ERROR: {label_error_message}")
             return
 
+        # check that each scored brain state has sufficient observations
+        for brain_state in self.brain_state_set.brain_states:
+            if brain_state.is_scored:
+                count = np.sum(labels == brain_state.digit)
+                if count < MIN_EPOCHS_PER_STATE:
+                    self.ui.calibration_status.setText("insufficient labels")
+                    self.show_message(
+                        f"ERROR: at least {MIN_EPOCHS_PER_STATE} labeled epochs "
+                        f"per brain state are required for calibration. Only "
+                        f"{count} '{brain_state.name}' epoch(s) found."
+                    )
+                    return
+
         # get the name for the calibration file
         filename, _ = QFileDialog.getSaveFileName(
             self,
@@ -842,7 +883,7 @@ class AccuSleepWindow(QMainWindow):
 
         from accusleepy.classification import create_calibration_file
 
-        create_calibration_file(
+        had_zero_variance = create_calibration_file(
             filename=filename,
             eeg=eeg,
             emg=emg,
@@ -861,6 +902,14 @@ class AccuSleepWindow(QMainWindow):
                 f"at {filename}"
             )
         )
+        if had_zero_variance:
+            self.show_message(
+                (
+                    "WARNING: one or more features derived from the data have "
+                    "zero variance. This could indicate that the EEG or "
+                    "EMG signal is empty."
+                )
+            )
 
         self.recordings[self.recording_index].calibration_file = filename
         self.ui.calibration_file_label.setText(filename)
@@ -1165,6 +1214,13 @@ class AccuSleepWindow(QMainWindow):
             )
             del self.recordings[current_list_index]
             self.recording_index = self.ui.recording_list_widget.currentRow()
+        else:
+            # there's only one recording in the list, so reset it to defaults
+            recording_name = self.recordings[0].name
+            self.recordings[0] = Recording(widget=self.recordings[0].widget)
+            self.recordings[0].widget.setText(f"Recording {self.recordings[0].name}")
+            self.select_recording(0)
+            self.show_message(f"cleared Recording {recording_name}")
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""

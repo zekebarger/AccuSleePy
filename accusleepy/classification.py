@@ -84,7 +84,7 @@ def create_dataloader(
 def train_ssann(
     annotations_file: str,
     img_dir: str,
-    mixture_weights: np.ndarray,
+    training_class_balance: np.ndarray,
     n_classes: int,
     hyperparameters: Hyperparameters,
 ) -> SSANN:
@@ -92,7 +92,7 @@ def train_ssann(
 
     :param annotations_file: file with information on each training image
     :param img_dir: training image location
-    :param mixture_weights: typical relative frequencies of brain states
+    :param training_class_balance: proportion of each class in the training set
     :param n_classes: number of classes the model will learn
     :param hyperparameters: model training hyperparameters
     :return: trained Sleep Scoring Artificial Neural Network model
@@ -109,7 +109,7 @@ def train_ssann(
     model.train()
 
     # correct for class imbalance
-    weight = torch.tensor((mixture_weights**-1).astype("float32")).to(device)
+    weight = torch.tensor((training_class_balance**-1).astype("float32")).to(device)
 
     criterion = nn.CrossEntropyLoss(weight=weight)
     optimizer = optim.SGD(
@@ -167,7 +167,7 @@ def score_recording(
 
     # create and scale eeg+emg spectrogram
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
-    img = mixture_z_score_img(
+    img, _ = mixture_z_score_img(
         img,
         mixture_means=mixture_means,
         mixture_sds=mixture_sds,
@@ -244,7 +244,7 @@ def example_real_time_scoring_function(
 
     # create and scale eeg+emg spectrogram
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
-    img = mixture_z_score_img(
+    img, _ = mixture_z_score_img(
         img,
         mixture_means=mixture_means,
         mixture_sds=mixture_sds,
@@ -275,11 +275,15 @@ def create_calibration_file(
     epoch_length: int | float,
     brain_state_set: BrainStateSet,
     emg_filter: EMGFilter,
-) -> None:
+) -> bool:
     """Create file of calibration data for a subject
 
-    This assumes signals have been preprocessed to contain an integer
-    number of epochs.
+    Returns True if any features derived from the recording
+    have 0 variance.
+
+    This assumes that EEG and EMG signals have been preprocessed to
+    contain an integer number of epochs and that there are a
+    sufficient number of labeled epochs for each scored brain state.
 
     :param filename: filename for the calibration file
     :param eeg: EEG signal
@@ -289,6 +293,7 @@ def create_calibration_file(
     :param epoch_length: epoch length, in seconds
     :param brain_state_set: set of brain state options
     :param emg_filter: EMG filter parameters
+    :return: whether zero-variance features were detected
     """
     img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
     mixture_means, mixture_sds = get_mixture_values(
@@ -296,6 +301,8 @@ def create_calibration_file(
         labels=brain_state_set.convert_digit_to_class(labels),
         brain_state_set=brain_state_set,
     )
+    had_zero_variance = np.any(mixture_sds == 0)
     pd.DataFrame(
         {c.MIXTURE_MEAN_COL: mixture_means, c.MIXTURE_SD_COL: mixture_sds}
     ).to_csv(filename, index=False)
+    return had_zero_variance
