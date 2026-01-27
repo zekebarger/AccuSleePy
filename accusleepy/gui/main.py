@@ -24,7 +24,6 @@ from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QDoubleSpinBox,
-    QFileDialog,
     QLabel,
     QListWidgetItem,
     QMainWindow,
@@ -69,6 +68,7 @@ from accusleepy.fileio import (
     EMGFilter,
     Hyperparameters,
 )
+from accusleepy.gui.dialogs import select_existing_file, select_save_location
 from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.signal_processing import (
@@ -237,31 +237,20 @@ class AccuSleepWindow(QMainWindow):
 
     def export_recording_list(self) -> None:
         """Save current list of recordings to file"""
-        # get the name for the recording list file
-        filename, _ = QFileDialog.getSaveFileName(
-            self,
-            caption="Save list of recordings as",
-            filter="*" + RECORDING_LIST_FILE_TYPE,
+        filename = select_save_location(
+            self, "Save list of recordings as", "*" + RECORDING_LIST_FILE_TYPE
         )
         if not filename:
             return
-        filename = os.path.normpath(filename)
         save_recording_list(filename=filename, recordings=self.recordings)
         self.show_message(f"Saved list of recordings to {filename}")
 
     def import_recording_list(self):
         """Load list of recordings from file, overwriting current list"""
-        file_dialog = QFileDialog(self)
-        file_dialog.setWindowTitle("Select list of recordings")
-        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*" + RECORDING_LIST_FILE_TYPE)
-
-        if file_dialog.exec():
-            selected_files = file_dialog.selectedFiles()
-            filename = selected_files[0]
-            filename = os.path.normpath(filename)
-        else:
+        filename = select_existing_file(
+            self, "Select list of recordings", "*" + RECORDING_LIST_FILE_TYPE
+        )
+        if not filename:
             return
 
         # clear widget
@@ -351,15 +340,12 @@ class AccuSleepWindow(QMainWindow):
                 return
 
         # get filename for the new model
-        model_filename, _ = QFileDialog.getSaveFileName(
-            self,
-            caption="Save classification model file as",
-            filter="*" + MODEL_FILE_TYPE,
+        model_filename = select_save_location(
+            self, "Save classification model file as", "*" + MODEL_FILE_TYPE
         )
         if not model_filename:
             self.show_message("Model training canceled, no filename given")
             return
-        model_filename = os.path.normpath(model_filename)
 
         # create (probably temporary) image folder in
         # the same folder as the trained model
@@ -694,17 +680,10 @@ class AccuSleepWindow(QMainWindow):
         :param filename: model filename, if it's known
         """
         if filename is None:
-            file_dialog = QFileDialog(self)
-            file_dialog.setWindowTitle("Select classification model")
-            file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-            file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
-            file_dialog.setNameFilter("*" + MODEL_FILE_TYPE)
-
-            if file_dialog.exec():
-                selected_files = file_dialog.selectedFiles()
-                filename = selected_files[0]
-                filename = os.path.normpath(filename)
-            else:
+            filename = select_existing_file(
+                self, "Select classification model", "*" + MODEL_FILE_TYPE
+            )
+            if not filename:
                 return
 
         if not os.path.isfile(filename):
@@ -872,14 +851,11 @@ class AccuSleepWindow(QMainWindow):
                     return
 
         # get the name for the calibration file
-        filename, _ = QFileDialog.getSaveFileName(
-            self,
-            caption="Save calibration file as",
-            filter="*" + CALIBRATION_FILE_TYPE,
+        filename = select_save_location(
+            self, "Save calibration file as", "*" + CALIBRATION_FILE_TYPE
         )
         if not filename:
             return
-        filename = os.path.normpath(filename)
 
         from accusleepy.classification import create_calibration_file
 
@@ -1073,58 +1049,38 @@ class AccuSleepWindow(QMainWindow):
 
     def create_label_file(self) -> None:
         """Set the filename for a new label file"""
-        filename, _ = QFileDialog.getSaveFileName(
+        filename = select_save_location(
             self,
-            caption="Set filename for label file (nothing will be overwritten yet)",
-            filter="*" + LABEL_FILE_TYPE,
+            "Set filename for label file (nothing will be overwritten yet)",
+            "*" + LABEL_FILE_TYPE,
         )
         if filename:
-            filename = os.path.normpath(filename)
             self.recordings[self.recording_index].label_file = filename
             self.ui.label_file_label.setText(filename)
 
     def select_label_file(self) -> None:
         """User can select an existing label file"""
-        file_dialog = QFileDialog(self)
-        file_dialog.setWindowTitle("Select label file")
-        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*" + LABEL_FILE_TYPE)
-
-        if file_dialog.exec():
-            selected_files = file_dialog.selectedFiles()
-            filename = selected_files[0]
-            filename = os.path.normpath(filename)
+        filename = select_existing_file(
+            self, "Select label file", "*" + LABEL_FILE_TYPE
+        )
+        if filename:
             self.recordings[self.recording_index].label_file = filename
             self.ui.label_file_label.setText(filename)
 
     def select_calibration_file(self) -> None:
         """User can select a calibration file"""
-        file_dialog = QFileDialog(self)
-        file_dialog.setWindowTitle("Select calibration file")
-        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter("*" + CALIBRATION_FILE_TYPE)
-
-        if file_dialog.exec():
-            selected_files = file_dialog.selectedFiles()
-            filename = selected_files[0]
-            filename = os.path.normpath(filename)
+        filename = select_existing_file(
+            self, "Select calibration file", "*" + CALIBRATION_FILE_TYPE
+        )
+        if filename:
             self.recordings[self.recording_index].calibration_file = filename
             self.ui.calibration_file_label.setText(filename)
 
     def select_recording_file(self) -> None:
         """User can select a recording file"""
-        file_dialog = QFileDialog(self)
-        file_dialog.setWindowTitle("Select recording file")
-        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
-        file_dialog.setNameFilter(f"(*{' *'.join(RECORDING_FILE_TYPES)})")
-
-        if file_dialog.exec():
-            selected_files = file_dialog.selectedFiles()
-            filename = selected_files[0]
-            filename = os.path.normpath(filename)
+        file_filter = f"(*{' *'.join(RECORDING_FILE_TYPES)})"
+        filename = select_existing_file(self, "Select recording file", file_filter)
+        if filename:
             self.recordings[self.recording_index].recording_file = filename
             self.ui.recording_file_label.setText(filename)
 
