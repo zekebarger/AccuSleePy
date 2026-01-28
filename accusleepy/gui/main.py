@@ -25,7 +25,6 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QDoubleSpinBox,
     QLabel,
-    QListWidgetItem,
     QMainWindow,
     QTextBrowser,
     QVBoxLayout,
@@ -56,22 +55,20 @@ from accusleepy.constants import (
     UNDEFINED_LABEL,
 )
 from accusleepy.fileio import (
-    Recording,
     load_calibration_file,
     load_config,
     load_labels,
     load_recording,
-    load_recording_list,
     save_config,
     save_labels,
-    save_recording_list,
     EMGFilter,
     Hyperparameters,
 )
 from accusleepy.gui.dialogs import select_existing_file, select_save_location
 from accusleepy.gui.manual_scoring import ManualScoringWindow
-from accusleepy.models import SSANN
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
+from accusleepy.gui.recording_manager import RecordingListManager
+from accusleepy.models import SSANN
 from accusleepy.signal_processing import (
     create_training_images,
     resample_and_standardize,
@@ -164,15 +161,9 @@ class AccuSleepWindow(QMainWindow):
         self.training = TrainingSettings()
 
         # set up the list of recordings
-        first_recording = Recording(
-            widget=QListWidgetItem("Recording 1", self.ui.recording_list_widget),
+        self.recording_manager = RecordingListManager(
+            self.ui.recording_list_widget, parent=self
         )
-        self.ui.recording_list_widget.addItem(first_recording.widget)
-        self.ui.recording_list_widget.setCurrentRow(0)
-        # index of currently selected recording in the list
-        self.recording_index = 0
-        # list of recordings the user has added
-        self.recordings = [first_recording]
 
         # messages to display
         self.messages = []
@@ -257,7 +248,7 @@ class AccuSleepWindow(QMainWindow):
         )
         if not filename:
             return
-        save_recording_list(filename=filename, recordings=self.recordings)
+        self.recording_manager.export_to_file(filename)
         self.show_message(f"Saved list of recordings to {filename}")
 
     def import_recording_list(self):
@@ -268,19 +259,7 @@ class AccuSleepWindow(QMainWindow):
         if not filename:
             return
 
-        # clear widget
-        self.ui.recording_list_widget.clear()
-        # overwrite current list
-        self.recordings = load_recording_list(filename)
-
-        for recording in self.recordings:
-            recording.widget = QListWidgetItem(
-                f"Recording {recording.name}", self.ui.recording_list_widget
-            )
-            self.ui.recording_list_widget.addItem(self.recordings[-1].widget)
-
-        # display new list
-        self.ui.recording_list_widget.setCurrentRow(0)
+        self.recording_manager.import_from_file(filename)
         self.show_message(f"Loaded list of recordings from {filename}")
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
@@ -310,15 +289,15 @@ class AccuSleepWindow(QMainWindow):
 
         if obj == self.ui.recording_file_label:
             if file_extension in RECORDING_FILE_TYPES:
-                self.recordings[self.recording_index].recording_file = filename
+                self.recording_manager.current.recording_file = filename
                 self.ui.recording_file_label.setText(filename)
         elif obj == self.ui.label_file_label:
             if file_extension == LABEL_FILE_TYPE:
-                self.recordings[self.recording_index].label_file = filename
+                self.recording_manager.current.label_file = filename
                 self.ui.label_file_label.setText(filename)
         elif obj == self.ui.calibration_file_label:
             if file_extension == CALIBRATION_FILE_TYPE:
-                self.recordings[self.recording_index].calibration_file = filename
+                self.recording_manager.current.calibration_file = filename
                 self.ui.calibration_file_label.setText(filename)
         elif obj == self.ui.model_label:
             self.load_model(filename=filename)
@@ -346,11 +325,11 @@ class AccuSleepWindow(QMainWindow):
             calibration_fraction = 0
 
         # check some inputs for each recording
-        for recording_index in range(len(self.recordings)):
-            error_message = self.check_single_file_inputs(recording_index)
+        for recording in self.recording_manager:
+            error_message = self.check_single_file_inputs(recording)
             if error_message:
                 self.show_message(
-                    f"ERROR (recording {self.recordings[recording_index].name}): {error_message}"
+                    f"ERROR (recording {recording.name}): {error_message}"
                 )
                 return
 
@@ -388,7 +367,7 @@ class AccuSleepWindow(QMainWindow):
         logger.info("Creating training images")
         failed_recordings, training_class_balance, had_zero_variance = (
             create_training_images(
-                recordings=self.recordings,
+                recordings=list(self.recording_manager),
                 output_path=temp_image_dir,
                 epoch_length=self.epoch_length,
                 epochs_per_img=self.training.epochs_per_img,
@@ -407,7 +386,7 @@ class AccuSleepWindow(QMainWindow):
                 )
             )
         if len(failed_recordings) > 0:
-            if len(failed_recordings) == len(self.recordings):
+            if len(failed_recordings) == len(self.recording_manager):
                 self.show_message("ERROR: no recordings were valid!")
                 return
             else:
@@ -518,36 +497,27 @@ class AccuSleepWindow(QMainWindow):
         any_zero_variance = False
 
         # check some inputs for each recording
-        for recording_index in range(len(self.recordings)):
-            error_message = self.check_single_file_inputs(recording_index)
+        for recording in self.recording_manager:
+            error_message = self.check_single_file_inputs(recording)
             if error_message:
-                self.ui.score_all_status.setText(
-                    f"error on recording {self.recordings[recording_index].name}"
-                )
+                self.ui.score_all_status.setText(f"error on recording {recording.name}")
                 self.show_message(
-                    f"ERROR (recording {self.recordings[recording_index].name}): {error_message}"
+                    f"ERROR (recording {recording.name}): {error_message}"
                 )
                 return
-            if self.recordings[recording_index].calibration_file == "":
-                self.ui.score_all_status.setText(
-                    f"error on recording {self.recordings[recording_index].name}"
-                )
+            if recording.calibration_file == "":
+                self.ui.score_all_status.setText(f"error on recording {recording.name}")
                 self.show_message(
-                    (
-                        f"ERROR (recording {self.recordings[recording_index].name}): "
-                        "no calibration file selected"
-                    )
+                    f"ERROR (recording {recording.name}): no calibration file selected"
                 )
                 return
 
         # score each recording
-        for recording_index in range(len(self.recordings)):
+        for recording in self.recording_manager:
             # load EEG, EMG
             try:
-                eeg, emg = load_recording(
-                    self.recordings[recording_index].recording_file
-                )
-                sampling_rate = self.recordings[recording_index].sampling_rate
+                eeg, emg = load_recording(recording.recording_file)
+                sampling_rate = recording.sampling_rate
 
                 eeg, emg, sampling_rate = resample_and_standardize(
                     eeg=eeg,
@@ -556,21 +526,15 @@ class AccuSleepWindow(QMainWindow):
                     epoch_length=self.epoch_length,
                 )
             except Exception:
-                logger.exception(
-                    "Failed to load %s",
-                    self.recordings[recording_index].recording_file,
-                )
+                logger.exception("Failed to load %s", recording.recording_file)
                 self.show_message(
-                    (
-                        "ERROR: could not load recording "
-                        f"{self.recordings[recording_index].name}."
-                        "This recording will be skipped."
-                    )
+                    f"ERROR: could not load recording {recording.name}. "
+                    "This recording will be skipped."
                 )
                 continue
 
             # load labels
-            label_file = self.recordings[recording_index].label_file
+            label_file = recording.label_file
             if os.path.isfile(label_file):
                 try:
                     # ignore any existing confidence scores; they will all be overwritten
@@ -578,11 +542,8 @@ class AccuSleepWindow(QMainWindow):
                 except Exception:
                     logger.exception("Failed to load %s", label_file)
                     self.show_message(
-                        (
-                            "ERROR: could not load existing labels for recording "
-                            f"{self.recordings[recording_index].name}."
-                            "This recording will be skipped."
-                        )
+                        f"ERROR: could not load existing labels for recording "
+                        f"{recording.name}. This recording will be skipped."
                     )
                     continue
                 # only check the length
@@ -590,45 +551,30 @@ class AccuSleepWindow(QMainWindow):
                 epochs_in_recording = round(eeg.size / samples_per_epoch)
                 if epochs_in_recording != existing_labels.size:
                     self.show_message(
-                        (
-                            "ERROR: existing labels for recording "
-                            f"{self.recordings[recording_index].name} "
-                            "do not match the recording length. "
-                            "This recording will be skipped."
-                        )
+                        f"ERROR: existing labels for recording {recording.name} "
+                        "do not match the recording length. "
+                        "This recording will be skipped."
                     )
                     continue
             else:
                 existing_labels = None
 
             # load calibration data
-            if not os.path.isfile(self.recordings[recording_index].calibration_file):
+            if not os.path.isfile(recording.calibration_file):
                 self.show_message(
-                    (
-                        "ERROR: calibration file does not exist for recording "
-                        f"{self.recordings[recording_index].name}. "
-                        "This recording will be skipped."
-                    )
+                    f"ERROR: calibration file does not exist for recording "
+                    f"{recording.name}. This recording will be skipped."
                 )
                 continue
             try:
-                (
-                    mixture_means,
-                    mixture_sds,
-                ) = load_calibration_file(
-                    self.recordings[recording_index].calibration_file
+                mixture_means, mixture_sds = load_calibration_file(
+                    recording.calibration_file
                 )
             except Exception:
-                logger.exception(
-                    "Failed to load %s",
-                    self.recordings[recording_index].calibration_file,
-                )
+                logger.exception("Failed to load %s", recording.calibration_file)
                 self.show_message(
-                    (
-                        "ERROR: could not load calibration file for recording "
-                        f"{self.recordings[recording_index].name}. "
-                        "This recording will be skipped."
-                    )
+                    f"ERROR: could not load calibration file for recording "
+                    f"{recording.name}. This recording will be skipped."
                 )
                 continue
 
@@ -671,11 +617,7 @@ class AccuSleepWindow(QMainWindow):
                 labels=labels, filename=label_file, confidence_scores=confidence_scores
             )
             self.show_message(
-                (
-                    "Saved labels for recording "
-                    f"{self.recordings[recording_index].name} "
-                    f"to {label_file}"
-                )
+                f"Saved labels for recording {recording.name} to {label_file}"
             )
 
         if any_zero_variance:
@@ -771,20 +713,18 @@ class AccuSleepWindow(QMainWindow):
         :param status_widget: UI element on which to display error messages
         :return: EEG data, EMG data, sampling rate, process completion
         """
-        error_message = self.check_single_file_inputs(self.recording_index)
+        error_message = self.check_single_file_inputs(self.recording_manager.current)
         if error_message:
             status_widget.setText(error_message)
             self.show_message(f"ERROR: {error_message}")
             return None, None, None, False
 
         try:
-            eeg, emg = load_recording(
-                self.recordings[self.recording_index].recording_file
-            )
+            eeg, emg = load_recording(self.recording_manager.current.recording_file)
         except Exception:
             logger.exception(
                 "Failed to load %s",
-                self.recordings[self.recording_index].recording_file,
+                self.recording_manager.current.recording_file,
             )
             status_widget.setText("could not load recording")
             self.show_message(
@@ -795,7 +735,7 @@ class AccuSleepWindow(QMainWindow):
             )
             return None, None, None, False
 
-        sampling_rate = self.recordings[self.recording_index].sampling_rate
+        sampling_rate = self.recording_manager.current.sampling_rate
 
         eeg, emg, sampling_rate = resample_and_standardize(
             eeg=eeg,
@@ -822,7 +762,7 @@ class AccuSleepWindow(QMainWindow):
             return
 
         # load the labels
-        label_file = self.recordings[self.recording_index].label_file
+        label_file = self.recording_manager.current.label_file
         if not os.path.isfile(label_file):
             self.ui.calibration_status.setText("label file does not exist")
             self.show_message("ERROR: label file does not exist")
@@ -889,7 +829,7 @@ class AccuSleepWindow(QMainWindow):
         self.show_message(
             (
                 "Created calibration file using recording "
-                f"{self.recordings[self.recording_index].name} "
+                f"{self.recording_manager.current.name} "
                 f"at {filename}"
             )
         )
@@ -902,32 +842,30 @@ class AccuSleepWindow(QMainWindow):
                 )
             )
 
-        self.recordings[self.recording_index].calibration_file = filename
+        self.recording_manager.current.calibration_file = filename
         self.ui.calibration_file_label.setText(filename)
 
-    def check_single_file_inputs(self, recording_index: int) -> str | None:
+    def check_single_file_inputs(self, recording) -> str | None:
         """Check that a recording's inputs appear valid
 
         This runs some basic tests for whether it will be possible to
         load and score a recording. If any test fails, we return an
         error message.
 
-        :param recording_index: index of the recording in the list of
-            all recordings.
+        :param recording: the recording to validate
         :return: error message
         """
-        sampling_rate = self.recordings[recording_index].sampling_rate
         if self.epoch_length == 0:
             return "epoch length can't be 0"
-        if sampling_rate == 0:
+        if recording.sampling_rate == 0:
             return "sampling rate can't be 0"
-        if self.epoch_length > sampling_rate:
+        if self.epoch_length > recording.sampling_rate:
             return "invalid epoch length or sampling rate"
-        if self.recordings[self.recording_index].recording_file == "":
+        if recording.recording_file == "":
             return "no recording selected"
-        if not os.path.isfile(self.recordings[self.recording_index].recording_file):
+        if not os.path.isfile(recording.recording_file):
             return "recording file does not exist"
-        if self.recordings[self.recording_index].label_file == "":
+        if recording.label_file == "":
             return "no label file selected"
 
     def update_min_bout_length(self, new_value) -> None:
@@ -972,7 +910,7 @@ class AccuSleepWindow(QMainWindow):
 
         # if the labels exist, load them
         # otherwise, create a blank set of labels
-        label_file = self.recordings[self.recording_index].label_file
+        label_file = self.recording_manager.current.label_file
         if os.path.isfile(label_file):
             try:
                 labels, confidence_scores = load_labels(label_file)
@@ -1042,9 +980,7 @@ class AccuSleepWindow(QMainWindow):
                 self.show_message(f"ERROR: {label_error}")
                 return
 
-        self.show_message(
-            f"Viewing recording {self.recordings[self.recording_index].name}"
-        )
+        self.show_message(f"Viewing recording {self.recording_manager.current.name}")
         self.ui.manual_scoring_status.setText("file is open")
 
         # launch the manual scoring window
@@ -1070,7 +1006,7 @@ class AccuSleepWindow(QMainWindow):
             "*" + LABEL_FILE_TYPE,
         )
         if filename:
-            self.recordings[self.recording_index].label_file = filename
+            self.recording_manager.current.label_file = filename
             self.ui.label_file_label.setText(filename)
 
     def select_label_file(self) -> None:
@@ -1079,7 +1015,7 @@ class AccuSleepWindow(QMainWindow):
             self, "Select label file", "*" + LABEL_FILE_TYPE
         )
         if filename:
-            self.recordings[self.recording_index].label_file = filename
+            self.recording_manager.current.label_file = filename
             self.ui.label_file_label.setText(filename)
 
     def select_calibration_file(self) -> None:
@@ -1088,7 +1024,7 @@ class AccuSleepWindow(QMainWindow):
             self, "Select calibration file", "*" + CALIBRATION_FILE_TYPE
         )
         if filename:
-            self.recordings[self.recording_index].calibration_file = filename
+            self.recording_manager.current.calibration_file = filename
             self.ui.calibration_file_label.setText(filename)
 
     def select_recording_file(self) -> None:
@@ -1096,23 +1032,16 @@ class AccuSleepWindow(QMainWindow):
         file_filter = f"(*{' *'.join(RECORDING_FILE_TYPES)})"
         filename = select_existing_file(self, "Select recording file", file_filter)
         if filename:
-            self.recordings[self.recording_index].recording_file = filename
+            self.recording_manager.current.recording_file = filename
             self.ui.recording_file_label.setText(filename)
 
     def show_recording_info(self) -> None:
         """Update the UI to show info for the selected recording"""
-        self.ui.sampling_rate_input.setValue(
-            self.recordings[self.recording_index].sampling_rate
-        )
-        self.ui.recording_file_label.setText(
-            self.recordings[self.recording_index].recording_file
-        )
-        self.ui.label_file_label.setText(
-            self.recordings[self.recording_index].label_file
-        )
-        self.ui.calibration_file_label.setText(
-            self.recordings[self.recording_index].calibration_file
-        )
+        recording = self.recording_manager.current
+        self.ui.sampling_rate_input.setValue(recording.sampling_rate)
+        self.ui.recording_file_label.setText(recording.recording_file)
+        self.ui.label_file_label.setText(recording.label_file)
+        self.ui.calibration_file_label.setText(recording.calibration_file)
 
     def update_epoch_length(self, new_value: int | float) -> None:
         """Update the epoch length when the widget state changes
@@ -1126,7 +1055,7 @@ class AccuSleepWindow(QMainWindow):
 
         :param new_value: new sampling rate
         """
-        self.recordings[self.recording_index].sampling_rate = new_value
+        self.recording_manager.current.sampling_rate = new_value
 
     def show_message(self, message: str) -> None:
         """Display a new message to the user
@@ -1141,57 +1070,22 @@ class AccuSleepWindow(QMainWindow):
         scrollbar = self.ui.message_area.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
-    def select_recording(self, list_index: int) -> None:
-        """Callback for when a recording is selected
-
-        :param list_index: index of this recording in the list widget
-        """
-        # get index of this recording
-        self.recording_index = list_index
-        # display information about this recording
+    def select_recording(self, _index: int) -> None:
+        """Callback for when a recording is selected"""
         self.show_recording_info()
         self.ui.selected_recording_groupbox.setTitle(
-            f"Data / actions for Recording {self.recordings[list_index].name}"
+            f"Data / actions for Recording {self.recording_manager.current.name}"
         )
 
     def add_recording(self) -> None:
         """Add new recording to the list"""
-        # find name to use for the new recording
-        new_name = max([r.name for r in self.recordings]) + 1
-
-        # add new recording to list
-        self.recordings.append(
-            Recording(
-                name=new_name,
-                sampling_rate=self.recordings[self.recording_index].sampling_rate,
-                widget=QListWidgetItem(
-                    f"Recording {new_name}", self.ui.recording_list_widget
-                ),
-            )
-        )
-
-        # display new list
-        self.ui.recording_list_widget.addItem(self.recordings[-1].widget)
-        self.ui.recording_list_widget.setCurrentRow(len(self.recordings) - 1)
-        self.show_message(f"added Recording {new_name}")
+        current_sampling_rate = self.recording_manager.current.sampling_rate
+        recording = self.recording_manager.add(sampling_rate=current_sampling_rate)
+        self.show_message(f"added Recording {recording.name}")
 
     def remove_recording(self) -> None:
         """Delete selected recording from the list"""
-        if len(self.recordings) > 1:
-            current_list_index = self.ui.recording_list_widget.currentRow()
-            _ = self.ui.recording_list_widget.takeItem(current_list_index)
-            self.show_message(
-                f"deleted Recording {self.recordings[current_list_index].name}"
-            )
-            del self.recordings[current_list_index]
-            self.recording_index = self.ui.recording_list_widget.currentRow()
-        else:
-            # there's only one recording in the list, so reset it to defaults
-            recording_name = self.recordings[0].name
-            self.recordings[0] = Recording(widget=self.recordings[0].widget)
-            self.recordings[0].widget.setText(f"Recording {self.recordings[0].name}")
-            self.select_recording(0)
-            self.show_message(f"cleared Recording {recording_name}")
+        self.show_message(self.recording_manager.remove_current())
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
