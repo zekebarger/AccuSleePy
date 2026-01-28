@@ -70,6 +70,7 @@ from accusleepy.fileio import (
 )
 from accusleepy.gui.dialogs import select_existing_file, select_save_location
 from accusleepy.gui.manual_scoring import ManualScoringWindow
+from accusleepy.models import SSANN
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.signal_processing import (
     create_training_images,
@@ -105,6 +106,25 @@ class StateSettings:
     frequency_widget: QDoubleSpinBox
 
 
+@dataclass
+class LoadedModel:
+    """State for a loaded classification model"""
+
+    model: SSANN | None = None
+    epoch_length: int | float | None = None
+    epochs_per_img: int | None = None
+
+
+@dataclass
+class TrainingSettings:
+    """Settings for training a new model"""
+
+    epochs_per_img: int = 9
+    delete_images: bool = True
+    model_type: str = DEFAULT_MODEL_TYPE
+    calibrate: bool = True
+
+
 class AccuSleepWindow(QMainWindow):
     """AccuSleePy primary window"""
 
@@ -136,17 +156,12 @@ class AccuSleepWindow(QMainWindow):
         self.ui.overwritecheckbox.setChecked(self.only_overwrite_undefined)
         self.ui.save_confidence_checkbox.setChecked(self.save_confidence_scores)
         self.ui.bout_length_input.setValue(self.min_bout_length)
-        self.model = None
 
-        # initialize model training variables
-        self.training_epochs_per_img = 9
-        self.delete_training_images = True
-        self.model_type = DEFAULT_MODEL_TYPE
-        self.calibrate_trained_model = True
+        # loaded classification model and its metadata
+        self.loaded_model = LoadedModel()
 
-        # metadata for the currently loaded classification model
-        self.model_epoch_length = None
-        self.model_epochs_per_img = None
+        # settings for training new models
+        self.training = TrainingSettings()
 
         # set up the list of recordings
         first_recording = Recording(
@@ -231,7 +246,7 @@ class AccuSleepWindow(QMainWindow):
 
         :param default_selected: whether default option is selected
         """
-        self.model_type = (
+        self.training.model_type = (
             DEFAULT_MODEL_TYPE if default_selected else REAL_TIME_MODEL_TYPE
         )
 
@@ -313,8 +328,8 @@ class AccuSleepWindow(QMainWindow):
     def train_model(self) -> None:
         # check basic training inputs
         if (
-            self.model_type == DEFAULT_MODEL_TYPE
-            and self.training_epochs_per_img % 2 == 0
+            self.training.model_type == DEFAULT_MODEL_TYPE
+            and self.training.epochs_per_img % 2 == 0
         ):
             self.show_message(
                 (
@@ -325,7 +340,7 @@ class AccuSleepWindow(QMainWindow):
             return
 
         # determine fraction of training data to use for calibration
-        if self.calibrate_trained_model:
+        if self.training.calibrate:
             calibration_fraction = self.ui.calibration_spinbox.value() / 100
         else:
             calibration_fraction = 0
@@ -362,7 +377,7 @@ class AccuSleepWindow(QMainWindow):
 
         # create training images
         self.show_message("Training, please wait. See console for progress updates.")
-        if not self.delete_training_images:
+        if not self.training.delete_images:
             self.show_message((f"Creating training images in {temp_image_dir}"))
         else:
             self.show_message(
@@ -376,9 +391,9 @@ class AccuSleepWindow(QMainWindow):
                 recordings=self.recordings,
                 output_path=temp_image_dir,
                 epoch_length=self.epoch_length,
-                epochs_per_img=self.training_epochs_per_img,
+                epochs_per_img=self.training.epochs_per_img,
                 brain_state_set=self.brain_state_set,
-                model_type=self.model_type,
+                model_type=self.training.model_type,
                 calibration_fraction=calibration_fraction,
                 emg_filter=self.emg_filter,
             )
@@ -423,7 +438,7 @@ class AccuSleepWindow(QMainWindow):
         )
 
         # calibrate the model
-        if self.calibrate_trained_model:
+        if self.training.calibrate:
             calibration_annotation_file = os.path.join(
                 temp_image_dir, CALIBRATION_ANNOTATION_FILENAME
             )
@@ -441,14 +456,14 @@ class AccuSleepWindow(QMainWindow):
             model=model,
             filename=model_filename,
             epoch_length=self.epoch_length,
-            epochs_per_img=self.training_epochs_per_img,
-            model_type=self.model_type,
+            epochs_per_img=self.training.epochs_per_img,
+            model_type=self.training.model_type,
             brain_state_set=self.brain_state_set,
-            is_calibrated=self.calibrate_trained_model,
+            is_calibrated=self.training.calibrate,
         )
 
         # optionally delete images
-        if self.delete_training_images:
+        if self.training.delete_images:
             logger.info("Cleaning up training image folder")
             shutil.rmtree(temp_image_dir)
 
@@ -457,24 +472,24 @@ class AccuSleepWindow(QMainWindow):
 
     def update_image_deletion(self) -> None:
         """Update choice of whether to delete images after training"""
-        self.delete_training_images = self.ui.delete_image_box.isChecked()
+        self.training.delete_images = self.ui.delete_image_box.isChecked()
 
     def update_training_calibration(self) -> None:
         """Update choice of whether to calibrate model after training"""
-        self.calibrate_trained_model = self.ui.calibrate_checkbox.isChecked()
-        self.ui.calibration_spinbox.setEnabled(self.calibrate_trained_model)
+        self.training.calibrate = self.ui.calibrate_checkbox.isChecked()
+        self.ui.calibration_spinbox.setEnabled(self.training.calibrate)
 
     def update_epochs_per_img(self, new_value) -> None:
         """Update number of epochs per image
 
         :param new_value: new number of epochs per image
         """
-        self.training_epochs_per_img = new_value
+        self.training.epochs_per_img = new_value
 
     def score_all(self) -> None:
         """Score all recordings using the classification model"""
         # check basic inputs
-        if self.model is None:
+        if self.loaded_model.model is None:
             self.ui.score_all_status.setText("missing classification model")
             self.show_message("ERROR: no classification model file selected")
             return
@@ -482,12 +497,12 @@ class AccuSleepWindow(QMainWindow):
             self.ui.score_all_status.setText("invalid minimum bout length")
             self.show_message("ERROR: minimum bout length must be >= epoch length")
             return
-        if self.epoch_length != self.model_epoch_length:
+        if self.epoch_length != self.loaded_model.epoch_length:
             self.ui.score_all_status.setText("invalid epoch length")
             self.show_message(
                 (
                     "ERROR: model was trained with an epoch length of "
-                    f"{self.model_epoch_length} seconds, but the current "
+                    f"{self.loaded_model.epoch_length} seconds, but the current "
                     f"epoch length setting is {self.epoch_length} seconds."
                 )
             )
@@ -622,14 +637,14 @@ class AccuSleepWindow(QMainWindow):
                 any_zero_variance = True
 
             labels, confidence_scores = score_recording(
-                model=self.model,
+                model=self.loaded_model.model,
                 eeg=eeg,
                 emg=emg,
                 mixture_means=mixture_means,
                 mixture_sds=mixture_sds,
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
-                epochs_per_img=self.model_epochs_per_img,
+                epochs_per_img=self.loaded_model.epochs_per_img,
                 brain_state_set=self.brain_state_set,
                 emg_filter=self.emg_filter,
             )
@@ -722,9 +737,9 @@ class AccuSleepWindow(QMainWindow):
             )
             return
 
-        self.model = model
-        self.model_epoch_length = epoch_length
-        self.model_epochs_per_img = epochs_per_img
+        self.loaded_model.model = model
+        self.loaded_model.epoch_length = epoch_length
+        self.loaded_model.epochs_per_img = epochs_per_img
 
         # warn user if the model's expected epoch length or brain states
         # don't match the current configuration
