@@ -1074,10 +1074,6 @@ class AccuSleepWindow(QMainWindow):
         self.popup.setGeometry(QRect(100, 100, 600, 600))
         self.popup.show()
 
-    # def _on_save_config(self) -> None:
-    #     """Handle save config button click"""
-    #     self.config.save_config()
-
 
 def run_primary_window() -> None:
     logging.basicConfig(

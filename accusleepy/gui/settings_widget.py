@@ -305,6 +305,7 @@ class SettingsWidget(QObject):
         self._ui.save_config_status.setText("")
 
     def reset_status_message(self, _new_value=None) -> None:
+        """Clear the message next to the 'save' button"""
         self._ui.save_config_status.setText("")
 
     def check_validity(self) -> str | None:
