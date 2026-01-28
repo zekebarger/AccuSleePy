@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 import numpy as np
+import pandas as pd
 
 from accusleepy.bouts import enforce_min_bout_length
 from accusleepy.brain_state_set import BrainStateSet
@@ -21,6 +22,8 @@ from accusleepy.constants import (
     DEFAULT_MODEL_TYPE,
     MIN_EPOCHS_PER_STATE,
     UNDEFINED_LABEL,
+    MIXTURE_MEAN_COL,
+    MIXTURE_SD_COL,
 )
 from accusleepy.fileio import (
     EMGFilter,
@@ -35,6 +38,8 @@ from accusleepy.models import SSANN
 from accusleepy.signal_processing import (
     create_training_images,
     resample_and_standardize,
+    create_eeg_emg_image,
+    get_mixture_values,
 )
 from accusleepy.validation import check_label_validity
 
@@ -551,19 +556,14 @@ def create_calibration(
                 )
 
     # Create calibration file
-    from accusleepy.classification import (
-        create_calibration_file as create_calibration_file_impl,
-    )
-
-    had_zero_variance = create_calibration_file_impl(
-        filename=output_filename,
-        eeg=eeg,
-        emg=emg,
-        labels=labels,
-        sampling_rate=sampling_rate,
-        epoch_length=epoch_length,
+    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
+    mixture_means, mixture_sds = get_mixture_values(
+        img=img,
+        labels=brain_state_set.convert_digit_to_class(labels),
         brain_state_set=brain_state_set,
-        emg_filter=emg_filter,
+    )
+    pd.DataFrame({MIXTURE_MEAN_COL: mixture_means, MIXTURE_SD_COL: mixture_sds}).to_csv(
+        output_filename, index=False
     )
 
     result.messages.append(
@@ -571,7 +571,7 @@ def create_calibration(
         f"at {output_filename}"
     )
 
-    if had_zero_variance:
+    if np.any(mixture_sds == 0):
         result.warnings.append(
             "One or more features derived from the data have "
             "zero variance. This could indicate that the EEG or "
