@@ -60,8 +60,6 @@ from accusleepy.validation import validate_and_correct_labels
 from accusleepy.signal_processing import resample_and_standardize
 from accusleepy.validation import check_config_consistency
 
-# note: functions using torch or scipy are lazily imported
-
 logger = logging.getLogger(__name__)
 
 # on Windows, prevent dark mode from changing the visual style
