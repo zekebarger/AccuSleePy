@@ -40,7 +40,7 @@ class SSANN(nn.Module):
 
 
 def save_model(
-    model: SSANN,
+    model: SSANN | ModelWithTemperature,
     filename: str,
     epoch_length: int | float,
     epochs_per_img: int,
