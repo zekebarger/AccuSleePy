@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'primary_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.9.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -3153,16 +3153,16 @@ class Ui_PrimaryWindow(object):
             QCoreApplication.translate(
                 "PrimaryWindow",
                 "This is the current set of brain states. Important notes:\n"
-                "- You must click 'Save settings' to store any changes.\n"
+                "- You must click 'Save settings' for changes to take effect.\n"
                 "- Changing these settings can prevent existing label files, calibration files, and trained models from working properly.\n"
                 "- Reinstalling AccuSleePy will overwrite this configuration.\n"
                 "\n"
                 "Each brain state has several attributes:\n"
-                "- Digit: how the brain state is represented in label files, and keyboard shortcut for this state in manual scoring.\n"
+                "- Digit: the indicator for this state in label files, and the keyboard shortcut for this state in manual scoring.\n"
                 "- Enabled: whether a brain state for this digit exists.\n"
                 "- Name: unique name of the brain state (e.g., REM).\n"
-                "- Scored: whether a classification model should output this brain state. If a state  corresponds to missing/corrupted data, you probably want to uncheck this box.\n"
-                "- Frequency: approximate relative frequency of this brain state. Does not need to be very accurate. Frequencies for all scored states must sum to 1.",
+                "- Scored: whether a classification model should output this brain state. If a state corresponds to missing/corrupted data, you probably want to uncheck this box.\n"
+                "- Frequency: approximate relative frequency of this brain state. Does not need to be very accurate. Frequencies for scored states must sum to 1.",
                 None,
             )
         )
@@ -3255,7 +3255,7 @@ class Ui_PrimaryWindow(object):
         self.ui_default_description_label.setText(
             QCoreApplication.translate(
                 "PrimaryWindow",
-                "<html><head/><body><p>These are the default values/settings that are shown in the primary window and manual scoring window when they start up.</p><p>Changes here will not affect the **current** state of the controls in the &quot;Sleep scoring&quot; tab.</p></body></html>",
+                "<html><head/><body><p>These are the default values/settings that are shown in the primary window and manual scoring window when they start up.</p><p>Changes here will not affect the **current** state of the controls in the &quot;Sleep scoring&quot; tab.</p><p>You must click 'Save settings' for changes to take effect.</p></body></html>",
                 None,
             )
         )
@@ -3280,9 +3280,7 @@ class Ui_PrimaryWindow(object):
         self.emg_filter_description_label.setText(
             QCoreApplication.translate(
                 "PrimaryWindow",
-                "EMG power is calculated as the root-mean-square of the EMG signal in each epoch after a bandpass filter is applied. You can change the proprties of that filter here. If the manual scoring window displays the EMG signal but not the EMG power, you can try lowering the filter order to 4.\n"
-                "\n"
-                "Changing these settings can prevent existing classification models and calibration files from working as expected. You will probably want to recreate them using your new settings.",
+                "<html><head/><body><p>EMG power is calculated as the root-mean-square of the EMG signal in each epoch after a bandpass filter is applied. You can change the proprties of that filter here. If the manual scoring window displays the EMG signal but not the EMG power, you can try lowering the filter order to 4.</p><p>Changing these settings can prevent existing classification models and calibration files from working as expected. You will probably want to recreate them using your new settings.</p><p>You must click 'Save settings' for changes to take effect.</p></body></html>",
                 None,
             )
         )

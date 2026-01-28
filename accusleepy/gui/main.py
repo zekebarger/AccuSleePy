@@ -22,8 +22,6 @@ from PySide6.QtCore import (
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
-    QCheckBox,
-    QDoubleSpinBox,
     QLabel,
     QMainWindow,
     QTextBrowser,
@@ -32,19 +30,12 @@ from PySide6.QtWidgets import (
 )
 
 from accusleepy.bouts import enforce_min_bout_length
-from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
+from accusleepy.brain_state_set import BRAIN_STATES_KEY
 from accusleepy.constants import (
     ANNOTATIONS_FILENAME,
     CALIBRATION_ANNOTATION_FILENAME,
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
-    DEFAULT_EMG_FILTER_ORDER,
-    DEFAULT_EMG_BP_LOWER,
-    DEFAULT_EMG_BP_UPPER,
-    DEFAULT_BATCH_SIZE,
-    DEFAULT_LEARNING_RATE,
-    DEFAULT_MOMENTUM,
-    DEFAULT_TRAINING_EPOCHS,
     LABEL_FILE_TYPE,
     MESSAGE_BOX_MAX_DEPTH,
     MIN_EPOCHS_PER_STATE,
@@ -59,15 +50,13 @@ from accusleepy.fileio import (
     load_config,
     load_labels,
     load_recording,
-    save_config,
     save_labels,
-    EMGFilter,
-    Hyperparameters,
 )
 from accusleepy.gui.dialogs import select_existing_file, select_save_location
 from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.gui.recording_manager import RecordingListManager
+from accusleepy.gui.settings_widget import SettingsWidget
 from accusleepy.models import SSANN
 from accusleepy.signal_processing import (
     create_training_images,
@@ -90,17 +79,6 @@ if os.name == "nt":
 
 # relative path to user manual
 MAIN_GUIDE_FILE = os.path.normpath(r"text/main_guide.md")
-
-
-@dataclass
-class StateSettings:
-    """Widgets for config settings for a brain state"""
-
-    digit: int
-    enabled_widget: QCheckBox
-    name_widget: QLabel
-    is_scored_widget: QCheckBox
-    frequency_widget: QDoubleSpinBox
 
 
 @dataclass
@@ -133,20 +111,17 @@ class AccuSleepWindow(QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("AccuSleePy")
 
-        # fill in settings tab
-        config = load_config()
-        self.brain_state_set = config.brain_state_set
-        self.epoch_length = config.default_epoch_length
-        self.only_overwrite_undefined = config.overwrite_setting
-        self.save_confidence_scores = config.save_confidence_setting
-        self.min_bout_length = config.min_bout_length
-        self.emg_filter = config.emg_filter
-        self.hyperparameters = config.hyperparameters
-        self.default_epochs_to_show = config.epochs_to_show
-        self.default_autoscroll_state = config.autoscroll_state
+        # Load configuration
+        loaded_config = load_config()
 
-        self.settings_widgets = None
-        self.initialize_settings_tab()
+        # Session-level settings (controlled by main tab UI, can differ from saved defaults)
+        self.epoch_length = loaded_config.default_epoch_length
+        self.only_overwrite_undefined = loaded_config.overwrite_setting
+        self.save_confidence_scores = loaded_config.save_confidence_setting
+        self.min_bout_length = loaded_config.min_bout_length
+
+        # Initialize settings tab (manages Settings tab UI and saved config values)
+        self.config = SettingsWidget(ui=self.ui, config=loaded_config, parent=self)
 
         # initialize info about the recordings, classification data / settings
         self.ui.epoch_length_input.setValue(self.epoch_length)
@@ -215,14 +190,12 @@ class AccuSleepWindow(QMainWindow):
             self.update_training_calibration
         )
         self.ui.train_model_button.clicked.connect(self.train_model)
-        self.ui.save_config_button.clicked.connect(self.save_brain_state_config)
+        self.ui.save_config_button.clicked.connect(self.config.save_config)
         self.ui.export_button.clicked.connect(self.export_recording_list)
         self.ui.import_button.clicked.connect(self.import_recording_list)
         self.ui.default_type_button.toggled.connect(self.model_type_radio_buttons)
-        self.ui.reset_emg_params_button.clicked.connect(self.reset_emg_filter_settings)
-        self.ui.reset_hyperparams_button.clicked.connect(
-            self.reset_hyperparams_settings
-        )
+        self.ui.reset_emg_params_button.clicked.connect(self.config.reset_emg_filter)
+        self.ui.reset_hyperparams_button.clicked.connect(self.config.reset_hyperparams)
 
         # user input: drag and drop
         self.ui.recording_file_label.installEventFilter(self)
@@ -371,10 +344,10 @@ class AccuSleepWindow(QMainWindow):
                 output_path=temp_image_dir,
                 epoch_length=self.epoch_length,
                 epochs_per_img=self.training.epochs_per_img,
-                brain_state_set=self.brain_state_set,
+                brain_state_set=self.config.brain_state_set,
                 model_type=self.training.model_type,
                 calibration_fraction=calibration_fraction,
-                emg_filter=self.emg_filter,
+                emg_filter=self.config.emg_filter,
             )
         )
         if had_zero_variance:
@@ -412,8 +385,8 @@ class AccuSleepWindow(QMainWindow):
             annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
             img_dir=temp_image_dir,
             training_class_balance=training_class_balance,
-            n_classes=self.brain_state_set.n_classes,
-            hyperparameters=self.hyperparameters,
+            n_classes=self.config.brain_state_set.n_classes,
+            hyperparameters=self.config.hyperparameters,
         )
 
         # calibrate the model
@@ -424,7 +397,7 @@ class AccuSleepWindow(QMainWindow):
             calibration_dataloader = create_dataloader(
                 annotations_file=calibration_annotation_file,
                 img_dir=temp_image_dir,
-                hyperparameters=self.hyperparameters,
+                hyperparameters=self.config.hyperparameters,
             )
             model = ModelWithTemperature(model)
             logger.info("Calibrating model")
@@ -437,7 +410,7 @@ class AccuSleepWindow(QMainWindow):
             epoch_length=self.epoch_length,
             epochs_per_img=self.training.epochs_per_img,
             model_type=self.training.model_type,
-            brain_state_set=self.brain_state_set,
+            brain_state_set=self.config.brain_state_set,
             is_calibrated=self.training.calibrate,
         )
 
@@ -591,8 +564,8 @@ class AccuSleepWindow(QMainWindow):
                 sampling_rate=sampling_rate,
                 epoch_length=self.epoch_length,
                 epochs_per_img=self.loaded_model.epochs_per_img,
-                brain_state_set=self.brain_state_set,
-                emg_filter=self.emg_filter,
+                brain_state_set=self.config.brain_state_set,
+                emg_filter=self.config.emg_filter,
             )
 
             # overwrite as needed
@@ -686,7 +659,7 @@ class AccuSleepWindow(QMainWindow):
         # warn user if the model's expected epoch length or brain states
         # don't match the current configuration
         config_warnings = check_config_consistency(
-            current_brain_states=self.brain_state_set.to_output_dict()[
+            current_brain_states=self.config.brain_state_set.to_output_dict()[
                 BRAIN_STATES_KEY
             ],
             model_brain_states=brain_states,
@@ -785,7 +758,7 @@ class AccuSleepWindow(QMainWindow):
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
-            brain_state_set=self.brain_state_set,
+            brain_state_set=self.config.brain_state_set,
         )
         if label_error_message:
             self.ui.calibration_status.setText("invalid label file")
@@ -793,7 +766,7 @@ class AccuSleepWindow(QMainWindow):
             return
 
         # check that each scored brain state has sufficient observations
-        for brain_state in self.brain_state_set.brain_states:
+        for brain_state in self.config.brain_state_set.brain_states:
             if brain_state.is_scored:
                 count = np.sum(labels == brain_state.digit)
                 if count < MIN_EPOCHS_PER_STATE:
@@ -821,8 +794,8 @@ class AccuSleepWindow(QMainWindow):
             labels=labels,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
-            brain_state_set=self.brain_state_set,
-            emg_filter=self.emg_filter,
+            brain_state_set=self.config.brain_state_set,
+            emg_filter=self.config.emg_filter,
         )
 
         self.ui.calibration_status.setText("")
@@ -940,7 +913,7 @@ class AccuSleepWindow(QMainWindow):
             samples_in_recording=eeg.size,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
-            brain_state_set=self.brain_state_set,
+            brain_state_set=self.config.brain_state_set,
         )
         if label_error:
             # if the label length is only off by one, pad or truncate as needed
@@ -992,7 +965,7 @@ class AccuSleepWindow(QMainWindow):
             confidence_scores=confidence_scores,
             sampling_rate=sampling_rate,
             epoch_length=self.epoch_length,
-            emg_filter=self.emg_filter,
+            emg_filter=self.config.emg_filter,
         )
         manual_scoring_window.setWindowTitle(f"AccuSleePy viewer: {label_file}")
         manual_scoring_window.exec()
@@ -1101,307 +1074,9 @@ class AccuSleepWindow(QMainWindow):
         self.popup.setGeometry(QRect(100, 100, 600, 600))
         self.popup.show()
 
-    def initialize_settings_tab(self):
-        """Populate settings tab and assign its callbacks"""
-        # store dictionary that maps digits to rows of widgets
-        # in the settings tab
-        self.settings_widgets = {
-            1: StateSettings(
-                digit=1,
-                enabled_widget=self.ui.enable_state_1,
-                name_widget=self.ui.state_name_1,
-                is_scored_widget=self.ui.state_scored_1,
-                frequency_widget=self.ui.state_frequency_1,
-            ),
-            2: StateSettings(
-                digit=2,
-                enabled_widget=self.ui.enable_state_2,
-                name_widget=self.ui.state_name_2,
-                is_scored_widget=self.ui.state_scored_2,
-                frequency_widget=self.ui.state_frequency_2,
-            ),
-            3: StateSettings(
-                digit=3,
-                enabled_widget=self.ui.enable_state_3,
-                name_widget=self.ui.state_name_3,
-                is_scored_widget=self.ui.state_scored_3,
-                frequency_widget=self.ui.state_frequency_3,
-            ),
-            4: StateSettings(
-                digit=4,
-                enabled_widget=self.ui.enable_state_4,
-                name_widget=self.ui.state_name_4,
-                is_scored_widget=self.ui.state_scored_4,
-                frequency_widget=self.ui.state_frequency_4,
-            ),
-            5: StateSettings(
-                digit=5,
-                enabled_widget=self.ui.enable_state_5,
-                name_widget=self.ui.state_name_5,
-                is_scored_widget=self.ui.state_scored_5,
-                frequency_widget=self.ui.state_frequency_5,
-            ),
-            6: StateSettings(
-                digit=6,
-                enabled_widget=self.ui.enable_state_6,
-                name_widget=self.ui.state_name_6,
-                is_scored_widget=self.ui.state_scored_6,
-                frequency_widget=self.ui.state_frequency_6,
-            ),
-            7: StateSettings(
-                digit=7,
-                enabled_widget=self.ui.enable_state_7,
-                name_widget=self.ui.state_name_7,
-                is_scored_widget=self.ui.state_scored_7,
-                frequency_widget=self.ui.state_frequency_7,
-            ),
-            8: StateSettings(
-                digit=8,
-                enabled_widget=self.ui.enable_state_8,
-                name_widget=self.ui.state_name_8,
-                is_scored_widget=self.ui.state_scored_8,
-                frequency_widget=self.ui.state_frequency_8,
-            ),
-            9: StateSettings(
-                digit=9,
-                enabled_widget=self.ui.enable_state_9,
-                name_widget=self.ui.state_name_9,
-                is_scored_widget=self.ui.state_scored_9,
-                frequency_widget=self.ui.state_frequency_9,
-            ),
-            0: StateSettings(
-                digit=0,
-                enabled_widget=self.ui.enable_state_0,
-                name_widget=self.ui.state_name_0,
-                is_scored_widget=self.ui.state_scored_0,
-                frequency_widget=self.ui.state_frequency_0,
-            ),
-        }
-
-        # update widget state to display current config
-        # UI defaults
-        self.ui.default_epoch_input.setValue(self.epoch_length)
-        self.ui.overwrite_default_checkbox.setChecked(self.only_overwrite_undefined)
-        self.ui.confidence_setting_checkbox.setChecked(self.save_confidence_scores)
-        self.ui.default_min_bout_length_spinbox.setValue(self.min_bout_length)
-        self.ui.epochs_to_show_spinbox.setValue(self.default_epochs_to_show)
-        self.ui.autoscroll_checkbox.setChecked(self.default_autoscroll_state)
-        # EMG filter
-        self.ui.emg_order_spinbox.setValue(self.emg_filter.order)
-        self.ui.bp_lower_spinbox.setValue(self.emg_filter.bp_lower)
-        self.ui.bp_upper_spinbox.setValue(self.emg_filter.bp_upper)
-        # model training hyperparameters
-        self.ui.batch_size_spinbox.setValue(self.hyperparameters.batch_size)
-        self.ui.learning_rate_spinbox.setValue(self.hyperparameters.learning_rate)
-        self.ui.momentum_spinbox.setValue(self.hyperparameters.momentum)
-        self.ui.training_epochs_spinbox.setValue(self.hyperparameters.training_epochs)
-        # brain states
-        states = {b.digit: b for b in self.brain_state_set.brain_states}
-        for digit in range(10):
-            if digit in states.keys():
-                self.settings_widgets[digit].enabled_widget.setChecked(True)
-                self.settings_widgets[digit].name_widget.setText(states[digit].name)
-                self.settings_widgets[digit].is_scored_widget.setChecked(
-                    states[digit].is_scored
-                )
-                self.settings_widgets[digit].frequency_widget.setValue(
-                    states[digit].frequency
-                )
-            else:
-                self.settings_widgets[digit].enabled_widget.setChecked(False)
-                self.settings_widgets[digit].name_widget.setEnabled(False)
-                self.settings_widgets[digit].is_scored_widget.setEnabled(False)
-                self.settings_widgets[digit].frequency_widget.setEnabled(False)
-
-        # set callbacks
-        self.ui.emg_order_spinbox.valueChanged.connect(self.emg_filter_order_changed)
-        self.ui.bp_lower_spinbox.valueChanged.connect(self.emg_filter_bp_lower_changed)
-        self.ui.bp_upper_spinbox.valueChanged.connect(self.emg_filter_bp_upper_changed)
-        self.ui.batch_size_spinbox.valueChanged.connect(self.hyperparameters_changed)
-        self.ui.learning_rate_spinbox.valueChanged.connect(self.hyperparameters_changed)
-        self.ui.momentum_spinbox.valueChanged.connect(self.hyperparameters_changed)
-        self.ui.training_epochs_spinbox.valueChanged.connect(
-            self.hyperparameters_changed
-        )
-        for digit in range(10):
-            state = self.settings_widgets[digit]
-            state.enabled_widget.stateChanged.connect(
-                partial(self.set_brain_state_enabled, digit)
-            )
-            state.name_widget.editingFinished.connect(self.check_config_validity)
-            state.is_scored_widget.stateChanged.connect(
-                partial(self.is_scored_changed, digit)
-            )
-            state.frequency_widget.valueChanged.connect(self.check_config_validity)
-
-    def set_brain_state_enabled(self, digit, e) -> None:
-        """Called when user clicks "enabled" checkbox
-
-        :param digit: brain state digit
-        :param e: unused but mandatory
-        """
-        # get the widgets for this brain state
-        state = self.settings_widgets[digit]
-        # update state of these widgets
-        is_checked = state.enabled_widget.isChecked()
-        for widget in [
-            state.name_widget,
-            state.is_scored_widget,
-        ]:
-            widget.setEnabled(is_checked)
-        state.frequency_widget.setEnabled(
-            is_checked and state.is_scored_widget.isChecked()
-        )
-        if not is_checked:
-            state.name_widget.setText("")
-            state.frequency_widget.setValue(0)
-        # check that configuration is valid
-        _ = self.check_config_validity()
-
-    def is_scored_changed(self, digit, e) -> None:
-        """Called when user sets whether a state is scored
-
-        :param digit: brain state digit
-        :param e: unused, but mandatory
-        """
-        # get the widgets for this brain state
-        state = self.settings_widgets[digit]
-        # update the state of these widgets
-        is_checked = state.is_scored_widget.isChecked()
-        state.frequency_widget.setEnabled(is_checked)
-        if not is_checked:
-            state.frequency_widget.setValue(0)
-        # check that configuration is valid
-        _ = self.check_config_validity()
-
-    def emg_filter_order_changed(self, new_value: int) -> None:
-        """Called when user modifies EMG filter order
-
-        :param new_value: new EMG filter order
-        """
-        self.emg_filter.order = new_value
-
-    def emg_filter_bp_lower_changed(self, new_value: int | float) -> None:
-        """Called when user modifies EMG filter lower cutoff
-
-        :param new_value: new lower bandpass cutoff frequency
-        """
-        self.emg_filter.bp_lower = new_value
-        _ = self.check_config_validity()
-
-    def emg_filter_bp_upper_changed(self, new_value: int | float) -> None:
-        """Called when user modifies EMG filter upper cutoff
-
-        :param new_value: new upper bandpass cutoff frequency
-        """
-        self.emg_filter.bp_upper = new_value
-        _ = self.check_config_validity()
-
-    def hyperparameters_changed(self, new_value) -> None:
-        """Called when user modifies model training hyperparameters
-
-        :param new_value: unused
-        """
-        self.hyperparameters = Hyperparameters(
-            batch_size=self.ui.batch_size_spinbox.value(),
-            learning_rate=self.ui.learning_rate_spinbox.value(),
-            momentum=self.ui.momentum_spinbox.value(),
-            training_epochs=self.ui.training_epochs_spinbox.value(),
-        )
-
-    def check_config_validity(self) -> str:
-        """Check if brain state configuration on screen is valid"""
-        # error message, if we get one
-        message = None
-
-        # strip whitespace from brain state names and update display
-        for digit in range(10):
-            state = self.settings_widgets[digit]
-            current_name = state.name_widget.text()
-            formatted_name = current_name.strip()
-            if current_name != formatted_name:
-                state.name_widget.setText(formatted_name)
-
-        # check if names are unique and frequencies add up to 1
-        names = []
-        frequencies = []
-        for digit in range(10):
-            state = self.settings_widgets[digit]
-            if state.enabled_widget.isChecked():
-                names.append(state.name_widget.text())
-                frequencies.append(state.frequency_widget.value())
-        if len(names) != len(set(names)):
-            message = "Error: names must be unique"
-        if sum(frequencies) != 1:
-            message = "Error: sum(frequencies) != 1"
-
-        # check validity of EMG filter settings
-        if self.emg_filter.bp_lower >= self.emg_filter.bp_upper:
-            message = "Error: EMG filter cutoff frequencies are invalid"
-
-        if message is not None:
-            self.ui.save_config_status.setText(message)
-            self.ui.save_config_button.setEnabled(False)
-            return message
-
-        self.ui.save_config_button.setEnabled(True)
-        self.ui.save_config_status.setText("")
-
-    def save_brain_state_config(self):
-        """Save configuration to file"""
-        # check that configuration is valid
-        error_message = self.check_config_validity()
-        if error_message is not None:
-            return
-
-        # build a BrainStateMapper object from the current configuration
-        brain_states = list()
-        for digit in range(10):
-            state = self.settings_widgets[digit]
-            if state.enabled_widget.isChecked():
-                brain_states.append(
-                    BrainState(
-                        name=state.name_widget.text(),
-                        digit=digit,
-                        is_scored=state.is_scored_widget.isChecked(),
-                        frequency=state.frequency_widget.value(),
-                    )
-                )
-        self.brain_state_set = BrainStateSet(brain_states, UNDEFINED_LABEL)
-
-        # save to file
-        save_config(
-            brain_state_set=self.brain_state_set,
-            default_epoch_length=self.ui.default_epoch_input.value(),
-            overwrite_setting=self.ui.overwrite_default_checkbox.isChecked(),
-            save_confidence_setting=self.ui.confidence_setting_checkbox.isChecked(),
-            min_bout_length=self.ui.default_min_bout_length_spinbox.value(),
-            emg_filter=EMGFilter(
-                order=self.emg_filter.order,
-                bp_lower=self.emg_filter.bp_lower,
-                bp_upper=self.emg_filter.bp_upper,
-            ),
-            hyperparameters=Hyperparameters(
-                batch_size=self.hyperparameters.batch_size,
-                learning_rate=self.hyperparameters.learning_rate,
-                momentum=self.hyperparameters.momentum,
-                training_epochs=self.hyperparameters.training_epochs,
-            ),
-            epochs_to_show=self.ui.epochs_to_show_spinbox.value(),
-            autoscroll_state=self.ui.autoscroll_checkbox.isChecked(),
-        )
-        self.ui.save_config_status.setText("configuration saved")
-
-    def reset_emg_filter_settings(self) -> None:
-        self.ui.emg_order_spinbox.setValue(DEFAULT_EMG_FILTER_ORDER)
-        self.ui.bp_lower_spinbox.setValue(DEFAULT_EMG_BP_LOWER)
-        self.ui.bp_upper_spinbox.setValue(DEFAULT_EMG_BP_UPPER)
-
-    def reset_hyperparams_settings(self):
-        self.ui.batch_size_spinbox.setValue(DEFAULT_BATCH_SIZE)
-        self.ui.learning_rate_spinbox.setValue(DEFAULT_LEARNING_RATE)
-        self.ui.momentum_spinbox.setValue(DEFAULT_MOMENTUM)
-        self.ui.training_epochs_spinbox.setValue(DEFAULT_TRAINING_EPOCHS)
+    # def _on_save_config(self) -> None:
+    #     """Handle save config button click"""
+    #     self.config.save_config()
 
 
 def run_primary_window() -> None:

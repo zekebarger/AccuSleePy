@@ -223,6 +223,7 @@ def save_config(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "w"
     ) as f:
         json.dump(output_dict, f, indent=4)
+        f.write("\n")
 
 
 def load_recording_list(filename: str) -> list[Recording]:
