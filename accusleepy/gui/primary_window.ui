@@ -3750,16 +3750,16 @@ color: rgb(244, 195, 68);</string>
                     </property>
                     <property name="text">
                      <string>This is the current set of brain states. Important notes:
-- You must click 'Save settings' to store any changes.
+- You must click 'Save settings' for changes to take effect.
 - Changing these settings can prevent existing label files, calibration files, and trained models from working properly.
 - Reinstalling AccuSleePy will overwrite this configuration.
 
 Each brain state has several attributes:
-- Digit: how the brain state is represented in label files, and keyboard shortcut for this state in manual scoring.
+- Digit: the indicator for this state in label files, and the keyboard shortcut for this state in manual scoring.
 - Enabled: whether a brain state for this digit exists.
 - Name: unique name of the brain state (e.g., REM).
-- Scored: whether a classification model should output this brain state. If a state  corresponds to missing/corrupted data, you probably want to uncheck this box.
-- Frequency: approximate relative frequency of this brain state. Does not need to be very accurate. Frequencies for all scored states must sum to 1.</string>
+- Scored: whether a classification model should output this brain state. If a state corresponds to missing/corrupted data, you probably want to uncheck this box.
+- Frequency: approximate relative frequency of this brain state. Does not need to be very accurate. Frequencies for scored states must sum to 1.</string>
                     </property>
                     <property name="textFormat">
                      <enum>Qt::TextFormat::MarkdownText</enum>
@@ -4112,7 +4112,7 @@ Each brain state has several attributes:
                      <string notr="true">background-color: white;</string>
                     </property>
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These are the default values/settings that are shown in the primary window and manual scoring window when they start up.&lt;/p&gt;&lt;p&gt;Changes here will not affect the **current** state of the controls in the &amp;quot;Sleep scoring&amp;quot; tab.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These are the default values/settings that are shown in the primary window and manual scoring window when they start up.&lt;/p&gt;&lt;p&gt;Changes here will not affect the **current** state of the controls in the &amp;quot;Sleep scoring&amp;quot; tab.&lt;/p&gt;&lt;p&gt;You must click 'Save settings' for changes to take effect.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="textFormat">
                      <enum>Qt::TextFormat::MarkdownText</enum>
@@ -4364,9 +4364,7 @@ Each brain state has several attributes:
                      <string notr="true">background-color: white;</string>
                     </property>
                     <property name="text">
-                     <string>EMG power is calculated as the root-mean-square of the EMG signal in each epoch after a bandpass filter is applied. You can change the proprties of that filter here. If the manual scoring window displays the EMG signal but not the EMG power, you can try lowering the filter order to 4.
-
-Changing these settings can prevent existing classification models and calibration files from working as expected. You will probably want to recreate them using your new settings.</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;EMG power is calculated as the root-mean-square of the EMG signal in each epoch after a bandpass filter is applied. You can change the proprties of that filter here. If the manual scoring window displays the EMG signal but not the EMG power, you can try lowering the filter order to 4.&lt;/p&gt;&lt;p&gt;Changing these settings can prevent existing classification models and calibration files from working as expected. You will probably want to recreate them using your new settings.&lt;/p&gt;&lt;p&gt;You must click 'Save settings' for changes to take effect.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>

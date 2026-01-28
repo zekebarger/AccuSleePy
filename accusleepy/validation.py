@@ -46,6 +46,71 @@ def check_label_validity(
     return None
 
 
+def validate_and_correct_labels(
+    labels: np.ndarray,
+    confidence_scores: np.ndarray | None,
+    samples_in_recording: int,
+    sampling_rate: int | float,
+    epoch_length: int | float,
+    brain_state_set: BrainStateSet,
+) -> tuple[np.ndarray | None, np.ndarray | None, str | None]:
+    """Validate labels and attempt to correct minor length mismatches.
+
+    If the label array is off by exactly one epoch, it will be padded or
+    truncated and a warning will be returned.
+
+    :param labels: brain state labels
+    :param confidence_scores: optional confidence scores
+    :param samples_in_recording: number of samples in the recording
+    :param sampling_rate: sampling rate in Hz
+    :param epoch_length: epoch length in seconds
+    :param brain_state_set: set of brain state options
+    :return: (labels, confidence_scores, message) - if labels is None,
+        message is an error. Otherwise, any message is a warning
+    """
+    label_error = check_label_validity(
+        labels=labels,
+        confidence_scores=confidence_scores,
+        samples_in_recording=samples_in_recording,
+        sampling_rate=sampling_rate,
+        epoch_length=epoch_length,
+        brain_state_set=brain_state_set,
+    )
+
+    if not label_error:
+        return labels, confidence_scores, None
+
+    # If length is off by one, try to correct it
+    if label_error == LABEL_LENGTH_ERROR:
+        samples_per_epoch = round(sampling_rate * epoch_length)
+        epochs_in_recording = round(samples_in_recording / samples_per_epoch)
+
+        if epochs_in_recording - labels.size == 1:
+            # Pad with one undefined label
+            labels = np.concatenate((labels, np.array([UNDEFINED_LABEL])))
+            if confidence_scores is not None:
+                confidence_scores = np.concatenate((confidence_scores, np.array([0])))
+            return (
+                labels,
+                confidence_scores,
+                "An undefined epoch was added to the label file to correct its length.",
+            )
+
+        if labels.size - epochs_in_recording == 1:
+            # Truncate by one label
+            labels = labels[:-1]
+            if confidence_scores is not None:
+                confidence_scores = confidence_scores[:-1]
+            return (
+                labels,
+                confidence_scores,
+                "The last epoch was removed from the label file to correct its length.",
+            )
+
+    # error could not be fixed
+    return None, None, label_error
+
+
 def check_config_consistency(
     current_brain_states: dict,
     model_brain_states: dict,

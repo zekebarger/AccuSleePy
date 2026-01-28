@@ -16,7 +16,6 @@ from accusleepy.models import SSANN
 from accusleepy.signal_processing import (
     create_eeg_emg_image,
     format_img,
-    get_mixture_values,
     mixture_z_score_img,
 )
 
@@ -264,45 +263,3 @@ def example_real_time_scoring_function(
 
     label = int(brain_state_set.convert_class_to_digit(predicted.cpu().numpy())[0])
     return label
-
-
-def create_calibration_file(
-    filename: str,
-    eeg: np.ndarray,
-    emg: np.ndarray,
-    labels: np.ndarray,
-    sampling_rate: int | float,
-    epoch_length: int | float,
-    brain_state_set: BrainStateSet,
-    emg_filter: EMGFilter,
-) -> bool:
-    """Create file of calibration data for a subject
-
-    Returns True if any features derived from the recording
-    have 0 variance.
-
-    This assumes that EEG and EMG signals have been preprocessed to
-    contain an integer number of epochs and that there are a
-    sufficient number of labeled epochs for each scored brain state.
-
-    :param filename: filename for the calibration file
-    :param eeg: EEG signal
-    :param emg: EMG signal
-    :param labels: brain state labels, as digits
-    :param sampling_rate: sampling rate, in Hz
-    :param epoch_length: epoch length, in seconds
-    :param brain_state_set: set of brain state options
-    :param emg_filter: EMG filter parameters
-    :return: whether zero-variance features were detected
-    """
-    img = create_eeg_emg_image(eeg, emg, sampling_rate, epoch_length, emg_filter)
-    mixture_means, mixture_sds = get_mixture_values(
-        img=img,
-        labels=brain_state_set.convert_digit_to_class(labels),
-        brain_state_set=brain_state_set,
-    )
-    had_zero_variance = np.any(mixture_sds == 0)
-    pd.DataFrame(
-        {c.MIXTURE_MEAN_COL: mixture_means, c.MIXTURE_SD_COL: mixture_sds}
-    ).to_csv(filename, index=False)
-    return had_zero_variance

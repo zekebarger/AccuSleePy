@@ -52,7 +52,7 @@ please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
 
 ## Changelog
 
-- 0.8.1-0.9.0: Improved error handling and code quality
+- 0.8.1-0.9.1: Improved error handling and code quality
 - 0.8.0: More configurable settings, visual improvements
 - 0.7.1-0.7.3: Bugfixes, code cleanup
 - 0.7.0: More settings can be configured in the UI
