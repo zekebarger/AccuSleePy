@@ -1,16 +1,13 @@
 # AccuSleePy main window
 # Icon source: Arkinasi, https://www.flaticon.com/authors/arkinasi
 
-import datetime
 import logging
 import os
-import shutil
 import sys
 from dataclasses import dataclass
 from functools import partial
 
 import numpy as np
-import toml
 from PySide6.QtCore import (
     QEvent,
     QKeyCombination,
@@ -29,16 +26,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from accusleepy.bouts import enforce_min_bout_length
 from accusleepy.brain_state_set import BRAIN_STATES_KEY
 from accusleepy.constants import (
-    ANNOTATIONS_FILENAME,
-    CALIBRATION_ANNOTATION_FILENAME,
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
     LABEL_FILE_TYPE,
     MESSAGE_BOX_MAX_DEPTH,
-    MIN_EPOCHS_PER_STATE,
     MODEL_FILE_TYPE,
     REAL_TIME_MODEL_TYPE,
     RECORDING_FILE_TYPES,
@@ -46,27 +39,26 @@ from accusleepy.constants import (
     UNDEFINED_LABEL,
 )
 from accusleepy.fileio import (
-    load_calibration_file,
     load_config,
     load_labels,
     load_recording,
-    save_labels,
+    get_version,
 )
 from accusleepy.gui.dialogs import select_existing_file, select_save_location
 from accusleepy.gui.manual_scoring import ManualScoringWindow
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.gui.recording_manager import RecordingListManager
 from accusleepy.gui.settings_widget import SettingsWidget
-from accusleepy.models import SSANN
-from accusleepy.signal_processing import (
-    create_training_images,
-    resample_and_standardize,
+from accusleepy.services import (
+    LoadedModel,
+    TrainingService,
+    check_single_file_inputs,
+    create_calibration,
+    score_recording_list,
 )
-from accusleepy.validation import (
-    check_label_validity,
-    LABEL_LENGTH_ERROR,
-    check_config_consistency,
-)
+from accusleepy.validation import validate_and_correct_labels
+from accusleepy.signal_processing import resample_and_standardize
+from accusleepy.validation import check_config_consistency
 
 # note: functions using torch or scipy are lazily imported
 
@@ -79,15 +71,6 @@ if os.name == "nt":
 
 # relative path to user manual
 MAIN_GUIDE_FILE = os.path.normpath(r"text/main_guide.md")
-
-
-@dataclass
-class LoadedModel:
-    """State for a loaded classification model"""
-
-    model: SSANN | None = None
-    epoch_length: int | float | None = None
-    epochs_per_img: int | None = None
 
 
 @dataclass
@@ -155,18 +138,7 @@ class AccuSleepWindow(QMainWindow):
         self.messages = []
 
         # display current version
-        version = ""
-        toml_file = os.path.join(
-            os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            ),
-            "pyproject.toml",
-        )
-        if os.path.isfile(toml_file):
-            toml_data = toml.load(toml_file)
-            if "project" in toml_data and "version" in toml_data["project"]:
-                version = toml_data["project"]["version"]
-        self.ui.version_label.setText(f"v{version}")
+        self.ui.version_label.setText(f"v{get_version()}")
 
         # user input: keyboard shortcuts
         keypress_quit = QShortcut(
@@ -179,8 +151,12 @@ class AccuSleepWindow(QMainWindow):
         self.ui.add_button.clicked.connect(self.add_recording)
         self.ui.remove_button.clicked.connect(self.remove_recording)
         self.ui.recording_list_widget.currentRowChanged.connect(self.select_recording)
-        self.ui.sampling_rate_input.valueChanged.connect(self.update_sampling_rate)
-        self.ui.epoch_length_input.valueChanged.connect(self.update_epoch_length)
+        self.ui.sampling_rate_input.valueChanged.connect(
+            lambda v: setattr(self.recording_manager.current, "sampling_rate", v)
+        )
+        self.ui.epoch_length_input.valueChanged.connect(
+            lambda v: setattr(self, "epoch_length", v)
+        )
         self.ui.recording_file_button.clicked.connect(self.select_recording_file)
         self.ui.select_label_button.clicked.connect(self.select_label_file)
         self.ui.create_label_button.clicked.connect(self.create_label_file)
@@ -188,15 +164,23 @@ class AccuSleepWindow(QMainWindow):
         self.ui.create_calibration_button.clicked.connect(self.create_calibration_file)
         self.ui.select_calibration_button.clicked.connect(self.select_calibration_file)
         self.ui.load_model_button.clicked.connect(partial(self.load_model, None))
-        self.ui.score_all_button.clicked.connect(self.score_all)
-        self.ui.overwritecheckbox.stateChanged.connect(self.update_overwrite_policy)
-        self.ui.save_confidence_checkbox.stateChanged.connect(
-            self.update_confidence_policy
+        self.ui.score_all_button.clicked.connect(self.score_recordings)
+        self.ui.overwritecheckbox.stateChanged.connect(
+            lambda v: setattr(self.scoring, "only_overwrite_undefined", bool(v))
         )
-        self.ui.bout_length_input.valueChanged.connect(self.update_min_bout_length)
+        self.ui.save_confidence_checkbox.stateChanged.connect(
+            lambda v: setattr(self.scoring, "save_confidence_scores", bool(v))
+        )
+        self.ui.bout_length_input.valueChanged.connect(
+            lambda v: setattr(self.scoring, "min_bout_length", v)
+        )
         self.ui.user_manual_button.clicked.connect(self.show_user_manual)
-        self.ui.image_number_input.valueChanged.connect(self.update_epochs_per_img)
-        self.ui.delete_image_box.stateChanged.connect(self.update_image_deletion)
+        self.ui.image_number_input.valueChanged.connect(
+            lambda v: setattr(self.training, "epochs_per_img", v)
+        )
+        self.ui.delete_image_box.stateChanged.connect(
+            lambda v: setattr(self.training, "delete_images", bool(v))
+        )
         self.ui.calibrate_checkbox.stateChanged.connect(
             self.update_training_calibration
         )
@@ -268,6 +252,7 @@ class AccuSleepWindow(QMainWindow):
 
         if filename is None:
             return super().eventFilter(obj, event)
+        filename = str(filename)
 
         _, file_extension = os.path.splitext(filename)
 
@@ -289,35 +274,7 @@ class AccuSleepWindow(QMainWindow):
         return super().eventFilter(obj, event)
 
     def train_model(self) -> None:
-        # check basic training inputs
-        if (
-            self.training.model_type == DEFAULT_MODEL_TYPE
-            and self.training.epochs_per_img % 2 == 0
-        ):
-            self.show_message(
-                (
-                    "ERROR: for the default model type, number of epochs "
-                    "per image must be an odd number."
-                )
-            )
-            return
-
-        # determine fraction of training data to use for calibration
-        if self.training.calibrate:
-            calibration_fraction = self.ui.calibration_spinbox.value() / 100
-        else:
-            calibration_fraction = 0
-
-        # check some inputs for each recording
-        for recording in self.recording_manager:
-            error_message = self.check_single_file_inputs(recording)
-            if error_message:
-                self.show_message(
-                    f"ERROR (recording {recording.name}): {error_message}"
-                )
-                return
-
-        # get filename for the new model
+        """Train a classification model using the current recordings."""
         model_filename = select_save_location(
             self, "Save classification model file as", "*" + MODEL_FILE_TYPE
         )
@@ -325,295 +282,61 @@ class AccuSleepWindow(QMainWindow):
             self.show_message("Model training canceled, no filename given")
             return
 
-        # create (probably temporary) image folder in
-        # the same folder as the trained model
-        temp_image_dir = os.path.join(
-            os.path.dirname(model_filename),
-            "images_" + datetime.datetime.now().strftime("%Y%m%d%H%M"),
-        )
-
-        if os.path.exists(temp_image_dir):  # unlikely
-            self.show_message(
-                "Warning: training image folder exists, will be overwritten"
-            )
-        os.makedirs(temp_image_dir, exist_ok=True)
-
-        # create training images
-        self.show_message("Training, please wait. See console for progress updates.")
-        if not self.training.delete_images:
-            self.show_message((f"Creating training images in {temp_image_dir}"))
-        else:
-            self.show_message(
-                (f"Creating temporary folder of training images: {temp_image_dir}")
-            )
-        self.ui.message_area.repaint()
-        QApplication.processEvents()
-        logger.info("Creating training images")
-        failed_recordings, training_class_balance, had_zero_variance = (
-            create_training_images(
-                recordings=list(self.recording_manager),
-                output_path=temp_image_dir,
-                epoch_length=self.epoch_length,
-                epochs_per_img=self.training.epochs_per_img,
-                brain_state_set=self.config.brain_state_set,
-                model_type=self.training.model_type,
-                calibration_fraction=calibration_fraction,
-                emg_filter=self.config.emg_filter,
-            )
-        )
-        if had_zero_variance:
-            self.show_message(
-                (
-                    "WARNING: some recordings contain features with zero variance. "
-                    "The EEG or EMG signal might be empty. If this is unexpected, "
-                    "please make sure the recording files are correctly formatted."
-                )
-            )
-        if len(failed_recordings) > 0:
-            if len(failed_recordings) == len(self.recording_manager):
-                self.show_message("ERROR: no recordings were valid!")
-                return
-            else:
-                self.show_message(
-                    (
-                        "WARNING: the following recordings could not be "
-                        "loaded and will not be used for training: "
-                        f"{', '.join([str(r) for r in failed_recordings])}. "
-                        "More information might be available in the terminal."
-                    )
-                )
-
-        # train model
-        self.show_message("Training model")
-        self.ui.message_area.repaint()
-        QApplication.processEvents()
-        logger.info("Training model")
-        from accusleepy.classification import create_dataloader, train_ssann
-        from accusleepy.models import save_model
-        from accusleepy.temperature_scaling import ModelWithTemperature
-
-        model = train_ssann(
-            annotations_file=os.path.join(temp_image_dir, ANNOTATIONS_FILENAME),
-            img_dir=temp_image_dir,
-            training_class_balance=training_class_balance,
-            n_classes=self.config.brain_state_set.n_classes,
-            hyperparameters=self.config.hyperparameters,
-        )
-
-        # calibrate the model
+        # Determine calibration fraction
         if self.training.calibrate:
-            calibration_annotation_file = os.path.join(
-                temp_image_dir, CALIBRATION_ANNOTATION_FILENAME
-            )
-            calibration_dataloader = create_dataloader(
-                annotations_file=calibration_annotation_file,
-                img_dir=temp_image_dir,
-                hyperparameters=self.config.hyperparameters,
-            )
-            model = ModelWithTemperature(model)
-            logger.info("Calibrating model")
-            model.set_temperature(calibration_dataloader)
+            calibration_fraction = self.ui.calibration_spinbox.value() / 100
+        else:
+            calibration_fraction = 0
 
-        # save model
-        save_model(
-            model=model,
-            filename=model_filename,
+        # Show progress message
+        self.show_message("Training, please wait. See console for progress updates.")
+        self.ui.message_area.repaint()
+        QApplication.processEvents()
+
+        # Create service and run training
+        service = TrainingService(progress_callback=self.show_message)
+        result = service.train_model(
+            recordings=list(self.recording_manager),
             epoch_length=self.epoch_length,
             epochs_per_img=self.training.epochs_per_img,
             model_type=self.training.model_type,
+            calibrate=self.training.calibrate,
+            calibration_fraction=calibration_fraction,
             brain_state_set=self.config.brain_state_set,
-            is_calibrated=self.training.calibrate,
+            emg_filter=self.config.emg_filter,
+            hyperparameters=self.config.hyperparameters,
+            model_filename=model_filename,
+            delete_images=self.training.delete_images,
         )
 
-        # optionally delete images
-        if self.training.delete_images:
-            logger.info("Cleaning up training image folder")
-            shutil.rmtree(temp_image_dir)
-
-        self.show_message(f"Training complete. Saved model to {model_filename}")
-        logger.info("Training complete")
-
-    def update_image_deletion(self) -> None:
-        """Update choice of whether to delete images after training"""
-        self.training.delete_images = self.ui.delete_image_box.isChecked()
+        # Display results
+        result.report_to(self.show_message)
 
     def update_training_calibration(self) -> None:
         """Update choice of whether to calibrate model after training"""
         self.training.calibrate = self.ui.calibrate_checkbox.isChecked()
         self.ui.calibration_spinbox.setEnabled(self.training.calibrate)
 
-    def update_epochs_per_img(self, new_value) -> None:
-        """Update number of epochs per image
-
-        :param new_value: new number of epochs per image
-        """
-        self.training.epochs_per_img = new_value
-
-    def score_all(self) -> None:
-        """Score all recordings using the classification model"""
-        # check basic inputs
-        if self.loaded_model.model is None:
-            self.ui.score_all_status.setText("missing classification model")
-            self.show_message("ERROR: no classification model file selected")
-            return
-        if self.scoring.min_bout_length < self.epoch_length:
-            self.ui.score_all_status.setText("invalid minimum bout length")
-            self.show_message("ERROR: minimum bout length must be >= epoch length")
-            return
-        if self.epoch_length != self.loaded_model.epoch_length:
-            self.ui.score_all_status.setText("invalid epoch length")
-            self.show_message(
-                (
-                    "ERROR: model was trained with an epoch length of "
-                    f"{self.loaded_model.epoch_length} seconds, but the current "
-                    f"epoch length setting is {self.epoch_length} seconds."
-                )
-            )
-            return
-
+    def score_recordings(self) -> None:
+        """Score all recordings using the classification model."""
         self.ui.score_all_status.setText("running...")
         self.ui.score_all_status.repaint()
         QApplication.processEvents()
 
-        from accusleepy.classification import score_recording
+        result = score_recording_list(
+            recordings=list(self.recording_manager),
+            loaded_model=self.loaded_model,
+            epoch_length=self.epoch_length,
+            only_overwrite_undefined=self.scoring.only_overwrite_undefined,
+            save_confidence_scores=self.scoring.save_confidence_scores,
+            min_bout_length=self.scoring.min_bout_length,
+            brain_state_set=self.config.brain_state_set,
+            emg_filter=self.config.emg_filter,
+        )
 
-        # check if any calibration file has any feature with 0 variance
-        any_zero_variance = False
-
-        # check some inputs for each recording
-        for recording in self.recording_manager:
-            error_message = self.check_single_file_inputs(recording)
-            if error_message:
-                self.ui.score_all_status.setText(f"error on recording {recording.name}")
-                self.show_message(
-                    f"ERROR (recording {recording.name}): {error_message}"
-                )
-                return
-            if recording.calibration_file == "":
-                self.ui.score_all_status.setText(f"error on recording {recording.name}")
-                self.show_message(
-                    f"ERROR (recording {recording.name}): no calibration file selected"
-                )
-                return
-
-        # score each recording
-        for recording in self.recording_manager:
-            # load EEG, EMG
-            try:
-                eeg, emg = load_recording(recording.recording_file)
-                sampling_rate = recording.sampling_rate
-
-                eeg, emg, sampling_rate = resample_and_standardize(
-                    eeg=eeg,
-                    emg=emg,
-                    sampling_rate=sampling_rate,
-                    epoch_length=self.epoch_length,
-                )
-            except Exception:
-                logger.exception("Failed to load %s", recording.recording_file)
-                self.show_message(
-                    f"ERROR: could not load recording {recording.name}. "
-                    "This recording will be skipped."
-                )
-                continue
-
-            # load labels
-            label_file = recording.label_file
-            if os.path.isfile(label_file):
-                try:
-                    # ignore any existing confidence scores; they will all be overwritten
-                    existing_labels, _ = load_labels(label_file)
-                except Exception:
-                    logger.exception("Failed to load %s", label_file)
-                    self.show_message(
-                        f"ERROR: could not load existing labels for recording "
-                        f"{recording.name}. This recording will be skipped."
-                    )
-                    continue
-                # only check the length
-                samples_per_epoch = sampling_rate * self.epoch_length
-                epochs_in_recording = round(eeg.size / samples_per_epoch)
-                if epochs_in_recording != existing_labels.size:
-                    self.show_message(
-                        f"ERROR: existing labels for recording {recording.name} "
-                        "do not match the recording length. "
-                        "This recording will be skipped."
-                    )
-                    continue
-            else:
-                existing_labels = None
-
-            # load calibration data
-            if not os.path.isfile(recording.calibration_file):
-                self.show_message(
-                    f"ERROR: calibration file does not exist for recording "
-                    f"{recording.name}. This recording will be skipped."
-                )
-                continue
-            try:
-                mixture_means, mixture_sds = load_calibration_file(
-                    recording.calibration_file
-                )
-            except Exception:
-                logger.exception("Failed to load %s", recording.calibration_file)
-                self.show_message(
-                    f"ERROR: could not load calibration file for recording "
-                    f"{recording.name}. This recording will be skipped."
-                )
-                continue
-
-            # check if calibration data contains any 0-variance features
-            if np.any(mixture_sds == 0):
-                any_zero_variance = True
-
-            labels, confidence_scores = score_recording(
-                model=self.loaded_model.model,
-                eeg=eeg,
-                emg=emg,
-                mixture_means=mixture_means,
-                mixture_sds=mixture_sds,
-                sampling_rate=sampling_rate,
-                epoch_length=self.epoch_length,
-                epochs_per_img=self.loaded_model.epochs_per_img,
-                brain_state_set=self.config.brain_state_set,
-                emg_filter=self.config.emg_filter,
-            )
-
-            # overwrite as needed
-            if existing_labels is not None and self.scoring.only_overwrite_undefined:
-                labels[existing_labels != UNDEFINED_LABEL] = existing_labels[
-                    existing_labels != UNDEFINED_LABEL
-                ]
-
-            # enforce minimum bout length
-            labels = enforce_min_bout_length(
-                labels=labels,
-                epoch_length=self.epoch_length,
-                min_bout_length=self.scoring.min_bout_length,
-            )
-
-            # ignore confidence scores if desired
-            if not self.scoring.save_confidence_scores:
-                confidence_scores = None
-
-            # save results
-            save_labels(
-                labels=labels, filename=label_file, confidence_scores=confidence_scores
-            )
-            self.show_message(
-                f"Saved labels for recording {recording.name} to {label_file}"
-            )
-
-        if any_zero_variance:
-            self.show_message(
-                (
-                    "WARNING: one or more calibration files has 0 variance "
-                    "for some features. This could indicate that the EEG or "
-                    "EMG signal is empty in the recording used for calibration."
-                )
-            )
-
-        self.ui.score_all_status.setText("")
+        # Display results
+        result.report_to(self.show_message)
+        self.ui.score_all_status.setText("error" if not result.success else "")
 
     def load_model(self, filename=None) -> None:
         """Load trained classification model from file
@@ -697,7 +420,9 @@ class AccuSleepWindow(QMainWindow):
         :param status_widget: UI element on which to display error messages
         :return: EEG data, EMG data, sampling rate, process completion
         """
-        error_message = self.check_single_file_inputs(self.recording_manager.current)
+        error_message = check_single_file_inputs(
+            self.recording_manager.current, self.epoch_length
+        )
         if error_message:
             status_widget.setText(error_message)
             self.show_message(f"ERROR: {error_message}")
@@ -731,152 +456,35 @@ class AccuSleepWindow(QMainWindow):
         return eeg, emg, sampling_rate, True
 
     def create_calibration_file(self) -> None:
-        """Creates a calibration file
+        """Creates a calibration file.
 
         This loads a recording and its labels, checks that the labels are
         all valid, creates the calibration file, and sets the
         "calibration file" property of the current recording to be the
         newly created file.
         """
-        # load the recording
-        eeg, emg, sampling_rate, success = self.load_single_recording(
-            self.ui.calibration_status
-        )
-        if not success:
-            return
-
-        # load the labels
-        label_file = self.recording_manager.current.label_file
-        if not os.path.isfile(label_file):
-            self.ui.calibration_status.setText("label file does not exist")
-            self.show_message("ERROR: label file does not exist")
-            return
-        try:
-            labels, _ = load_labels(label_file)
-        except Exception:
-            logger.exception("Failed to load %s", label_file)
-            self.ui.calibration_status.setText("could not load labels")
-            self.show_message(
-                (
-                    "ERROR: could not load labels. "
-                    "Check user manual for formatting instructions."
-                )
-            )
-            return
-        label_error_message = check_label_validity(
-            labels=labels,
-            confidence_scores=None,
-            samples_in_recording=eeg.size,
-            sampling_rate=sampling_rate,
-            epoch_length=self.epoch_length,
-            brain_state_set=self.config.brain_state_set,
-        )
-        if label_error_message:
-            self.ui.calibration_status.setText("invalid label file")
-            self.show_message(f"ERROR: {label_error_message}")
-            return
-
-        # check that each scored brain state has sufficient observations
-        for brain_state in self.config.brain_state_set.brain_states:
-            if brain_state.is_scored:
-                count = np.sum(labels == brain_state.digit)
-                if count < MIN_EPOCHS_PER_STATE:
-                    self.ui.calibration_status.setText("insufficient labels")
-                    self.show_message(
-                        f"ERROR: at least {MIN_EPOCHS_PER_STATE} labeled epochs "
-                        f"per brain state are required for calibration. Only "
-                        f"{count} '{brain_state.name}' epoch(s) found."
-                    )
-                    return
-
-        # get the name for the calibration file
         filename = select_save_location(
             self, "Save calibration file as", "*" + CALIBRATION_FILE_TYPE
         )
         if not filename:
             return
 
-        from accusleepy.classification import create_calibration_file
-
-        had_zero_variance = create_calibration_file(
-            filename=filename,
-            eeg=eeg,
-            emg=emg,
-            labels=labels,
-            sampling_rate=sampling_rate,
+        result = create_calibration(
+            recording=self.recording_manager.current,
             epoch_length=self.epoch_length,
             brain_state_set=self.config.brain_state_set,
             emg_filter=self.config.emg_filter,
+            output_filename=filename,
         )
 
-        self.ui.calibration_status.setText("")
-        self.show_message(
-            (
-                "Created calibration file using recording "
-                f"{self.recording_manager.current.name} "
-                f"at {filename}"
-            )
-        )
-        if had_zero_variance:
-            self.show_message(
-                (
-                    "WARNING: one or more features derived from the data have "
-                    "zero variance. This could indicate that the EEG or "
-                    "EMG signal is empty."
-                )
-            )
-
-        self.recording_manager.current.calibration_file = filename
-        self.ui.calibration_file_label.setText(filename)
-
-    def check_single_file_inputs(self, recording) -> str | None:
-        """Check that a recording's inputs appear valid
-
-        This runs some basic tests for whether it will be possible to
-        load and score a recording. If any test fails, we return an
-        error message.
-
-        :param recording: the recording to validate
-        :return: error message
-        """
-        if self.epoch_length == 0:
-            return "epoch length can't be 0"
-        if recording.sampling_rate == 0:
-            return "sampling rate can't be 0"
-        if self.epoch_length > recording.sampling_rate:
-            return "invalid epoch length or sampling rate"
-        if recording.recording_file == "":
-            return "no recording selected"
-        if not os.path.isfile(recording.recording_file):
-            return "recording file does not exist"
-        if recording.label_file == "":
-            return "no label file selected"
-
-    def update_min_bout_length(self, new_value) -> None:
-        """Update the minimum bout length
-
-        :param new_value: new minimum bout length, in seconds
-        """
-        self.scoring.min_bout_length = new_value
-
-    def update_overwrite_policy(self, checked) -> None:
-        """Toggle overwriting policy
-
-        If the checkbox is enabled, only epochs where the brain state is set to
-        undefined will be overwritten by the automatic scoring process.
-
-        :param checked: state of the checkbox
-        """
-        self.scoring.only_overwrite_undefined = checked
-
-    def update_confidence_policy(self, checked) -> None:
-        """Toggle policy for saving confidence scores
-
-        If the checkbox is enabled, confidence scores will be saved to the label files.
-
-        :param checked: state of the checkbox
-        """
-        self.scoring.save_confidence_scores = checked
+        # Display results
+        result.report_to(self.show_message)
+        if not result.success:
+            self.ui.calibration_status.setText("error")
+        else:
+            self.ui.calibration_status.setText("")
+            self.recording_manager.current.calibration_file = filename
+            self.ui.calibration_file_label.setText(filename)
 
     def manual_scoring(self) -> None:
         """View the selected recording for manual scoring"""
@@ -917,8 +525,8 @@ class AccuSleepWindow(QMainWindow):
             # to a label file that does not have one
             confidence_scores = None
 
-        # check that all labels are valid
-        label_error = check_label_validity(
+        # check that labels are valid and correct minor length mismatches
+        labels, confidence_scores, validation_message = validate_and_correct_labels(
             labels=labels,
             confidence_scores=confidence_scores,
             samples_in_recording=eeg.size,
@@ -926,43 +534,12 @@ class AccuSleepWindow(QMainWindow):
             epoch_length=self.epoch_length,
             brain_state_set=self.config.brain_state_set,
         )
-        if label_error:
-            # if the label length is only off by one, pad or truncate as needed
-            # and show a warning
-            if label_error == LABEL_LENGTH_ERROR:
-                # should be very close to an integer
-                samples_per_epoch = round(sampling_rate * self.epoch_length)
-                epochs_in_recording = round(eeg.size / samples_per_epoch)
-                if epochs_in_recording - labels.size == 1:
-                    labels = np.concatenate((labels, np.array([UNDEFINED_LABEL])))
-                    if confidence_scores is not None:
-                        confidence_scores = np.concatenate(
-                            (confidence_scores, np.array([0]))
-                        )
-                    self.show_message(
-                        (
-                            "WARNING: an undefined epoch was added to "
-                            "the label file to correct its length."
-                        )
-                    )
-                elif labels.size - epochs_in_recording == 1:
-                    labels = labels[:-1]
-                    if confidence_scores is not None:
-                        confidence_scores = confidence_scores[:-1]
-                    self.show_message(
-                        (
-                            "WARNING: the last epoch was removed from "
-                            "the label file to correct its length."
-                        )
-                    )
-                else:
-                    self.ui.manual_scoring_status.setText("invalid label file")
-                    self.show_message(f"ERROR: {label_error}")
-                    return
-            else:
-                self.ui.manual_scoring_status.setText("invalid label file")
-                self.show_message(f"ERROR: {label_error}")
-                return
+        if labels is None:
+            self.ui.manual_scoring_status.setText("invalid label file")
+            self.show_message(f"ERROR: {validation_message}")
+            return
+        if validation_message:
+            self.show_message(f"WARNING: {validation_message}")
 
         self.show_message(f"Viewing recording {self.recording_manager.current.name}")
         self.ui.manual_scoring_status.setText("file is open")
@@ -1026,20 +603,6 @@ class AccuSleepWindow(QMainWindow):
         self.ui.recording_file_label.setText(recording.recording_file)
         self.ui.label_file_label.setText(recording.label_file)
         self.ui.calibration_file_label.setText(recording.calibration_file)
-
-    def update_epoch_length(self, new_value: int | float) -> None:
-        """Update the epoch length when the widget state changes
-
-        :param new_value: new epoch length
-        """
-        self.epoch_length = new_value
-
-    def update_sampling_rate(self, new_value: int | float) -> None:
-        """Update recording's sampling rate when the widget state changes
-
-        :param new_value: new sampling rate
-        """
-        self.recording_manager.current.sampling_rate = new_value
 
     def show_message(self, message: str) -> None:
         """Display a new message to the user

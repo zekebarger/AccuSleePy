@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from accusleepy.brain_state_set import BrainState, BrainStateSet, BRAIN_STATES_KEY
 from accusleepy.constants import UNDEFINED_LABEL
@@ -6,6 +7,7 @@ from accusleepy.validation import (
     check_config_consistency,
     LABEL_LENGTH_ERROR,
     check_label_validity,
+    validate_and_correct_labels,
 )
 
 brain_states = [
@@ -94,6 +96,17 @@ def test_invalid_confidence_scores():
     assert type(output_below_0) is str and type(output_above_1) is str
 
 
+@pytest.fixture
+def brain_state_set_3_states():
+    """Create a brain state set with 3 states for testing."""
+    states = [
+        BrainState(name="REM", digit=0, is_scored=True, frequency=0.1),
+        BrainState(name="Wake", digit=1, is_scored=True, frequency=0.35),
+        BrainState(name="NREM", digit=2, is_scored=True, frequency=0.55),
+    ]
+    return BrainStateSet(brain_states=states, undefined_label=UNDEFINED_LABEL)
+
+
 def test_check_config_consistency():
     """Config consistency check works as expected"""
     # two states: A (0) and B (1)
@@ -153,3 +166,119 @@ def test_check_config_consistency():
     assert len(output_2) > 0
     assert len(output_3) > 0
     assert len(output_4) == 0
+
+
+class TestValidateAndCorrectLabels:
+    """Tests for validate_and_correct_labels function."""
+
+    def test_valid_labels(self, brain_state_set_3_states):
+        """Valid labels should return success with no changes."""
+        # 12 epochs at 5 seconds each = 60 seconds
+        # 60 seconds * 100 Hz = 6000 samples
+        labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2])
+        result_labels, result_scores, message = validate_and_correct_labels(
+            labels=labels,
+            confidence_scores=None,
+            samples_in_recording=6000,
+            sampling_rate=100,
+            epoch_length=5,
+            brain_state_set=brain_state_set_3_states,
+        )
+        assert result_labels is not None
+        assert message is None
+        assert np.array_equal(result_labels, labels)
+
+    def test_labels_one_short_gets_padded(self, brain_state_set_3_states):
+        """Labels that are one epoch short should be padded."""
+        # 11 labels but recording has 12 epochs worth of samples
+        labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1])
+        result_labels, result_scores, message = validate_and_correct_labels(
+            labels=labels,
+            confidence_scores=None,
+            samples_in_recording=6000,
+            sampling_rate=100,
+            epoch_length=5,
+            brain_state_set=brain_state_set_3_states,
+        )
+        assert result_labels is not None
+        assert message is not None
+        assert "added" in message.lower()
+        assert result_labels.size == 12
+        assert result_labels[-1] == UNDEFINED_LABEL
+
+    def test_labels_one_long_gets_truncated(self, brain_state_set_3_states):
+        """Labels that are one epoch long should be truncated."""
+        # 13 labels but recording has 12 epochs worth of samples
+        labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0])
+        result_labels, result_scores, message = validate_and_correct_labels(
+            labels=labels,
+            confidence_scores=None,
+            samples_in_recording=6000,
+            sampling_rate=100,
+            epoch_length=5,
+            brain_state_set=brain_state_set_3_states,
+        )
+        assert result_labels is not None
+        assert message is not None
+        assert "removed" in message.lower()
+        assert result_labels.size == 12
+
+    def test_labels_way_off_fails(self, brain_state_set_3_states):
+        """Labels with a big length mismatch should fail validation."""
+        # 5 labels but recording has 12 epochs worth of samples
+        labels = np.array([0, 1, 2, 0, 1])
+        result_labels, result_scores, message = validate_and_correct_labels(
+            labels=labels,
+            confidence_scores=None,
+            samples_in_recording=6000,
+            sampling_rate=100,
+            epoch_length=5,
+            brain_state_set=brain_state_set_3_states,
+        )
+        assert result_labels is None
+        assert message is not None  # Error message
+
+    def test_invalid_label_value_fails(self, brain_state_set_3_states):
+        """Invalid label values should fail validation."""
+        labels = np.array([0, 1, 2, 0, 1, 99, 0, 1, 2, 0, 1, 2])  # 99 is invalid
+        result_labels, result_scores, message = validate_and_correct_labels(
+            labels=labels,
+            confidence_scores=None,
+            samples_in_recording=6000,
+            sampling_rate=100,
+            epoch_length=5,
+            brain_state_set=brain_state_set_3_states,
+        )
+        assert result_labels is None
+        assert message is not None  # Error message
+
+    def test_confidence_scores_padded_with_labels(self, brain_state_set_3_states):
+        """Confidence scores should be padded when labels are padded."""
+        labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1])
+        confidence_scores = np.array([0.9] * 11)
+        result_labels, result_scores, message = validate_and_correct_labels(
+            labels=labels,
+            confidence_scores=confidence_scores,
+            samples_in_recording=6000,
+            sampling_rate=100,
+            epoch_length=5,
+            brain_state_set=brain_state_set_3_states,
+        )
+        assert result_labels is not None
+        assert result_scores.size == 12
+        assert result_scores[-1] == 0  # Padded with 0
+
+    def test_confidence_scores_truncated_with_labels(self, brain_state_set_3_states):
+        """Confidence scores should be truncated when labels are truncated."""
+        labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0])
+        confidence_scores = np.array([0.9] * 13)
+        result_labels, result_scores, message = validate_and_correct_labels(
+            labels=labels,
+            confidence_scores=confidence_scores,
+            samples_in_recording=6000,
+            sampling_rate=100,
+            epoch_length=5,
+            brain_state_set=brain_state_set_3_states,
+        )
+        assert result_labels is not None
+        assert result_scores.size == 12
