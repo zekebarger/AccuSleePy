@@ -100,6 +100,15 @@ class TrainingSettings:
     calibrate: bool = True
 
 
+@dataclass
+class ScoringSettings:
+    """Settings for scoring a recording"""
+
+    only_overwrite_undefined: bool
+    save_confidence_scores: bool
+    min_bout_length: int | float
+
+
 class AccuSleepWindow(QMainWindow):
     """AccuSleePy primary window"""
 
@@ -114,20 +123,22 @@ class AccuSleepWindow(QMainWindow):
         # Load configuration
         loaded_config = load_config()
 
-        # Session-level settings (controlled by main tab UI, can differ from saved defaults)
+        # Apply default values from the configuration
         self.epoch_length = loaded_config.default_epoch_length
-        self.only_overwrite_undefined = loaded_config.overwrite_setting
-        self.save_confidence_scores = loaded_config.save_confidence_setting
-        self.min_bout_length = loaded_config.min_bout_length
+        self.scoring = ScoringSettings(
+            only_overwrite_undefined=loaded_config.overwrite_setting,
+            save_confidence_scores=loaded_config.save_confidence_setting,
+            min_bout_length=loaded_config.min_bout_length,
+        )
 
         # Initialize settings tab (manages Settings tab UI and saved config values)
         self.config = SettingsWidget(ui=self.ui, config=loaded_config, parent=self)
 
         # initialize info about the recordings, classification data / settings
         self.ui.epoch_length_input.setValue(self.epoch_length)
-        self.ui.overwritecheckbox.setChecked(self.only_overwrite_undefined)
-        self.ui.save_confidence_checkbox.setChecked(self.save_confidence_scores)
-        self.ui.bout_length_input.setValue(self.min_bout_length)
+        self.ui.overwritecheckbox.setChecked(self.scoring.only_overwrite_undefined)
+        self.ui.save_confidence_checkbox.setChecked(self.scoring.save_confidence_scores)
+        self.ui.bout_length_input.setValue(self.scoring.min_bout_length)
 
         # loaded classification model and its metadata
         self.loaded_model = LoadedModel()
@@ -445,7 +456,7 @@ class AccuSleepWindow(QMainWindow):
             self.ui.score_all_status.setText("missing classification model")
             self.show_message("ERROR: no classification model file selected")
             return
-        if self.min_bout_length < self.epoch_length:
+        if self.scoring.min_bout_length < self.epoch_length:
             self.ui.score_all_status.setText("invalid minimum bout length")
             self.show_message("ERROR: minimum bout length must be >= epoch length")
             return
@@ -569,7 +580,7 @@ class AccuSleepWindow(QMainWindow):
             )
 
             # overwrite as needed
-            if existing_labels is not None and self.only_overwrite_undefined:
+            if existing_labels is not None and self.scoring.only_overwrite_undefined:
                 labels[existing_labels != UNDEFINED_LABEL] = existing_labels[
                     existing_labels != UNDEFINED_LABEL
                 ]
@@ -578,11 +589,11 @@ class AccuSleepWindow(QMainWindow):
             labels = enforce_min_bout_length(
                 labels=labels,
                 epoch_length=self.epoch_length,
-                min_bout_length=self.min_bout_length,
+                min_bout_length=self.scoring.min_bout_length,
             )
 
             # ignore confidence scores if desired
-            if not self.save_confidence_scores:
+            if not self.scoring.save_confidence_scores:
                 confidence_scores = None
 
             # save results
@@ -846,7 +857,7 @@ class AccuSleepWindow(QMainWindow):
 
         :param new_value: new minimum bout length, in seconds
         """
-        self.min_bout_length = new_value
+        self.scoring.min_bout_length = new_value
 
     def update_overwrite_policy(self, checked) -> None:
         """Toggle overwriting policy
@@ -856,7 +867,7 @@ class AccuSleepWindow(QMainWindow):
 
         :param checked: state of the checkbox
         """
-        self.only_overwrite_undefined = checked
+        self.scoring.only_overwrite_undefined = checked
 
     def update_confidence_policy(self, checked) -> None:
         """Toggle policy for saving confidence scores
@@ -865,7 +876,7 @@ class AccuSleepWindow(QMainWindow):
 
         :param checked: state of the checkbox
         """
-        self.save_confidence_scores = checked
+        self.scoring.save_confidence_scores = checked
 
     def manual_scoring(self) -> None:
         """View the selected recording for manual scoring"""
