@@ -26,6 +26,7 @@ dependencies = [
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.3.5,<9.0.0"
+pytest-qt = ">=4.4.0,<5.0.0"
 ruff = ">=0.11.2,<0.12.0"
 
 [build-system]
@@ -34,3 +35,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 extend-exclude = ["*.ipynb"]
+
+[tool.pytest.ini_options]
+markers = [
+    "gui: marks tests as GUI tests (may require display or xvfb)",
+]
+qt_api = "pyside6"
