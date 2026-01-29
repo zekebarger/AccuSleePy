@@ -6,9 +6,8 @@ import tempfile
 import numpy as np
 import pytest
 
-from accusleepy.brain_state_set import BrainState, BrainStateSet
-from accusleepy.constants import DEFAULT_MODEL_TYPE, UNDEFINED_LABEL
-from accusleepy.fileio import EMGFilter, Hyperparameters, Recording
+from accusleepy.constants import DEFAULT_MODEL_TYPE
+from accusleepy.fileio import Hyperparameters, Recording
 from accusleepy.models import SSANN
 from accusleepy.services import (
     LoadedModel,
@@ -21,23 +20,6 @@ from accusleepy.services import (
 
 
 # Test fixtures
-@pytest.fixture
-def brain_state_set():
-    """Create a basic brain state set for testing."""
-    brain_states = [
-        BrainState(name="Wake", digit=0, is_scored=True, frequency=0.33),
-        BrainState(name="NREM", digit=1, is_scored=True, frequency=0.34),
-        BrainState(name="REM", digit=2, is_scored=True, frequency=0.33),
-    ]
-    return BrainStateSet(brain_states=brain_states, undefined_label=UNDEFINED_LABEL)
-
-
-@pytest.fixture
-def emg_filter():
-    """Create default EMG filter settings."""
-    return EMGFilter(order=8, bp_lower=20, bp_upper=50)
-
-
 @pytest.fixture
 def hyperparameters():
     """Create default hyperparameters."""
@@ -65,7 +47,7 @@ def temp_recording_file():
 
 
 @pytest.fixture
-def temp_label_file(brain_state_set):
+def temp_label_file(sample_brain_state_set):
     """Create a temporary label file with valid labels."""
     import pandas as pd
 
@@ -241,7 +223,11 @@ class TestTrainingService:
         service._report_progress("Test message")
 
     def test_even_epochs_per_img_default_model(
-        self, valid_recording, brain_state_set, emg_filter, hyperparameters
+        self,
+        valid_recording,
+        sample_brain_state_set,
+        sample_emg_filter,
+        hyperparameters,
     ):
         """Even epochs_per_img should fail for default model type."""
         service = TrainingService()
@@ -252,8 +238,8 @@ class TestTrainingService:
             model_type=DEFAULT_MODEL_TYPE,
             calibrate=False,
             calibration_fraction=0,
-            brain_state_set=brain_state_set,
-            emg_filter=emg_filter,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
             hyperparameters=hyperparameters,
             model_filename="/tmp/test_model.pth",
             delete_images=True,
@@ -262,7 +248,7 @@ class TestTrainingService:
         assert "odd number" in result.error.lower()
 
     def test_invalid_recording_fails(
-        self, brain_state_set, emg_filter, hyperparameters
+        self, sample_brain_state_set, sample_emg_filter, hyperparameters
     ):
         """Invalid recording should fail validation."""
         invalid_recording = Recording(
@@ -278,8 +264,8 @@ class TestTrainingService:
             model_type=DEFAULT_MODEL_TYPE,
             calibrate=False,
             calibration_fraction=0,
-            brain_state_set=brain_state_set,
-            emg_filter=emg_filter,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
             hyperparameters=hyperparameters,
             model_filename="/tmp/test_model.pth",
             delete_images=True,
@@ -291,7 +277,9 @@ class TestTrainingService:
 class TestScoreRecordingList:
     """Tests for score_recording_list function."""
 
-    def test_no_model_loaded(self, valid_recording, brain_state_set, emg_filter):
+    def test_no_model_loaded(
+        self, valid_recording, sample_brain_state_set, sample_emg_filter
+    ):
         """Scoring with no model should fail."""
         loaded_model = LoadedModel(model=None)
         result = score_recording_list(
@@ -301,14 +289,14 @@ class TestScoreRecordingList:
             only_overwrite_undefined=True,
             save_confidence_scores=True,
             min_bout_length=5,
-            brain_state_set=brain_state_set,
-            emg_filter=emg_filter,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
         )
         assert result.success is False
         assert "no classification model" in result.error.lower()
 
     def test_min_bout_length_too_small(
-        self, valid_recording, brain_state_set, emg_filter, dummy_model
+        self, valid_recording, sample_brain_state_set, sample_emg_filter, dummy_model
     ):
         """Min bout length < epoch length should fail."""
         loaded_model = LoadedModel(
@@ -323,14 +311,14 @@ class TestScoreRecordingList:
             only_overwrite_undefined=True,
             save_confidence_scores=True,
             min_bout_length=3,  # Less than epoch_length of 5
-            brain_state_set=brain_state_set,
-            emg_filter=emg_filter,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
         )
         assert result.success is False
         assert "minimum bout length" in result.error.lower()
 
     def test_epoch_length_mismatch(
-        self, valid_recording, brain_state_set, emg_filter, dummy_model
+        self, valid_recording, sample_brain_state_set, sample_emg_filter, dummy_model
     ):
         """Epoch length mismatch with model should fail."""
         loaded_model = LoadedModel(
@@ -345,14 +333,14 @@ class TestScoreRecordingList:
             only_overwrite_undefined=True,
             save_confidence_scores=True,
             min_bout_length=5,
-            brain_state_set=brain_state_set,
-            emg_filter=emg_filter,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
         )
         assert result.success is False
         assert "epoch length" in result.error.lower()
 
     def test_missing_calibration_file(
-        self, valid_recording, brain_state_set, emg_filter, dummy_model
+        self, valid_recording, sample_brain_state_set, sample_emg_filter, dummy_model
     ):
         """Recording without calibration file should fail."""
         loaded_model = LoadedModel(
@@ -368,8 +356,8 @@ class TestScoreRecordingList:
             only_overwrite_undefined=True,
             save_confidence_scores=True,
             min_bout_length=5,
-            brain_state_set=brain_state_set,
-            emg_filter=emg_filter,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
         )
         assert result.success is False
         assert "calibration file" in result.error.lower()
@@ -378,7 +366,7 @@ class TestScoreRecordingList:
 class TestCreateCalibration:
     """Tests for create_calibration function."""
 
-    def test_invalid_recording_fails(self, brain_state_set, emg_filter):
+    def test_invalid_recording_fails(self, sample_brain_state_set, sample_emg_filter):
         """Invalid recording should fail validation."""
         invalid_recording = Recording(
             recording_file="/nonexistent/file.csv",
@@ -388,14 +376,16 @@ class TestCreateCalibration:
         result = create_calibration(
             recording=invalid_recording,
             epoch_length=5,
-            brain_state_set=brain_state_set,
-            emg_filter=emg_filter,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
             output_filename="/tmp/calibration.csv",
         )
         assert result.success is False
         assert "does not exist" in result.error.lower()
 
-    def test_missing_label_file(self, temp_recording_file, brain_state_set, emg_filter):
+    def test_missing_label_file(
+        self, temp_recording_file, sample_brain_state_set, sample_emg_filter
+    ):
         """Missing label file should fail."""
         recording = Recording(
             recording_file=temp_recording_file,
@@ -405,8 +395,8 @@ class TestCreateCalibration:
         result = create_calibration(
             recording=recording,
             epoch_length=5,
-            brain_state_set=brain_state_set,
-            emg_filter=emg_filter,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
             output_filename="/tmp/calibration.csv",
         )
         assert result.success is False
