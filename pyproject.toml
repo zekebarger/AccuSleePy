@@ -1,6 +1,6 @@
 [project]
 name = "accusleepy"
-version = "0.9.2"
+version = "0.9.3"
 description = "Python implementation of AccuSleep"
 authors = [
     {name = "Zeke Barger",email = "zekebarger@gmail.com"}
@@ -20,12 +20,12 @@ dependencies = [
     "fastparquet (>=2024.11.0,<2025.0.0)",
     "pre-commit (>=4.2.0,<5.0.0)",
     "tqdm (>=4.67.1,<5.0.0)",
-    "toml (>=0.10.2,<0.11.0)",
     "pyside6 (>=6.9.0, <6.9.3)",
 ]
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.3.5,<9.0.0"
+pytest-qt = ">=4.4.0,<5.0.0"
 ruff = ">=0.11.2,<0.12.0"
 
 [build-system]
@@ -34,3 +34,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 extend-exclude = ["*.ipynb"]
+
+[tool.pytest.ini_options]
+markers = [
+    "gui: marks tests as GUI tests (may require display or xvfb)",
+]
+qt_api = "pyside6"
