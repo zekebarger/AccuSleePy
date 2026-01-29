@@ -5,7 +5,6 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 from PySide6.QtWidgets import QListWidgetItem
-import toml
 
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 import accusleepy.constants as c
@@ -267,13 +266,9 @@ def get_version() -> str:
 
     :return: AccuSleePy package version
     """
-    version = ""
-    toml_file = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "pyproject.toml",
-    )
-    if os.path.isfile(toml_file):
-        toml_data = toml.load(toml_file)
-        if "project" in toml_data and "version" in toml_data["project"]:
-            version = toml_data["project"]["version"]
-    return version
+    from importlib.metadata import version, PackageNotFoundError
+
+    try:
+        return version("accusleepy")
+    except PackageNotFoundError:
+        return ""
