@@ -1,6 +1,7 @@
 import json
 import os
 from dataclasses import dataclass
+from importlib.metadata import version, PackageNotFoundError
 
 import numpy as np
 import pandas as pd
@@ -266,8 +267,6 @@ def get_version() -> str:
 
     :return: AccuSleePy package version
     """
-    from importlib.metadata import version, PackageNotFoundError
-
     try:
         return version("accusleepy")
     except PackageNotFoundError:
