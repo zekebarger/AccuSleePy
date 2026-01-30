@@ -757,7 +757,7 @@ class Ui_PrimaryWindow(object):
         self.top_training_layout.setSpacing(10)
         self.top_training_layout.setObjectName("top_training_layout")
         self.horizontalLayout_5 = QHBoxLayout()
-        self.horizontalLayout_5.setSpacing(5)
+        self.horizontalLayout_5.setSpacing(3)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.label = QLabel(self.model_training_tab)
         self.label.setObjectName("label")
@@ -786,21 +786,48 @@ class Ui_PrimaryWindow(object):
 
         self.top_training_layout.addItem(self.horizontalSpacer)
 
-        self.delete_image_box = QCheckBox(self.model_training_tab)
-        self.delete_image_box.setObjectName("delete_image_box")
+        self.calibrate_checkbox = QCheckBox(self.model_training_tab)
+        self.calibrate_checkbox.setObjectName("calibrate_checkbox")
         sizePolicy1.setHeightForWidth(
-            self.delete_image_box.sizePolicy().hasHeightForWidth()
+            self.calibrate_checkbox.sizePolicy().hasHeightForWidth()
         )
-        self.delete_image_box.setSizePolicy(sizePolicy1)
-        self.delete_image_box.setChecked(True)
+        self.calibrate_checkbox.setSizePolicy(sizePolicy1)
+        self.calibrate_checkbox.setChecked(True)
 
-        self.top_training_layout.addWidget(self.delete_image_box)
+        self.top_training_layout.addWidget(self.calibrate_checkbox)
 
-        self.horizontalSpacer_6 = QSpacerItem(
+        self.horizontalLayout_84 = QHBoxLayout()
+        self.horizontalLayout_84.setSpacing(3)
+        self.horizontalLayout_84.setObjectName("horizontalLayout_84")
+        self.horizontalLayout_84.setContentsMargins(10, -1, -1, -1)
+        self.calibrate_label = QLabel(self.model_training_tab)
+        self.calibrate_label.setObjectName("calibrate_label")
+        sizePolicy1.setHeightForWidth(
+            self.calibrate_label.sizePolicy().hasHeightForWidth()
+        )
+        self.calibrate_label.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_84.addWidget(self.calibrate_label)
+
+        self.calibration_spinbox = QSpinBox(self.model_training_tab)
+        self.calibration_spinbox.setObjectName("calibration_spinbox")
+        sizePolicy1.setHeightForWidth(
+            self.calibration_spinbox.sizePolicy().hasHeightForWidth()
+        )
+        self.calibration_spinbox.setSizePolicy(sizePolicy1)
+        self.calibration_spinbox.setMinimum(10)
+        self.calibration_spinbox.setMaximum(50)
+        self.calibration_spinbox.setValue(15)
+
+        self.horizontalLayout_84.addWidget(self.calibration_spinbox)
+
+        self.top_training_layout.addLayout(self.horizontalLayout_84)
+
+        self.horizontalSpacer_3 = QSpacerItem(
             10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
         )
 
-        self.top_training_layout.addItem(self.horizontalSpacer_6)
+        self.top_training_layout.addItem(self.horizontalSpacer_3)
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
@@ -836,18 +863,12 @@ class Ui_PrimaryWindow(object):
 
         self.top_training_layout.addLayout(self.horizontalLayout_6)
 
-        self.horizontalSpacer_3 = QSpacerItem(
-            10, 5, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
-        )
-
-        self.top_training_layout.addItem(self.horizontalSpacer_3)
-
-        self.top_training_layout.setStretch(0, 2)
+        self.top_training_layout.setStretch(0, 5)
         self.top_training_layout.setStretch(1, 1)
-        self.top_training_layout.setStretch(2, 2)
-        self.top_training_layout.setStretch(3, 1)
-        self.top_training_layout.setStretch(4, 3)
-        self.top_training_layout.setStretch(5, 1)
+        self.top_training_layout.setStretch(2, 3)
+        self.top_training_layout.setStretch(3, 4)
+        self.top_training_layout.setStretch(4, 1)
+        self.top_training_layout.setStretch(5, 5)
 
         self.model_training_layout.addLayout(self.top_training_layout, 0, 0, 1, 1)
 
@@ -855,10 +876,10 @@ class Ui_PrimaryWindow(object):
         self.bottom_training_layout.setObjectName("bottom_training_layout")
         self.train_model_button = QPushButton(self.model_training_tab)
         self.train_model_button.setObjectName("train_model_button")
-        sizePolicy3.setHeightForWidth(
+        sizePolicy1.setHeightForWidth(
             self.train_model_button.sizePolicy().hasHeightForWidth()
         )
-        self.train_model_button.setSizePolicy(sizePolicy3)
+        self.train_model_button.setSizePolicy(sizePolicy1)
 
         self.bottom_training_layout.addWidget(self.train_model_button)
 
@@ -868,56 +889,8 @@ class Ui_PrimaryWindow(object):
 
         self.bottom_training_layout.addItem(self.horizontalSpacer_8)
 
-        self.calibrate_checkbox = QCheckBox(self.model_training_tab)
-        self.calibrate_checkbox.setObjectName("calibrate_checkbox")
-        sizePolicy1.setHeightForWidth(
-            self.calibrate_checkbox.sizePolicy().hasHeightForWidth()
-        )
-        self.calibrate_checkbox.setSizePolicy(sizePolicy1)
-        self.calibrate_checkbox.setChecked(True)
-
-        self.bottom_training_layout.addWidget(self.calibrate_checkbox)
-
-        self.horizontalSpacer_7 = QSpacerItem(
-            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
-        )
-
-        self.bottom_training_layout.addItem(self.horizontalSpacer_7)
-
-        self.calibrate_label = QLabel(self.model_training_tab)
-        self.calibrate_label.setObjectName("calibrate_label")
-        sizePolicy1.setHeightForWidth(
-            self.calibrate_label.sizePolicy().hasHeightForWidth()
-        )
-        self.calibrate_label.setSizePolicy(sizePolicy1)
-
-        self.bottom_training_layout.addWidget(self.calibrate_label)
-
-        self.calibration_spinbox = QSpinBox(self.model_training_tab)
-        self.calibration_spinbox.setObjectName("calibration_spinbox")
-        sizePolicy1.setHeightForWidth(
-            self.calibration_spinbox.sizePolicy().hasHeightForWidth()
-        )
-        self.calibration_spinbox.setSizePolicy(sizePolicy1)
-        self.calibration_spinbox.setMinimum(10)
-        self.calibration_spinbox.setMaximum(50)
-        self.calibration_spinbox.setValue(15)
-
-        self.bottom_training_layout.addWidget(self.calibration_spinbox)
-
-        self.horizontalSpacer_78 = QSpacerItem(
-            10, 10, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
-        )
-
-        self.bottom_training_layout.addItem(self.horizontalSpacer_78)
-
-        self.bottom_training_layout.setStretch(0, 6)
+        self.bottom_training_layout.setStretch(0, 5)
         self.bottom_training_layout.setStretch(1, 5)
-        self.bottom_training_layout.setStretch(2, 3)
-        self.bottom_training_layout.setStretch(3, 1)
-        self.bottom_training_layout.setStretch(4, 3)
-        self.bottom_training_layout.setStretch(5, 1)
-        self.bottom_training_layout.setStretch(6, 1)
 
         self.model_training_layout.addLayout(self.bottom_training_layout, 1, 0, 1, 1)
 
@@ -2749,6 +2722,30 @@ class Ui_PrimaryWindow(object):
 
         self.verticalLayout_14.addLayout(self.horizontalLayout_71)
 
+        self.horizontalLayout_79 = QHBoxLayout()
+        self.horizontalLayout_79.setObjectName("horizontalLayout_79")
+        self.horizontalLayout_85 = QHBoxLayout()
+        self.horizontalLayout_85.setObjectName("horizontalLayout_85")
+        self.delete_image_box = QCheckBox(self.hyperparameter_page)
+        self.delete_image_box.setObjectName("delete_image_box")
+        sizePolicy1.setHeightForWidth(
+            self.delete_image_box.sizePolicy().hasHeightForWidth()
+        )
+        self.delete_image_box.setSizePolicy(sizePolicy1)
+        self.delete_image_box.setChecked(True)
+
+        self.horizontalLayout_85.addWidget(self.delete_image_box)
+
+        self.horizontalLayout_79.addLayout(self.horizontalLayout_85)
+
+        self.horizontalSpacer_93 = QSpacerItem(
+            40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.horizontalLayout_79.addItem(self.horizontalSpacer_93)
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_79)
+
         self.horizontalLayout_74 = QHBoxLayout()
         self.horizontalLayout_74.setObjectName("horizontalLayout_74")
         self.horizontalSpacer_86 = QSpacerItem(
@@ -3033,11 +3030,16 @@ class Ui_PrimaryWindow(object):
         self.label.setText(
             QCoreApplication.translate("PrimaryWindow", "Epochs per image:", None)
         )
-        self.delete_image_box.setText(
-            QCoreApplication.translate(
-                "PrimaryWindow", "Delete images after training", None
-            )
+        self.calibrate_checkbox.setText(
+            QCoreApplication.translate("PrimaryWindow", "Calibrate model", None)
         )
+        self.calibrate_label.setText(
+            QCoreApplication.translate("PrimaryWindow", "Calibration set size:", None)
+        )
+        self.calibration_spinbox.setSuffix(
+            QCoreApplication.translate("PrimaryWindow", "%", None)
+        )
+        self.calibration_spinbox.setPrefix("")
         self.label_2.setText(
             QCoreApplication.translate("PrimaryWindow", "Model type:", None)
         )
@@ -3058,15 +3060,6 @@ class Ui_PrimaryWindow(object):
             QCoreApplication.translate(
                 "PrimaryWindow", "Train classification model", None
             )
-        )
-        self.calibrate_checkbox.setText(
-            QCoreApplication.translate("PrimaryWindow", "Calibrate model", None)
-        )
-        self.calibrate_label.setText(
-            QCoreApplication.translate("PrimaryWindow", "Calibration set size:", None)
-        )
-        self.calibration_spinbox.setSuffix(
-            QCoreApplication.translate("PrimaryWindow", "%", None)
         )
         self.lower_tab_widget.setTabText(
             self.lower_tab_widget.indexOf(self.model_training_tab),
@@ -3296,6 +3289,11 @@ class Ui_PrimaryWindow(object):
         self.training_epochs_label.setText(
             QCoreApplication.translate("PrimaryWindow", "Epochs:", None)
         )
+        self.delete_image_box.setText(
+            QCoreApplication.translate(
+                "PrimaryWindow", "Delete images after training", None
+            )
+        )
         self.reset_hyperparams_button.setText(
             QCoreApplication.translate("PrimaryWindow", "reset to defaults", None)
         )
@@ -3306,7 +3304,9 @@ class Ui_PrimaryWindow(object):
                 "- Batch size: number of examples in each training iteration\n"
                 "- Learning rate: step size for adjusting model weights\n"
                 "- Momentum: amount of past gradients to use in the current update. Typically between 0.6 and 0.99\n"
-                "- Epochs: number of passes over the training data",
+                "- Epochs: number of passes over the training data\n"
+                "\n"
+                "You can also choose whether to delete images created by the training process once it's finished. This is recommended unless you are debugging the training code.",
                 None,
             )
         )

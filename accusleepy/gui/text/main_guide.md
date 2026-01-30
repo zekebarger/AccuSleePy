@@ -125,24 +125,27 @@ To train a new model on your own data:
     recording. Calibration files are not required.
 2. Click the "Model training" tab
 3. Choose the number of epochs to consider when scoring each epoch.
-    This will be the "width" of the training images. For "default"
-    type models, this must be an odd number. In general, about 30
-    seconds worth of data is enough.
-4. Choose whether the images used to train the model should be
-    deleted once training is complete. It's generally best to
-    leave this box checked. A (temporary) folder for these files
-    will be created in the same location as the trained model.
-5. Choose whether to create a "default" or "real-time"-type model.
-    Note that scoring recordings in the primary interface requires
-    a default-type model.
-6. Choose whether to calibrate the model. This process uses part
+    This will be the width, in pixels, of the training images.
+    For "default" type models, this must be an odd number. Generally,
+    about 30 seconds worth of data is enough.
+4. Choose whether to create a "default" or "real-time"-type model.
+    Scoring recordings in the AccuSleePy interface requires a
+    default-type model. Only select real-time if you plan to create
+    your own scoring function. An example real-time scoring function
+    can be found in `classification.py`.
+5. Choose whether to calibrate the model. This process uses part
     of the training data to make the model's confidence scores
     more accurately reflect the probability that the output
     labels are accurate. If using calibration, choose what percent
     of the training data to set aside for calibration.
-7. Click "Train classification model" and enter a
+6. Click "Train classification model" and enter a
     filename for the trained model. Training can take some time.
     The terminal will display progress updates.
+
+As part of the training process, a temporary folder of images will
+be created in the location where the model will be saved. This folder
+is deleted by default, but if you want to keep it for debugging
+purposes, you can change this behavior in the "Settings" tab.
 
 ## 4C. Automatic scoring
 

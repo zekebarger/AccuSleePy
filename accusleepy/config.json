@@ -35,5 +35,6 @@
         "training_epochs": 6
     },
     "epochs_to_show": 5,
-    "autoscroll_state": false
+    "autoscroll_state": false,
+    "delete_training_images": true
 }

@@ -43,6 +43,7 @@ class AccuSleePyConfig:
     hyperparameters: Hyperparameters
     epochs_to_show: int
     autoscroll_state: bool
+    delete_training_images: bool
 
 
 @dataclass
@@ -139,7 +140,8 @@ def load_config() -> AccuSleePyConfig:
         EMG filter parameters,
         model training hyperparameters,
         default epochs to show for manual scoring,
-        default autoscroll state for manual scoring
+        default autoscroll state for manual scoring,
+        setting to delete training images automatically
     """
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "r"
@@ -183,6 +185,9 @@ def load_config() -> AccuSleePyConfig:
         ),
         epochs_to_show=data.get(c.EPOCHS_TO_SHOW_KEY, c.DEFAULT_EPOCHS_TO_SHOW),
         autoscroll_state=data.get(c.AUTOSCROLL_KEY, c.DEFAULT_AUTOSCROLL_STATE),
+        delete_training_images=data.get(
+            c.DELETE_TRAINING_IMAGES_KEY, c.DEFAULT_DELETE_TRAINING_IMAGES_STATE
+        ),
     )
 
 
@@ -196,6 +201,7 @@ def save_config(
     hyperparameters: Hyperparameters,
     epochs_to_show: int,
     autoscroll_state: bool,
+    delete_training_images: bool,
 ) -> None:
     """Save configuration of brain state options to json file
 
@@ -210,6 +216,8 @@ def save_config(
     :param hyperparameters: model training hyperparameters
     :param epochs_to_show: default epochs to show for manual scoring,
     :param autoscroll_state: default autoscroll state for manual scoring
+    :param delete_training_images: whether to automatically delete images
+        created for model training once training is complete
     """
     output_dict = brain_state_set.to_output_dict()
     output_dict.update({c.DEFAULT_EPOCH_LENGTH_KEY: default_epoch_length})
@@ -220,6 +228,7 @@ def save_config(
     output_dict.update({c.HYPERPARAMETERS_KEY: hyperparameters.__dict__})
     output_dict.update({c.EPOCHS_TO_SHOW_KEY: epochs_to_show})
     output_dict.update({c.AUTOSCROLL_KEY: autoscroll_state})
+    output_dict.update({c.DELETE_TRAINING_IMAGES_KEY: delete_training_images})
     with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "w"
     ) as f:

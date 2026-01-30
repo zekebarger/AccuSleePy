@@ -76,7 +76,6 @@ class TrainingSettings:
     """Settings for training a new model"""
 
     epochs_per_img: int = 9
-    delete_images: bool = True
     model_type: str = DEFAULT_MODEL_TYPE
     calibrate: bool = True
 
@@ -175,9 +174,6 @@ class AccuSleepWindow(QMainWindow):
         self.ui.user_manual_button.clicked.connect(self.show_user_manual)
         self.ui.image_number_input.valueChanged.connect(
             lambda v: setattr(self.training, "epochs_per_img", v)
-        )
-        self.ui.delete_image_box.stateChanged.connect(
-            lambda v: setattr(self.training, "delete_images", bool(v))
         )
         self.ui.calibrate_checkbox.stateChanged.connect(
             self.update_training_calibration
@@ -304,7 +300,7 @@ class AccuSleepWindow(QMainWindow):
             emg_filter=self.config.emg_filter,
             hyperparameters=self.config.hyperparameters,
             model_filename=model_filename,
-            delete_images=self.training.delete_images,
+            delete_images=self.config.delete_training_images,
         )
 
         # Display results

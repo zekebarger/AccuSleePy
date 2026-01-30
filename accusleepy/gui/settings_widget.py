@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox, QLineEdit
 from accusleepy.brain_state_set import BrainState, BrainStateSet
 from accusleepy.constants import (
     DEFAULT_BATCH_SIZE,
+    DEFAULT_DELETE_TRAINING_IMAGES_STATE,
     DEFAULT_EMG_BP_LOWER,
     DEFAULT_EMG_BP_UPPER,
     DEFAULT_EMG_FILTER_ORDER,
@@ -55,6 +56,7 @@ class SettingsWidget(QObject):
         self._hyperparameters = config.hyperparameters
         self._default_epochs_to_show = config.epochs_to_show
         self._default_autoscroll_state = config.autoscroll_state
+        self._delete_training_images = config.delete_training_images
 
         # Store default values for main tab settings (used to populate Settings tab UI)
         self._default_epoch_length = config.default_epoch_length
@@ -80,6 +82,11 @@ class SettingsWidget(QObject):
     def hyperparameters(self) -> Hyperparameters:
         """Model training hyperparameters"""
         return self._hyperparameters
+
+    @property
+    def delete_training_images(self) -> bool:
+        """Whether to delete images after training"""
+        return self._delete_training_images
 
     @property
     def default_epochs_to_show(self) -> int:
@@ -186,6 +193,7 @@ class SettingsWidget(QObject):
         self._ui.learning_rate_spinbox.setValue(self._hyperparameters.learning_rate)
         self._ui.momentum_spinbox.setValue(self._hyperparameters.momentum)
         self._ui.training_epochs_spinbox.setValue(self._hyperparameters.training_epochs)
+        self._ui.delete_image_box.setChecked(self._delete_training_images)
         # Brain states
         states = {b.digit: b for b in self._brain_state_set.brain_states}
         for digit in range(10):
@@ -233,6 +241,7 @@ class SettingsWidget(QObject):
         self._ui.training_epochs_spinbox.valueChanged.connect(
             self._hyperparameters_changed
         )
+        self._ui.delete_image_box.stateChanged.connect(self._hyperparameters_changed)
         for digit in range(10):
             state = self._settings_widgets[digit]
             state.enabled_widget.stateChanged.connect(
@@ -302,6 +311,7 @@ class SettingsWidget(QObject):
             momentum=self._ui.momentum_spinbox.value(),
             training_epochs=self._ui.training_epochs_spinbox.value(),
         )
+        self._delete_training_images = self._ui.delete_image_box.isChecked()
         self._ui.save_config_status.setText("")
 
     def reset_status_message(self, _new_value=None) -> None:
@@ -392,6 +402,7 @@ class SettingsWidget(QObject):
             hyperparameters=self._hyperparameters,
             epochs_to_show=self._ui.epochs_to_show_spinbox.value(),
             autoscroll_state=self._ui.autoscroll_checkbox.isChecked(),
+            delete_training_images=self._ui.delete_image_box.isChecked(),
         )
         self._ui.save_config_status.setText("configuration saved")
 
@@ -407,3 +418,4 @@ class SettingsWidget(QObject):
         self._ui.learning_rate_spinbox.setValue(DEFAULT_LEARNING_RATE)
         self._ui.momentum_spinbox.setValue(DEFAULT_MOMENTUM)
         self._ui.training_epochs_spinbox.setValue(DEFAULT_TRAINING_EPOCHS)
+        self._ui.delete_image_box.setChecked(DEFAULT_DELETE_TRAINING_IMAGES_STATE)
