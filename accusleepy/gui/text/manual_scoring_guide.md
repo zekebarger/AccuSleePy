@@ -2,6 +2,7 @@
 
 Keyboard shortcuts:
 - Mouse click on the upper 3 plots: jump to epoch
+- Mouse scroll on the upper 3 plots: zoom in/out along the x-axis
 - Ctrl + S: save labels to file
 - Right / left arrow: move one epoch forward / backward in time
 - Numbers 0-9: set current epoch to this brain state
