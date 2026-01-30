@@ -1239,14 +1239,14 @@ color: rgb(244, 195, 68);</string>
                      <number>10</number>
                     </property>
                     <item row="0" column="0">
-                     <layout class="QHBoxLayout" name="top_training_layout" stretch="2,1,2,1,3,1">
+                     <layout class="QHBoxLayout" name="top_training_layout" stretch="5,1,3,4,1,5">
                       <property name="spacing">
                        <number>10</number>
                       </property>
                       <item>
                        <layout class="QHBoxLayout" name="horizontalLayout_5">
                         <property name="spacing">
-                         <number>5</number>
+                         <number>3</number>
                         </property>
                         <item>
                          <widget class="QLabel" name="label">
@@ -1299,7 +1299,7 @@ color: rgb(244, 195, 68);</string>
                        </spacer>
                       </item>
                       <item>
-                       <widget class="QCheckBox" name="delete_image_box">
+                       <widget class="QCheckBox" name="calibrate_checkbox">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -1307,7 +1307,7 @@ color: rgb(244, 195, 68);</string>
                          </sizepolicy>
                         </property>
                         <property name="text">
-                         <string>Delete images after training</string>
+                         <string>Calibrate model</string>
                         </property>
                         <property name="checked">
                          <bool>true</bool>
@@ -1315,7 +1315,55 @@ color: rgb(244, 195, 68);</string>
                        </widget>
                       </item>
                       <item>
-                       <spacer name="horizontalSpacer_6">
+                       <layout class="QHBoxLayout" name="horizontalLayout_84">
+                        <property name="spacing">
+                         <number>3</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>10</number>
+                        </property>
+                        <item>
+                         <widget class="QLabel" name="calibrate_label">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="text">
+                           <string>Calibration set size:</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QSpinBox" name="calibration_spinbox">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="suffix">
+                           <string>%</string>
+                          </property>
+                          <property name="prefix">
+                           <string/>
+                          </property>
+                          <property name="minimum">
+                           <number>10</number>
+                          </property>
+                          <property name="maximum">
+                           <number>50</number>
+                          </property>
+                          <property name="value">
+                           <number>15</number>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_3">
                         <property name="orientation">
                          <enum>Qt::Orientation::Horizontal</enum>
                         </property>
@@ -1376,30 +1424,14 @@ color: rgb(244, 195, 68);</string>
                         </item>
                        </layout>
                       </item>
-                      <item>
-                       <spacer name="horizontalSpacer_3">
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                         <enum>QSizePolicy::Policy::Preferred</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>10</width>
-                          <height>5</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
                      </layout>
                     </item>
                     <item row="1" column="0">
-                     <layout class="QHBoxLayout" name="bottom_training_layout" stretch="6,5,3,1,3,1,1">
+                     <layout class="QHBoxLayout" name="bottom_training_layout" stretch="5,5">
                       <item>
                        <widget class="QPushButton" name="train_model_button">
                         <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
@@ -1424,89 +1456,6 @@ color: rgb(244, 195, 68);</string>
                          <size>
                           <width>10</width>
                           <height>5</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QCheckBox" name="calibrate_checkbox">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>Calibrate model</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_7">
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                         <enum>QSizePolicy::Policy::Preferred</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>10</width>
-                          <height>10</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="calibrate_label">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>Calibration set size:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QSpinBox" name="calibration_spinbox">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="suffix">
-                         <string>%</string>
-                        </property>
-                        <property name="minimum">
-                         <number>10</number>
-                        </property>
-                        <property name="maximum">
-                         <number>50</number>
-                        </property>
-                        <property name="value">
-                         <number>15</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_78">
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                         <enum>QSizePolicy::Policy::Preferred</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>10</width>
-                          <height>10</height>
                          </size>
                         </property>
                        </spacer>
@@ -4613,6 +4562,43 @@ Each brain state has several attributes:
                    </layout>
                   </item>
                   <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_79">
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_85">
+                      <item>
+                       <widget class="QCheckBox" name="delete_image_box">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>Delete images after training</string>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_93">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_74">
                     <item>
                      <spacer name="horizontalSpacer_86">
@@ -4682,7 +4668,9 @@ Each brain state has several attributes:
 - Batch size: number of examples in each training iteration
 - Learning rate: step size for adjusting model weights
 - Momentum: amount of past gradients to use in the current update. Typically between 0.6 and 0.99
-- Epochs: number of passes over the training data</string>
+- Epochs: number of passes over the training data
+
+You can also choose whether to delete images created by the training process once it's finished. This is recommended unless you are debugging the training code.</string>
                     </property>
                     <property name="textFormat">
                      <enum>Qt::TextFormat::MarkdownText</enum>
