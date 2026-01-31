@@ -85,8 +85,8 @@ BRIGHTER_SCALE_FACTOR = 0.96
 DIMMER_SCALE_FACTOR = 1.07
 # zoom factor for upper plots - larger values = bigger changes
 ZOOM_FACTOR = 0.1
-# interval in seconds between zoom events triggered by scrolling
-ZOOM_DELAY = 0.025
+# rate limit for zoom events triggered by scrolling
+MAX_SCROLL_EVENTS_PER_SEC = 15
 
 
 @dataclass
@@ -983,11 +983,15 @@ class ManualScoringWindow(QDialog):
             return
 
         self.now_zooming = True
+        start_time = time.time()
         if event.button == "up":
             self.zoom_x(direction=ZOOM_IN)
         else:
             self.zoom_x(direction=ZOOM_OUT)
-        time.sleep(ZOOM_DELAY)
+        end_time = time.time()
+        time_elapsed = end_time - start_time
+        if time_elapsed < 1 / MAX_SCROLL_EVENTS_PER_SEC:
+            time.sleep(1 / MAX_SCROLL_EVENTS_PER_SEC - time_elapsed)
         self.now_zooming = False
 
 
