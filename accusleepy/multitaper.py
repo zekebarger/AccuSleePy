@@ -14,10 +14,6 @@ import timeit
 import warnings
 
 import numpy as np
-from joblib import Parallel, cpu_count, delayed
-
-# from scipy.signal import detrend # unused by AccuSleePy
-# from scipy.signal.windows import dpss # lazily loaded later
 
 
 # MULTITAPER SPECTROGRAM #
@@ -206,19 +202,9 @@ def spectrogram(
         wt,
     )
 
-    if multiprocess:  # use multiprocessing
-        n_jobs = max(cpu_count() - 1, 1) if n_jobs is None else n_jobs
-        mt_spectrogram = np.vstack(
-            Parallel(n_jobs=n_jobs)(
-                delayed(calc_mts_segment)(data_segments[num_window, :], *mts_params)
-                for num_window in range(num_windows)
-            )
-        )
-
-    else:  # if no multiprocessing, compute normally
-        mt_spectrogram = np.apply_along_axis(
-            calc_mts_segment, 1, data_segments, *mts_params
-        )
+    mt_spectrogram = np.apply_along_axis(
+        calc_mts_segment, 1, data_segments, *mts_params
+    )
 
     # Compute one-sided PSD spectrum
     mt_spectrogram = mt_spectrogram.T
@@ -250,37 +236,6 @@ def spectrogram(
 
     if np.all(mt_spectrogram.flatten() == 0):
         print("\n Data was all zeros, no output")
-
-    # # Plot multitaper spectrogram
-    # if plot_on:
-    #     # convert from power to dB
-    #     spect_data = nanpow2db(mt_spectrogram)
-    #
-    #     # Set x and y axes
-    #     dx = stimes[1] - stimes[0]
-    #     dy = sfreqs[1] - sfreqs[0]
-    #     extent = [stimes[0] - dx, stimes[-1] + dx, sfreqs[-1] + dy, sfreqs[0] - dy]
-    #
-    #     # Plot spectrogram
-    #     if ax is None:
-    #         fig, ax = plt.subplots()
-    #     else:
-    #         fig = ax.get_figure()
-    #     im = ax.imshow(spect_data, extent=extent, aspect="auto")
-    #     fig.colorbar(im, ax=ax, label="PSD (dB)", shrink=0.8)
-    #     ax.set_xlabel("Time (HH:MM:SS)")
-    #     ax.set_ylabel("Frequency (Hz)")
-    #     im.set_cmap(plt.cm.get_cmap("cet_rainbow4"))
-    #     ax.invert_yaxis()
-    #
-    #     # Scale colormap
-    #     if clim_scale:
-    #         clim = np.percentile(spect_data, [5, 98])  # from 5th percentile to 98th
-    #         im.set_clim(clim)  # actually change colorbar scale
-    #
-    #     fig.show()
-    #     if return_fig:
-    #         return mt_spectrogram, stimes, sfreqs, (fig, ax)
 
     return mt_spectrogram, stimes, sfreqs
 
@@ -566,18 +521,6 @@ def nanpow2db(y):
         ydB = 10 * np.log10(y)
 
     return ydB
-
-
-# Helper #
-def is_outlier(data):
-    smad = 1.4826 * np.median(
-        abs(data - np.median(data))
-    )  # scaled median absolute deviation
-    outlier_mask = (
-        abs(data - np.median(data)) > 3 * smad
-    )  # outliers are more than 3 smads away from median
-    outlier_mask = outlier_mask | np.isnan(data) | np.isinf(data)
-    return outlier_mask
 
 
 # CALCULATE MULTITAPER SPECTRUM ON SINGLE SEGMENT
