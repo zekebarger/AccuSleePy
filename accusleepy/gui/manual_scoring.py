@@ -86,7 +86,7 @@ DIMMER_SCALE_FACTOR = 1.07
 # zoom factor for upper plots - larger values = bigger changes
 ZOOM_FACTOR = 0.1
 # rate limit for zoom events triggered by scrolling
-MAX_SCROLL_EVENTS_PER_SEC = 20
+MAX_SCROLL_EVENTS_PER_SEC = 24
 
 
 @dataclass
