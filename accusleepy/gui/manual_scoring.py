@@ -86,7 +86,7 @@ DIMMER_SCALE_FACTOR = 1.07
 # zoom factor for upper plots - larger values = bigger changes
 ZOOM_FACTOR = 0.1
 # interval in seconds between zoom events triggered by scrolling
-ZOOM_DELAY = 0.05
+ZOOM_DELAY = 0.025
 
 
 @dataclass
