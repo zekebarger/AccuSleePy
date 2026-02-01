@@ -1,5 +1,7 @@
-# AccuSleePy main window
-# Icon source: Arkinasi, https://www.flaticon.com/authors/arkinasi
+"""AccuSleePy main window.
+
+Icon source: Arkinasi, https://www.flaticon.com/authors/arkinasi
+"""
 
 import logging
 import os

@@ -1,3 +1,5 @@
+"""File I/O for recordings, labels, calibration data, and configuration."""
+
 import json
 import os
 from dataclasses import dataclass

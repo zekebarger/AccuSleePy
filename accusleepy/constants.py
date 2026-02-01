@@ -1,3 +1,5 @@
+"""Application-wide constants and default settings."""
+
 import numpy as np
 
 # probably don't change these unless you really need to

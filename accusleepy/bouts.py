@@ -1,3 +1,5 @@
+"""Brain state bout length enforcement."""
+
 import re
 from dataclasses import dataclass
 from operator import attrgetter

@@ -1,8 +1,9 @@
-# AccuSleePy manual scoring GUI
-# Icon sources:
-#   Arkinasi, https://www.flaticon.com/authors/arkinasi
-#   kendis lasman, https://www.flaticon.com/packs/ui-79
+"""AccuSleePy manual scoring GUI.
 
+Icon sources:
+    Arkinasi, https://www.flaticon.com/authors/arkinasi
+    kendis lasman, https://www.flaticon.com/packs/ui-79
+"""
 
 import copy
 import os

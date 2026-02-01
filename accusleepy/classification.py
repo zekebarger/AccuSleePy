@@ -1,3 +1,5 @@
+"""Model training and brain state classification."""
+
 import os
 
 import numpy as np

@@ -1,3 +1,5 @@
+"""EEG/EMG signal processing, mixture z-scoring, and training image generation."""
+
 import logging
 import os
 import warnings
