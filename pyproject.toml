@@ -1,6 +1,6 @@
 [project]
 name = "accusleepy"
-version = "0.10.0"
+version = "0.10.1"
 description = "Python implementation of AccuSleep"
 authors = [
     {name = "Zeke Barger",email = "zekebarger@gmail.com"}
@@ -15,15 +15,14 @@ dependencies = [
     "torchvision (>=0.23.0,<1.0.0)",
     "scipy (>=1.15.2,<2.0.0)",
     "matplotlib (>=3.10.1,<4.0.0)",
-    "joblib (>=1.4.2,<2.0.0)",
     "pillow (>=11.1.0,<12.0.0)",
-    "fastparquet (>=2024.11.0,<2025.0.0)",
-    "pre-commit (>=4.2.0,<5.0.0)",
     "tqdm (>=4.67.1,<5.0.0)",
-    "pyside6 (>=6.9.0, <6.9.3)",
+    "pyside6 (>=6.10.1,<7.0.0)",
+    "pyarrow (>=23.0.0,<24.0.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
+pre-commit = ">=4.2.0,<5.0.0"
 pytest = ">=8.3.5,<9.0.0"
 pytest-qt = ">=4.4.0,<5.0.0"
 ruff = ">=0.11.2,<0.12.0"

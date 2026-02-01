@@ -1,3 +1,5 @@
+"""Neural network model definitions for sleep stage classification."""
+
 from torch import device, flatten, nn
 from torch import load as torch_load
 from torch import save as torch_save

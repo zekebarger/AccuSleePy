@@ -1,3 +1,5 @@
+"""Temperature scaling for model confidence calibration."""
+
 import logging
 
 import numpy as np

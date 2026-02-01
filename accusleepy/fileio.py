@@ -1,3 +1,5 @@
+"""File I/O for recordings, labels, calibration data, and configuration."""
+
 import json
 import os
 from dataclasses import dataclass
@@ -5,7 +7,6 @@ from importlib.metadata import version, PackageNotFoundError
 
 import numpy as np
 import pandas as pd
-from PySide6.QtWidgets import QListWidgetItem
 
 from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 import accusleepy.constants as c
@@ -55,7 +56,6 @@ class Recording:
     label_file: str = ""  # path to label file
     calibration_file: str = ""  # path to calibration file
     sampling_rate: int | float = 0.0  # sampling rate, in Hz
-    widget: QListWidgetItem = None  # list item widget shown in the GUI
 
 
 def load_calibration_file(filename: str) -> tuple[np.ndarray, np.ndarray]:

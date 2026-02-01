@@ -1,9 +1,18 @@
 """Recording list manager"""
 
+from dataclasses import dataclass
+
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QListWidget, QListWidgetItem
 
 from accusleepy.fileio import Recording, load_recording_list, save_recording_list
+
+
+@dataclass
+class RecordingListItem(Recording):
+    """A Recording with an associated QListWidget item for the GUI"""
+
+    widget: QListWidgetItem = None
 
 
 class RecordingListManager(QObject):
@@ -14,19 +23,19 @@ class RecordingListManager(QObject):
         self._widget = list_widget
 
         # Create initial empty recording (there is always at least one)
-        first_recording = Recording(
+        first_recording = RecordingListItem(
             widget=QListWidgetItem("Recording 1", self._widget),
         )
-        self._recordings: list[Recording] = [first_recording]
+        self._recordings: list[RecordingListItem] = [first_recording]
         self._widget.addItem(first_recording.widget)
         self._widget.setCurrentRow(0)
 
     @property
-    def current(self) -> Recording:
+    def current(self) -> RecordingListItem:
         """The currently selected recording"""
         return self._recordings[self._widget.currentRow()]
 
-    def add(self, sampling_rate: int | float) -> Recording:
+    def add(self, sampling_rate: int | float) -> RecordingListItem:
         """Add a new recording to the list
 
         :param sampling_rate: sampling rate for the new recording
@@ -35,7 +44,7 @@ class RecordingListManager(QObject):
         new_name = max(r.name for r in self._recordings) + 1
 
         # Create recording with widget
-        recording = Recording(
+        recording = RecordingListItem(
             name=new_name,
             sampling_rate=sampling_rate,
             widget=QListWidgetItem(f"Recording {new_name}", self._widget),
@@ -63,7 +72,7 @@ class RecordingListManager(QObject):
         else:
             # Reset the single recording to defaults
             recording_name = self._recordings[0].name
-            self._recordings[0] = Recording(widget=self._recordings[0].widget)
+            self._recordings[0] = RecordingListItem(widget=self._recordings[0].widget)
             self._recordings[0].widget.setText(f"Recording {self._recordings[0].name}")
             return f"cleared Recording {recording_name}"
 
@@ -85,14 +94,15 @@ class RecordingListManager(QObject):
         try:
             self._widget.clear()
 
-            # Load recordings
-            self._recordings = load_recording_list(filename)
-
-            # Create widgets for each recording
-            for recording in self._recordings:
-                recording.widget = QListWidgetItem(
-                    f"Recording {recording.name}", self._widget
+            # Load recordings and create widgets
+            self._recordings = [
+                RecordingListItem(
+                    **r.__dict__,
+                    widget=QListWidgetItem(f"Recording {r.name}", self._widget),
                 )
+                for r in load_recording_list(filename)
+            ]
+            for recording in self._recordings:
                 self._widget.addItem(recording.widget)
         finally:
             self._widget.blockSignals(False)
@@ -106,5 +116,5 @@ class RecordingListManager(QObject):
     def __len__(self):
         return len(self._recordings)
 
-    def __getitem__(self, index: int) -> Recording:
+    def __getitem__(self, index: int) -> RecordingListItem:
         return self._recordings[index]

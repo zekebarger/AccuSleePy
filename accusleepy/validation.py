@@ -1,3 +1,5 @@
+"""Validation utilities for brain state labels and recordings."""
+
 import numpy as np
 
 from accusleepy.brain_state_set import BrainStateSet

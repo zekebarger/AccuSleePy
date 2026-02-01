@@ -1,4 +1,5 @@
-# Widget with a matplotlib FigureCanvas for manual scoring
+"""Matplotlib FigureCanvas widget for manual scoring."""
+
 from collections.abc import Callable
 
 import matplotlib.ticker as mticker
