@@ -1,7 +1,7 @@
 ################################################################################
 ## Form generated from reading UI file 'primary_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.2
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -3147,7 +3147,6 @@ class Ui_PrimaryWindow:
                 "This is the current set of brain states. Important notes:\n"
                 "- You must click 'Save settings' for changes to take effect.\n"
                 "- Changing these settings can prevent existing label files, calibration files, and trained models from working properly.\n"
-                "- Reinstalling AccuSleePy will overwrite this configuration.\n"
                 "\n"
                 "Each brain state has several attributes:\n"
                 "- Digit: the indicator for this state in label files, and the keyboard shortcut for this state in manual scoring.\n"
