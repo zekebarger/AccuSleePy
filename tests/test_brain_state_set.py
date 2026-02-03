@@ -42,7 +42,7 @@ brain_state_set_gaps = BrainStateSet(
 
 def test_undefined_label_used():
     """Undefined label should not be re-used"""
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         _ = BrainStateSet(
             brain_states=[
                 BrainState(

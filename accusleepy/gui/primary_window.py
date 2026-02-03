@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 ## Form generated from reading UI file 'primary_window.ui'
 ##
@@ -32,10 +30,11 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
 import accusleepy.gui.resources_rc  # noqa F401
 
 
-class Ui_PrimaryWindow(object):
+class Ui_PrimaryWindow:
     def setupUi(self, PrimaryWindow):
         if not PrimaryWindow.objectName():
             PrimaryWindow.setObjectName("PrimaryWindow")

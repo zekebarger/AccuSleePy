@@ -331,7 +331,8 @@ def process_input(
             + str(frequency_range[0])
             + ", "
             + str(frequency_range[1])
-            + "]"
+            + "]",
+            stacklevel=2,
         )
 
     # Set number of tapers if none provided
@@ -342,7 +343,8 @@ def process_input(
     if num_tapers != math.floor(2 * time_bandwidth) - 1:
         warnings.warn(
             "Number of tapers is optimal at floor(2*TW) - 1. consider using "
-            + str(math.floor(2 * time_bandwidth) - 1)
+            + str(math.floor(2 * time_bandwidth) - 1),
+            stacklevel=2,
         )
 
     # If no window params provided, set to defaults
@@ -355,7 +357,8 @@ def process_input(
         warnings.warn(
             "Window size is not divisible by sampling frequency. Adjusting window size to "
             + str(winsize_samples / fs)
-            + " seconds"
+            + " seconds",
+            stacklevel=2,
         )
     else:
         winsize_samples = window_params[0] * fs
@@ -366,7 +369,8 @@ def process_input(
         warnings.warn(
             "Window step size is not divisible by sampling frequency. Adjusting window step size to "
             + str(winstep_samples / fs)
-            + " seconds"
+            + " seconds",
+            stacklevel=2,
         )
     else:
         winstep_samples = window_params[1] * fs
@@ -508,7 +512,7 @@ def nanpow2db(y):
         ydB (float or np array): inputs converted to dB with 0s and negatives resulting in nans
     """
 
-    if isinstance(y, int) or isinstance(y, float):
+    if isinstance(y, int | float):
         if y == 0:
             return np.nan
         else:
@@ -581,7 +585,7 @@ def calc_mts_segment(
         spower_iter = np.mean(spower[:, 0:2], 1)
         spower_iter = spower_iter[:, np.newaxis]
         a = (1 - dpss_eigen) * tpower
-        for i in range(3):  # 3 iterations only
+        for _i in range(3):  # 3 iterations only
             # Calc the MSE weights
             b = np.dot(spower_iter, np.ones((1, num_tapers))) / (
                 (np.dot(spower_iter, np.transpose(dpss_eigen)))

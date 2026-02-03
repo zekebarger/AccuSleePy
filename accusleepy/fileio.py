@@ -4,16 +4,15 @@ import json
 import os
 import shutil
 from dataclasses import dataclass
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files
-
-from platformdirs import user_config_dir
 
 import numpy as np
 import pandas as pd
+from platformdirs import user_config_dir
 
-from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 import accusleepy.constants as c
+from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 
 
 @dataclass
@@ -161,7 +160,7 @@ def load_config() -> AccuSleePyConfig:
     if not os.path.exists(user_config):
         os.makedirs(os.path.dirname(user_config), exist_ok=True)
         shutil.copy2(_get_default_config_path(), user_config)
-    with open(user_config, "r") as f:
+    with open(user_config) as f:
         data = json.load(f)
 
     return AccuSleePyConfig(
@@ -258,7 +257,7 @@ def load_recording_list(filename: str) -> list[Recording]:
     :param filename: filename of list of recordings
     :return: list of recordings
     """
-    with open(filename, "r") as f:
+    with open(filename) as f:
         data = json.load(f)
     recording_list = [Recording(**r) for r in data[c.RECORDING_LIST_NAME]]
     for i, r in enumerate(recording_list):

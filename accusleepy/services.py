@@ -8,8 +8,8 @@ import datetime
 import logging
 import os
 import shutil
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -21,9 +21,9 @@ from accusleepy.constants import (
     CALIBRATION_ANNOTATION_FILENAME,
     DEFAULT_MODEL_TYPE,
     MIN_EPOCHS_PER_STATE,
-    UNDEFINED_LABEL,
     MIXTURE_MEAN_COL,
     MIXTURE_SD_COL,
+    UNDEFINED_LABEL,
 )
 from accusleepy.fileio import (
     EMGFilter,
@@ -36,10 +36,10 @@ from accusleepy.fileio import (
 )
 from accusleepy.models import SSANN
 from accusleepy.signal_processing import (
-    create_training_images,
-    resample_and_standardize,
     create_eeg_emg_image,
+    create_training_images,
     get_mixture_values,
+    resample_and_standardize,
 )
 from accusleepy.validation import check_label_validity
 

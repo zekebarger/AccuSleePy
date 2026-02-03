@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
 )
 
 from accusleepy.constants import UNDEFINED_LABEL
-from accusleepy.fileio import load_config, save_labels, EMGFilter
+from accusleepy.fileio import EMGFilter, load_config, save_labels
 from accusleepy.gui.mplwidget import resample_x_ticks
 from accusleepy.gui.viewer_window import Ui_ViewerWindow
 from accusleepy.signal_processing import create_spectrogram, get_emg_power
@@ -124,7 +124,7 @@ class ManualScoringWindow(QDialog):
         :param epoch_length: epoch length, in seconds
         :param emg_filter: EMG filter parameters
         """
-        super(ManualScoringWindow, self).__init__()
+        super().__init__()
 
         self.label_file = label_file
         self.eeg = eeg
@@ -915,9 +915,7 @@ class ManualScoringWindow(QDialog):
         )
         self.ui.lowerfigure.canvas.axes[1].set_xticklabels(
             [
-                "{:02d}:{:02d}:{:05.2f}".format(
-                    int(x // 3600), int(x // 60) % 60, (x % 60)
-                )
+                f"{int(x // 3600):02d}:{int(x // 60) % 60:02d}:{x % 60:05.2f}"
                 for x in x_ticks * self.epoch_length
             ]
         )

@@ -294,7 +294,7 @@ class MplWidget(QtWidgets.QWidget):
                 [1 - marker_dy, 1],
             ]
         )
-        for x, y in zip(marker_x, marker_y):
+        for x, y in zip(marker_x, marker_y, strict=True):
             self.top_marker.append(axes[0].plot(x, y - marker_y_offset_top, "r")[0])
 
         # EMG subplot
@@ -318,7 +318,7 @@ class MplWidget(QtWidgets.QWidget):
             linewidth=0.5,
         )[0]
 
-        for x, y in zip(marker_x, marker_y):
+        for x, y in zip(marker_x, marker_y, strict=True):
             self.bottom_marker.append(
                 axes[1].plot(x, -1 * (y - marker_y_offset_bottom), "r")[0]
             )
@@ -356,9 +356,7 @@ class MplWidget(QtWidgets.QWidget):
 
     def time_formatter(self, x, pos):
         x = x * self.epoch_length
-        return "{:02d}:{:02d}:{:05.2f}".format(
-            int(x // 3600), int(x // 60) % 60, (x % 60)
-        )
+        return f"{int(x // 3600):02d}:{int(x // 60) % 60:02d}:{x % 60:05.2f}"
 
 
 def resample_x_ticks(x_ticks: np.array) -> np.array:

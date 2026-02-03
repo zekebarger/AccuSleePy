@@ -41,10 +41,10 @@ from accusleepy.constants import (
     UNDEFINED_LABEL,
 )
 from accusleepy.fileio import (
+    get_version,
     load_config,
     load_labels,
     load_recording,
-    get_version,
 )
 from accusleepy.gui.dialogs import select_existing_file, select_save_location
 from accusleepy.gui.manual_scoring import ManualScoringWindow
@@ -58,9 +58,8 @@ from accusleepy.services import (
     create_calibration,
     score_recording_list,
 )
-from accusleepy.validation import validate_and_correct_labels
 from accusleepy.signal_processing import resample_and_standardize
-from accusleepy.validation import check_config_consistency
+from accusleepy.validation import check_config_consistency, validate_and_correct_labels
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +94,7 @@ class AccuSleepWindow(QMainWindow):
     """AccuSleePy primary window"""
 
     def __init__(self):
-        super(AccuSleepWindow, self).__init__()
+        super().__init__()
 
         # initialize the UI
         self.ui = Ui_PrimaryWindow()
@@ -363,22 +362,18 @@ class AccuSleepWindow(QMainWindow):
         except Exception:
             logger.exception("Failed to load %s", filename)
             self.show_message(
-                (
-                    "ERROR: could not load classification model. Check "
-                    "user manual for instructions on creating this file."
-                )
+                "ERROR: could not load classification model. Check "
+                "user manual for instructions on creating this file."
             )
             return
 
         # make sure only "default" model type is loaded
         if model_type != DEFAULT_MODEL_TYPE:
             self.show_message(
-                (
-                    "ERROR: only 'default'-style models can be used. "
-                    "'Real-time' models are not supported. "
-                    "See classification.example_real_time_scoring_function.py "
-                    "for an example of how to classify brain states in real time."
-                )
+                "ERROR: only 'default'-style models can be used. "
+                "'Real-time' models are not supported. "
+                "See classification.example_real_time_scoring_function.py "
+                "for an example of how to classify brain states in real time."
             )
             return
 
@@ -433,10 +428,8 @@ class AccuSleepWindow(QMainWindow):
             )
             status_widget.setText("could not load recording")
             self.show_message(
-                (
-                    "ERROR: could not load recording. "
-                    "Check user manual for formatting instructions."
-                )
+                "ERROR: could not load recording. "
+                "Check user manual for formatting instructions."
             )
             return None, None, None, False
 
@@ -506,10 +499,8 @@ class AccuSleepWindow(QMainWindow):
                 logger.exception("Failed to load %s", label_file)
                 self.ui.manual_scoring_status.setText("could not load labels")
                 self.show_message(
-                    (
-                        "ERROR: could not load labels. "
-                        "Check user manual for formatting instructions."
-                    )
+                    "ERROR: could not load labels. "
+                    "Check user manual for formatting instructions."
                 )
                 return
         else:

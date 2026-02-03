@@ -230,7 +230,7 @@ def test_save_recording_list(tmp_path):
 
     save_recording_list(json_filename, recordings)
 
-    with open(json_filename, "r") as f:
+    with open(json_filename) as f:
         data = json.load(f)
 
     assert c.RECORDING_LIST_NAME in data
