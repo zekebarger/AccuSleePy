@@ -26,8 +26,9 @@ MIN_EPOCHS_PER_STATE = 3
 
 
 # very unlikely you will want to change values from here onwards
-# config file location
-CONFIG_FILE = "config.json"
+# config file names
+DEFAULT_CONFIG_FILE = "default_config.json"
+USER_CONFIG_FILE = "config.json"
 # number of times to include the EMG power in a training image
 EMG_COPIES = 9
 # minimum spectrogram window length, in seconds

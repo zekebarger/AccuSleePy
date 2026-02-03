@@ -2,8 +2,12 @@
 
 import json
 import os
+import shutil
 from dataclasses import dataclass
 from importlib.metadata import version, PackageNotFoundError
+from importlib.resources import files
+
+from platformdirs import user_config_dir
 
 import numpy as np
 import pandas as pd
@@ -128,6 +132,16 @@ def save_labels(
         pd.DataFrame({c.BRAIN_STATE_COL: labels}).to_csv(filename, index=False)
 
 
+def _get_user_config_path() -> str:
+    """Return the path to the user's config file in the platform config directory."""
+    return os.path.join(user_config_dir("accusleepy"), c.USER_CONFIG_FILE)
+
+
+def _get_default_config_path() -> str:
+    """Return the path to the bundled default config file."""
+    return str(files("accusleepy").joinpath(c.DEFAULT_CONFIG_FILE))
+
+
 def load_config() -> AccuSleePyConfig:
     """Load configuration file with brain state options
 
@@ -143,9 +157,11 @@ def load_config() -> AccuSleePyConfig:
         default autoscroll state for manual scoring,
         setting to delete training images automatically
     """
-    with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "r"
-    ) as f:
+    user_config = _get_user_config_path()
+    if not os.path.exists(user_config):
+        os.makedirs(os.path.dirname(user_config), exist_ok=True)
+        shutil.copy2(_get_default_config_path(), user_config)
+    with open(user_config, "r") as f:
         data = json.load(f)
 
     return AccuSleePyConfig(
@@ -229,9 +245,9 @@ def save_config(
     output_dict.update({c.EPOCHS_TO_SHOW_KEY: epochs_to_show})
     output_dict.update({c.AUTOSCROLL_KEY: autoscroll_state})
     output_dict.update({c.DELETE_TRAINING_IMAGES_KEY: delete_training_images})
-    with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), c.CONFIG_FILE), "w"
-    ) as f:
+    user_config = _get_user_config_path()
+    os.makedirs(os.path.dirname(user_config), exist_ok=True)
+    with open(user_config, "w") as f:
         json.dump(output_dict, f, indent=4)
         f.write("\n")
 
