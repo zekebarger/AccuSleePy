@@ -21,10 +21,10 @@ from accusleepy.constants import (
     LABEL_COL,
     MIN_EPOCHS_PER_STATE,
     MIN_WINDOW_LEN,
-    UPPER_FREQ,
     SPECTROGRAM_UPPER_FREQ,
+    UPPER_FREQ,
 )
-from accusleepy.fileio import Recording, load_labels, load_recording, EMGFilter
+from accusleepy.fileio import EMGFilter, Recording, load_labels, load_recording
 from accusleepy.multitaper import spectrogram
 
 # note: scipy is lazily imported
@@ -151,7 +151,7 @@ def create_spectrogram(
     # pad the EEG signal so that the first spectrogram window is centered
     # on the first epoch
     # it's possible there's some jank here, if this isn't close to an integer
-    pad_length = round((sampling_rate * (window_length_sec - epoch_length) / 2))
+    pad_length = round(sampling_rate * (window_length_sec - epoch_length) / 2)
     padded_eeg = np.concatenate(
         [eeg[:pad_length][::-1], eeg, eeg[(len(eeg) - pad_length) :][::-1]]
     )
@@ -328,7 +328,10 @@ def mixture_z_score_img(
     if labels is None and (mixture_means is None or mixture_sds is None):
         raise ValueError("must provide either labels or mixture means+SDs")
     if labels is not None and ((mixture_means is not None) ^ (mixture_sds is not None)):
-        warnings.warn("labels were given, mixture means / SDs will be ignored")
+        warnings.warn(
+            "labels were given, mixture means / SDs will be ignored",
+            stacklevel=2,
+        )
 
     if labels is not None:
         mixture_means, mixture_sds = get_mixture_values(

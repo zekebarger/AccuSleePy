@@ -197,7 +197,7 @@ class SettingsWidget(QObject):
         # Brain states
         states = {b.digit: b for b in self._brain_state_set.brain_states}
         for digit in range(10):
-            if digit in states.keys():
+            if digit in states:
                 self._settings_widgets[digit].enabled_widget.setChecked(True)
                 self._settings_widgets[digit].name_widget.setText(states[digit].name)
                 self._settings_widgets[digit].is_scored_widget.setChecked(

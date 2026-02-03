@@ -35,12 +35,13 @@ etc.) with python >=3.11,<3.14
 - `pip install accusleepy`
 - (optional) download a classification model from https://osf.io/py5eb/ under /python_format/models/
 
-Note that upgrading or reinstalling the package will overwrite any changes
-to the [config file](accusleepy/config.json).
 
 ## Usage
 
 `python -m accusleepy` will open the primary interface.
+
+Your settings are saved to a platform-specific location
+(e.g., `~/Library/Application Support/accusleepy/config.json` on macOS)
 
 [Guide to the primary interface](accusleepy/gui/text/main_guide.md)
 
@@ -52,6 +53,7 @@ please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
 
 ## Changelog
 
+- 0.11.0: Store config file in a user directory
 - 0.10.0-0.10.1: Improved zoom behavior, updated dependencies
 - 0.7.1-0.9.3: Bugfixes, code cleanup, additional config settings
 - 0.7.0: More settings can be configured in the UI

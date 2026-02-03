@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
 
-from accusleepy.brain_state_set import BrainState, BrainStateSet, BRAIN_STATES_KEY
+from accusleepy.brain_state_set import BRAIN_STATES_KEY, BrainState, BrainStateSet
 from accusleepy.constants import UNDEFINED_LABEL
 from accusleepy.validation import (
-    check_config_consistency,
     LABEL_LENGTH_ERROR,
+    check_config_consistency,
     check_label_validity,
     validate_and_correct_labels,
 )

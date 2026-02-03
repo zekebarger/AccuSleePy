@@ -41,9 +41,10 @@ def check_label_validity(
     ):
         return "label file contains invalid entries"
 
-    if confidence_scores is not None:
-        if np.min(confidence_scores) < 0 or np.max(confidence_scores) > 1:
-            return "label file contains invalid confidence scores"
+    if confidence_scores is not None and (
+        np.min(confidence_scores) < 0 or np.max(confidence_scores) > 1
+    ):
+        return "label file contains invalid confidence scores"
 
     return None
 
@@ -143,7 +144,9 @@ def check_config_consistency(
     # generate message comparing the brain state configs
     config_comparisons = list()
     for config, config_name in zip(
-        [current_scored_states, model_scored_states], ["current", "model's"]
+        [current_scored_states, model_scored_states],
+        ["current", "model's"],
+        strict=True,
     ):
         config_comparisons.append(
             f"Scored brain states in {config_name} configuration: "
@@ -154,6 +157,7 @@ def check_config_consistency(
                         for x, y in zip(
                             config["digit"],
                             config["name"],
+                            strict=True,
                         )
                     ]
                 )
@@ -164,32 +168,26 @@ def check_config_consistency(
     len_diff = len(current_scored_states["name"]) - len(model_scored_states["name"])
     if len_diff != 0:
         output.append(
-            (
-                "WARNING: current brain state configuration has "
-                f"{'fewer' if len_diff < 0 else 'more'} "
-                "scored brain states than the model's configuration."
-            )
+            "WARNING: current brain state configuration has "
+            f"{'fewer' if len_diff < 0 else 'more'} "
+            "scored brain states than the model's configuration."
         )
         output = output + config_comparisons
     else:
         # the length is the same, but names might be different
         if current_scored_states["name"] != model_scored_states["name"]:
             output.append(
-                (
-                    "WARNING: current brain state configuration appears "
-                    "to contain different brain states than "
-                    "the model's configuration."
-                )
+                "WARNING: current brain state configuration appears "
+                "to contain different brain states than "
+                "the model's configuration."
             )
             output = output + config_comparisons
 
     if current_epoch_length != model_epoch_length:
         output.append(
-            (
-                "Warning: the epoch length used when training this model "
-                f"({model_epoch_length} seconds) "
-                "does not match the current epoch length setting."
-            )
+            "Warning: the epoch length used when training this model "
+            f"({model_epoch_length} seconds) "
+            "does not match the current epoch length setting."
         )
 
     return output

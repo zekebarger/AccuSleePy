@@ -1,6 +1,6 @@
-import numpy as np
 from operator import attrgetter
 
+import numpy as np
 
 from accusleepy.bouts import (
     Bout,
@@ -20,7 +20,7 @@ def test_convert_labels_to_bouts():
     ]
     bouts = find_short_bouts(labels=labels, min_epochs=3, brain_states={0, 1})
     assert len(bouts) == len(target_bouts)
-    for bout, target_bout in zip(bouts, target_bouts):
+    for bout, target_bout in zip(bouts, target_bouts, strict=True):
         assert bout.length == target_bout.length
         assert bout.start_index == target_bout.start_index
         assert bout.end_index == target_bout.end_index

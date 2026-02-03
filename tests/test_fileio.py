@@ -1,6 +1,7 @@
 """Tests for accusleepy/fileio.py"""
 
 import json
+import os
 
 import numpy as np
 import pandas as pd
@@ -22,9 +23,15 @@ from accusleepy.fileio import (
 )
 
 
-def test_load_config():
-    """Test the configuration file loads successfully"""
+def test_load_config(tmp_path, monkeypatch):
+    """Test the configuration file loads successfully, copying default to user dir"""
+    user_config = str(tmp_path / "config.json")
+    monkeypatch.setattr("accusleepy.fileio._get_user_config_path", lambda: user_config)
+
+    # User config doesn't exist yet — load_config should copy the default
+    assert not os.path.exists(user_config)
     config = load_config()
+    assert os.path.exists(user_config)
     assert isinstance(config, AccuSleePyConfig)
     assert type(config.epochs_to_show) is int
 
@@ -223,7 +230,7 @@ def test_save_recording_list(tmp_path):
 
     save_recording_list(json_filename, recordings)
 
-    with open(json_filename, "r") as f:
+    with open(json_filename) as f:
         data = json.load(f)
 
     assert c.RECORDING_LIST_NAME in data

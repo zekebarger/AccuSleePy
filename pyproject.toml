@@ -1,6 +1,6 @@
 [project]
 name = "accusleepy"
-version = "0.10.1"
+version = "0.11.0"
 description = "Python implementation of AccuSleep"
 authors = [
     {name = "Zeke Barger",email = "zekebarger@gmail.com"}
@@ -19,6 +19,7 @@ dependencies = [
     "tqdm (>=4.67.1,<5.0.0)",
     "pyside6 (>=6.10.1,<7.0.0)",
     "pyarrow (>=23.0.0,<24.0.0)",
+    "platformdirs (>=4.0.0,<5.0.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -33,6 +34,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "SIM", "RUF"]
 
 [tool.pytest.ini_options]
 markers = [

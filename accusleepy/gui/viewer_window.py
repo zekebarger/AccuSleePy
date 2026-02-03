@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 ## Form generated from reading UI file 'viewer_window.ui'
 ##
@@ -23,11 +21,11 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from accusleepy.gui.mplwidget import MplWidget
 import accusleepy.gui.resources_rc  # noqa F401
+from accusleepy.gui.mplwidget import MplWidget
 
 
-class Ui_ViewerWindow(object):
+class Ui_ViewerWindow:
     def setupUi(self, ViewerWindow):
         if not ViewerWindow.objectName():
             ViewerWindow.setObjectName("ViewerWindow")
