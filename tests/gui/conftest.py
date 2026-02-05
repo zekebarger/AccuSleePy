@@ -10,7 +10,6 @@ import numpy as np
 import pytest
 
 from accusleepy.constants import UNDEFINED_LABEL
-from accusleepy.fileio import EMGFilter
 
 
 @pytest.fixture
@@ -48,9 +47,3 @@ def sample_labels_for_viewer(sample_eeg_emg_for_viewer):
     rng = np.random.default_rng(42)
     labels = rng.choice([UNDEFINED_LABEL, 1, 2, 3], size=n_epochs)
     return labels.astype(int)
-
-
-@pytest.fixture
-def sample_emg_filter():
-    """Default EMG filter parameters for GUI tests."""
-    return EMGFilter(order=8, bp_lower=20, bp_upper=50)

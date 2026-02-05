@@ -3,7 +3,7 @@
 import pytest
 
 from accusleepy.brain_state_set import BrainState, BrainStateSet
-from accusleepy.fileio import EMGFilter
+from accusleepy.fileio import EMGFilter, Hyperparameters
 
 
 @pytest.fixture
@@ -21,3 +21,14 @@ def sample_brain_state_set():
 def sample_emg_filter():
     """Default EMG filter parameters"""
     return EMGFilter(order=8, bp_lower=20, bp_upper=50)
+
+
+@pytest.fixture
+def fast_hyperparameters():
+    """Hyperparameters optimized for fast CI training."""
+    return Hyperparameters(
+        batch_size=4,
+        learning_rate=1e-3,
+        momentum=0.9,
+        training_epochs=1,
+    )

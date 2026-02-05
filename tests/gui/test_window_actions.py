@@ -117,3 +117,62 @@ class TestManualScoringWindowLifecycle:
         # Close should succeed without dialog
         window.close()
         assert not window.isVisible()
+
+
+@pytest.mark.gui
+class TestManualScoringWindowInteractions:
+    """Tests for interactions with ManualScoringWindow."""
+
+    def test_manual_scoring_window_navigation(
+        self,
+        qtbot,
+        sample_eeg_emg_for_viewer,
+        sample_labels_for_viewer,
+        sample_emg_filter,
+        tmp_path,
+    ):
+        """ManualScoringWindow displays and navigates recording data."""
+        label_file = str(tmp_path / "test_labels.csv")
+
+        window = ManualScoringWindow(
+            eeg=sample_eeg_emg_for_viewer["eeg"],
+            emg=sample_eeg_emg_for_viewer["emg"],
+            label_file=label_file,
+            labels=sample_labels_for_viewer,
+            confidence_scores=None,
+            sampling_rate=sample_eeg_emg_for_viewer["sampling_rate"],
+            epoch_length=sample_eeg_emg_for_viewer["epoch_length"],
+            emg_filter=sample_emg_filter,
+        )
+        qtbot.addWidget(window)
+
+        window.show()
+        assert window.isVisible()
+
+        # Test navigation using shift_epoch method
+        assert window.epoch == 0
+
+        # Navigate forward (right)
+        window.shift_epoch("right")
+        assert window.epoch == 1
+
+        # Navigate backward (left)
+        window.shift_epoch("left")
+        assert window.epoch == 0
+
+        # Test navigation bounds - going left at epoch 0 should stay at 0
+        window.shift_epoch("left")
+        assert window.epoch == 0
+
+        # Navigate to near the end
+        for _ in range(window.n_epochs - 2):
+            window.shift_epoch("right")
+        assert window.epoch == window.n_epochs - 2
+
+        # Going right at last epoch should stay there
+        window.shift_epoch("right")
+        assert window.epoch == window.n_epochs - 1
+        window.shift_epoch("right")
+        assert window.epoch == window.n_epochs - 1
+
+        window.close()
