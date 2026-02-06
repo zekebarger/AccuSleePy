@@ -82,10 +82,11 @@ model.
 If you already have all of these files, proceed to Section 4C.
 Models trained on the AccuSleep dataset are provided at
 https://osf.io/py5eb under /python_format/models/ for epoch lengths of
-2.5, 4, 5, and 10 seconds. These models are the "default" type, in that
-they use several epochs of data before and after any given epoch when
-scoring that epoch. (The other model type, called "real-time", only
-uses data from the current epoch and several preceding epochs.)
+2.5, 4, 5, and 10 seconds. These models are the "default" type: they
+use information from several epochs surrounding the currently considered
+epoch. (The other model type, called "real-time", only uses data
+from the current epoch and several preceding epochs. This type of model
+could be used in a real-time feedback loop.)
 
 ## 4A. Creating calibration data files
 
@@ -129,10 +130,10 @@ To train a new model on your own data:
     For "default" type models, this must be an odd number. Generally,
     about 30 seconds worth of data is enough.
 4. Choose whether to create a "default" or "real-time"-type model.
-    Scoring recordings in the AccuSleePy interface requires a
+    Scoring recordings with the AccuSleePy interface requires a
     default-type model. Only select real-time if you plan to create
-    your own scoring function. An example real-time scoring function
-    can be found in `classification.py`.
+    your own scoring function. For an example real-time scoring
+    function, see `real_time_scoring_example.py`.
 5. Choose whether to calibrate the model. This process uses part
     of the training data to make the model's confidence scores
     more accurately reflect the probability that the output

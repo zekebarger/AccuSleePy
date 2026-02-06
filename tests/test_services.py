@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from accusleepy.constants import DEFAULT_MODEL_TYPE
-from accusleepy.fileio import Hyperparameters, Recording
+from accusleepy.fileio import Hyperparameters, Recording, load_calibration_file
 from accusleepy.models import SSANN
 from accusleepy.services import (
     LoadedModel,
@@ -34,10 +34,11 @@ def temp_recording_file():
     import pandas as pd
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
-        # Create minimal valid recording data
-        sampling_rate = 100
-        duration = 60  # seconds
-        n_samples = sampling_rate * duration
+        # 64 epochs * 5 seconds * 128 Hz = 40960 samples
+        sampling_rate = 128
+        n_epochs = 64
+        epoch_length = 5
+        n_samples = sampling_rate * epoch_length * n_epochs
         eeg = np.random.randn(n_samples)
         emg = np.random.randn(n_samples)
         df = pd.DataFrame({"eeg": eeg, "emg": emg})
@@ -52,8 +53,9 @@ def temp_label_file(sample_brain_state_set):
     import pandas as pd
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
-        # 60 seconds / 5 second epochs = 12 epochs
-        labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2])
+        # 64 epochs with balanced labels
+        n_epochs = 64
+        labels = np.array([0, 1, 2] * (n_epochs // 3 + 1))[:n_epochs]
         df = pd.DataFrame({"brain_state": labels})
         df.to_csv(f.name, index=False)
         yield f.name
@@ -68,7 +70,7 @@ def valid_recording(temp_recording_file, temp_label_file):
         recording_file=temp_recording_file,
         label_file=temp_label_file,
         calibration_file="",
-        sampling_rate=100,
+        sampling_rate=128,
     )
 
 
@@ -400,11 +402,38 @@ class TestCreateCalibration:
             output_filename="/tmp/calibration.csv",
         )
         assert result.success is False
-        # Should fail on label file not existing
         assert (
             "label file" in result.error.lower()
             or "does not exist" in result.error.lower()
         )
+
+    def test_create_calibration_success(
+        self, tmp_path, valid_recording, sample_brain_state_set, sample_emg_filter
+    ):
+        """Valid recording creates calibration file with correct structure."""
+        output_file = tmp_path / "calibration.csv"
+
+        result = create_calibration(
+            recording=valid_recording,
+            epoch_length=5,
+            brain_state_set=sample_brain_state_set,
+            emg_filter=sample_emg_filter,
+            output_filename=str(output_file),
+        )
+
+        assert result.success, f"Calibration failed: {result.error}"
+        assert output_file.exists(), "Calibration file not created"
+
+        # Verify file structure
+        mixture_means, mixture_sds = load_calibration_file(str(output_file))
+        assert len(mixture_means) > 0, "No mixture means in calibration file"
+        assert len(mixture_sds) > 0, "No mixture sds in calibration file"
+        assert len(mixture_means) == len(mixture_sds), "Means and sds length mismatch"
+
+        # Verify values are valid
+        assert np.all(np.isfinite(mixture_means)), "Mixture means contain non-finite"
+        assert np.all(np.isfinite(mixture_sds)), "Mixture sds contain non-finite"
+        assert np.all(mixture_sds >= 0), "Mixture sds contain negative values"
 
 
 class TestLoadedModel:

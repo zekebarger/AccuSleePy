@@ -53,6 +53,7 @@ please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
 
 ## Changelog
 
+- 0.11.1: Add integration tests
 - 0.11.0: Store config file in a user directory
 - 0.10.0-0.10.1: Improved zoom behavior, updated dependencies
 - 0.7.1-0.9.3: Bugfixes, code cleanup, additional config settings
