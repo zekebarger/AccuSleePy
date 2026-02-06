@@ -14,13 +14,23 @@ from accusleepy.constants import UNDEFINED_LABEL
 
 
 @pytest.fixture
-def sample_eeg_emg_for_viewer():
+def epoch_length():
+    """Epoch length to use for GUI tests."""
+    return 4
+
+
+@pytest.fixture
+def sampling_rate():
+    """Sampling rate to use for GUI tests."""
+    return 128
+
+
+@pytest.fixture
+def sample_eeg_emg_for_viewer(epoch_length, sampling_rate):
     """Generate synthetic EEG/EMG data suitable for the manual scoring window.
 
-    Creates data for 100 epochs at 128 Hz with 4-second epochs.
+    Creates data for 24 epochs at 128 Hz with 4-second epochs.
     """
-    sampling_rate = 128
-    epoch_length = 4
     n_epochs = 24
     n_samples = sampling_rate * epoch_length * n_epochs
 

@@ -21,6 +21,9 @@ class TestTrainingPipeline:
         sample_brain_state_set,
         sample_emg_filter,
         fast_hyperparameters,
+        epoch_length,
+        epochs_per_img,
+        calibration_fraction,
     ):
         """Basic training creates a valid model file."""
         model_file = tmp_path / "model.pth"
@@ -28,11 +31,11 @@ class TestTrainingPipeline:
         service = TrainingService()
         result = service.train_model(
             recordings=[synthetic_recording, synthetic_recording],
-            epoch_length=4,
-            epochs_per_img=9,
+            epoch_length=epoch_length,
+            epochs_per_img=epochs_per_img,
             model_type=DEFAULT_MODEL_TYPE,
             calibrate=False,
-            calibration_fraction=0.2,
+            calibration_fraction=calibration_fraction,
             brain_state_set=sample_brain_state_set,
             emg_filter=sample_emg_filter,
             hyperparameters=fast_hyperparameters,
@@ -45,11 +48,15 @@ class TestTrainingPipeline:
         assert os.path.exists(model_file), "Model file not created"
 
         # Verify model can be loaded
-        model, epoch_length, epochs_per_img, model_type, brain_states = load_model(
-            str(model_file)
-        )
-        assert epoch_length == 4
-        assert epochs_per_img == 9
+        (
+            model,
+            loaded_epoch_length,
+            loaded_epochs_per_img,
+            model_type,
+            brain_states,
+        ) = load_model(str(model_file))
+        assert loaded_epoch_length == epoch_length
+        assert loaded_epochs_per_img == epochs_per_img
         assert model_type == DEFAULT_MODEL_TYPE
 
         # Verify training images were cleaned up
@@ -62,6 +69,8 @@ class TestTrainingPipeline:
         sample_brain_state_set,
         sample_emg_filter,
         fast_hyperparameters,
+        epoch_length,
+        epochs_per_img,
     ):
         """Training with temperature scaling produces ModelWithTemperature."""
         model_file = tmp_path / "model_calibrated.pth"
@@ -69,11 +78,11 @@ class TestTrainingPipeline:
         service = TrainingService()
         result = service.train_model(
             recordings=[synthetic_recording],
-            epoch_length=4,
-            epochs_per_img=9,
+            epoch_length=epoch_length,
+            epochs_per_img=epochs_per_img,
             model_type=DEFAULT_MODEL_TYPE,
             calibrate=True,
-            calibration_fraction=0.3,
+            calibration_fraction=0.2,
             brain_state_set=sample_brain_state_set,
             emg_filter=sample_emg_filter,
             hyperparameters=fast_hyperparameters,
@@ -96,6 +105,8 @@ class TestTrainingPipeline:
         sample_brain_state_set,
         sample_emg_filter,
         fast_hyperparameters,
+        epoch_length,
+        calibration_fraction,
     ):
         """Training real-time model type works."""
         model_file = tmp_path / "model_realtime.pth"
@@ -103,11 +114,11 @@ class TestTrainingPipeline:
         service = TrainingService()
         result = service.train_model(
             recordings=[synthetic_recording],
-            epoch_length=4,
+            epoch_length=epoch_length,
             epochs_per_img=10,  # Even number allowed for real-time
             model_type=REAL_TIME_MODEL_TYPE,
             calibrate=False,
-            calibration_fraction=0.2,
+            calibration_fraction=calibration_fraction,
             brain_state_set=sample_brain_state_set,
             emg_filter=sample_emg_filter,
             hyperparameters=fast_hyperparameters,
@@ -118,6 +129,6 @@ class TestTrainingPipeline:
 
         assert result.success, f"Training failed: {result.error}"
 
-        model, _, epochs_per_img, model_type, _ = load_model(str(model_file))
-        assert epochs_per_img == 10
+        model, _, loaded_epochs_per_img, model_type, _ = load_model(str(model_file))
+        assert loaded_epochs_per_img == 10
         assert model_type == REAL_TIME_MODEL_TYPE

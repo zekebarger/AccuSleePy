@@ -9,14 +9,31 @@ from accusleepy.fileio import Recording
 
 
 @pytest.fixture
-def synthetic_recording_data():
+def epoch_length():
+    """Epoch length to use in integration tests."""
+    return 4
+
+
+@pytest.fixture
+def epochs_per_img():
+    """Epochs per image to use for model training in integration tests."""
+    return 9
+
+
+@pytest.fixture
+def calibration_fraction():
+    """Calibration fraction for model training in integration tests."""
+    return 0.2
+
+
+@pytest.fixture
+def synthetic_recording_data(epoch_length):
     """Generate synthetic EEG/EMG recording data.
 
     Creates 32 epochs at 128 Hz with 4-second epochs.
     Adds sinusoidal components to EEG for realistic spectrograms.
     """
     sampling_rate = 128
-    epoch_length = 4
     n_epochs = 32
     n_samples = sampling_rate * epoch_length * n_epochs
 

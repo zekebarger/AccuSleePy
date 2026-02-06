@@ -26,6 +26,9 @@ def trained_model_and_calibration(
     sample_brain_state_set,
     sample_emg_filter,
     fast_hyperparameters,
+    epoch_length,
+    epochs_per_img,
+    calibration_fraction,
 ):
     """Create a trained model and calibration file for scoring tests."""
     # Train model
@@ -33,11 +36,11 @@ def trained_model_and_calibration(
     service = TrainingService()
     result = service.train_model(
         recordings=[synthetic_recording],
-        epoch_length=4,
-        epochs_per_img=9,
+        epoch_length=epoch_length,
+        epochs_per_img=epochs_per_img,
         model_type=DEFAULT_MODEL_TYPE,
         calibrate=False,
-        calibration_fraction=0.2,
+        calibration_fraction=calibration_fraction,
         brain_state_set=sample_brain_state_set,
         emg_filter=sample_emg_filter,
         hyperparameters=fast_hyperparameters,
@@ -51,7 +54,7 @@ def trained_model_and_calibration(
     calibration_file = tmp_path / "calibration.csv"
     cal_result = create_calibration(
         recording=synthetic_recording,
-        epoch_length=4,
+        epoch_length=epoch_length,
         brain_state_set=sample_brain_state_set,
         emg_filter=sample_emg_filter,
         output_filename=str(calibration_file),
@@ -76,23 +79,24 @@ class TestScoringPipeline:
         sample_brain_state_set,
         sample_emg_filter,
         trained_model_and_calibration,
+        epoch_length,
     ):
         """Full scoring produces valid labels and confidence scores."""
         # Load model
-        model, epoch_length, epochs_per_img, _, _ = load_model(
+        model, loaded_epoch_length, loaded_epochs_per_img, _, _ = load_model(
             str(trained_model_and_calibration["model_file"])
         )
         loaded_model = LoadedModel(
             model=model,
-            epoch_length=epoch_length,
-            epochs_per_img=epochs_per_img,
+            epoch_length=loaded_epoch_length,
+            epochs_per_img=loaded_epochs_per_img,
         )
 
         # Score the recording
         result = score_recording_list(
             recordings=[synthetic_recording],
             loaded_model=loaded_model,
-            epoch_length=4,
+            epoch_length=epoch_length,
             only_overwrite_undefined=False,
             save_confidence_scores=True,
             min_bout_length=4,
@@ -122,6 +126,7 @@ class TestScoringPipeline:
         sample_brain_state_set,
         sample_emg_filter,
         trained_model_and_calibration,
+        epoch_length,
     ):
         """only_overwrite_undefined=True preserves existing labels."""
         # Create label file with some existing labels and some undefined
@@ -143,20 +148,20 @@ class TestScoringPipeline:
         )
 
         # Load model
-        model, epoch_length, epochs_per_img, _, _ = load_model(
+        model, loaded_epoch_length, loaded_epochs_per_img, _, _ = load_model(
             str(trained_model_and_calibration["model_file"])
         )
         loaded_model = LoadedModel(
             model=model,
-            epoch_length=epoch_length,
-            epochs_per_img=epochs_per_img,
+            epoch_length=loaded_epoch_length,
+            epochs_per_img=loaded_epochs_per_img,
         )
 
         # Score with only_overwrite_undefined=True
         result = score_recording_list(
             recordings=[test_recording],
             loaded_model=loaded_model,
-            epoch_length=4,
+            epoch_length=epoch_length,
             only_overwrite_undefined=True,
             save_confidence_scores=False,
             min_bout_length=4,

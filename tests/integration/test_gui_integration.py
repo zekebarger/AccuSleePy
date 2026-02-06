@@ -14,17 +14,20 @@ def trained_model_file(
     sample_brain_state_set,
     sample_emg_filter,
     fast_hyperparameters,
+    epoch_length,
+    epochs_per_img,
+    calibration_fraction,
 ):
     """Create a trained model file for testing."""
     model_file = tmp_path / "test_model.pth"
     service = TrainingService()
     result = service.train_model(
         recordings=[synthetic_recording],
-        epoch_length=4,
-        epochs_per_img=9,
+        epoch_length=epoch_length,
+        epochs_per_img=epochs_per_img,
         model_type=DEFAULT_MODEL_TYPE,
         calibrate=False,
-        calibration_fraction=0.2,
+        calibration_fraction=calibration_fraction,
         brain_state_set=sample_brain_state_set,
         emg_filter=sample_emg_filter,
         hyperparameters=fast_hyperparameters,
@@ -42,7 +45,9 @@ def trained_model_file(
 class TestMainWindowIntegration:
     """Integration tests for AccuSleepWindow with real models."""
 
-    def test_main_window_load_model(self, qtbot, trained_model_file):
+    def test_main_window_load_model(
+        self, qtbot, trained_model_file, epoch_length, epochs_per_img
+    ):
         """AccuSleepWindow loads trained model correctly."""
         window = AccuSleepWindow()
         qtbot.addWidget(window)
@@ -54,8 +59,8 @@ class TestMainWindowIntegration:
 
         # Verify model was loaded
         assert window.loaded_model.model is not None
-        assert window.loaded_model.epoch_length == 4
-        assert window.loaded_model.epochs_per_img == 9
+        assert window.loaded_model.epoch_length == epoch_length
+        assert window.loaded_model.epochs_per_img == epochs_per_img
 
         # Verify UI was updated
         assert str(trained_model_file) in window.ui.model_label.text()
