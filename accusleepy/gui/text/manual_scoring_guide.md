@@ -1,7 +1,9 @@
 # Manual scoring interface
 Mouse actions:
 - Upper three plots: click to jump to an epoch, scroll to zoom
-- Lower EEG & EMG plots: click + drag to pan, scroll to zoom
+- Lower EEG & EMG plots:
+  - click + drag to pan, scroll to zoom
+  - right click to toggle epoch boundary markers
 
 Keyboard shortcuts:
 - Ctrl + S: save labels to file

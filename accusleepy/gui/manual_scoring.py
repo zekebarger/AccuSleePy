@@ -224,6 +224,7 @@ class ManualScoringWindow(QDialog):
         self.emg_signal_offset = 0
         self.roi_brain_state = 0
         self.label_roi_mode = False
+        self.epoch_markers_shown = False
 
         # set autoscroll state and epochs to show, based on defaults
         self.ui.autoscroll.setChecked(self.autoscroll_state)
@@ -958,6 +959,9 @@ class ManualScoringWindow(QDialog):
             ]
         )
 
+        self.ui.lowerfigure.eeg_epoch_plot.set(visible=self.epoch_markers_shown)
+        self.ui.lowerfigure.emg_epoch_plot.set(visible=self.epoch_markers_shown)
+
         self.ui.lowerfigure.canvas.draw()
 
     def click_to_jump(self, event) -> None:
@@ -1038,7 +1042,15 @@ class ManualScoringWindow(QDialog):
         self.now_zooming = False
 
     def lower_plot_click(self, event):
-        """Triggered when the lower plots are left-clicked"""
+        """Triggered when the lower plots are clicked"""
+        # right click swaps epoch marker state
+        if event.button == 3 and event.name == "button_press_event":
+            self.epoch_markers_shown = not self.epoch_markers_shown
+            self.ui.lowerfigure.eeg_epoch_plot.set(visible=self.epoch_markers_shown)
+            self.ui.lowerfigure.emg_epoch_plot.set(visible=self.epoch_markers_shown)
+            self.ui.lowerfigure.canvas.draw()
+            return
+
         # only process LMB clicks on the EEG/EMG axes
         if event.button != 1 or (
             event.inaxes not in self.ui.lowerfigure.canvas.axes[0:2]
