@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 
+import matplotlib.axes
 import matplotlib.ticker as mticker
 import numpy as np
 from matplotlib.backend_bases import MouseButton
@@ -10,8 +11,6 @@ from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from matplotlib.patches import Rectangle
 from matplotlib.widgets import RectangleSelector
-
-# from PySide6.QtWidgets import *
 from PySide6 import QtWidgets
 
 from accusleepy.brain_state_set import BrainStateSet
@@ -62,6 +61,8 @@ class MplWidget(QtWidgets.QWidget):
         self.emg_line = None
         self.top_marker = None
         self.bottom_marker = None
+        self.eeg_epoch_plot = None
+        self.emg_epoch_plot = None
 
     def setup_upper_figure(
         self,
@@ -281,6 +282,14 @@ class MplWidget(QtWidgets.QWidget):
             "k",
             linewidth=0.5,
         )[0]
+        self.eeg_epoch_plot = plot_eeg_emg_epochs(
+            ax=axes[0],
+            samples_per_epoch=samples_per_epoch,
+            samples_shown=samples_shown,
+            epochs_to_show=epochs_to_show,
+        )
+        self.eeg_epoch_plot.set(visible=False)
+
         # top epoch marker
         marker_x = [
             [0, 0],
@@ -312,6 +321,15 @@ class MplWidget(QtWidgets.QWidget):
         axes[1].set_xlim((0, samples_shown))
         axes[1].set_ylim((-1, 1))
         axes[1].set_ylabel("EMG", rotation="horizontal", ha="right")
+
+        self.emg_epoch_plot = plot_eeg_emg_epochs(
+            ax=axes[1],
+            samples_per_epoch=samples_per_epoch,
+            samples_shown=samples_shown,
+            epochs_to_show=epochs_to_show,
+        )
+        self.emg_epoch_plot.set(visible=False)
+
         self.emg_line = axes[1].plot(
             np.zeros(samples_shown),
             "k",
@@ -383,3 +401,24 @@ def resample_x_ticks(x_ticks: np.array) -> np.array:
             return x_ticks[offset :: round((nl - offset) / 3)]
         elif (nl - offset) % 2 == 0:
             return x_ticks[offset :: round((nl - offset) / 2)]
+
+
+def plot_eeg_emg_epochs(
+    ax: matplotlib.axes, samples_per_epoch: int, samples_shown: int, epochs_to_show: int
+):
+    """Plot epoch boundary markers on EEG/EMG data
+
+    :param ax: axes on which to plot
+    :param samples_per_epoch: number of samples in each epoch
+    :param samples_shown: number of samples of data displayed
+    :param epochs_to_show: number of epochs displayed
+    :return: handle to plot object
+    """
+    return ax.plot(
+        np.repeat(np.arange(samples_per_epoch, samples_shown, samples_per_epoch), 2),
+        np.tile(np.array([-1.5, 1.5, 1.5, -1.5]), epochs_to_show)[
+            : epochs_to_show * 2 - 2
+        ],
+        "gray",
+        linewidth=1,
+    )[0]

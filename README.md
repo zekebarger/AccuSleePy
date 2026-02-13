@@ -53,6 +53,7 @@ please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
 
 ## Changelog
 
+- 0.12.0: Make plots more interactive
 - 0.11.2: Simplify GUI editing
 - 0.11.1: Add integration tests
 - 0.11.0: Store config file in a user directory
