@@ -169,6 +169,10 @@ class ManualScoringWindow(QDialog):
 
         # center and scale the EEG and EMG signals to fit the display
         self.eeg, self.emg = transform_eeg_emg(self.eeg, self.emg)
+        # only a portion will be displayed in the lower plots
+        # we'll store this so that it's easy to modify
+        self.eeg_shown = None
+        self.emg_shown = None
 
         # convert labels to "display" format and make an image to display them
         self.display_labels = convert_labels(self.labels, DISPLAY_FORMAT)
@@ -363,7 +367,18 @@ class ManualScoringWindow(QDialog):
         self.ui.lowerfigure.canvas.mpl_connect(
             "scroll_event", partial(self.scroll_zoom, "lower")
         )
+        self.ui.lowerfigure.canvas.mpl_connect(
+            "button_press_event", self.lower_plot_click
+        )
+        self.ui.lowerfigure.canvas.mpl_connect(
+            "button_release_event", self.lower_plot_click
+        )
+        self.ui.lowerfigure.canvas.mpl_connect(
+            "motion_notify_event", self.lower_plot_move
+        )
         self.now_zooming = False  # impose timeout on zoom events
+        self.drag_axes = None  # axes experiencing a drag event
+        self.last_y = None  # most recent mouse y position
 
         # user input: buttons
         self.ui.savebutton.clicked.connect(self.save)
@@ -689,9 +704,17 @@ class ManualScoringWindow(QDialog):
         """
         if signal == EEG_SIGNAL:
             self.eeg_signal_offset += OFFSET_INCREMENTS[direction]
+            adjusted_eeg = (
+                self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
+            )
+            self.ui.lowerfigure.eeg_line.set_ydata(adjusted_eeg)
         else:
             self.emg_signal_offset += OFFSET_INCREMENTS[direction]
-        self.update_lower_figure()
+            adjusted_emg = (
+                self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
+            )
+            self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
+        self.ui.lowerfigure.canvas.draw()
 
     def update_signal_zoom(self, signal: str, direction: str) -> None:
         """Zoom EEG or EMG y-axis
@@ -895,18 +918,23 @@ class ManualScoringWindow(QDialog):
         last_sample = round(
             (self.lower_right_epoch + 1) * self.sampling_rate * self.epoch_length
         )
-        eeg = self.eeg[first_sample:last_sample]
-        emg = self.emg[first_sample:last_sample]
+        # store the (unmodified) eeg/emg segments to display
+        self.eeg_shown = self.eeg[first_sample:last_sample]
+        self.emg_shown = self.emg[first_sample:last_sample]
 
         # scale and shift as needed
-        eeg = eeg * self.eeg_signal_scale_factor + self.eeg_signal_offset
-        emg = emg * self.emg_signal_scale_factor + self.emg_signal_offset
+        adjusted_eeg = (
+            self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
+        )
+        adjusted_emg = (
+            self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
+        )
 
         self.update_lower_epoch_marker()
 
         # replot eeg and emg
-        self.ui.lowerfigure.eeg_line.set_ydata(eeg)
-        self.ui.lowerfigure.emg_line.set_ydata(emg)
+        self.ui.lowerfigure.eeg_line.set_ydata(adjusted_eeg)
+        self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
 
         # replot brain state
         self.ui.lowerfigure.label_img_ref.set(
@@ -1003,6 +1031,71 @@ class ManualScoringWindow(QDialog):
         if time_elapsed < 1 / MAX_SCROLL_EVENTS_PER_SEC:
             time.sleep(1 / MAX_SCROLL_EVENTS_PER_SEC - time_elapsed)
         self.now_zooming = False
+
+    def lower_plot_click(self, event):
+        """Triggered when the lower plots are left-clicked"""
+        # only process LMB clicks on the EEG/EMG axes
+        if (
+            event.button != 1
+            or event.inaxes not in self.ui.lowerfigure.canvas.axes[0:2]
+        ):
+            return
+
+        if event.name == "button_press_event":
+            # button press sets the current axes, y location
+            self.drag_axes = event.inaxes
+            self.last_y = event.ydata
+        else:
+            # button release clears those
+            self.drag_axes = None
+            self.last_y = None
+
+        # double click resets plot to original conditions
+        if event.dblclick:
+            if event.inaxes == self.ui.lowerfigure.canvas.axes[0]:
+                self.eeg_signal_offset = 0
+                self.eeg_signal_scale_factor = 1
+                adjusted_eeg = (
+                    self.eeg_shown * self.eeg_signal_scale_factor
+                    + self.eeg_signal_offset
+                )
+                self.ui.lowerfigure.eeg_line.set_ydata(adjusted_eeg)
+            else:
+                self.emg_signal_offset = 0
+                self.emg_signal_scale_factor = 1
+                adjusted_emg = (
+                    self.emg_shown * self.emg_signal_scale_factor
+                    + self.emg_signal_offset
+                )
+                self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
+            self.ui.lowerfigure.canvas.draw()
+
+    def lower_plot_move(self, event):
+        """Triggered when the mouse moves in the lower plots"""
+        # only process move events where LMB is down
+        # and the axes match the most recent click
+        if event.button != 1 or event.inaxes != self.drag_axes:
+            return
+
+        # get movement distance on the y-axis
+        y_diff = event.ydata - self.last_y
+        # update mouse's most recent y position
+        self.last_y = event.ydata
+
+        # update y offset for the selected plot
+        if event.inaxes == self.ui.lowerfigure.canvas.axes[0]:
+            self.eeg_signal_offset += y_diff
+            adjusted_eeg = (
+                self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
+            )
+            self.ui.lowerfigure.eeg_line.set_ydata(adjusted_eeg)
+        else:
+            self.emg_signal_offset += y_diff
+            adjusted_emg = (
+                self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
+            )
+            self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
+        self.ui.lowerfigure.canvas.draw()
 
 
 def convert_labels(labels: np.array, style: str) -> np.array:
