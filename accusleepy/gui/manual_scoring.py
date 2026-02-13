@@ -357,7 +357,12 @@ class ManualScoringWindow(QDialog):
 
         # user input: mouse events
         self.ui.upperfigure.canvas.mpl_connect("button_press_event", self.click_to_jump)
-        self.ui.upperfigure.canvas.mpl_connect("scroll_event", self.scroll_zoom)
+        self.ui.upperfigure.canvas.mpl_connect(
+            "scroll_event", partial(self.scroll_zoom, "upper")
+        )
+        self.ui.lowerfigure.canvas.mpl_connect(
+            "scroll_event", partial(self.scroll_zoom, "lower")
+        )
         self.now_zooming = False  # impose timeout on zoom events
 
         # user input: buttons
@@ -976,17 +981,23 @@ class ManualScoringWindow(QDialog):
 
         self.update_figures()
 
-    def scroll_zoom(self, event) -> None:
+    def scroll_zoom(self, canvas, event) -> None:
         """Zoom on mouse scroll events"""
         if self.now_zooming:
             return
 
         self.now_zooming = True
         start_time = time.time()
-        if event.button == "up":
-            self.zoom_x(direction=ZOOM_IN)
-        else:
-            self.zoom_x(direction=ZOOM_OUT)
+
+        direction = ZOOM_IN if event.button == "up" else ZOOM_OUT
+
+        if canvas == "upper":
+            self.zoom_x(direction=direction)
+        elif event.inaxes == self.ui.lowerfigure.canvas.axes[0]:
+            self.update_signal_zoom(EEG_SIGNAL, direction)
+        elif event.inaxes == self.ui.lowerfigure.canvas.axes[1]:
+            self.update_signal_zoom(EMG_SIGNAL, direction)
+
         end_time = time.time()
         time_elapsed = end_time - start_time
         if time_elapsed < 1 / MAX_SCROLL_EVENTS_PER_SEC:
