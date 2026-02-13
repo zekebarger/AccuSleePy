@@ -260,7 +260,7 @@ class Ui_ViewerWindow:
         self.bottom_plot_buttons.addItem(self.verticalSpacer_3)
 
         self.eeg_emg_buttons = QVBoxLayout()
-        self.eeg_emg_buttons.setSpacing(20)
+        self.eeg_emg_buttons.setSpacing(2)
         self.eeg_emg_buttons.setObjectName("eeg_emg_buttons")
         self.eegbuttons = QGridLayout()
         self.eegbuttons.setObjectName("eegbuttons")
@@ -322,6 +322,21 @@ class Ui_ViewerWindow:
 
         self.eeg_emg_buttons.addLayout(self.eegbuttons)
 
+        self.verticalSpacer_8 = QSpacerItem(
+            5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred
+        )
+
+        self.eeg_emg_buttons.addItem(self.verticalSpacer_8)
+
+        self.reset_tip_label = QLabel(ViewerWindow)
+        self.reset_tip_label.setObjectName("reset_tip_label")
+        sizePolicy1.setHeightForWidth(
+            self.reset_tip_label.sizePolicy().hasHeightForWidth()
+        )
+        self.reset_tip_label.setSizePolicy(sizePolicy1)
+
+        self.eeg_emg_buttons.addWidget(self.reset_tip_label)
+
         self.verticalSpacer_5 = QSpacerItem(
             5, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred
         )
@@ -379,6 +394,12 @@ class Ui_ViewerWindow:
         self.emgbuttons.addWidget(self.emgzoomout, 1, 0, 1, 1)
 
         self.eeg_emg_buttons.addLayout(self.emgbuttons)
+
+        self.eeg_emg_buttons.setStretch(0, 10)
+        self.eeg_emg_buttons.setStretch(1, 1)
+        self.eeg_emg_buttons.setStretch(2, 1)
+        self.eeg_emg_buttons.setStretch(3, 1)
+        self.eeg_emg_buttons.setStretch(4, 10)
 
         self.bottom_plot_buttons.addLayout(self.eeg_emg_buttons)
 
@@ -574,6 +595,9 @@ class Ui_ViewerWindow:
         )
         # endif // QT_CONFIG(tooltip)
         self.eegzoomin.setText("")
+        self.reset_tip_label.setText(
+            QCoreApplication.translate("ViewerWindow", "double-click to reset", None)
+        )
         self.emgzoomin.setText("")
         self.emgshiftdown.setText("")
         self.emgshiftup.setText("")

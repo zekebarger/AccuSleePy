@@ -88,6 +88,8 @@ DIMMER_SCALE_FACTOR = 1.07
 ZOOM_FACTOR = 0.1
 # rate limit for zoom events triggered by scrolling
 MAX_SCROLL_EVENTS_PER_SEC = 24
+# tip to show when EEG/EMG plot moves a lot
+RESET_TIP = "click plot 2x to reset"
 
 
 @dataclass
@@ -229,6 +231,9 @@ class ManualScoringWindow(QDialog):
 
         # keep track of save state to warn user when they quit
         self.last_saved_labels = copy.deepcopy(self.labels)
+
+        # no need to show the tip about the lower axes yet
+        self.ui.reset_tip_label.setText("")
 
         # populate the lower figure
         self.update_lower_figure()
@@ -1035,9 +1040,9 @@ class ManualScoringWindow(QDialog):
     def lower_plot_click(self, event):
         """Triggered when the lower plots are left-clicked"""
         # only process LMB clicks on the EEG/EMG axes
-        if (
-            event.button != 1
-            or event.inaxes not in self.ui.lowerfigure.canvas.axes[0:2]
+        if event.button != 1 or (
+            event.inaxes not in self.ui.lowerfigure.canvas.axes[0:2]
+            and event.name == "button_press_event"
         ):
             return
 
@@ -1045,8 +1050,13 @@ class ManualScoringWindow(QDialog):
             # button press sets the current axes, y location
             self.drag_axes = event.inaxes
             self.last_y = event.ydata
+            self.ui.reset_tip_label.setText("")
         else:
-            # button release clears those
+            # display tip if y position is extreme
+            if max([abs(self.eeg_signal_offset), abs(self.emg_signal_offset)]) > 0.8:
+                self.ui.reset_tip_label.setText(RESET_TIP)
+
+            # button release clears current axes, y location
             self.drag_axes = None
             self.last_y = None
 
@@ -1069,6 +1079,7 @@ class ManualScoringWindow(QDialog):
                 )
                 self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
             self.ui.lowerfigure.canvas.draw()
+            self.ui.reset_tip_label.setText("")
 
     def lower_plot_move(self, event):
         """Triggered when the mouse moves in the lower plots"""
