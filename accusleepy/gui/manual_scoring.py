@@ -1214,8 +1214,8 @@ def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
     """
     eeg = eeg - np.mean(eeg)
     emg = emg - np.mean(emg)
-    eeg = eeg / np.percentile(eeg, 95) / 2.2
-    emg = emg / np.percentile(emg, 95) / 2.2
+    eeg = eeg / np.percentile(np.abs(eeg), 98) / 2.2
+    emg = emg / np.percentile(np.abs(emg), 98) / 2.2
     return eeg, emg
 
 
