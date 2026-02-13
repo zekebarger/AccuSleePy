@@ -1,12 +1,8 @@
 # Manual scoring interface
-Mouse actions:
 - Upper three plots: click to jump to an epoch, scroll to zoom
 - Lower EEG & EMG plots:
-  - click + drag to pan, scroll to zoom
-  - double-click to reset pan/zoom settings
+  - click + drag to pan, scroll to zoom, double-click to reset view
   - right click to toggle epoch boundary markers
-
-Keyboard shortcuts:
 - Ctrl + S: save labels to file
 - Right / left arrow: move one epoch forward / backward in time
 - Numbers 0-9: set current epoch to this brain state
