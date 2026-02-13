@@ -702,6 +702,20 @@ class ManualScoringWindow(QDialog):
         # upper plot x limits might need to change
         self.zoom_x(direction=None)
 
+    def _refresh_eeg_line(self) -> None:
+        """Recompute and update the displayed EEG line."""
+        adjusted = (
+            self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
+        )
+        self.ui.lowerfigure.eeg_line.set_ydata(adjusted)
+
+    def _refresh_emg_line(self) -> None:
+        """Recompute and update the displayed EMG line."""
+        adjusted = (
+            self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
+        )
+        self.ui.lowerfigure.emg_line.set_ydata(adjusted)
+
     def update_signal_offset(self, signal: str, direction: str) -> None:
         """Shift EEG or EMG up or down
 
@@ -710,16 +724,10 @@ class ManualScoringWindow(QDialog):
         """
         if signal == EEG_SIGNAL:
             self.eeg_signal_offset += OFFSET_INCREMENTS[direction]
-            adjusted_eeg = (
-                self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
-            )
-            self.ui.lowerfigure.eeg_line.set_ydata(adjusted_eeg)
+            self._refresh_eeg_line()
         else:
             self.emg_signal_offset += OFFSET_INCREMENTS[direction]
-            adjusted_emg = (
-                self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
-            )
-            self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
+            self._refresh_emg_line()
         self.ui.lowerfigure.canvas.draw()
 
     def update_signal_zoom(self, signal: str, direction: str) -> None:
@@ -928,19 +936,11 @@ class ManualScoringWindow(QDialog):
         self.eeg_shown = self.eeg[first_sample:last_sample]
         self.emg_shown = self.emg[first_sample:last_sample]
 
-        # scale and shift as needed
-        adjusted_eeg = (
-            self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
-        )
-        adjusted_emg = (
-            self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
-        )
-
         self.update_lower_epoch_marker()
 
         # replot eeg and emg
-        self.ui.lowerfigure.eeg_line.set_ydata(adjusted_eeg)
-        self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
+        self._refresh_eeg_line()
+        self._refresh_emg_line()
 
         # replot brain state
         self.ui.lowerfigure.label_img_ref.set(
@@ -1077,19 +1077,11 @@ class ManualScoringWindow(QDialog):
             if event.inaxes == self.ui.lowerfigure.canvas.axes[0]:
                 self.eeg_signal_offset = 0
                 self.eeg_signal_scale_factor = 1
-                adjusted_eeg = (
-                    self.eeg_shown * self.eeg_signal_scale_factor
-                    + self.eeg_signal_offset
-                )
-                self.ui.lowerfigure.eeg_line.set_ydata(adjusted_eeg)
+                self._refresh_eeg_line()
             else:
                 self.emg_signal_offset = 0
                 self.emg_signal_scale_factor = 1
-                adjusted_emg = (
-                    self.emg_shown * self.emg_signal_scale_factor
-                    + self.emg_signal_offset
-                )
-                self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
+                self._refresh_emg_line()
             self.ui.lowerfigure.canvas.draw()
             self.ui.reset_tip_label.setText("")
 
@@ -1108,16 +1100,10 @@ class ManualScoringWindow(QDialog):
         # update y offset for the selected plot
         if event.inaxes == self.ui.lowerfigure.canvas.axes[0]:
             self.eeg_signal_offset += y_diff
-            adjusted_eeg = (
-                self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
-            )
-            self.ui.lowerfigure.eeg_line.set_ydata(adjusted_eeg)
+            self._refresh_eeg_line()
         else:
             self.emg_signal_offset += y_diff
-            adjusted_emg = (
-                self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
-            )
-            self.ui.lowerfigure.emg_line.set_ydata(adjusted_emg)
+            self._refresh_emg_line()
         self.ui.lowerfigure.canvas.draw()
 
 
