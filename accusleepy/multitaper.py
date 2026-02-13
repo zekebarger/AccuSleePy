@@ -130,7 +130,7 @@ def spectrogram(
         winsize_samples,
         winstep_samples,
         window_start,
-        num_windows,
+        _num_windows,
         nfft,
         detrend_opt,
         plot_on,

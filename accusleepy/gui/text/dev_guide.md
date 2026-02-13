@@ -20,11 +20,14 @@ and the manual scoring interface.
 ### Exporting your changes
 Once you have made edits to a `.ui` file in Qt Creator and saved
 your changes, you need to update the python representation of the UI.
-1. Update the corresponding `.py` file by running
-    ```
-    pyside6-uic accusleepy/gui/<filename>.ui -o accusleepy/gui/<filename>.py
-    ```
-    where `<filename>` is either `primary_window` or `viewer_window`.
+Run:
+```
+pyside6-uic accusleepy/gui/<filename>.ui -o accusleepy/gui/<filename>.py
+```
+where `<filename>` is either `primary_window` or `viewer_window`.
+
+The promoted widget header in `viewer_window.ui`
+is configured to generate the correct `MplWidget` import.
 
 > [!NOTE]
 > If for some reason that doesn't work, on Windows you can
@@ -32,19 +35,6 @@ your changes, you need to update the python representation of the UI.
 > ```
 > <path_to_your_uic>.exe -g python accusleepy\gui\<filename>.ui -o accusleepy\gui\<filename>.py
 > ```
-2. `uic` does not create some necessary imports in the modified
-   `.py` file, so you will need to add them back.
-   Open the file and add the following import statement:
-   ```
-   import accusleepy.gui.resources_rc  # noqa F401
-   ```
-   If the file already contains the line `import resources_rc`,
-   replace it with the one above.
-   If you updated `viewer_window.py`, you also need to add:
-   ```
-   from accusleepy.gui.mplwidget import MplWidget
-   ```
-   (replacing `from mplwidget import MplWidget` if necessary)
 
 ### Updating the resources file
 If you want to modify the resources available to the GUI

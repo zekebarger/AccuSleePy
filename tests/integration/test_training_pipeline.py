@@ -49,11 +49,11 @@ class TestTrainingPipeline:
 
         # Verify model can be loaded
         (
-            model,
+            _model,
             loaded_epoch_length,
             loaded_epochs_per_img,
             model_type,
-            brain_states,
+            _brain_states,
         ) = load_model(str(model_file))
         assert loaded_epoch_length == epoch_length
         assert loaded_epochs_per_img == epochs_per_img
@@ -129,6 +129,6 @@ class TestTrainingPipeline:
 
         assert result.success, f"Training failed: {result.error}"
 
-        model, _, loaded_epochs_per_img, model_type, _ = load_model(str(model_file))
+        _model, _, loaded_epochs_per_img, model_type, _ = load_model(str(model_file))
         assert loaded_epochs_per_img == 10
         assert model_type == REAL_TIME_MODEL_TYPE

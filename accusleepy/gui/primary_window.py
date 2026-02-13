@@ -31,8 +31,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import accusleepy.gui.resources_rc  # noqa F401
-
 
 class Ui_PrimaryWindow:
     def setupUi(self, PrimaryWindow):

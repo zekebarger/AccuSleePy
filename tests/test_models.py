@@ -139,7 +139,7 @@ class TestSaveLoadModel:
             loaded_epoch_length,
             loaded_epochs_per_img,
             loaded_model_type,
-            loaded_brain_states,
+            _loaded_brain_states,
         ) = load_model(filename)
 
         assert isinstance(loaded_model, ModelWithTemperature)

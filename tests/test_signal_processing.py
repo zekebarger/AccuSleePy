@@ -23,7 +23,7 @@ def test_create_spectrogram():
     n_samples = sampling_rate * 60
     eeg = np.sin(10 * np.arange(n_samples) / sampling_rate)
     epoch_length = 5
-    spectrogram, f = create_spectrogram(
+    spectrogram, _f = create_spectrogram(
         eeg=eeg, sampling_rate=sampling_rate, epoch_length=epoch_length
     )
     assert type(spectrogram) is np.ndarray
@@ -39,7 +39,7 @@ def test_resample_no_change():
     emg = np.zeros(1000)
     sampling_rate = 10
     epoch_length = 10
-    new_eeg, new_emg, new_sampling_rate = resample(
+    new_eeg, _new_emg, new_sampling_rate = resample(
         eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
     )
     assert new_sampling_rate == sampling_rate
@@ -52,7 +52,7 @@ def test_resample_with_change():
     emg = np.zeros(1000)
     sampling_rate = 12.5
     epoch_length = 5
-    new_eeg, new_emg, new_sampling_rate = resample(
+    new_eeg, _new_emg, new_sampling_rate = resample(
         eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
     )
     assert new_sampling_rate * epoch_length % 1 == pytest.approx(0)
@@ -65,7 +65,7 @@ def test_standardize_length_no_change():
     emg = np.zeros(1000)
     sampling_rate = 10
     epoch_length = 5
-    new_eeg, new_emg = standardize_signal_length(
+    new_eeg, _new_emg = standardize_signal_length(
         eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
     )
     assert len(new_eeg) == len(eeg)
@@ -105,7 +105,7 @@ def test_standardize_length():
     for i, test_length in enumerate(test_lengths):
         eeg = np.zeros(test_length)
         emg = np.zeros(test_length)
-        new_eeg, new_emg = standardize_signal_length(
+        new_eeg, _new_emg = standardize_signal_length(
             eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
         )
         assert len(new_eeg) == target_lengths[i]
@@ -212,7 +212,7 @@ def test_mixture_z_score_img_with_means_sds(sample_brain_state_set):
     mixture_means = np.zeros(n_features)
     mixture_sds = np.ones(n_features)
 
-    z_scored_img, had_zero_variance = mixture_z_score_img(
+    z_scored_img, _had_zero_variance = mixture_z_score_img(
         img=img,
         brain_state_set=sample_brain_state_set,
         mixture_means=mixture_means,

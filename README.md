@@ -53,15 +53,14 @@ please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
 
 ## Changelog
 
+- 0.11.2: Simplify GUI editing
 - 0.11.1: Add integration tests
 - 0.11.0: Store config file in a user directory
 - 0.10.0-0.10.1: Improved zoom behavior, updated dependencies
-- 0.7.1-0.9.3: Bugfixes, code cleanup, additional config settings
-- 0.7.0: More settings can be configured in the UI
+- 0.7.0-0.9.3: Bugfixes, code cleanup, additional config settings
 - 0.6.0: Confidence scores can now be displayed and saved. Retraining your models is recommended
     since the new calibration feature will make the confidence scores more accurate.
-- 0.5.0: Performance improvements
-- 0.4.5: Added support for python 3.13, **removed support for python 3.10.**
+- 0.4.5: Add support for python 3.13, **remove support for python 3.10.**
 - 0.1.0-0.4.4: Early development versions
 
 ## Screenshots
