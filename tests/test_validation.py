@@ -176,7 +176,7 @@ class TestValidateAndCorrectLabels:
         # 12 epochs at 5 seconds each = 60 seconds
         # 60 seconds * 100 Hz = 6000 samples
         labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2])
-        result_labels, result_scores, message = validate_and_correct_labels(
+        result_labels, _result_scores, message = validate_and_correct_labels(
             labels=labels,
             confidence_scores=None,
             samples_in_recording=6000,
@@ -192,7 +192,7 @@ class TestValidateAndCorrectLabels:
         """Labels that are one epoch short should be padded."""
         # 11 labels but recording has 12 epochs worth of samples
         labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1])
-        result_labels, result_scores, message = validate_and_correct_labels(
+        result_labels, _result_scores, message = validate_and_correct_labels(
             labels=labels,
             confidence_scores=None,
             samples_in_recording=6000,
@@ -210,7 +210,7 @@ class TestValidateAndCorrectLabels:
         """Labels that are one epoch long should be truncated."""
         # 13 labels but recording has 12 epochs worth of samples
         labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0])
-        result_labels, result_scores, message = validate_and_correct_labels(
+        result_labels, _result_scores, message = validate_and_correct_labels(
             labels=labels,
             confidence_scores=None,
             samples_in_recording=6000,
@@ -227,7 +227,7 @@ class TestValidateAndCorrectLabels:
         """Labels with a big length mismatch should fail validation."""
         # 5 labels but recording has 12 epochs worth of samples
         labels = np.array([0, 1, 2, 0, 1])
-        result_labels, result_scores, message = validate_and_correct_labels(
+        result_labels, _result_scores, message = validate_and_correct_labels(
             labels=labels,
             confidence_scores=None,
             samples_in_recording=6000,
@@ -241,7 +241,7 @@ class TestValidateAndCorrectLabels:
     def test_invalid_label_value_fails(self, brain_state_set_3_states):
         """Invalid label values should fail validation."""
         labels = np.array([0, 1, 2, 0, 1, 99, 0, 1, 2, 0, 1, 2])  # 99 is invalid
-        result_labels, result_scores, message = validate_and_correct_labels(
+        result_labels, _result_scores, message = validate_and_correct_labels(
             labels=labels,
             confidence_scores=None,
             samples_in_recording=6000,
@@ -256,7 +256,7 @@ class TestValidateAndCorrectLabels:
         """Confidence scores should be padded when labels are padded."""
         labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1])
         confidence_scores = np.array([0.9] * 11)
-        result_labels, result_scores, message = validate_and_correct_labels(
+        result_labels, result_scores, _message = validate_and_correct_labels(
             labels=labels,
             confidence_scores=confidence_scores,
             samples_in_recording=6000,
@@ -272,7 +272,7 @@ class TestValidateAndCorrectLabels:
         """Confidence scores should be truncated when labels are truncated."""
         labels = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0])
         confidence_scores = np.array([0.9] * 13)
-        result_labels, result_scores, message = validate_and_correct_labels(
+        result_labels, result_scores, _message = validate_and_correct_labels(
             labels=labels,
             confidence_scores=confidence_scores,
             samples_in_recording=6000,
