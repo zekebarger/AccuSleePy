@@ -27,13 +27,16 @@ Please contact zekebarger (at) gmail (dot) com with any questions or comments ab
 
 ## Installation
 
+- make sure you have python >=3.11,<3.14
 - (recommended) create a new virtual environment (using
 [venv](https://docs.python.org/3/library/venv.html),
 [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html),
-etc.) with python >=3.11,<3.14
+etc.)
 - (optional) if you have a CUDA device and want to speed up model training, [install PyTorch](https://pytorch.org/)
 - `pip install accusleepy`
 - (optional) download a classification model from https://osf.io/py5eb/ under /python_format/models/
+
+There have been issues reported with installing pytorch on M1 Macs. Please contact us if you have trouble with this.
 
 
 ## Usage
