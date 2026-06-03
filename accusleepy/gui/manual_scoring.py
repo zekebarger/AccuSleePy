@@ -1214,8 +1214,13 @@ def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
     """
     eeg = eeg - np.mean(eeg)
     emg = emg - np.mean(emg)
-    eeg = eeg / np.percentile(np.abs(eeg), 98) / 2.2
-    emg = emg / np.percentile(np.abs(emg), 98) / 2.2
+    # avoid dividing by 0 if a signal is flat (e.g., no EMG was recorded)
+    eeg_scale = np.percentile(np.abs(eeg), 98)
+    if eeg_scale > 0:
+        eeg = eeg / eeg_scale / 2.2
+    emg_scale = np.percentile(np.abs(emg), 98)
+    if emg_scale > 0:
+        emg = emg / emg_scale / 2.2
     return eeg, emg
 
 

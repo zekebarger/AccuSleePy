@@ -1,4 +1,7 @@
+import warnings
+
 import numpy as np
+import pytest
 
 from accusleepy.constants import UNDEFINED_LABEL
 from accusleepy.gui.manual_scoring import (
@@ -10,6 +13,7 @@ from accusleepy.gui.manual_scoring import (
     ZOOM_RESET,
     convert_labels,
     find_new_x_limits,
+    transform_eeg_emg,
 )
 
 
@@ -31,6 +35,36 @@ def test_convert_labels():
 
     assert np.array_equal(convert_labels(digit_labels, DISPLAY_FORMAT), display_labels)
     assert np.array_equal(convert_labels(display_labels, DIGIT_FORMAT), digit_labels)
+
+
+def test_transform_eeg_emg():
+    """EEG and EMG signals are centered and scaled for display"""
+    rng = np.random.default_rng(42)
+    eeg = rng.normal(5, 1, 10000)
+    emg = rng.normal(-3, 2, 10000)
+
+    new_eeg, new_emg = transform_eeg_emg(eeg, emg)
+
+    assert np.mean(new_eeg) == pytest.approx(0)
+    assert np.mean(new_emg) == pytest.approx(0)
+    assert np.percentile(np.abs(new_eeg), 98) == pytest.approx(1 / 2.2)
+    assert np.percentile(np.abs(new_emg), 98) == pytest.approx(1 / 2.2)
+
+
+def test_transform_eeg_emg_all_zero_emg():
+    """A flat (absent) EMG signal stays flat instead of becoming NaN"""
+    rng = np.random.default_rng(42)
+    eeg = rng.normal(0, 1, 10000)
+    emg = np.zeros(10000)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        new_eeg, new_emg = transform_eeg_emg(eeg, emg)
+
+    assert np.all(np.isfinite(new_eeg))
+    assert np.all(new_emg == 0)
+    # EEG should still be scaled normally
+    assert np.percentile(np.abs(new_eeg), 98) == pytest.approx(1 / 2.2)
 
 
 class TestFindNewXLimits:

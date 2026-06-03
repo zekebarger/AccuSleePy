@@ -217,7 +217,9 @@ def get_emg_power(
         [round(len(emg) / samples_per_epoch), samples_per_epoch],
     )
     rms = np.sqrt(np.mean(np.power(reshaped, 2), axis=1))
-    log_rms = np.log(rms)
+    # all-zero (e.g., absent) EMG gives rms == 0; log(0) = -inf is mapped to 0 below
+    with np.errstate(divide="ignore"):
+        log_rms = np.log(rms)
     log_rms[np.isinf(log_rms)] = 0
     return log_rms
 
@@ -246,14 +248,20 @@ def create_eeg_emg_image(
     f_lower_idx = sum(f < DOWNSAMPLING_START_FREQ)
     f_upper_idx = sum(f < UPPER_FREQ)
 
-    modified_spectrogram = np.log(
-        spec[
-            np.concatenate(
-                [np.arange(0, f_lower_idx), np.arange(f_lower_idx, f_upper_idx, 2)]
-            ),
-            :,
-        ]
-    )
+    with np.errstate(divide="ignore"):
+        modified_spectrogram = np.log(
+            spec[
+                np.concatenate(
+                    [np.arange(0, f_lower_idx), np.arange(f_lower_idx, f_upper_idx, 2)]
+                ),
+                :,
+            ]
+        )
+    # guard against zero-power bins (e.g., flatlined EEG segments) so that
+    # -inf values don't propagate into the image
+    if np.any(np.isneginf(modified_spectrogram)):
+        finite_min = np.min(modified_spectrogram[np.isfinite(modified_spectrogram)])
+        modified_spectrogram[np.isneginf(modified_spectrogram)] = finite_min
 
     emg_log_rms = get_emg_power(emg, sampling_rate, epoch_length, emg_filter)
     output = np.concatenate(

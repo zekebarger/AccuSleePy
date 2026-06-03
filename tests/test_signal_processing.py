@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pytest
 
@@ -154,6 +156,59 @@ def test_get_emg_power(sample_emg_filter):
 
     assert len(emg_power) == n_epochs
     assert emg_power.dtype == np.float64
+
+
+def test_get_emg_power_all_zero_emg(sample_emg_filter):
+    """All-zero (absent) EMG produces zeros without divide-by-zero warnings"""
+    sampling_rate = 128
+    epoch_length = 4
+    n_epochs = 30
+    n_samples = sampling_rate * epoch_length * n_epochs
+
+    emg = np.zeros(n_samples)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        emg_power = get_emg_power(
+            emg=emg,
+            sampling_rate=sampling_rate,
+            epoch_length=epoch_length,
+            emg_filter=sample_emg_filter,
+        )
+
+    assert len(emg_power) == n_epochs
+    assert np.all(emg_power == 0)
+
+
+def test_create_eeg_emg_image_all_zero_emg(sample_emg_filter, sample_brain_state_set):
+    """EEG-only recordings (all-zero EMG) produce finite z-scored images"""
+    sampling_rate = 128
+    epoch_length = 4
+    n_epochs = 100
+    n_samples = sampling_rate * epoch_length * n_epochs
+
+    rng = np.random.default_rng(42)
+    eeg = rng.normal(0, 1, n_samples)
+    emg = np.zeros(n_samples)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        img = create_eeg_emg_image(
+            eeg=eeg,
+            emg=emg,
+            sampling_rate=sampling_rate,
+            epoch_length=epoch_length,
+            emg_filter=sample_emg_filter,
+        )
+
+    assert np.all(np.isfinite(img))
+
+    labels = np.array([i % sample_brain_state_set.n_classes for i in range(n_epochs)])
+    z_scored_img, had_zero_variance = mixture_z_score_img(
+        img=img, brain_state_set=sample_brain_state_set, labels=labels
+    )
+    assert np.all(np.isfinite(z_scored_img))
+    assert had_zero_variance
 
 
 def test_get_mixture_values(sample_brain_state_set):
