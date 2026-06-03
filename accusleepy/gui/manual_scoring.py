@@ -618,6 +618,8 @@ class ManualScoringWindow(QDialog):
         self.ui.upperfigure.roi.update()
         self.label_roi_mode = False
         self.ui.upperfigure.editing_patch.set_visible(False)
+        # re-enable the click-to-jump preview cursor
+        self.ui.upperfigure.cursor.visible = True
 
     def enter_label_roi_mode(self, brain_state: int) -> None:
         """Enter ROI drawing mode
@@ -629,6 +631,10 @@ class ManualScoringWindow(QDialog):
         """
         self.label_roi_mode = True
         self.roi_brain_state = brain_state
+        # clicking won't jump to a new epoch in this mode, so hide the
+        # click-to-jump preview cursor
+        self.ui.upperfigure.cursor.visible = False
+        self.ui.upperfigure.cursor.hide()
         self.ui.upperfigure.roi_patch.set(
             facecolor=LABEL_CMAP[
                 convert_labels(np.array([brain_state]), DISPLAY_FORMAT)
