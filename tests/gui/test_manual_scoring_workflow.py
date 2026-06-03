@@ -11,6 +11,7 @@ Tests for:
 
 import numpy as np
 import pytest
+from matplotlib.backend_bases import LocationEvent, MouseEvent
 
 from accusleepy.constants import UNDEFINED_LABEL
 from accusleepy.gui.main import AccuSleepWindow
@@ -379,6 +380,83 @@ class TestManualScoringNavigation:
         window.jump_to_next_state("right", "undefined")
         assert window.epoch == 0
         sync_and_close(window)
+
+
+@pytest.mark.gui
+class TestEpochCursor:
+    """Tests for the click-to-jump preview cursor on the upper figure."""
+
+    @staticmethod
+    def move_mouse_to(window, ax, x_data):
+        """Dispatch a mouse motion event at a data x position in an axes.
+
+        Returns the pixel x position of the event.
+        """
+        canvas = window.ui.upperfigure.canvas
+        x, y = ax.transData.transform((x_data, np.mean(ax.get_ylim())))
+        # note: the event coerces pixel coordinates to integers
+        event = MouseEvent("motion_notify_event", canvas, x, y)
+        canvas.callbacks.process("motion_notify_event", event)
+        return event.x
+
+    def test_cursor_tracks_mouse_and_aligns_across_plots(self, manual_scoring_window):
+        """Cursor lines appear on all plots at the mouse's pixel position."""
+        window = manual_scoring_window
+        upper = window.ui.upperfigure
+        upper.canvas.draw()  # ensure the blit background exists
+
+        # cursor covers the 4 visible plots (confidence plot is hidden)
+        assert len(upper.cursor.axes) == 4
+
+        x_pixel = self.move_mouse_to(window, upper.canvas.axes[1], 5)
+
+        for ax, line in zip(upper.cursor.axes, upper.cursor.vlines, strict=True):
+            assert line.get_visible()
+            # each line should sit at the same pixel x as the mouse, even on
+            # the spectrogram (whose x-axis is offset by 0.5 epochs)
+            line_pixel = ax.transData.transform((line.get_xdata()[0], 0))[0]
+            assert line_pixel == pytest.approx(x_pixel)
+        window.close()
+
+    def test_cursor_hides_when_mouse_leaves_plots(self, manual_scoring_window):
+        """Cursor is hidden when the mouse is not inside any plot."""
+        window = manual_scoring_window
+        upper = window.ui.upperfigure
+        upper.canvas.draw()
+
+        self.move_mouse_to(window, upper.canvas.axes[1], 5)
+        assert all(line.get_visible() for line in upper.cursor.vlines)
+
+        # move to the figure corner, outside all axes
+        canvas = upper.canvas
+        canvas.callbacks.process(
+            "motion_notify_event", MouseEvent("motion_notify_event", canvas, 1, 1)
+        )
+        assert not any(line.get_visible() for line in upper.cursor.vlines)
+
+        # leaving the figure entirely also hides the cursor
+        self.move_mouse_to(window, upper.canvas.axes[1], 5)
+        assert all(line.get_visible() for line in upper.cursor.vlines)
+        canvas.callbacks.process(
+            "figure_leave_event", LocationEvent("figure_leave_event", canvas, 0, 0)
+        )
+        assert not any(line.get_visible() for line in upper.cursor.vlines)
+        window.close()
+
+    def test_cursor_hidden_in_label_roi_mode(self, manual_scoring_window):
+        """Cursor is disabled while in ROI labeling mode."""
+        window = manual_scoring_window
+        upper = window.ui.upperfigure
+        upper.canvas.draw()
+
+        window.enter_label_roi_mode(1)
+        self.move_mouse_to(window, upper.canvas.axes[1], 5)
+        assert not any(line.get_visible() for line in upper.cursor.vlines)
+
+        window.exit_label_roi_mode()
+        self.move_mouse_to(window, upper.canvas.axes[1], 5)
+        assert all(line.get_visible() for line in upper.cursor.vlines)
+        window.close()
 
 
 @pytest.mark.gui

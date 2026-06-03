@@ -10,7 +10,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from matplotlib.patches import Rectangle
-from matplotlib.widgets import RectangleSelector
+from matplotlib.widgets import MultiCursor, RectangleSelector
 from PySide6 import QtWidgets
 
 from accusleepy.brain_state_set import BrainStateSet
@@ -28,6 +28,72 @@ SUBPLOT_RIGHT_MARGIN = 0.95
 
 # maximum number of x-axis ticks to show on the lower plot
 MAX_LOWER_X_TICK_N = 7
+
+
+class EpochCursor(MultiCursor):
+    """Vertical line tracking the mouse across the upper subplots
+
+    This previews the epoch that a click would jump to. Differences from
+    MultiCursor: the line is hidden whenever the mouse is not inside one of
+    the axes, and each axes' line is placed at the mouse's pixel x-position
+    (the spectrogram's x-axis is offset by 0.5 epochs from the other
+    subplots, so sharing one data coordinate would misalign the lines).
+    """
+
+    def __init__(self, axes):
+        super().__init__(None, axes, color="gray", linewidth=1, alpha=0.5)
+        # hide the cursor when the mouse leaves the figure
+        for canvas in self._canvas_infos:
+            canvas.mpl_connect("figure_leave_event", self.hide)
+
+    def onmove(self, event):
+        """Update the cursor to follow the mouse
+
+        :param event: a MouseEvent containing the mouse location
+        """
+        if self.ignore(event) or not event.canvas.widgetlock.available(self):
+            return
+        if not self.visible or not any(ax.contains(event)[0] for ax in self.axes):
+            self.hide()
+            return
+        for ax, line in zip(self.axes, self.vlines, strict=True):
+            # place the line at the mouse's pixel x in this axes' data coords
+            x = ax.transData.inverted().transform((event.x, event.y))[0]
+            line.set_xdata((x, x))
+            line.set_visible(True)
+        self._draw_lines(show=True)
+
+    def hide(self, event=None):
+        """Hide the cursor
+
+        :param event: unused, allows use as an event callback
+        """
+        if not any(line.get_visible() for line in self.vlines):
+            return
+        for line in self.vlines:
+            line.set_visible(False)
+        self._draw_lines(show=False)
+
+    def _draw_lines(self, show: bool):
+        """Redraw the canvas with the cursor shown or hidden
+
+        This restores the cached background, optionally draws the cursor,
+        and blits - mirroring MultiCursor.onmove's redraw logic.
+
+        :param show: whether to draw the cursor lines
+        """
+        if self.useblit:
+            for canvas, info in self._canvas_infos.items():
+                if info["background"]:
+                    canvas.restore_region(info["background"])
+            if show:
+                for ax, line in zip(self.axes, self.vlines, strict=True):
+                    ax.draw_artist(line)
+            for canvas in self._canvas_infos:
+                canvas.blit()
+        else:
+            for canvas in self._canvas_infos:
+                canvas.draw_idle()
 
 
 class MplWidget(QtWidgets.QWidget):
@@ -55,6 +121,7 @@ class MplWidget(QtWidgets.QWidget):
         self.roi = None
         self.editing_patch = None
         self.roi_patch = None
+        self.cursor = None
 
         # lower plot references
         self.eeg_line = None
@@ -232,6 +299,10 @@ class MplWidget(QtWidgets.QWidget):
         )
 
         self.canvas.axes = axes
+
+        # add the cursor that previews the click-to-jump location
+        # (pass only visible axes: the confidence subplot may be hidden)
+        self.cursor = EpochCursor(axes=[ax for ax in axes if ax.get_visible()])
 
     def setup_lower_figure(
         self,

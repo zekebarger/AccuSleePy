@@ -618,6 +618,8 @@ class ManualScoringWindow(QDialog):
         self.ui.upperfigure.roi.update()
         self.label_roi_mode = False
         self.ui.upperfigure.editing_patch.set_visible(False)
+        # re-enable the click-to-jump preview cursor
+        self.ui.upperfigure.cursor.visible = True
 
     def enter_label_roi_mode(self, brain_state: int) -> None:
         """Enter ROI drawing mode
@@ -629,6 +631,10 @@ class ManualScoringWindow(QDialog):
         """
         self.label_roi_mode = True
         self.roi_brain_state = brain_state
+        # clicking won't jump to a new epoch in this mode, so hide the
+        # click-to-jump preview cursor
+        self.ui.upperfigure.cursor.visible = False
+        self.ui.upperfigure.cursor.hide()
         self.ui.upperfigure.roi_patch.set(
             facecolor=LABEL_CMAP[
                 convert_labels(np.array([brain_state]), DISPLAY_FORMAT)
@@ -1214,8 +1220,13 @@ def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
     """
     eeg = eeg - np.mean(eeg)
     emg = emg - np.mean(emg)
-    eeg = eeg / np.percentile(np.abs(eeg), 98) / 2.2
-    emg = emg / np.percentile(np.abs(emg), 98) / 2.2
+    # avoid dividing by 0 if a signal is flat (e.g., no EMG was recorded)
+    eeg_scale = np.percentile(np.abs(eeg), 98)
+    if eeg_scale > 0:
+        eeg = eeg / eeg_scale / 2.2
+    emg_scale = np.percentile(np.abs(emg), 98)
+    if emg_scale > 0:
+        emg = emg / emg_scale / 2.2
     return eeg, emg
 
 
