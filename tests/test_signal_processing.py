@@ -15,6 +15,7 @@ from accusleepy.signal_processing import (
     get_mixture_values,
     mixture_z_score_img,
     resample,
+    resample_and_standardize,
     standardize_signal_length,
 )
 
@@ -156,6 +157,47 @@ def test_get_emg_power(sample_emg_filter):
 
     assert len(emg_power) == n_epochs
     assert emg_power.dtype == np.float64
+
+
+@pytest.mark.parametrize(
+    "sampling_rate, epoch_length",
+    [
+        (891, 2.5),  # the originally reported failing combination
+        (891, 3),  # the working combination from the same report
+        (907, 4),
+        (921, 2.5),
+    ],
+)
+def test_get_emg_power_no_nan_after_resampling(
+    sampling_rate, epoch_length, sample_emg_filter
+):
+    """EMG power stays finite for sampling rates that require resampling.
+
+    The high-order Butterworth bandpass is numerically unstable in
+    transfer-function form, which produced all-NaN EMG power (and a blank EMG
+    display in the manual scoring window) for certain sampling-rate/epoch-length
+    combinations such as 891 Hz at 2.5 s epochs.
+    """
+    rng = np.random.default_rng(0)
+    n_samples = sampling_rate * 300
+    eeg = rng.normal(0, 1, n_samples)
+    emg = rng.normal(0, 1, n_samples)
+
+    eeg, emg, new_sampling_rate = resample_and_standardize(
+        eeg=eeg,
+        emg=emg,
+        sampling_rate=sampling_rate,
+        epoch_length=epoch_length,
+    )
+
+    emg_power = get_emg_power(
+        emg=emg,
+        sampling_rate=new_sampling_rate,
+        epoch_length=epoch_length,
+        emg_filter=sample_emg_filter,
+    )
+
+    assert np.all(np.isfinite(emg_power))
 
 
 def test_get_emg_power_all_zero_emg(sample_emg_filter):
