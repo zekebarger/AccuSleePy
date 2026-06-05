@@ -199,16 +199,20 @@ def get_emg_power(
     :param emg_filter: EMG filter parameters
     :return: EMG "power" for each epoch
     """
-    from scipy.signal import butter, filtfilt
+    from scipy.signal import butter, sosfiltfilt
 
-    b, a = butter(
+    # use second-order sections rather than transfer-function ("ba") coefficients.
+    # high-order Butterworth filters are numerically unstable in "ba" form, which
+    # could produce all-NaN output for certain sampling rates (e.g., the rates
+    # resample() yields for 891 Hz at 2.5 s epochs)
+    sos = butter(
         N=emg_filter.order,
         Wn=[emg_filter.bp_lower, emg_filter.bp_upper],
         btype="bandpass",
-        output="ba",
+        output="sos",
         fs=sampling_rate,
     )
-    filtered = filtfilt(b, a, x=emg, padlen=int(np.ceil(sampling_rate)))
+    filtered = sosfiltfilt(sos, x=emg, padlen=int(np.ceil(sampling_rate)))
 
     # since resample() was called, this will be extremely close to an integer
     samples_per_epoch = round(sampling_rate * epoch_length)
