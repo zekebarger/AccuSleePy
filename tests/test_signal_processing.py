@@ -49,6 +49,31 @@ def test_resample_no_change():
     assert len(eeg) == len(new_eeg)
 
 
+def test_resample_no_change_with_inexact_epoch_length():
+    """Integer samples-per-epoch is detected despite float representation error
+
+    sampling_rate * epoch_length can be a hair off an integer (e.g.,
+    25 * 2.2 == 55.00000000000001) for epoch lengths that aren't exactly
+    representable in binary. The samples-per-epoch is still effectively an
+    integer, so no resampling should occur.
+    """
+    eeg = np.arange(1100, dtype=float)
+    emg = np.arange(1100, dtype=float)
+    sampling_rate = 25
+    epoch_length = 2.2  # 25 * 2.2 == 55.00000000000001, but really 55 samples/epoch
+
+    new_eeg, new_emg, new_sampling_rate = resample(
+        eeg=eeg, emg=emg, sampling_rate=sampling_rate, epoch_length=epoch_length
+    )
+
+    assert new_sampling_rate == sampling_rate
+    assert len(new_eeg) == len(eeg)
+    assert len(new_emg) == len(emg)
+    # signals returned untouched
+    np.testing.assert_array_equal(new_eeg, eeg)
+    np.testing.assert_array_equal(new_emg, emg)
+
+
 def test_resample_with_change():
     """New sampling rate is correct"""
     eeg = np.zeros(1000)

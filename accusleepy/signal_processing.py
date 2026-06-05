@@ -51,7 +51,12 @@ def resample(
     :return: resampled EEG & EMG and updated sampling rate
     """
     samples_per_epoch = sampling_rate * epoch_length
-    if samples_per_epoch % 1 == 0:
+    # round to the nearest integer rather than testing for exact equality:
+    # epoch lengths that aren't exactly representable in binary (e.g., 2.2 s)
+    # can make an integer samples-per-epoch look fractional, which would
+    # otherwise trigger a needless (and sometimes large) resample
+    target_samples_per_epoch = round(samples_per_epoch)
+    if np.isclose(samples_per_epoch, target_samples_per_epoch):
         return eeg, emg, sampling_rate
 
     resampled = list()
@@ -60,13 +65,13 @@ def resample(
         x_new = np.linspace(
             0,
             arr.size - 1,
-            round(arr.size * np.ceil(samples_per_epoch) / samples_per_epoch),
+            round(arr.size * target_samples_per_epoch / samples_per_epoch),
         )
         resampled.append(np.interp(x_new, x, arr))
 
     eeg = resampled[0]
     emg = resampled[1]
-    new_sampling_rate = np.ceil(samples_per_epoch) / samples_per_epoch * sampling_rate
+    new_sampling_rate = target_samples_per_epoch / samples_per_epoch * sampling_rate
     return eeg, emg, new_sampling_rate
 
 
