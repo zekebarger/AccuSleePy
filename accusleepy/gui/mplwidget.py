@@ -41,7 +41,7 @@ class EpochCursor(MultiCursor):
     """
 
     def __init__(self, axes):
-        super().__init__(None, axes, color="gray", linewidth=1, alpha=0.5)
+        super().__init__(axes, color="gray", linewidth=1, alpha=0.5)
         # hide the cursor when the mouse leaves the figure
         for canvas in self._canvas_infos:
             canvas.mpl_connect("figure_leave_event", self.hide)

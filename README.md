@@ -27,7 +27,8 @@ Please contact zekebarger (at) gmail (dot) com with any questions or comments ab
 
 ## Installation
 
-- make sure you have python >=3.11,<3.14
+- make sure you have python >=3.11,<3.15 (python 3.14.1 is excluded, since torchvision
+does not support it)
 - (recommended) create a new virtual environment (using
 [venv](https://docs.python.org/3/library/venv.html),
 [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html),
@@ -56,6 +57,7 @@ please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
 
 ## Changelog
 
+- 0.13.0: Add support for python 3.14, updated dependencies
 - 0.12.0-0.12.2: Bugfixes, more plot interactivity
 - 0.11.2: Simplify GUI editing
 - 0.11.1: Add integration tests
