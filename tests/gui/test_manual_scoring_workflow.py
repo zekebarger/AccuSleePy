@@ -490,3 +490,82 @@ class TestManualScoringSave:
         saved = pd.read_csv(label_file)
         assert saved["brain_state"].iloc[0] == 2
         window.close()
+
+
+@pytest.mark.gui
+class TestUpperMarkerBlitting:
+    """Redrawing only the upper figure's epoch marker must match a full redraw.
+
+    These windows are closed in ``finally`` blocks: a bare assert would leave
+    an unsaved window open, and qtbot's teardown then blocks on the
+    "unsaved changes" dialog instead of reporting the failure.
+    """
+
+    @staticmethod
+    def canvas_pixels(canvas):
+        """Snapshot of everything currently rendered on a canvas."""
+        return np.asarray(canvas.buffer_rgba()).copy()
+
+    def test_blit_matches_full_redraw(self, manual_scoring_window):
+        """Blitting the marker produces the same pixels as redrawing."""
+        window = manual_scoring_window
+        try:
+            upper = window.ui.upperfigure
+
+            window.epoch = 3
+            window.update_upper_marker()
+            upper.draw_upper_marker()
+            blitted = self.canvas_pixels(upper.canvas)
+
+            # same epoch, but drawn the slow way
+            window.update_upper_marker()
+            upper.canvas.draw()
+            redrawn = self.canvas_pixels(upper.canvas)
+
+            assert np.array_equal(blitted, redrawn)
+        finally:
+            sync_and_close(window)
+
+    def test_full_redraw_discards_cached_background(self, manual_scoring_window):
+        """Any full redraw invalidates the cache, so it cannot go stale."""
+        window = manual_scoring_window
+        try:
+            upper = window.ui.upperfigure
+
+            upper.draw_upper_marker()
+            assert upper.marker_background is not None
+
+            # a zoom, a resize, edited labels - all of them redraw the figure
+            upper.canvas.draw()
+            assert upper.marker_background is None
+        finally:
+            sync_and_close(window)
+
+    def test_editing_labels_forces_a_full_redraw(self, manual_scoring_window):
+        """Autoscroll changes labels, so it must not take the blit path."""
+        window = manual_scoring_window
+        try:
+            window.autoscroll_state = True
+
+            calls = []
+            real = window.update_figures
+
+            def record(**kwargs):
+                calls.append(kwargs.get("upper_marker_only", False))
+                return real(**kwargs)
+
+            window.update_figures = record
+            try:
+                window.epoch = 2
+                window.modify_current_epoch_label(
+                    window.brain_state_set.brain_states[0].digit
+                )
+            finally:
+                window.update_figures = real
+
+            assert calls, "expected update_figures to be called"
+            assert not any(calls), (
+                "labels changed, so the upper figure must be redrawn in full"
+            )
+        finally:
+            sync_and_close(window)
