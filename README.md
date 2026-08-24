@@ -1,5 +1,8 @@
 # AccuSleePy
 
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/accusleepy)](https://pypi.org/project/accusleepy/)
+[![PyPI version](https://img.shields.io/pypi/v/accusleepy)](https://pypi.org/project/accusleepy/)
+
 ## Description
 
 AccuSleePy is set of graphical user  interfaces for scoring rodent sleep
