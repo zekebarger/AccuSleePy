@@ -713,14 +713,20 @@ class ManualScoringWindow(QDialog):
         adjusted = (
             self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
         )
-        self.ui.lowerfigure.eeg_line.set_ydata(adjusted)
+        x, y = decimate_for_display(
+            adjusted, round(self.ui.lowerfigure.canvas.axes[0].bbox.width)
+        )
+        self.ui.lowerfigure.eeg_line.set_data(x, y)
 
     def _refresh_emg_line(self) -> None:
         """Recompute and update the displayed EMG line."""
         adjusted = (
             self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
         )
-        self.ui.lowerfigure.emg_line.set_ydata(adjusted)
+        x, y = decimate_for_display(
+            adjusted, round(self.ui.lowerfigure.canvas.axes[1].bbox.width)
+        )
+        self.ui.lowerfigure.emg_line.set_data(x, y)
 
     def update_signal_offset(self, signal: str, direction: str) -> None:
         """Shift EEG or EMG up or down
@@ -1257,6 +1263,47 @@ def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
     if emg_scale > 0:
         emg = emg / emg_scale / 2.2
     return eeg, emg
+
+
+# minimum samples per pixel column before decimating a signal is worth it.
+# measured: at 2 samples per column decimating is slightly slower, and it
+# starts paying off from about 3
+MIN_SAMPLES_PER_COLUMN = 4
+
+
+def decimate_for_display(signal: np.array, n_columns: int) -> tuple:
+    """Reduce a signal to the smallest and largest value in each pixel column
+
+    Drawing many more points than the plot has pixels costs time without
+    changing what the user sees. Keeping both extremes of every column
+    preserves the envelope of the trace at display resolution, so the
+    result is visually the same as plotting every sample.
+
+    Signals that are not oversampled enough are returned unchanged. Below
+    roughly three samples per column the vertical segments this produces
+    cost more to rasterize than the samples it removes, so recordings at
+    low sampling rates are left alone.
+
+    :param signal: signal to be displayed
+    :param n_columns: width of the plot, in pixels
+    :return: x and y coordinates to plot
+    """
+    n_samples = len(signal)
+    if n_columns < 1 or n_samples < MIN_SAMPLES_PER_COLUMN * n_columns:
+        return np.arange(n_samples), signal
+    # trim the remainder so the signal splits evenly into columns. this
+    # discards less than one column's worth, which is under a pixel wide
+    samples_per_column = n_samples // n_columns
+    columns = signal[: samples_per_column * n_columns].reshape(
+        n_columns, samples_per_column
+    )
+    y = np.empty(n_columns * 2)
+    y[0::2] = columns.min(axis=1)
+    y[1::2] = columns.max(axis=1)
+    # both extremes of a column are drawn at the same x, so each column
+    # becomes one vertical segment spanning that column's range
+    x = np.repeat(np.linspace(0, n_samples - 1, n_columns), 2)
+    return x, y
 
 
 def find_new_x_limits(
