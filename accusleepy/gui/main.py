@@ -3,7 +3,6 @@
 Icon source: Arkinasi, https://www.flaticon.com/authors/arkinasi
 """
 
-import argparse
 import logging
 import os
 import sys
@@ -24,7 +23,6 @@ from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QMainWindow,
-    QStyleFactory,
     QTextBrowser,
     QVBoxLayout,
     QWidget,
@@ -34,10 +32,10 @@ from accusleepy.brain_state_set import BRAIN_STATES_KEY
 from accusleepy.constants import (
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
-    DEFAULT_QT_STYLE,
     LABEL_FILE_TYPE,
     MESSAGE_BOX_MAX_DEPTH,
     MODEL_FILE_TYPE,
+    QT_STYLE,
     REAL_TIME_MODEL_TYPE,
     RECORDING_FILE_TYPES,
     RECORDING_LIST_FILE_TYPE,
@@ -658,27 +656,10 @@ def run_primary_window() -> None:
         format="%(levelname)s - %(name)s - %(message)s",
     )
 
-    parser = argparse.ArgumentParser(prog="accusleepy")
-    parser.add_argument(
-        "--style",
-        default=os.environ.get("ACCUSLEEPY_STYLE", DEFAULT_QT_STYLE),
-        help=(
-            "Qt widget style to use, e.g. 'fusion' or 'macos'. "
-            "Use 'native' to keep the platform default. "
-            "Can also be set with the ACCUSLEEPY_STYLE environment variable."
-        ),
-    )
-    args, qt_args = parser.parse_known_args()
-
-    app = QApplication([sys.argv[0], *qt_args])
+    app = QApplication(sys.argv)
+    app.setStyle(QT_STYLE)
     # prevent dark mode from changing the visual style
     app.styleHints().setColorScheme(Qt.ColorScheme.Light)
-    if args.style.lower() != "native" and app.setStyle(args.style) is None:
-        logging.warning(
-            "Qt style '%s' is not available. Options: %s",
-            args.style,
-            ", ".join(QStyleFactory.keys()),
-        )
     AccuSleepWindow()
     sys.exit(app.exec())
 
