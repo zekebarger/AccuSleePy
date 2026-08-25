@@ -3,6 +3,7 @@
 Icon source: Arkinasi, https://www.flaticon.com/authors/arkinasi
 """
 
+import argparse
 import logging
 import os
 import sys
@@ -23,6 +24,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QMainWindow,
+    QStyleFactory,
     QTextBrowser,
     QVBoxLayout,
     QWidget,
@@ -32,6 +34,7 @@ from accusleepy.brain_state_set import BRAIN_STATES_KEY
 from accusleepy.constants import (
     CALIBRATION_FILE_TYPE,
     DEFAULT_MODEL_TYPE,
+    DEFAULT_QT_STYLE,
     LABEL_FILE_TYPE,
     MESSAGE_BOX_MAX_DEPTH,
     MODEL_FILE_TYPE,
@@ -48,6 +51,7 @@ from accusleepy.fileio import (
 )
 from accusleepy.gui.dialogs import select_existing_file, select_save_location
 from accusleepy.gui.manual_scoring import ManualScoringWindow
+from accusleepy.gui.palettes import page_stylesheet, primary_window_palette
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.gui.recording_manager import RecordingListManager
 from accusleepy.gui.settings_widget import SettingsWidget
@@ -63,13 +67,12 @@ from accusleepy.validation import check_config_consistency, validate_and_correct
 
 logger = logging.getLogger(__name__)
 
-# on Windows, prevent dark mode from changing the visual style
-if os.name == "nt":
-    sys.argv += ["-platform", "windows:darkmode=0"]
 
-
-# relative path to user manual
-MAIN_GUIDE_FILE = os.path.normpath(r"text/main_guide.md")
+# path to user manual, relative to this file
+MAIN_GUIDE_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    os.path.normpath(r"text/main_guide.md"),
+)
 
 
 @dataclass
@@ -137,6 +140,9 @@ class AccuSleepWindow(QMainWindow):
 
         # display current version
         self.ui.version_label.setText(f"v{get_version()}")
+
+        # colors for this window
+        self.set_palette()
 
         # user input: keyboard shortcuts
         keypress_quit = QShortcut(
@@ -611,6 +617,16 @@ class AccuSleepWindow(QMainWindow):
             f"Data / actions for Recording {self.recording_manager.current.name}"
         )
 
+    def set_palette(self) -> None:
+        """Apply the primary window's palette
+
+        This only affects this window - the manual scoring window has no
+        parent, so it keeps the palette of the current style.
+        """
+        spec = primary_window_palette()
+        self.setPalette(spec.palette)
+        self.setStyleSheet(page_stylesheet(spec.page))
+
     def add_recording(self) -> None:
         """Add new recording to the list"""
         current_sampling_rate = self.recording_manager.current.sampling_rate
@@ -641,7 +657,28 @@ def run_primary_window() -> None:
         level=logging.INFO,
         format="%(levelname)s - %(name)s - %(message)s",
     )
-    app = QApplication(sys.argv)
+
+    parser = argparse.ArgumentParser(prog="accusleepy")
+    parser.add_argument(
+        "--style",
+        default=os.environ.get("ACCUSLEEPY_STYLE", DEFAULT_QT_STYLE),
+        help=(
+            "Qt widget style to use, e.g. 'fusion' or 'macos'. "
+            "Use 'native' to keep the platform default. "
+            "Can also be set with the ACCUSLEEPY_STYLE environment variable."
+        ),
+    )
+    args, qt_args = parser.parse_known_args()
+
+    app = QApplication([sys.argv[0], *qt_args])
+    # prevent dark mode from changing the visual style
+    app.styleHints().setColorScheme(Qt.ColorScheme.Light)
+    if args.style.lower() != "native" and app.setStyle(args.style) is None:
+        logging.warning(
+            "Qt style '%s' is not available. Options: %s",
+            args.style,
+            ", ".join(QStyleFactory.keys()),
+        )
     AccuSleepWindow()
     sys.exit(app.exec())
 
