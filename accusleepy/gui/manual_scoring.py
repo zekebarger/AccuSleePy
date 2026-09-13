@@ -713,14 +713,20 @@ class ManualScoringWindow(QDialog):
         adjusted = (
             self.eeg_shown * self.eeg_signal_scale_factor + self.eeg_signal_offset
         )
-        self.ui.lowerfigure.eeg_line.set_ydata(adjusted)
+        x, y = decimate_for_display(
+            adjusted, round(self.ui.lowerfigure.canvas.axes[0].bbox.width)
+        )
+        self.ui.lowerfigure.eeg_line.set_data(x, y)
 
     def _refresh_emg_line(self) -> None:
         """Recompute and update the displayed EMG line."""
         adjusted = (
             self.emg_shown * self.emg_signal_scale_factor + self.emg_signal_offset
         )
-        self.ui.lowerfigure.emg_line.set_ydata(adjusted)
+        x, y = decimate_for_display(
+            adjusted, round(self.ui.lowerfigure.canvas.axes[1].bbox.width)
+        )
+        self.ui.lowerfigure.emg_line.set_data(x, y)
 
     def update_signal_offset(self, signal: str, direction: str) -> None:
         """Shift EEG or EMG up or down
@@ -759,7 +765,13 @@ class ManualScoringWindow(QDialog):
         self.autoscroll_state = checked
 
     def adjust_upper_figure_x_limits(self) -> None:
-        """Update the x-axis limits of the upper figure subplots"""
+        """Update the x-axis limits and image data of the upper figure subplots"""
+        # hand the images only the epochs that are about to be shown. this
+        # comes first because set_extent can otherwise autoscale the limits
+        # we are about to set
+        self.ui.upperfigure.set_upper_visible_range(
+            self.upper_left_epoch, self.upper_right_epoch, self.label_img
+        )
         for i in [0, 1, 2, 4]:
             self.ui.upperfigure.canvas.axes[i].set_xlim(
                 (self.upper_left_epoch - 0.5, self.upper_right_epoch + 0.5)
@@ -817,11 +829,15 @@ class ManualScoringWindow(QDialog):
             ] = LABEL_CMAP[display_label]
         # autoscroll, if that is enabled
         if self.autoscroll_state and self.epoch < self.n_epochs - 1:
-            self.shift_epoch(DIRECTION_RIGHT)  # this calls update_figures()
+            # the label image just changed, so the upper figure needs a real
+            # redraw even if its x limits stay put
+            self.shift_epoch(  # this calls update_figures()
+                DIRECTION_RIGHT, force_upper_redraw=True
+            )
         else:
             self.update_figures()
 
-    def shift_epoch(self, direction: str) -> None:
+    def shift_epoch(self, direction: str, force_upper_redraw: bool = False) -> None:
         """Set the current epoch one step forward or backward
 
         When the user presses the left or right arrow key, the previous
@@ -829,7 +845,13 @@ class ManualScoringWindow(QDialog):
         that need to be handled separately for the upper and lower figures.
 
         :param direction: left or right
+        :param force_upper_redraw: whether the upper figure must be redrawn
+            in full even if its x limits do not move, because something
+            other than the epoch marker changed
         """
+        # whether the upper figure's x limits moved, which rules out
+        # redrawing only the epoch marker
+        upper_shifted = False
         shift_amount = {DIRECTION_LEFT: -1, DIRECTION_RIGHT: 1}[direction]
         # prevent movement outside the data range
         if not (0 <= (self.epoch + shift_amount) < self.n_epochs):
@@ -852,6 +874,7 @@ class ManualScoringWindow(QDialog):
             self.upper_left_epoch += 1
             self.upper_right_epoch += 1
             self.adjust_upper_figure_x_limits()
+            upper_shifted = True
         elif (
             (
                 self.epoch
@@ -864,6 +887,7 @@ class ManualScoringWindow(QDialog):
             self.upper_left_epoch -= 1
             self.upper_right_epoch -= 1
             self.adjust_upper_figure_x_limits()
+            upper_shifted = True
 
         # update parts of lower plot
         old_window_center = round((self.epochs_to_show - 1) / 2) + self.lower_left_epoch
@@ -878,7 +902,7 @@ class ManualScoringWindow(QDialog):
             self.lower_left_epoch += 1
             self.lower_right_epoch += 1
 
-        self.update_figures()
+        self.update_figures(upper_marker_only=not (upper_shifted or force_upper_redraw))
 
     def update_upper_marker(self) -> None:
         """Update location of the upper figure's epoch marker"""
@@ -919,13 +943,24 @@ class ManualScoringWindow(QDialog):
         self.ui.lowerfigure.bottom_marker[1].set_xdata([marker_left, marker_right])
         self.ui.lowerfigure.bottom_marker[2].set_xdata([marker_right, marker_right])
 
-    def update_figures(self) -> None:
-        """Update and redraw both figures"""
+    def update_figures(self, upper_marker_only: bool = False) -> None:
+        """Update and redraw both figures
+
+        :param upper_marker_only: whether the epoch marker's position is the
+            only thing that changed in the upper figure. If so, that figure
+            is blitted from a cached background instead of redrawn, which
+            skips resampling the spectrogram. Defaults to False so that any
+            new caller redraws in full rather than risking a stale figure.
+        """
         # upper figure
         self.update_upper_marker()
-        # this step isn't always needed, but it's not too expensive
-        self.ui.upperfigure.label_img_ref.set(data=self.label_img)
-        self.ui.upperfigure.canvas.draw()
+        if upper_marker_only:
+            self.ui.upperfigure.draw_upper_marker()
+        else:
+            # this re-slices the images and syncs the x limits. it isn't
+            # always needed, but it's not too expensive
+            self.adjust_upper_figure_x_limits()
+            self.ui.upperfigure.canvas.draw()
         # lower figure
         self.update_lower_figure()
 
@@ -1228,6 +1263,47 @@ def transform_eeg_emg(eeg: np.array, emg: np.array) -> (np.array, np.array):
     if emg_scale > 0:
         emg = emg / emg_scale / 2.2
     return eeg, emg
+
+
+# minimum samples per pixel column before decimating a signal is worth it.
+# measured: at 2 samples per column decimating is slightly slower, and it
+# starts paying off from about 3
+MIN_SAMPLES_PER_COLUMN = 4
+
+
+def decimate_for_display(signal: np.array, n_columns: int) -> tuple:
+    """Reduce a signal to the smallest and largest value in each pixel column
+
+    Drawing many more points than the plot has pixels costs time without
+    changing what the user sees. Keeping both extremes of every column
+    preserves the envelope of the trace at display resolution, so the
+    result is visually the same as plotting every sample.
+
+    Signals that are not oversampled enough are returned unchanged. Below
+    roughly three samples per column the vertical segments this produces
+    cost more to rasterize than the samples it removes, so recordings at
+    low sampling rates are left alone.
+
+    :param signal: signal to be displayed
+    :param n_columns: width of the plot, in pixels
+    :return: x and y coordinates to plot
+    """
+    n_samples = len(signal)
+    if n_columns < 1 or n_samples < MIN_SAMPLES_PER_COLUMN * n_columns:
+        return np.arange(n_samples), signal
+    # trim the remainder so the signal splits evenly into columns. this
+    # discards less than one column's worth, which is under a pixel wide
+    samples_per_column = n_samples // n_columns
+    columns = signal[: samples_per_column * n_columns].reshape(
+        n_columns, samples_per_column
+    )
+    y = np.empty(n_columns * 2)
+    y[0::2] = columns.min(axis=1)
+    y[1::2] = columns.max(axis=1)
+    # both extremes of a column are drawn at the same x, so each column
+    # becomes one vertical segment spanning that column's range
+    x = np.repeat(np.linspace(0, n_samples - 1, n_columns), 2)
+    return x, y
 
 
 def find_new_x_limits(

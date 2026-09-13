@@ -41,7 +41,7 @@ class EpochCursor(MultiCursor):
     """
 
     def __init__(self, axes):
-        super().__init__(None, axes, color="gray", linewidth=1, alpha=0.5)
+        super().__init__(axes, color="gray", linewidth=1, alpha=0.5)
         # hide the cursor when the mouse leaves the figure
         for canvas in self._canvas_infos:
             canvas.mpl_connect("figure_leave_event", self.hide)
@@ -117,6 +117,7 @@ class MplWidget(QtWidgets.QWidget):
         # upper plot references
         self.upper_marker = None
         self.label_img_ref = None
+        self.confidence_img_ref = None
         self.spec_ref = None
         self.roi = None
         self.editing_patch = None
@@ -130,6 +131,19 @@ class MplWidget(QtWidgets.QWidget):
         self.bottom_marker = None
         self.eeg_epoch_plot = None
         self.emg_epoch_plot = None
+
+        # full-length image data for the upper plot. Only the columns that
+        # are currently visible get handed to matplotlib, so the originals
+        # are kept here to slice from.
+        self.n_epochs = None
+        self.spec_full = None
+        self.confidence_img_full = None
+        self.spec_extent_y = None
+
+        # cached background for blitting the upper plot's epoch marker
+        self.marker_axes = None
+        self.marker_background = None
+        self._capturing_marker_background = False
 
     def setup_upper_figure(
         self,
@@ -187,7 +201,7 @@ class MplWidget(QtWidgets.QWidget):
             axes[0].set_yticks([0])
             axes[0].set_yticklabels(["Conf."])
             axes[0].tick_params(axis="y", color="white")
-            axes[0].imshow(
+            self.confidence_img_ref = axes[0].imshow(
                 confidence_img, aspect="auto", origin="lower", interpolation="None"
             )
             confidence_x = (
@@ -281,6 +295,12 @@ class MplWidget(QtWidgets.QWidget):
             ),
         )
 
+        # keep the full-length image data for set_upper_visible_range
+        self.n_epochs = n_epochs
+        self.spec_full = spec
+        self.confidence_img_full = confidence_img
+        self.spec_extent_y = (-0.5, len(f) + 0.5)
+
         # EMG subplot
         axes[4].set_xticks([])
         axes[4].set_yticks([])
@@ -303,6 +323,99 @@ class MplWidget(QtWidgets.QWidget):
         # add the cursor that previews the click-to-jump location
         # (pass only visible axes: the confidence subplot may be hidden)
         self.cursor = EpochCursor(axes=[ax for ax in axes if ax.get_visible()])
+
+        # the epoch marker has an axes to itself, so it can be redrawn
+        # without touching the rest of the figure
+        self.marker_axes = axes[2]
+        self.marker_background = None
+        self.canvas.mpl_connect("draw_event", self._discard_marker_background)
+
+    def _discard_marker_background(self, event=None) -> None:
+        """Drop the cached marker background after a full redraw
+
+        Anything that redraws the figure - a zoom, a resize, edited labels,
+        a brightness change - leaves the cached background stale. Listening
+        for the draw catches every one of those without asking each call
+        site to remember.
+
+        :param event: unused, allows use as an event callback
+        """
+        if not self._capturing_marker_background:
+            self.marker_background = None
+
+    def _capture_marker_background(self) -> None:
+        """Redraw the upper figure without its epoch marker and cache it"""
+        self._capturing_marker_background = True
+        try:
+            for marker in self.upper_marker:
+                marker.set_visible(False)
+            self.canvas.draw()
+            self.marker_background = self.canvas.copy_from_bbox(self.marker_axes.bbox)
+        finally:
+            for marker in self.upper_marker:
+                marker.set_visible(True)
+            self._capturing_marker_background = False
+
+    def draw_upper_marker(self) -> None:
+        """Redraw the upper figure's epoch marker and nothing else
+
+        Restoring a cached background and blitting the marker's own (small)
+        axes avoids resampling the spectrogram, which dominates a full
+        redraw of a long recording. Only correct when the marker's position
+        is the sole change to the figure.
+        """
+        if self.marker_background is None:
+            self._capture_marker_background()
+        self.canvas.restore_region(self.marker_background)
+        for marker in self.upper_marker:
+            self.marker_axes.draw_artist(marker)
+        self.canvas.blit(self.marker_axes.bbox)
+        # the cursor blits from a background of its own, captured while the
+        # marker was hidden. refresh it, or the marker jumps back to its
+        # previous position the next time the mouse moves.
+        if self.cursor is not None:
+            for canvas, info in self.cursor._canvas_infos.items():
+                info["background"] = canvas.copy_from_bbox(canvas.figure.bbox)
+
+    def set_upper_visible_range(
+        self, left_epoch: int, right_epoch: int, label_img: np.array
+    ) -> None:
+        """Limit the upper figure's images to the visible epochs
+
+        matplotlib resamples an image's entire data array on every draw,
+        no matter how narrow the axes' x limits are, so a long recording
+        stays expensive to redraw even when zoomed in. Handing it only the
+        visible columns (and moving the extent to match) keeps the cost
+        proportional to what is on screen, which is what the lower figure
+        has always done.
+
+        :param left_epoch: leftmost visible epoch
+        :param right_epoch: rightmost visible epoch
+        :param label_img: brain state labels, as an image
+        """
+        # the labels are rebuilt when they change, so they are passed in
+        # rather than cached here
+        left = max(0, left_epoch)
+        right = min(self.n_epochs - 1, right_epoch)
+        columns = slice(left, right + 1)
+
+        self.label_img_ref.set(data=label_img[:, columns, :])
+        self.label_img_ref.set_extent(
+            (left - 0.5, right + 0.5, -0.5, label_img.shape[0] - 0.5)
+        )
+        if self.confidence_img_ref is not None:
+            self.confidence_img_ref.set(data=self.confidence_img_full[:, columns, :])
+            self.confidence_img_ref.set_extent(
+                (
+                    left - 0.5,
+                    right + 0.5,
+                    -0.5,
+                    self.confidence_img_full.shape[0] - 0.5,
+                )
+            )
+        # the spectrogram's x-axis is offset by 0.5 epochs from the others
+        self.spec_ref.set(data=self.spec_full[:, columns])
+        self.spec_ref.set_extent((left, right + 1, *self.spec_extent_y))
 
     def setup_lower_figure(
         self,
