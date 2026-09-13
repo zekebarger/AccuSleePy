@@ -1,6 +1,5 @@
 """Matplotlib FigureCanvas widget for manual scoring."""
 
-import inspect
 from collections.abc import Callable
 
 import matplotlib.axes
@@ -42,12 +41,7 @@ class EpochCursor(MultiCursor):
     """
 
     def __init__(self, axes):
-        # matplotlib < 3.11 takes a canvas as the first argument, which was
-        # deprecated and then removed in 3.11
-        if "canvas" in inspect.signature(MultiCursor.__init__).parameters:
-            super().__init__(None, axes, color="gray", linewidth=1, alpha=0.5)
-        else:
-            super().__init__(axes, color="gray", linewidth=1, alpha=0.5)
+        super().__init__(axes, color="gray", linewidth=1, alpha=0.5)
         # hide the cursor when the mouse leaves the figure
         for canvas in self._canvas_infos:
             canvas.mpl_connect("figure_leave_event", self.hide)
