@@ -634,6 +634,10 @@ class AccuSleepWindow(QMainWindow):
     def remove_recording(self) -> None:
         """Delete selected recording from the list"""
         self.show_message(self.recording_manager.remove_current())
+        # when there's only one recording, remove_current() resets it in
+        # place without changing currentRow, so currentRowChanged never
+        # fires to refresh the displayed info - do it explicitly here
+        self.show_recording_info()
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""

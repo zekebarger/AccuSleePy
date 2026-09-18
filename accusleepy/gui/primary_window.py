@@ -36,7 +36,7 @@ class Ui_PrimaryWindow:
     def setupUi(self, PrimaryWindow):
         if not PrimaryWindow.objectName():
             PrimaryWindow.setObjectName("PrimaryWindow")
-        PrimaryWindow.resize(1034, 660)
+        PrimaryWindow.resize(1050, 660)
         sizePolicy = QSizePolicy(
             QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred
         )
