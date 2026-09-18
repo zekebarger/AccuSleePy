@@ -12,6 +12,7 @@ from accusleepy.gui.manual_scoring import (
     ZOOM_OUT,
     ZOOM_RESET,
     convert_labels,
+    decimate_for_display,
     find_new_x_limits,
     transform_eeg_emg,
 )
@@ -180,3 +181,57 @@ class TestFindNewXLimits:
         assert left <= 50 <= right
         # check that the distance from selected to each edge differs by at most 1
         assert abs((50 - left) - (right - 50)) <= 1
+
+
+class TestDecimateForDisplay:
+    """Reducing a signal to one vertical segment per pixel column."""
+
+    def test_leaves_signals_that_are_not_oversampled_alone(self):
+        """Below two samples per column the signal is returned unchanged."""
+        signal = np.arange(150, dtype=float)
+        x, y = decimate_for_display(signal, 100)
+        assert np.array_equal(y, signal)
+        assert np.array_equal(x, np.arange(150))
+
+    def test_leaves_barely_oversampled_signals_alone(self):
+        """Just under the threshold, decimating costs more than it saves."""
+        signal = np.arange(300, dtype=float)
+        _, y = decimate_for_display(signal, 100)
+        assert np.array_equal(y, signal)
+
+    def test_reduces_to_two_points_per_column(self):
+        """An oversampled signal becomes one min and one max per column."""
+        signal = np.arange(1000, dtype=float)
+        x, y = decimate_for_display(signal, 100)
+        assert len(y) == 200
+        assert len(x) == 200
+
+    def test_preserves_the_envelope(self):
+        """Every column keeps its true smallest and largest value."""
+        rng = np.random.default_rng(0)
+        signal = rng.normal(0, 1, 1000)
+        n_columns = 100
+        _, y = decimate_for_display(signal, n_columns)
+        columns = signal.reshape(n_columns, -1)
+        assert np.array_equal(y[0::2], columns.min(axis=1))
+        assert np.array_equal(y[1::2], columns.max(axis=1))
+
+    def test_keeps_spikes_that_plain_subsampling_would_miss(self):
+        """A one-sample spike still reaches the top of its column."""
+        signal = np.zeros(1000)
+        signal[503] = 42.0
+        _, y = decimate_for_display(signal, 100)
+        assert y.max() == 42.0
+
+    def test_spans_the_full_x_range(self):
+        """The decimated trace still starts and ends where the signal does."""
+        signal = np.zeros(1000)
+        x, _ = decimate_for_display(signal, 100)
+        assert x[0] == 0
+        assert x[-1] == 999
+
+    def test_handles_a_degenerate_width(self):
+        """A plot with no width yet does not raise."""
+        signal = np.arange(100, dtype=float)
+        _, y = decimate_for_display(signal, 0)
+        assert np.array_equal(y, signal)

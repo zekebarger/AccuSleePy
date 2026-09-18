@@ -35,6 +35,7 @@ from accusleepy.constants import (
     LABEL_FILE_TYPE,
     MESSAGE_BOX_MAX_DEPTH,
     MODEL_FILE_TYPE,
+    QT_STYLE,
     REAL_TIME_MODEL_TYPE,
     RECORDING_FILE_TYPES,
     RECORDING_LIST_FILE_TYPE,
@@ -48,6 +49,7 @@ from accusleepy.fileio import (
 )
 from accusleepy.gui.dialogs import select_existing_file, select_save_location
 from accusleepy.gui.manual_scoring import ManualScoringWindow
+from accusleepy.gui.palettes import page_stylesheet, primary_window_palette
 from accusleepy.gui.primary_window import Ui_PrimaryWindow
 from accusleepy.gui.recording_manager import RecordingListManager
 from accusleepy.gui.settings_widget import SettingsWidget
@@ -63,13 +65,12 @@ from accusleepy.validation import check_config_consistency, validate_and_correct
 
 logger = logging.getLogger(__name__)
 
-# on Windows, prevent dark mode from changing the visual style
-if os.name == "nt":
-    sys.argv += ["-platform", "windows:darkmode=0"]
 
-
-# relative path to user manual
-MAIN_GUIDE_FILE = os.path.normpath(r"text/main_guide.md")
+# path to user manual, relative to this file
+MAIN_GUIDE_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    os.path.normpath(r"text/main_guide.md"),
+)
 
 
 @dataclass
@@ -137,6 +138,9 @@ class AccuSleepWindow(QMainWindow):
 
         # display current version
         self.ui.version_label.setText(f"v{get_version()}")
+
+        # colors for this window
+        self.set_palette()
 
         # user input: keyboard shortcuts
         keypress_quit = QShortcut(
@@ -611,6 +615,16 @@ class AccuSleepWindow(QMainWindow):
             f"Data / actions for Recording {self.recording_manager.current.name}"
         )
 
+    def set_palette(self) -> None:
+        """Apply the primary window's palette
+
+        This only affects this window - the manual scoring window has no
+        parent, so it keeps the palette of the current style.
+        """
+        spec = primary_window_palette()
+        self.setPalette(spec.palette)
+        self.setStyleSheet(page_stylesheet(spec.page))
+
     def add_recording(self) -> None:
         """Add new recording to the list"""
         current_sampling_rate = self.recording_manager.current.sampling_rate
@@ -620,6 +634,10 @@ class AccuSleepWindow(QMainWindow):
     def remove_recording(self) -> None:
         """Delete selected recording from the list"""
         self.show_message(self.recording_manager.remove_current())
+        # when there's only one recording, remove_current() resets it in
+        # place without changing currentRow, so currentRowChanged never
+        # fires to refresh the displayed info - do it explicitly here
+        self.show_recording_info()
 
     def show_user_manual(self) -> None:
         """Show a popup window with the user manual"""
@@ -641,7 +659,11 @@ def run_primary_window() -> None:
         level=logging.INFO,
         format="%(levelname)s - %(name)s - %(message)s",
     )
+
     app = QApplication(sys.argv)
+    app.setStyle(QT_STYLE)
+    # prevent dark mode from changing the visual style
+    app.styleHints().setColorScheme(Qt.ColorScheme.Light)
     AccuSleepWindow()
     sys.exit(app.exec())
 

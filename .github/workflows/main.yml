@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [ "3.11", "3.12", "3.13" ]
+        python-version: [ "3.11", "3.12", "3.13", "3.14" ]
 
     steps:
     - name: Free disk space
@@ -50,10 +50,10 @@ jobs:
       run: poetry install --no-interaction
 
     - name: Lint with ruff
-      run: poetry run ruff check --fix
+      run: poetry run ruff check
 
     - name: Format with ruff
-      run: poetry run ruff format
+      run: poetry run ruff format --check
 
     - name: Run tests
       run: poetry run pytest

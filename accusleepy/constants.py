@@ -23,6 +23,8 @@ SPECTROGRAM_UPPER_FREQ = 64
 # minimum number of epochs per brain state needed to create
 # a calibration file or use a recording for model training
 MIN_EPOCHS_PER_STATE = 3
+# Qt widget style for the GUI, which gives the same look on every platform
+QT_STYLE = "Fusion"
 
 
 # very unlikely you will want to change values from here onwards
