@@ -59,7 +59,7 @@ please consult the [developer guide](accusleepy/gui/text/dev_guide.md).
 
 ## Changelog
 
-- 0.13.0: Add support for python 3.14, use cross-platform theme
+- 0.13.0: Add support for python 3.14, use cross-platform visual style
 - 0.12.0-0.12.2: Bugfixes, more plot interactivity
 - 0.11.2: Simplify GUI editing
 - 0.11.1: Add integration tests
